@@ -1,0 +1,7 @@
+{
+  "name": "HouseGreen",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
