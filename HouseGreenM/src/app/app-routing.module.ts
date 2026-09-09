@@ -8,11 +8,8 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'login',
     pathMatch: 'full'
-  },  {
-    path: 'registro',
-    loadChildren: () => import('./pages/pages/registro/registro.module').then( m => m.RegistroPageModule)
   },
   {
     path: 'registro',
@@ -46,10 +43,7 @@ const routes: Routes = [
     path: 'mapa-propiedades',
     loadChildren: () => import('./pages/mapa-propiedades/mapa-propiedades.module').then( m => m.MapaPropiedadesPageModule)
   },
-  {
-    path: 'cobertura',
-    loadChildren: () => import('./pages/cobertura/cobertura.module').then( m => m.CoberturaPageModule)
-  },
+ 
   {
     path: 'propiedades-guardadas',
     loadChildren: () => import('./pages/propiedades-guardadas/propiedades-guardadas.module').then( m => m.PropiedadesGuardadasPageModule)
@@ -61,6 +55,10 @@ const routes: Routes = [
   {
     path: 'perfil-configuracion',
     loadChildren: () => import('./pages/perfil-configuracion/perfil-configuracion.module').then( m => m.PerfilConfiguracionPageModule)
+  },
+  {
+    path: 'login',
+    loadChildren: () => import('./pages/login/login.module').then( m => m.LoginPageModule)
   },
 
 ];

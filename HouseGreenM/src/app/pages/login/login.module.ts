@@ -4,17 +4,17 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular/lazy';
 
-import { CoberturaPageRoutingModule } from './cobertura-routing.module';
+import { LoginPageRoutingModule } from './login-routing.module';
 
-import { CoberturaPage } from './cobertura.page';
+import { LoginPage } from './login.page';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    CoberturaPageRoutingModule
+    LoginPageRoutingModule
   ],
-  declarations: [CoberturaPage]
+  declarations: [LoginPage]
 })
-export class CoberturaPageModule {}
+export class LoginPageModule {}
