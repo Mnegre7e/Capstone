@@ -1,7 +1,7 @@
 <ion-content [fullscreen]="true" class="fondo">
   <div>
     <div class="img-logo">
-      
+      <img src="assets/icon/logo-housegreen.png" alt="Logo HouseGreen">
     </div>
     <ion-text>
       <h2 class="color titulo">HouseGreen</h2>
@@ -17,15 +17,15 @@
     <form class="inicio-sesion">
       <div> 
         <ion-item class="ion-margin-end ion-margin-top ion-color">
-          <ion-icon aria-hidden="true" name="mail-outline" slot="start"></ion-icon>
+          <ion-icon aria-hidden="true" name="people-outline" slot="start"></ion-icon>
           <ion-input 
-            type="email" 
-            placeholder="Ingresa tu correo" 
-            label="Correo Electrónico" 
+            type="text" 
+            placeholder="Ingresa tu correo o usuario" 
+            label="Usuario" 
             label-placement="floating" 
             color="dark" 
-            name="correo" 
-            [(ngModel)]="correo">
+            name="usuario" 
+            [(ngModel)]="usuario">
           </ion-input>
         </ion-item>
 
@@ -48,7 +48,7 @@
           <ion-button 
             class="ion-margin-top ion-margin-bottom boton-inicio txt-marcado" 
             shape="round" 
-            (click)="iniciarSesion()">
+            (click)="irPagina()">
             Iniciar Sesión
           </ion-button>
         </div>
