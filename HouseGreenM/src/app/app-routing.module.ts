@@ -11,9 +11,9 @@ const routes: Routes = [
     redirectTo: 'login',
     pathMatch: 'full'
   },
-  {
+{
     path: 'registro',
-    loadChildren: () => import('./pages/registro/registro.module').then( m => m.RegistroPageModule)
+    loadChildren: () => import('./pages/registro/registro.module').then(m => m.RegistroPageModule)
   },
   {
     path: 'recuperar-clave',
