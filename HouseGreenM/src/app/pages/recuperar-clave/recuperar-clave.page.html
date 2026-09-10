@@ -1,13 +1,47 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>recuperar-clave</ion-title>
+  <ion-toolbar class="fondo">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">recuperar-clave</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="fondo">
+  <div>
+    <div class="img-logo">
+      <img src="assets/icon/logo-housegreen.png" alt="Logo HouseGreen">
+    </div>
+    <ion-text class="ion-text-center">
+      <h3 class="color-texto">Ingresa tu Correo Electrónico</h3>
+    </ion-text>
+  </div>
+
+  <div class="seccion-form">
+    <form class="recuperar" #form="ngForm">
+      <ion-item class="ion-margin-horizontal ion-color">
+        <ion-icon aria-hidden="true" name="mail-outline" slot="start"></ion-icon>
+        <ion-input 
+          type="email" 
+          placeholder="Ingresa un correo válido" 
+          label="Correo Electrónico" 
+          label-placement="floating" 
+          class="quitar-linea" 
+          errorText="Email inválido" 
+          name="correo" 
+          [(ngModel)]="correo" 
+          email>
+        </ion-input>
+      </ion-item>
+  
+      <div class="ion-text-center">
+        <ion-button 
+          class="ion-margin-top ion-margin-bottom boton-inicio txt-marcado" 
+          shape="round" 
+          [attr.disabled]="form.invalid ? true : null" 
+          (click)="enviarCorreo()">
+          Enviar
+        </ion-button>
+      </div>
+    </form>
+  </div>
 </ion-content>
