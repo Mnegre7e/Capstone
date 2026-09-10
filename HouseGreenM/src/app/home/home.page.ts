@@ -1,13 +1,42 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { NativeStorage } from '@awesome-cordova-plugins/native-storage/ngx';
+import { MenuController } from '@ionic/angular';
+import { Browser } from '@capacitor/browser';
 
 @Component({
   selector: 'app-home',
-  templateUrl: 'home.page.html',
-  styleUrls: ['home.page.scss'],
-  standalone: false,
+  templateUrl: './home.page.html',
+  styleUrls: ['./home.page.scss'],
 })
-export class HomePage {
+export class HomePage implements OnInit {
 
-  constructor() {}
+  usuario: string = '';
 
+  constructor(
+    private menu: MenuController,
+    private storage: NativeStorage
+  ) {}
+
+  ngOnInit() {
+    this.menu.enable(true);
+  }
+
+  ionViewWillEnter() {
+    this.menu.enable(true);
+
+    this.storage.getItem('usuario')
+      .then(data => {
+        this.usuario = typeof data === 'object' ? (data.nombreusuario || 'Inversionista') : data;
+      })
+      .catch(error => {
+        console.log('Sesión no encontrada en NativeStorage:', error);
+        this.usuario = 'Inversionista';
+      });
+  }
+
+  async AbrirMaps() {
+    await Browser.open({ 
+      url: 'https://www.google.com/maps/place/Centro+de+Justicia+de+Santiago/@-33.4611293,-70.6622342,17z/' 
+    });
+  }
 }

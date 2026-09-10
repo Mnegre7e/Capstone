@@ -1,20 +1,166 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+  <ion-toolbar class="fondo">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button> 
+    </ion-buttons>
+    <ion-title class="color">HouseGreen - Pre-Puja RM</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="fondo">
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <h1 class="titulo">Hola,</h1>
+        <h1 class="nombre">{{usuario | titlecase}}</h1>
+      </ion-col>
+      <ion-col>
+        <img class="logo" src="../../assets/icon/HouseGreenLogo.png" alt="LogoHouseGreen"> 
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <div class="container-platos">
+    <h5>Propiedades Destacadas</h5>
+    <swiper-container [pagination]="true" [loop]="true" class="platos-cotizados">
+      
+      <swiper-slide>
+        <ion-card class="ion-margin">
+          <img alt="Propiedad Providencia" src="../../assets/fondos/dpto-providencia.jpg"/>
+          <ion-card-header>
+            <ion-card-title class="texto">Dpto 2D+2B Providencia</ion-card-title>
+            <ion-card-subtitle class="texto">💚 Semáforo Verde | Mínimo: 2.400 UF</ion-card-subtitle>
+          </ion-card-header>
+        
+          <ion-card-content>
+            <p class="texto">Score: 8.8/10. Estado Legal: Limpio (1 acreedor). Deuda estimada contribuciones: $850.000 CLP. Valor mercado est.: 4.100 UF.</p>
+          </ion-card-content>
+
+          <ion-card-footer>
+            <button mat-fab class="boton-accion" [routerLink]="['/detalle-remate', 'prop-1']">
+              VER INFORME
+              <mat-icon class="color-inicio espacio" fontIcon="analytics"></mat-icon>
+            </button>
+          </ion-card-footer>
+        </ion-card>
+      </swiper-slide>
+
+      <swiper-slide>
+        <ion-card class="ion-margin">
+          <img alt="Propiedad La Florida" src="../../assets/fondos/casa-laflorida.jpg"/>
+          <ion-card-header>
+            <ion-card-title class="texto">Casa Habitacional 3D+1B</ion-card-title>
+            <ion-card-subtitle class="texto">💛 Semáforo Amarillo | Mínimo: 1.850 UF</ion-card-subtitle>
+          </ion-card-header>
+        
+          <ion-card-content>
+            <p class="texto">Score: 6.2/10. Estado Legal: Contribuciones atrasadas ($3.400.000 CLP). Comuna: La Florida. Valor mercado est.: 2.900 UF.</p>
+          </ion-card-content>
+
+          <ion-card-footer>
+            <button mat-fab class="boton-accion" [routerLink]="['/detalle-remate', 'prop-2']">
+              VER INFORME
+              <mat-icon class="color-inicio espacio" fontIcon="analytics"></mat-icon>
+            </button>
+          </ion-card-footer>
+        </ion-card>
+      </swiper-slide>
+
+      <swiper-slide>
+        <ion-card class="ion-margin">
+          <img alt="Oficina Santiago" src="../../assets/fondos/oficina-santiago.jpg"/>
+          <ion-card-header>
+            <ion-card-title class="texto">Oficina Comercial Huérfanos</ion-card-title>
+            <ion-card-subtitle class="texto">🔴 Semáforo Rojo | Mínimo: 1.100 UF</ion-card-subtitle>
+          </ion-card-header>
+        
+          <ion-card-content>
+            <p class="texto">Score: 3.4/10. Veto Inmediato: Usufructo vitalicio activo + 3 acreedores judiciales. Deudas acumuladas: $8.900.000 CLP.</p>
+          </ion-card-content>
+
+          <ion-card-footer>
+            <button mat-fab class="boton-accion" [routerLink]="['/detalle-remate', 'prop-3']">
+              VER INFORME
+              <mat-icon class="color-inicio espacio" fontIcon="analytics"></mat-icon>
+            </button>
+          </ion-card-footer>
+        </ion-card>
+      </swiper-slide>
+
+    </swiper-container>
   </div>
+
+  <div class="oferta-semana">
+    <h5 class="ion-margin-horizontal">Oportunidad Pre-Puja de la Semana</h5>
+  
+    <ion-card class="ion-margin">
+      <img alt="Oportunidad Premium" src="../../assets/fondos/remate-semana.png"/>
+      <ion-card-header>
+        <ion-card-title class="texto">Remate Judicial Bancario - Las Condes</ion-card-title>
+        <ion-card-subtitle class="texto">Score 9.2/10 • Margen de Rentabilidad del 38%</ion-card-subtitle>
+        <ion-card-subtitle class="texto">Mínimo Puja: 3.100 UF | Mercado: 5.000 UF</ion-card-subtitle>
+      </ion-card-header>
+    
+      <ion-card-content>
+        <p class="texto">Propiedad verificada con título limpio en Conservador de Bienes Raíces de Santiago, sin deudas heredables de gastos comunes ni contribuciones.</p>
+      </ion-card-content>
+  
+      <ion-card-footer class="btn-center">
+        <button mat-fab class="boton-accion" [routerLink]="['/detalle-remate', 'prop-semana']">
+          EVALUAR RIESGO
+          <mat-icon class="color-inicio espacio" fontIcon="gavel"></mat-icon>
+        </button>
+      </ion-card-footer>
+    </ion-card>
+  </div>
+
+  <div class="ubicacion">
+    <h5 class="ion-margin-horizontal">Tribunales y Conservador de Santiago</h5>
+    <ion-card class="ion-margin">
+      <img alt="ubicacion" src="../../assets/fondos/Maps-CBR.png"/>
+      <ion-card-header>
+        <ion-card-title class="texto">Centro de Justicia & CBRS</ion-card-title>
+      </ion-card-header>
+    
+      <ion-card-content>
+        <p class="ion-margin-horizontal texto">Dirección: Av. Pedro Montt 1606, Santiago Centro (Tribunales de Juicio) & Morandé 440 (CBRS).</p>
+      </ion-card-content>
+      <ion-card-footer class="btn-center">
+        <button mat-fab class="boton-accion" (click)="AbrirMaps()">
+          Ir a Maps
+          <mat-icon class="color-inicio espacio" fontIcon="map"></mat-icon>
+        </button>
+      </ion-card-footer>
+    </ion-card>
+  </div>
+
+  <div class="clientes">
+    <h5 class="ion-margin-horizontal ion-margin-top">Experiencia de Inversionistas</h5>
+    
+    <ion-card class="ion-margin">
+      <ion-card-header>
+        <ion-item lines="none">
+          <img src="../../assets/icon/user-investor1.jpg" alt="inversionista" class="icono ion-margin-end">
+          <ion-card-title class="texto">Fondo Inmobiliario Norte</ion-card-title>
+        </ion-item>
+      </ion-card-header>
+      <ion-card-content>
+        <p class="texto">"El semáforo en rojo de HouseGreen nos salvó de adjudicarnos una propiedad con usufructo no inscrito en el rol comercial."</p>
+      </ion-card-content>
+    </ion-card>
+      
+    <ion-card class="ion-margin">
+      <ion-card-header>
+        <ion-item lines="none">
+          <img src="../../assets/icon/user-investor2.jpg" alt="inversionista" class="icono ion-margin-end">
+          <ion-card-title class="texto">Roberto Silva — Inversionista RM</ion-card-title>
+        </ion-item>
+      </ion-card-header>
+      <ion-card-content>
+        <p class="texto">"Logré calcular exactamente los pasivos por contribuciones heredables antes de consignar el 10% del vale vista."</p>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
 </ion-content>
