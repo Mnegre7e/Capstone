@@ -1,21 +1,31 @@
-import { Component, OnInit } from '@angular/core';
-import { NativeStorage } from '@awesome-cordova-plugins/native-storage/ngx';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { MenuController } from '@ionic/angular';
+import { NativeStorage } from '@awesome-cordova-plugins/native-storage/ngx';
 import { Browser } from '@capacitor/browser';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterLink,
+    MatIconModule,
+    MatButtonModule
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HomePage implements OnInit {
 
-  usuario: string = '';
+  private menu = inject(MenuController);
+  private storage = inject(NativeStorage);
 
-  constructor(
-    private menu: MenuController,
-    private storage: NativeStorage
-  ) {}
+  usuario: string = '';
 
   ngOnInit() {
     this.menu.enable(true);
