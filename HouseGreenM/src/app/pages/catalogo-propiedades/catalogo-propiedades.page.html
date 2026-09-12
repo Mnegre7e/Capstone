@@ -1,13 +1,42 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>catalogo-propiedades</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="header-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Catálogo de Remates</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">catalogo-propiedades</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="cuerpo-catalogo ion-padding">
+  
+  <div class="header-seccion">
+    <h2>Propiedades Disponibles</h2>
+    <p>Explora inmuebles con oportunidad de inversión</p>
+  </div>
+
+  @for (propiedad of propiedades; track propiedad.id) {
+    <ion-card class="card-propiedad" (click)="verDetalle(propiedad.id)">
+      <div class="contenedor-imagen">
+        <img [src]="propiedad.imagen" [alt]="propiedad.titulo" />
+        <ion-badge color="success" class="badge-estado">{{ propiedad.estado }}</ion-badge>
+      </div>
+
+      <ion-card-header>
+        <ion-card-subtitle>{{ propiedad.ubicacion }}</ion-card-subtitle>
+        <ion-card-title>{{ propiedad.titulo }}</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <div class="contenedor-precio">
+          <span class="etiqueta-precio">Precio base:</span>
+          <span class="valor-precio">${{ propiedad.precio | number:'1.0-0' }} CLP</span>
+        </div>
+        
+        <ion-button expand="block" fill="outline" color="success" class="btn-detalle">
+          Ver Detalle
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  }
+
 </ion-content>
