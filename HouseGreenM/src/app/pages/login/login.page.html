@@ -1,0 +1,66 @@
+<ion-content [fullscreen]="true" class="fondo">
+  <div>
+    <div class="img-logo">
+      <img src="assets/icon/logo-housegreen.png" alt="Logo HouseGreen">
+    </div>
+    <ion-text>
+      <h2 class="color titulo">HouseGreen</h2>
+    </ion-text>
+    <ion-text class="ion-margin-top">
+      <p class="ion-text-center ion-padding color">
+        Análisis inteligente y evaluación de oportunidades de inversión inmobiliaria en remates.
+      </p>
+    </ion-text>
+  </div>
+
+  <div class="seccion-form">
+    <form class="inicio-sesion">
+      <div> 
+        <ion-item class="ion-margin-end ion-margin-top ion-color">
+          <ion-icon aria-hidden="true" name="people-outline" slot="start"></ion-icon>
+          <ion-input 
+            type="text" 
+            placeholder="Ingresa tu correo o usuario" 
+            label="Usuario" 
+            label-placement="floating" 
+            color="dark" 
+            name="usuario" 
+            [(ngModel)]="usuario">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="ion-margin-end ion-margin-top ion-color">
+          <ion-icon aria-hidden="true" name="lock-closed-outline" slot="start"></ion-icon>
+          <ion-input 
+            type="password" 
+            placeholder="Contraseña" 
+            label="Contraseña"
+            label-placement="floating"
+            color="dark" 
+            name="contrasenia" 
+            [(ngModel)]="contrasenia" 
+            class="color-negro">
+            <ion-input-password-toggle slot="end"></ion-input-password-toggle>
+          </ion-input>
+        </ion-item>
+
+        <div class="ion-text-center">
+          <ion-button 
+            class="ion-margin-top ion-margin-bottom boton-inicio txt-marcado" 
+            shape="round" 
+            (click)="irPagina()">
+            Iniciar Sesión
+          </ion-button>
+        </div>
+      </div>
+
+      <ion-text class="ion-text-end ion-margin-bottom">
+        <p class="ion-margin-end txt-marcado" [routerLink]="['/recuperar-clave']">¿Olvidaste tu contraseña?</p>
+      </ion-text>
+    
+      <ion-text class="ion-text-center">
+        <p class="ion-padding-top">¿No tienes una cuenta? <span [routerLink]="['/registro']"><b>Regístrate</b></span></p>
+      </ion-text>
+    </form>
+  </div>
+</ion-content>
