@@ -1,0 +1,62 @@
+.header-toolbar {
+  --background: #2e7d32;
+  --color: #ffffff;
+  font-weight: bold;
+}
+
+.cuerpo-mapa {
+  --background: #f4f6f8;
+}
+
+.contenedor-mapa-placeholder {
+  height: 240px;
+  background: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #555555;
+  border-bottom: 2px solid #cccccc;
+
+  .icono-mapa {
+    font-size: 3.5rem;
+    color: #2e7d32;
+    margin-bottom: 8px;
+  }
+
+  h3 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  p {
+    margin: 4px 0 0 0;
+    font-size: 0.85rem;
+  }
+}
+
+.lista-marcadores {
+  h4 {
+    color: #1b5e20;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+  }
+
+  .item-marcador {
+    --border-radius: 10px;
+    margin-bottom: 8px;
+    --background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+    h2 {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    p {
+      color: #2e7d32;
+      font-weight: bold;
+    }
+  }
+}
