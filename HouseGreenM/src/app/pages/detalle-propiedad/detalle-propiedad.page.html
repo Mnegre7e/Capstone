@@ -1,13 +1,69 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>detalle-propiedad</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="header-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/catalogo-propiedades" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle de Propiedad</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">detalle-propiedad</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="cuerpo-detalle ion-padding">
+
+  @if (propiedad) {
+    <div class="contenedor-imagen">
+      <img [src]="propiedad.imagen" [alt]="propiedad.titulo" />
+      <ion-badge color="success" class="badge-estado">{{ propiedad.estado }}</ion-badge>
+    </div>
+
+    <div class="info-header">
+      <span class="ubicacion">{{ propiedad.ubicacion }}</span>
+      <h1>{{ propiedad.titulo }}</h1>
+      <div class="precio-container">
+        <span class="etiqueta">Precio base:</span>
+        <span class="monto">${{ propiedad.precio }} CLP</span>
+      </div>
+    </div>
+
+    <ion-card class="card-caracteristicas">
+      <ion-card-header>
+        <ion-card-title>Características</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="4" class="col-feat">
+              <ion-label>Tipo</ion-label>
+              <strong>{{ propiedad.tipo }}</strong>
+            </ion-col>
+            <ion-col size="4" class="col-feat">
+              <ion-label>Habitaciones</ion-label>
+              <strong>{{ propiedad.habitaciones }}</strong>
+            </ion-col>
+            <ion-col size="4" class="col-feat">
+              <ion-label>Baños</ion-label>
+              <strong>{{ propiedad.banos }}</strong>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="card-descripcion">
+      <ion-card-header>
+        <ion-card-title>Descripción</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>{{ propiedad.descripcion }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-button expand="block" color="success" class="btn-accion">
+      Solicitar Información
+    </ion-button>
+  } @else {
+    <div class="sin-datos ion-text-center ion-padding">
+      <p>Cargando información de la propiedad...</p>
+    </div>
+  }
+
 </ion-content>
