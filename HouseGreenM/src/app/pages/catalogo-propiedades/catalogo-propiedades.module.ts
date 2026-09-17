@@ -1,7 +1,7 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
+import { IonicModule } from '@ionic/angular/lazy';
 import { CatalogoPropiedadesPageRoutingModule } from './catalogo-propiedades-routing.module';
 import { CatalogoPropiedadesPage } from './catalogo-propiedades.page';
 
@@ -9,6 +9,7 @@ import { CatalogoPropiedadesPage } from './catalogo-propiedades.page';
   imports: [
     CommonModule,
     FormsModule,
+    IonicModule,
     CatalogoPropiedadesPageRoutingModule
   ],
   declarations: [CatalogoPropiedadesPage],
