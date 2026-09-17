@@ -1,0 +1,70 @@
+.header-toolbar {
+  --background: #2e7d32;
+  --color: #ffffff;
+  font-weight: bold;
+}
+
+.cuerpo-contacto {
+  --background: #f4f6f8;
+}
+
+.encabezado-contacto {
+  margin: 12px 0 20px 0;
+  text-align: center;
+
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1b5e20;
+    margin: 0 0 6px 0;
+  }
+
+  p {
+    font-size: 0.85rem;
+    color: #555555;
+    margin: 0;
+  }
+}
+
+.card-contacto {
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin: 0 0 20px 0;
+
+  .item-input {
+    --background: transparent;
+    margin-bottom: 8px;
+
+    ion-icon {
+      margin-top: 16px;
+    }
+  }
+
+  .boton-enviar {
+    --border-radius: 8px;
+    font-weight: bold;
+  }
+}
+
+.lista-canales {
+  background: transparent;
+
+  .item-canal {
+    --background: #ffffff;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+
+    h3 {
+      font-weight: 600;
+      color: #1b5e20;
+      font-size: 0.9rem;
+    }
+
+    p {
+      color: #666666;
+      font-size: 0.85rem;
+    }
+  }
+}
