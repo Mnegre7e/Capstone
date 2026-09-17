@@ -1,6 +1,6 @@
 // Sección texto y fondo
 .fondo {
-  --background: linear-gradient(to right, #1b4332, #081c15);
+  --background: #2e7d32;
 }
 
 .img-logo {
@@ -16,6 +16,7 @@
   height: 170px;
   object-fit: contain;
 }
+
 .titulo {
   margin-top: -20px;
   font-weight: bold;
@@ -40,7 +41,7 @@
 
 .inicio-sesion {
   background: rgb(211, 210, 210);
-  color: #1b4332;
+  color: #2e7d32;
   border-radius: 50px 50px 0px 0px;
   padding: 10px; 
   text-align: center;
@@ -53,12 +54,12 @@
 }
 
 .ion-color {
-  color: #1b4332;
+  color: #2e7d32;
 }
 
 .boton-inicio {
   margin-top: 30px;
-  --ion-color-primary: #2d6a4f;
+  --ion-color-primary: #2e7d32;
   color: #fff;
 }
 

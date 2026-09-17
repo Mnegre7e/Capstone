@@ -1,5 +1,5 @@
 .fondo {
-  --background: linear-gradient(to right, #1b4332, #081c15);
+  --background: #2e7d32;
   --color: white;
 }
 
@@ -22,6 +22,7 @@
   height: 170px;
   object-fit: contain;
 }
+
 .seccion-form {
   position: fixed;
   bottom: 0;
@@ -32,7 +33,7 @@
 
 .recuperar {
   background: rgb(211, 210, 210);
-  color: #1b4332;
+  color: #2e7d32;
   border-radius: 50px 50px 0 0;
   padding: 10px; 
   text-align: center;
@@ -44,12 +45,12 @@
 }
 
 .ion-color {
-  color: #1b4332;
+  color: #2e7d32;
 }
 
 .boton-inicio {
   margin-top: 30px;
-  --ion-color-primary: #2d6a4f;
+  --ion-color-primary: #2e7d32;
   color: #fff;
 }
 
