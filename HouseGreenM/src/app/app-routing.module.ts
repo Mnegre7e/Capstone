@@ -24,10 +24,6 @@ const routes: Routes = [
     loadChildren: () => import('./pages/verificar/verificar.module').then( m => m.VerificarPageModule)
   },
   {
-    path: 'panel-principal',
-    loadChildren: () => import('./pages/pages/panel-principal/panel-principal.module').then( m => m.PanelPrincipalPageModule)
-  },
-  {
     path: 'catalogo-propiedades',
     loadChildren: () => import('./pages/catalogo-propiedades/catalogo-propiedades.module').then( m => m.CatalogoPropiedadesPageModule)
   },
@@ -60,6 +56,11 @@ const routes: Routes = [
     path: 'login',
     loadChildren: () => import('./pages/login/login.module').then( m => m.LoginPageModule)
   },
+  {
+    path: 'nosotros',
+    loadChildren: () => import('./pages/nosotros/nosotros.module').then( m => m.NosotrosPageModule)
+  },
+
 
 ];
 
