@@ -1,13 +1,74 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>analisis-semaforo</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="header-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Análisis Semáforo</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">analisis-semaforo</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="cuerpo-semaforo ion-padding">
+
+  <div class="encabezado-seccion">
+    <h2>Evaluación de Oportunidad</h2>
+    <p>Calcula la viabilidad financiera del remate en tiempo real.</p>
+  </div>
+
+  <!-- Tarjeta Estado Semáforo -->
+  <ion-card class="card-resultado" [ngClass]="nivelRiesgo">
+    <ion-card-content class="ion-text-center">
+      <div class="icono-semaforo">
+        <ion-icon [name]="nivelRiesgo === 'bajo' ? 'checkmark-circle' : (nivelRiesgo === 'medio' ? 'alert-circle' : 'close-circle')"></ion-icon>
+      </div>
+      <h3>
+        {{ nivelRiesgo === 'bajo' ? 'Riesgo Bajo (Oportunidad Alta)' : (nivelRiesgo === 'medio' ? 'Riesgo Moderado' : 'Riesgo Alto') }}
+      </h3>
+      <p>Margen estimado: <strong>${{ margenInversion | number:'1.0-0' }} CLP</strong></p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Formulario de Parámetros -->
+  <ion-card class="card-formulario">
+    <ion-card-header>
+      <ion-card-title>Parámetros de Evaluación</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item lines="full">
+        <ion-label position="stacked">Monto Mínimo de Remate ($)</ion-label>
+        <ion-input type="number" [(ngModel)]="montoRemate"></ion-input>
+      </ion-item>
+
+      <ion-item lines="full">
+        <ion-label position="stacked">Valor Estimado de Mercado ($)</ion-label>
+        <ion-input type="number" [(ngModel)]="valorMercado"></ion-input>
+      </ion-item>
+
+      <ion-item lines="full">
+        <ion-label position="stacked">Deudas/Gastos Operativos ($)</ion-label>
+        <ion-input type="number" [(ngModel)]="deudasPendientes"></ion-input>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Desglose de Factores -->
+  <ion-list lines="none" class="lista-factores">
+    <ion-item class="item-factor">
+      <ion-icon name="shield-checkmark-outline" slot="start" color="success"></ion-icon>
+      <ion-label>
+        <h4>Estado Ocupacional</h4>
+        <p>Propiedad desocupada (Sin juicio activo)</p>
+      </ion-label>
+      <ion-badge color="success" slot="end">Favorable</ion-badge>
+    </ion-item>
+
+    <ion-item class="item-factor">
+      <ion-icon name="document-text-outline" slot="start" color="warning"></ion-icon>
+      <ion-label>
+        <h4>Cargas Conservador</h4>
+        <p>1 hipoteca vigente registrada</p>
+      </ion-label>
+      <ion-badge color="warning" slot="end">Atención</ion-badge>
+    </ion-item>
+  </ion-list>
+
 </ion-content>

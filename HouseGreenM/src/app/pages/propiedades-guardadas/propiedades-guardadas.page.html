@@ -1,13 +1,50 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>propiedades-guardadas</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="cuerpo-guardados ion-padding">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">propiedades-guardadas</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  @if (favoritos.length > 0) {
+    <div>
+      @for (item of favoritos; track item.id) {
+        <ion-card class="card-propiedad">
+          <ion-item lines="none" class="item-header">
+            <ion-avatar slot="start" class="avatar-propiedad">
+              <img [src]="item.imagen" alt="Propiedad" />
+            </ion-avatar>
+            <ion-label>
+              <h2>{{ item.titulo }}</h2>
+              <p><ion-icon name="location-outline"></ion-icon> {{ item.comuna }}</p>
+            </ion-label>
+            <ion-button fill="clear" color="danger" (click)="eliminarFavorito(item.id)">
+              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-item>
+
+          <ion-card-content>
+            <div class="detalles-remate">
+              <div>
+                <span>Mínimo:</span>
+                <strong>${{ item.precioMinimo | number:'1.0-0' }} CLP</strong>
+              </div>
+              <div>
+                <span>Fecha:</span>
+                <strong>{{ item.fechaRemate }}</strong>
+              </div>
+            </div>
+
+            <ion-button expand="block" size="small" color="success" class="ion-margin-top" [routerLink]="['/detalle-propiedad', item.id]">
+              Ver Detalles
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      }
+    </div>
+  } @else {
+    <div class="estado-vacio ion-text-center">
+      <ion-icon name="bookmark-outline" color="medium"></ion-icon>
+      <h3>No tienes propiedades guardadas</h3>
+      <p>Explora el catálogo y guarda los remates de tu interés.</p>
+      <ion-button color="success" class="ion-margin-top" [routerLink]="['/catalogo-propiedades']">
+        Ir al Catálogo
+      </ion-button>
+    </div>
+  }
+
 </ion-content>

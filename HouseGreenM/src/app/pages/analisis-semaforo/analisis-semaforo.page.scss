@@ -1,0 +1,45 @@
+.header-toolbar {
+  --background: #2e7d32;
+  --color: #ffffff;
+  font-weight: bold;
+}
+
+.cuerpo-semaforo {
+  --background: #f4f6f8;
+}
+
+.encabezado-seccion {
+  margin: 12px 0;
+  text-align: center;
+  h2 { font-size: 1.3rem; font-weight: 700; color: #1b5e20; margin-bottom: 4px; }
+  p { font-size: 0.85rem; color: #555; margin: 0; }
+}
+
+.card-resultado {
+  border-radius: 12px;
+  color: #fff;
+  margin-bottom: 16px;
+
+  &.bajo { background: #2e7d32; }
+  &.medio { background: #f57c00; }
+  &.alto { background: #c62828; }
+
+  .icono-semaforo ion-icon { font-size: 3rem; margin-bottom: 8px; }
+  h3 { font-weight: 700; font-size: 1.1rem; margin-bottom: 4px; }
+  p { font-size: 0.9rem; margin: 0; }
+}
+
+.card-formulario {
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 16px;
+  ion-card-title { font-size: 1rem; color: #1b5e20; font-weight: 700; }
+}
+
+.lista-factores .item-factor {
+  --background: #fff;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  h4 { font-weight: 600; font-size: 0.85rem; color: #333; }
+  p { font-size: 0.75rem; color: #666; }
+}

@@ -1,0 +1,43 @@
+.header-toolbar {
+  --background: #2e7d32;
+  --color: #ffffff;
+  font-weight: bold;
+}
+
+.cuerpo-guardados {
+  --background: #f4f6f8;
+}
+
+.card-propiedad {
+  border-radius: 12px;
+  background: #ffffff;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  .avatar-propiedad {
+    background: #e8f5e9;
+    padding: 6px;
+  }
+
+  h2 { font-size: 1rem; font-weight: 700; color: #1b5e20; }
+  p { font-size: 0.8rem; color: #666; }
+
+  .detalles-remate {
+    display: flex;
+    justify-content: space-between;
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+
+    span { color: #666; display: block; font-size: 0.75rem; }
+    strong { color: #2e7d32; }
+  }
+}
+
+.estado-vacio {
+  margin-top: 60px;
+  ion-icon { font-size: 4rem; margin-bottom: 12px; }
+  h3 { font-size: 1.1rem; color: #333; font-weight: 600; }
+  p { font-size: 0.85rem; color: #666; max-width: 250px; margin: 0 auto; }
+}

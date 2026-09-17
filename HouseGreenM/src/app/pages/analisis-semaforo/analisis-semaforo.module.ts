@@ -1,11 +1,9 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
 import { IonicModule } from '@ionic/angular/lazy';
 
 import { AnalisisSemaforoPageRoutingModule } from './analisis-semaforo-routing.module';
-
 import { AnalisisSemaforoPage } from './analisis-semaforo.page';
 
 @NgModule({
@@ -15,6 +13,7 @@ import { AnalisisSemaforoPage } from './analisis-semaforo.page';
     IonicModule,
     AnalisisSemaforoPageRoutingModule
   ],
-  declarations: [AnalisisSemaforoPage]
+  declarations: [AnalisisSemaforoPage],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AnalisisSemaforoPageModule {}
