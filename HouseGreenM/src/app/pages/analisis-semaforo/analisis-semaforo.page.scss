@@ -29,17 +29,56 @@
   p { font-size: 0.9rem; margin: 0; }
 }
 
+// Corrección de cajas oscuras en el formulario
 .card-formulario {
+  --background: #ffffff;
+  background: #ffffff;
   border-radius: 12px;
-  background: #fff;
   margin-bottom: 16px;
-  ion-card-title { font-size: 1rem; color: #1b5e20; font-weight: 700; }
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  ion-card-title {
+    font-size: 1.05rem;
+    color: #1b5e20;
+    font-weight: 700;
+  }
+
+  .item-input {
+    --background: #ffffff;
+    --color: #1b5e20;
+    --highlight-color-focused: #2e7d32;
+
+    ion-input {
+      --color: #212121;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+  }
 }
 
-.lista-factores .item-factor {
-  --background: #fff;
-  border-radius: 10px;
-  margin-bottom: 8px;
-  h4 { font-weight: 600; font-size: 0.85rem; color: #333; }
-  p { font-size: 0.75rem; color: #666; }
+// Corrección de fondo en lista de factores
+.lista-factores {
+  --background: transparent;
+  background: transparent;
+
+  .item-factor {
+    --background: #ffffff;
+    --color: #212121;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+
+    h4 {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #1b5e20;
+      margin: 0 0 2px 0;
+    }
+
+    p {
+      font-size: 0.8rem;
+      color: #666666;
+      margin: 0;
+    }
+  }
 }

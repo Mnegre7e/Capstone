@@ -1,3 +1,12 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="header-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Propiedades Guardadas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content class="cuerpo-guardados ion-padding">
 
   @if (favoritos.length > 0) {
@@ -6,31 +15,31 @@
         <ion-card class="card-propiedad">
           <ion-item lines="none" class="item-header">
             <ion-avatar slot="start" class="avatar-propiedad">
-              <img [src]="item.imagen" alt="Propiedad" />
+              <img [src]="item.imagen" alt="Logo HouseGreen" />
             </ion-avatar>
-            <ion-label>
+            <ion-label class="info-titulo">
               <h2>{{ item.titulo }}</h2>
               <p><ion-icon name="location-outline"></ion-icon> {{ item.comuna }}</p>
             </ion-label>
-            <ion-button fill="clear" color="danger" (click)="eliminarFavorito(item.id)">
+            <ion-button fill="clear" color="danger" slot="end" (click)="eliminarFavorito(item.id)">
               <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
             </ion-button>
           </ion-item>
 
-          <ion-card-content>
+          <ion-card-content class="contenido-card">
             <div class="detalles-remate">
               <div>
-                <span>Mínimo:</span>
-                <strong>${{ item.precioMinimo | number:'1.0-0' }} CLP</strong>
+                <span class="label-detalle">Mínimo:</span>
+                <strong class="monto">${{ item.precioMinimo | number:'1.0-0' }} CLP</strong>
               </div>
-              <div>
-                <span>Fecha:</span>
-                <strong>{{ item.fechaRemate }}</strong>
+              <div class="ion-text-end">
+                <span class="label-detalle">Fecha:</span>
+                <strong class="fecha">{{ item.fechaRemate }}</strong>
               </div>
             </div>
 
-            <ion-button expand="block" size="small" color="success" class="ion-margin-top" [routerLink]="['/detalle-propiedad', item.id]">
-              Ver Detalles
+            <ion-button expand="block" color="success" class="boton-detalles" [routerLink]="['/detalle-propiedad', item.id]">
+              VER DETALLES
             </ion-button>
           </ion-card-content>
         </ion-card>
@@ -38,7 +47,7 @@
     </div>
   } @else {
     <div class="estado-vacio ion-text-center">
-      <ion-icon name="bookmark-outline" color="medium"></ion-icon>
+      <ion-icon name="bookmark-outline"></ion-icon>
       <h3>No tienes propiedades guardadas</h3>
       <p>Explora el catálogo y guarda los remates de tu interés.</p>
       <ion-button color="success" class="ion-margin-top" [routerLink]="['/catalogo-propiedades']">

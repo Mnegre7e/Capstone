@@ -2,108 +2,129 @@
   --background: #2e7d32;
   --color: #ffffff;
   font-weight: bold;
+
+  ion-title {
+    color: #ffffff;
+    font-weight: 700;
+  }
 }
 
 .cuerpo-catalogo {
   --background: #f4f6f8;
 }
 
-.header-seccion {
-  margin-bottom: 16px;
+// Solución de visibilidad y contraste del título
+.encabezado-seccion {
+  margin: 12px 0 20px 0;
 
   h2 {
     font-size: 1.3rem;
     font-weight: 700;
     color: #1b5e20;
-    margin: 0 0 4px 0;
+    margin-bottom: 4px;
   }
 
   p {
     font-size: 0.85rem;
-    color: #666666;
+    color: #555555;
     margin: 0;
   }
 }
 
-.card-propiedad {
-  border-radius: 14px;
-  margin: 0 0 16px 0;
-  background: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
-  transition: transform 0.2s ease;
-
-  &:active {
-    transform: scale(0.98);
-  }
-
-  .contenedor-imagen {
-    position: relative;
-    width: 100%;
-    height: 180px;
+// Estilos limpios para las tarjetas de propiedad
+.lista-propiedades {
+  .card-propiedad {
+    --background: #ffffff;
+    background: #ffffff;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e8f5e9;
     overflow: hidden;
 
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    .item-header {
+      --background: #ffffff;
+      --color: #212121;
+      padding-top: 8px;
+      padding-bottom: 4px;
 
-    .badge-estado {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      font-size: 0.75rem;
-      padding: 6px 10px;
-      border-radius: 8px;
-    }
-  }
+      .avatar-propiedad {
+        background: #e8f5e9;
+        padding: 6px;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
 
-  ion-card-header {
-    padding: 12px 16px 4px 16px;
-
-    ion-card-subtitle {
-      color: #777777;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    ion-card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #222222;
-      margin-top: 2px;
-    }
-  }
-
-  ion-card-content {
-    padding: 8px 16px 16px 16px;
-
-    .contenedor-precio {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-
-      .etiqueta-precio {
-        font-size: 0.85rem;
-        color: #555555;
+        img {
+          object-fit: contain;
+        }
       }
 
-      .valor-precio {
-        font-size: 1.1rem;
-        font-weight: 700;
+      .info-titulo {
+        h2 {
+          font-size: 1.05rem;
+          font-weight: 700;
+          color: #1b5e20;
+          margin-bottom: 4px;
+          white-space: normal;
+        }
+
+        p {
+          font-size: 0.85rem;
+          color: #666666;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          margin: 0;
+
+          ion-icon {
+            color: #2e7d32;
+          }
+        }
+      }
+
+      .badge-tipo {
+        --background: #e8f5e9;
+        --color: #2e7d32;
         color: #2e7d32;
+        font-weight: 600;
+        font-size: 0.75rem;
+        padding: 6px 10px;
+        border-radius: 8px;
       }
     }
 
-    .btn-detalle {
-      --border-color: #2e7d32;
-      --color: #2e7d32;
-      --border-radius: 8px;
-      font-weight: 600;
-      margin: 0;
+    .contenido-card {
+      padding-top: 8px;
+
+      .detalles-remate {
+        display: flex;
+        align-items: center;
+        background: #f8f9fa;
+        padding: 12px 16px;
+        border-radius: 10px;
+        margin-bottom: 14px;
+
+        .label-detalle {
+          color: #666666;
+          font-size: 0.85rem;
+          margin-right: 6px;
+        }
+
+        .monto {
+          color: #2e7d32;
+          font-size: 1.05rem;
+          font-weight: 700;
+        }
+      }
+
+      .boton-detalles {
+        --background: #2e7d32;
+        --border-radius: 10px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        margin: 0;
+      }
     }
   }
 }

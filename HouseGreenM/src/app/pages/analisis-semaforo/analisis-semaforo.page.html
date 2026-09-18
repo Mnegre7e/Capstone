@@ -23,7 +23,7 @@
       <h3>
         {{ nivelRiesgo === 'bajo' ? 'Riesgo Bajo (Oportunidad Alta)' : (nivelRiesgo === 'medio' ? 'Riesgo Moderado' : 'Riesgo Alto') }}
       </h3>
-      <p>Margen estimado: <strong>${{ margenInversion | number:'1.0-0' }} CLP</strong></p>
+      <p>Margen estimado: <strong>{{ formatearMoneda(margenInversion) }} CLP</strong></p>
     </ion-card-content>
   </ion-card>
 
@@ -33,19 +33,37 @@
       <ion-card-title>Parámetros de Evaluación</ion-card-title>
     </ion-card-header>
     <ion-card-content>
-      <ion-item lines="full">
-        <ion-label position="stacked">Monto Mínimo de Remate ($)</ion-label>
-        <ion-input type="number" [(ngModel)]="montoRemate"></ion-input>
+      <ion-item lines="full" class="item-input">
+        <ion-input 
+          label="Monto Mínimo de Remate" 
+          labelPlacement="stacked" 
+          type="text" 
+          inputmode="numeric"
+          [value]="formatearMoneda(montoRemate)" 
+          (ionInput)="actualizarMonto('montoRemate', $event)">
+        </ion-input>
       </ion-item>
 
-      <ion-item lines="full">
-        <ion-label position="stacked">Valor Estimado de Mercado ($)</ion-label>
-        <ion-input type="number" [(ngModel)]="valorMercado"></ion-input>
+      <ion-item lines="full" class="item-input">
+        <ion-input 
+          label="Valor Estimado de Mercado" 
+          labelPlacement="stacked" 
+          type="text" 
+          inputmode="numeric"
+          [value]="formatearMoneda(valorMercado)" 
+          (ionInput)="actualizarMonto('valorMercado', $event)">
+        </ion-input>
       </ion-item>
 
-      <ion-item lines="full">
-        <ion-label position="stacked">Deudas/Gastos Operativos ($)</ion-label>
-        <ion-input type="number" [(ngModel)]="deudasPendientes"></ion-input>
+      <ion-item lines="full" class="item-input">
+        <ion-input 
+          label="Deudas/Gastos Operativos" 
+          labelPlacement="stacked" 
+          type="text" 
+          inputmode="numeric"
+          [value]="formatearMoneda(deudasPendientes)" 
+          (ionInput)="actualizarMonto('deudasPendientes', $event)">
+        </ion-input>
       </ion-item>
     </ion-card-content>
   </ion-card>

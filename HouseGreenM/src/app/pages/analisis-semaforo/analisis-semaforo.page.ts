@@ -22,4 +22,16 @@ export class AnalisisSemaforoPage {
     if (retorno >= 15) return 'medio';
     return 'alto';
   }
+
+  // Convierte número a formato moneda CLP ($45.000.000)
+  formatearMoneda(valor: number): string {
+    if (valor === null || valor === undefined || isNaN(valor)) return '$0';
+    return '$' + valor.toLocaleString('es-CL');
+  }
+
+  // Procesa la entrada del usuario eliminando caracteres no numéricos
+  actualizarMonto(campo: 'montoRemate' | 'valorMercado' | 'deudasPendientes', event: any) {
+    const valorLimpio = event.detail.value.replace(/\D/g, '');
+    this[campo] = valorLimpio ? parseInt(valorLimpio, 10) : 0;
+  }
 }

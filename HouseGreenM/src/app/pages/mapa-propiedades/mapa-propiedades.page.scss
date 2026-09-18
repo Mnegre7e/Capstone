@@ -2,21 +2,24 @@
   --background: #2e7d32;
   --color: #ffffff;
   font-weight: bold;
+
+  ion-title {
+    color: #ffffff;
+    font-weight: 700;
+  }
 }
 
 .cuerpo-mapa {
   --background: #f4f6f8;
 }
 
+// Estilo para el área del contenedor del mapa
 .contenedor-mapa-placeholder {
-  height: 240px;
-  background: #e0e0e0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #555555;
-  border-bottom: 2px solid #cccccc;
+  background: #e8f5e9;
+  border: 2px dashed #a5d6a7;
+  border-radius: 16px;
+  margin: 16px;
+  padding: 32px 16px;
 
   .icono-mapa {
     font-size: 3.5rem;
@@ -25,38 +28,56 @@
   }
 
   h3 {
-    margin: 0;
-    font-weight: 700;
     font-size: 1.1rem;
+    font-weight: 700;
+    color: #1b5e20;
+    margin: 0 0 4px 0;
   }
 
   p {
-    margin: 4px 0 0 0;
     font-size: 0.85rem;
+    color: #4a7c59;
+    margin: 0;
   }
 }
 
+// Estilos de la lista de marcadores / ítems
 .lista-marcadores {
-  h4 {
-    color: #1b5e20;
+  padding-top: 0;
+
+  .titulo-seccion {
+    font-size: 1.05rem;
     font-weight: 700;
-    margin: 0 0 12px 0;
+    color: #1b5e20;
+    margin-bottom: 12px;
   }
 
   .item-marcador {
-    --border-radius: 10px;
-    margin-bottom: 8px;
     --background: #ffffff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    --color: #212121;
+    --border-radius: 12px;
+    --padding-start: 12px;
+    --inner-padding-end: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
-    h2 {
-      font-weight: 600;
-      font-size: 0.95rem;
+    .icono-pin {
+      color: #2e7d32;
+      font-size: 1.5rem;
     }
 
-    p {
+    h2 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1b5e20;
+      margin-bottom: 2px;
+    }
+
+    .precio-destacado {
+      font-size: 0.9rem;
+      font-weight: 700;
       color: #2e7d32;
-      font-weight: bold;
+      margin: 0;
     }
   }
 }

@@ -9,20 +9,23 @@
 
 <ion-content class="cuerpo-mapa">
 
+  <!-- Placeholder del Mapa Interactivo -->
   <div class="contenedor-mapa-placeholder ion-text-center">
     <ion-icon name="map-outline" class="icono-mapa"></ion-icon>
-    <h3>Visualización de Mapa</h3>
-    <p>Place holder para el mapa interactivo</p>
+    <h3>Visualización de Mapa Interactivo</h3>
+    <p>Explora la ubicación geográfica de los remates disponibles.</p>
   </div>
 
+  <!-- Lista de propiedades geolocalizadas -->
   <div class="lista-marcadores ion-padding">
-    <h4>Propiedades Geolocalizadas</h4>
+    <h4 class="titulo-seccion">Propiedades Geolocalizadas</h4>
+
     @for (item of propiedadesMapa; track item.id) {
-      <ion-item button (click)="verDetalle(item.id)" detail="true" class="item-marcador">
-        <ion-icon name="location-sharp" slot="start" color="success"></ion-icon>
+      <ion-item button (click)="verDetalle(item.id)" detail="true" lines="none" class="item-marcador">
+        <ion-icon name="location-sharp" slot="start" class="icono-pin"></ion-icon>
         <ion-label>
           <h2>{{ item.titulo }}</h2>
-          <p>${{ item.precio }} CLP</p>
+          <p class="precio-destacado">{{ formatearMoneda(item.precio) }} CLP</p>
         </ion-label>
       </ion-item>
     }

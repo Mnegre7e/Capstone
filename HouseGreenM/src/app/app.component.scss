@@ -1,16 +1,67 @@
-.menu-toolbar {
-  --background: #1b4332;
-  --color: #ffffff;
-}
+ion-menu {
+  // Enzabezado superior del menú
+  .menu-toolbar {
+    --background: #2e7d32;
+    --color: #ffffff;
+    font-weight: bold;
 
-.cuerpo-menu {
-  --background: #ffffff;
-}
+    ion-title {
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+  }
 
-.color {
-  color: #1b4332;
-}
+  // Cuerpo principal y lista de items
+  .cuerpo-menu {
+    --background: #ffffff;
 
-.menu-footer {
-  border-top: 1px solid #e0e0e0;
+    ion-list {
+      background: #ffffff;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    ion-item {
+      --background: #ffffff;
+      --color: #1b5e20;
+      --border-color: #e8f5e9;
+      font-weight: 600;
+
+      ion-icon {
+        color: #2e7d32;
+        font-size: 1.3rem;
+      }
+
+      &:hover, &.activated {
+        --background: #e8f5e9;
+      }
+    }
+  }
+
+  // Pie de menú (Cerrar Sesión)
+  .menu-footer {
+    --background: #ffffff;
+    border-top: 1px solid #e8f5e9;
+
+    ion-item {
+      --background: #ffffff;
+      --color: #2e7d32;
+      font-weight: bold;
+
+      ion-icon {
+        color: #2e7d32;
+        font-size: 1.3rem;
+      }
+
+      &:hover, &.activated {
+        --background: #ffebee;
+        --color: #c62828;
+
+        ion-icon {
+          color: #c62828;
+        }
+      }
+    }
+  }
 }

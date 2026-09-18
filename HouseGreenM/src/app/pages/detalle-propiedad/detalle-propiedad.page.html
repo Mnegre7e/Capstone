@@ -20,7 +20,7 @@
       <h1>{{ propiedad.titulo }}</h1>
       <div class="precio-container">
         <span class="etiqueta">Precio base:</span>
-        <span class="monto">${{ propiedad.precio }} CLP</span>
+        <span class="monto">{{ formatearMoneda(propiedad.precio) }} CLP</span>
       </div>
     </div>
 

@@ -8,35 +8,42 @@
 </ion-header>
 
 <ion-content class="cuerpo-catalogo ion-padding">
-  
-  <div class="header-seccion">
-    <h2>Propiedades Disponibles</h2>
-    <p>Explora inmuebles con oportunidad de inversión</p>
+
+  <div class="encabezado-seccion ion-text-center">
+    <h2>Oportunidades Disponibles</h2>
+    <p>Explora y evalúa las mejores opciones de remate.</p>
   </div>
 
-  @for (propiedad of propiedades; track propiedad.id) {
-    <ion-card class="card-propiedad" (click)="verDetalle(propiedad.id)">
-      <div class="contenedor-imagen">
-        <img [src]="propiedad.imagen" [alt]="propiedad.titulo" />
-        <ion-badge color="success" class="badge-estado">{{ propiedad.estado }}</ion-badge>
-      </div>
+  <div class="lista-propiedades">
+    @for (item of propiedades; track item.id) {
+      <ion-card class="card-propiedad">
+        <ion-item lines="none" class="item-header">
+          <ion-avatar slot="start" class="avatar-propiedad">
+            <img [src]="item.imagen" alt="HouseGreen" />
+          </ion-avatar>
+          <ion-label class="info-titulo">
+            <h2>{{ item.titulo }}</h2>
+            <p><ion-icon name="location-outline"></ion-icon> {{ item.comuna }}</p>
+          </ion-label>
+          <ion-badge color="success" slot="end" class="badge-tipo">{{ item.tipo }}</ion-badge>
+        </ion-item>
 
-      <ion-card-header>
-        <ion-card-subtitle>{{ propiedad.ubicacion }}</ion-card-subtitle>
-        <ion-card-title>{{ propiedad.titulo }}</ion-card-title>
-      </ion-card-header>
+        <ion-card-content class="contenido-card">
+          <div class="detalles-remate">
+            <span class="label-detalle">Precio Mínimo:</span>
+            <strong class="monto">{{ formatearMoneda(item.precio) }} CLP</strong>
+          </div>
 
-      <ion-card-content>
-        <div class="contenedor-precio">
-          <span class="etiqueta-precio">Precio base:</span>
-          <span class="valor-precio">${{ propiedad.precio | number:'1.0-0' }} CLP</span>
-        </div>
-        
-        <ion-button expand="block" fill="outline" color="success" class="btn-detalle">
-          Ver Detalle
-        </ion-button>
-      </ion-card-content>
-    </ion-card>
-  }
+          <ion-button 
+            expand="block" 
+            color="success" 
+            class="boton-detalles"
+            [routerLink]="['/detalle-propiedad', item.id]">
+            VER DETALLES
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    }
+  </div>
 
 </ion-content>
