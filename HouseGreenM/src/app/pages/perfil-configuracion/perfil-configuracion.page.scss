@@ -2,28 +2,34 @@
   --background: #2e7d32;
   --color: #ffffff;
   font-weight: bold;
+
+  ion-title {
+    color: #ffffff;
+    font-weight: 700;
+  }
 }
 
 .cuerpo-perfil {
   --background: #f4f6f8;
 }
 
+// Encabezado de usuario
 .header-avatar {
   margin: 12px 0 20px 0;
 
   .circulo-avatar {
-    width: 84px;
-    height: 84px;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 12px auto;
+    background: #e8f5e9;
     border-radius: 50%;
-    background: #2e7d32;
-    color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 12px auto;
 
     ion-icon {
-      font-size: 2.8rem;
+      font-size: 2.2rem;
+      color: #2e7d32;
     }
   }
 
@@ -35,54 +41,79 @@
   }
 
   .badge-rol {
-    font-size: 0.75rem;
-    padding: 6px 12px;
-    border-radius: 8px;
-  }
-}
-
-.card-info, .card-opciones {
-  border-radius: 12px;
-  margin: 0 0 16px 0;
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-
-  ion-card-title {
-    font-size: 1.05rem;
+    --background: #e8f5e9;
+    --color: #2e7d32;
+    color: #2e7d32;
     font-weight: 600;
-    color: #222222;
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    border-radius: 12px;
   }
 }
 
-.lista-datos {
-  background: transparent;
+// Tarjetas con fondo blanco y eliminación de cajas oscuras
+.card-info, .card-opciones {
+  --background: #ffffff;
+  background: #ffffff;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e8f5e9;
+  overflow: hidden;
 
-  ion-item {
-    --background: transparent;
-    --padding-start: 0;
+  ion-card-header {
+    padding-bottom: 4px;
 
-    h3 {
-      font-weight: 600;
-      color: #333333;
-      margin-top: 2px;
+    ion-card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1b5e20;
     }
+  }
 
-    p {
-      font-size: 0.75rem;
-      color: #777777;
+  ion-card-content {
+    padding: 0;
+  }
+
+  ion-list {
+    --background: #ffffff;
+    background: #ffffff;
+    padding: 0;
+
+    ion-item {
+      --background: #ffffff;
+      --color: #212121;
+      --border-color: #e8f5e9;
+
+      ion-icon {
+        color: #2e7d32;
+        font-size: 1.3rem;
+      }
+
+      ion-label {
+        p {
+          font-size: 0.75rem;
+          color: #666666;
+          margin-bottom: 2px;
+        }
+
+        h3 {
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: #212121;
+          margin: 0;
+        }
+      }
     }
   }
 }
 
-.card-opciones ion-list ion-item {
-  --background: transparent;
-  font-weight: 500;
-  color: #333333;
-}
-
+// Botón Cerrar Sesión
 .btn-logout {
-  --border-radius: 10px;
-  font-weight: bold;
+  --border-radius: 12px;
+  --border-width: 2px;
+  font-weight: 700;
   height: 48px;
-  margin-top: 8px;
+  letter-spacing: 0.5px;
+  margin-top: 24px;
 }
