@@ -32,10 +32,6 @@ const routes: Routes = [
     loadChildren: () => import('./pages/detalle-propiedad/detalle-propiedad.module').then( m => m.DetallePropiedadPageModule)
   },
   {
-    path: 'analisis-semaforo',
-    loadChildren: () => import('./pages/analisis-semaforo/analisis-semaforo.module').then( m => m.AnalisisSemaforoPageModule)
-  },
-  {
     path: 'mapa-propiedades',
     loadChildren: () => import('./pages/mapa-propiedades/mapa-propiedades.module').then( m => m.MapaPropiedadesPageModule)
   },

@@ -2,18 +2,39 @@
   --background: #2e7d32;
   --color: #ffffff;
   font-weight: bold;
+
+  ion-title {
+    color: #ffffff;
+    font-weight: 700;
+  }
 }
 
-.cuerpo-contacto {
+.cuerpo-sugerencias {
   --background: #f4f6f8;
 }
 
-.encabezado-contacto {
+// Encabezado con icono circular
+.encabezado-sugerencias {
   margin: 12px 0 20px 0;
-  text-align: center;
+
+  .icono-avatar {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 12px auto;
+    background: #e8f5e9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ion-icon {
+      font-size: 2.2rem;
+      color: #2e7d32;
+    }
+  }
 
   h2 {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 700;
     color: #1b5e20;
     margin: 0 0 6px 0;
@@ -23,48 +44,75 @@
     font-size: 0.85rem;
     color: #555555;
     margin: 0;
+    line-height: 1.4;
   }
 }
 
-.card-contacto {
-  border-radius: 12px;
+// Tarjeta del formulario
+.card-formulario {
+  --background: #ffffff;
   background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
   margin: 0 0 20px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e8f5e9;
+
+  ion-card-content {
+    padding: 16px;
+  }
 
   .item-input {
-    --background: transparent;
-    margin-bottom: 8px;
+    --background: #ffffff;
+    --color: #212121;
+    --border-color: #e0e0e0;
+    margin-bottom: 12px;
 
     ion-icon {
-      margin-top: 16px;
+      margin-top: 18px;
     }
-  }
 
-  .boton-enviar {
-    --border-radius: 8px;
-    font-weight: bold;
-  }
-}
-
-.lista-canales {
-  background: transparent;
-
-  .item-canal {
-    --background: #ffffff;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-
-    h3 {
+    ion-label {
+      color: #2e7d32;
       font-weight: 600;
-      color: #1b5e20;
       font-size: 0.9rem;
     }
 
-    p {
-      color: #666666;
-      font-size: 0.85rem;
+    ion-input, ion-select, ion-textarea {
+      --color: #212121;
+      color: #212121;
+      font-size: 0.95rem;
     }
+  }
+
+  .item-toggle {
+    --background: #ffffff;
+    --color: #212121;
+    margin-top: 8px;
+    margin-bottom: 12px;
+
+    ion-icon {
+      font-size: 1.3rem;
+    }
+
+    h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1b5e20;
+      margin: 0 0 2px 0;
+    }
+
+    p {
+      font-size: 0.78rem;
+      color: #666666;
+      margin: 0;
+    }
+  }
+
+  .btn-enviar {
+    --border-radius: 12px;
+    font-weight: 700;
+    height: 48px;
+    letter-spacing: 0.5px;
+    margin-top: 16px;
   }
 }
