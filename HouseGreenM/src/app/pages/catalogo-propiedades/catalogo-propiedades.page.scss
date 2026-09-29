@@ -1,129 +1,356 @@
-.header-toolbar {
-  --background: #2e7d32;
-  --color: #ffffff;
-  font-weight: bold;
+.toolbar-catalogo {
+  --background: #f7f9f7;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  padding-top: 8px;
 
-  ion-title {
-    color: #ffffff;
-    font-weight: 700;
-  }
-}
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-.cuerpo-catalogo {
-  --background: #f4f6f8;
-}
-
-// Solución de visibilidad y contraste del título
-.encabezado-seccion {
-  margin: 12px 0 20px 0;
-
-  h2 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #1b5e20;
-    margin-bottom: 4px;
-  }
-
-  p {
-    font-size: 0.85rem;
-    color: #555555;
-    margin: 0;
-  }
-}
-
-// Estilos limpios para las tarjetas de propiedad
-.lista-propiedades {
-  .card-propiedad {
-    --background: #ffffff;
-    background: #ffffff;
-    border-radius: 16px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    border: 1px solid #e8f5e9;
-    overflow: hidden;
-
-    .item-header {
-      --background: #ffffff;
-      --color: #212121;
-      padding-top: 8px;
-      padding-bottom: 4px;
-
-      .avatar-propiedad {
-        background: #e8f5e9;
-        padding: 6px;
-        border-radius: 50%;
-        width: 44px;
-        height: 44px;
-
-        img {
-          object-fit: contain;
-        }
+    .titulo-box {
+      h1 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #143622;
+        margin: 0;
       }
 
-      .info-titulo {
-        h2 {
-          font-size: 1.05rem;
-          font-weight: 700;
-          color: #1b5e20;
-          margin-bottom: 4px;
-          white-space: normal;
-        }
-
-        p {
-          font-size: 0.85rem;
-          color: #666666;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          margin: 0;
-
-          ion-icon {
-            color: #2e7d32;
-          }
-        }
-      }
-
-      .badge-tipo {
-        --background: #e8f5e9;
-        --color: #2e7d32;
-        color: #2e7d32;
-        font-weight: 600;
-        font-size: 0.75rem;
-        padding: 6px 10px;
-        border-radius: 8px;
+      p {
+        font-size: 0.8rem;
+        color: #667085;
+        margin: 2px 0 0 0;
       }
     }
 
-    .contenido-card {
-      padding-top: 8px;
+    .btn-mapa {
+      --color: #143622;
+      background: #ffffff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
-      .detalles-remate {
+      ion-icon {
+        font-size: 1.2rem;
+      }
+    }
+  }
+}
+
+// Búsqueda
+.search-container {
+  background: #f7f9f7;
+  padding: 12px 16px 8px 16px;
+
+  .custom-searchbar {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 10px 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    border: 1px solid #eaecf0;
+
+    ion-icon {
+      color: #667085;
+      font-size: 1.1rem;
+      margin-right: 10px;
+    }
+
+    input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 0.88rem;
+      color: #1d2939;
+
+      &::placeholder {
+        color: #98a2b3;
+      }
+    }
+  }
+}
+
+// Filtros Scroll Horizontal
+.filtros-scroll {
+  background: #f7f9f7;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 16px 12px 16px;
+  scrollbar-width: none; // Ocultar scrollbar
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .btn-filtro {
+    border: none;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &.principal {
+      background: #15803d;
+      color: #ffffff;
+    }
+
+    &.dropdown {
+      background: #ffffff;
+      color: #344054;
+      border: 1px solid #d0d5dd;
+
+      ion-icon {
+        font-size: 0.8rem;
+        color: #667085;
+      }
+    }
+  }
+}
+
+// Barra Ordenamiento
+.bar-ordenamiento {
+  background: #f7f9f7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 16px 12px 16px;
+  font-size: 0.78rem;
+
+  .orden-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #344054;
+
+    strong {
+      color: #101828;
+    }
+
+    .flecha {
+      font-size: 0.7rem;
+    }
+  }
+
+  .total-resultados {
+    color: #667085;
+  }
+}
+
+// Contenido principal
+.cuerpo-catalogo {
+  --background: #f7f9f7;
+}
+
+.lista-propiedades {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+
+// Tarjeta Individual
+.card-propiedad {
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f2f4f7;
+
+  // Banner Superior
+  .banner-card {
+    height: 120px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    // Colores de fondo según el tipo de riesgo (estilo suave del mockup)
+    &.banner-bajo {
+      background: #e2f1e7;
+    }
+
+    &.banner-medio {
+      background: #f4ede2;
+    }
+
+    &.banner-alto {
+      background: #e6ebed;
+    }
+
+    // Badges de riesgo
+    .badge-riesgo {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: #ffffff;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      .dot {
+        font-size: 1rem;
+        line-height: 0;
+      }
+
+      &.badge-bajo {
+        color: #15803d;
+        .dot { color: #15803d; }
+      }
+
+      &.badge-medio {
+        color: #b45309;
+        .dot { color: #b45309; }
+      }
+
+      &.badge-alto {
+        color: #b91c1c;
+        .dot { color: #b91c1c; }
+      }
+    }
+
+    // Botón Bookmark
+    .btn-bookmark {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #ffffff;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #15803d;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    // Icono Ilustración Central
+    .icono-tipo-propiedad {
+      font-size: 2.8rem;
+      opacity: 0.4;
+
+      ion-icon {
+        color: #15803d;
+      }
+    }
+  }
+
+  // Cuerpo de la tarjeta
+  .body-card {
+    padding: 16px;
+
+    .comuna-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #475467;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
+    .titulo-propiedad {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #101828;
+      margin: 2px 0 12px 0;
+    }
+
+    // Fila de precios
+    .precios-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 12px;
+
+      .col-precio {
         display: flex;
-        align-items: center;
-        background: #f8f9fa;
-        padding: 12px 16px;
-        border-radius: 10px;
-        margin-bottom: 14px;
+        flex-direction: column;
 
-        .label-detalle {
-          color: #666666;
-          font-size: 0.85rem;
-          margin-right: 6px;
+        .label-precio {
+          font-size: 0.72rem;
+          color: #667085;
         }
 
-        .monto {
-          color: #2e7d32;
-          font-size: 1.05rem;
-          font-weight: 700;
+        .monto-minimo {
+          font-size: 1.25rem;
+          font-weight: 800;
+          color: #101828;
         }
       }
 
-      .boton-detalles {
-        --background: #2e7d32;
-        --border-radius: 10px;
-        font-weight: bold;
-        letter-spacing: 0.5px;
-        margin: 0;
+      .col-m2 {
+        .monto-m2 {
+          font-size: 0.78rem;
+          color: #667085;
+          font-weight: 500;
+        }
+      }
+    }
+
+    // Badges de datos
+    .chips-info-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+
+      .chip-info {
+        background: #f2f4f7;
+        color: #344054;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        ion-icon {
+          font-size: 0.85rem;
+          color: #667085;
+        }
+      }
+    }
+
+    // Footer de la tarjeta
+    .footer-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #f2f4f7;
+      padding-top: 10px;
+      font-size: 0.75rem;
+
+      .publicacion {
+        color: #667085;
+      }
+
+      .link-detalle {
+        color: #15803d;
+        font-weight: 700;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+
+        ion-icon {
+          font-size: 0.8rem;
+        }
       }
     }
   }

@@ -11,6 +11,7 @@ import { RouterModule } from '@angular/router';
     FormsModule,
     IonicModule,
     RouterModule,
+    
     CatalogoPropiedadesPageRoutingModule
   ],
   declarations: [CatalogoPropiedadesPage],
