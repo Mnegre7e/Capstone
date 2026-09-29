@@ -1,129 +1,190 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar class="toolbar-catalogo">
-    <div class="header-container">
-      <div class="titulo-box">
-        <h1>Catálogo</h1>
-        <p>{{ propiedadesFiltradas.length }} remates · Región Metropolitana</p>
+<ion-content class="bg-housegreen">
+  <div class="main-container">
+
+    <!-- Encabezado -->
+    <div class="header-section">
+      <div class="header-top">
+        <div>
+          <h1 class="titulo-pagina">Catálogo</h1>
+          <p class="subtitulo-pagina">{{ propiedadesFiltradas.length }} remates · Región Metropolitana</p>
+        </div>
+        <button class="btn-icono-mapa">
+          <ion-icon name="map-outline"></ion-icon>
+        </button>
       </div>
-      <ion-button fill="clear" class="btn-mapa" routerLink="/mapa">
-        <ion-icon name="map-outline" slot="icon-only"></ion-icon>
-      </ion-button>
+
+      <!-- Buscador -->
+      <div class="search-box">
+        <ion-icon name="search-outline"></ion-icon>
+        <input 
+          type="text" 
+          [(ngModel)]="textoBusqueda" 
+          (input)="aplicarFiltrosYOrden()" 
+          placeholder="Busca por comuna o dirección" 
+        />
+      </div>
+
+      <!-- Barra de Filtros en Pills -->
+      <div class="scroll-filtros">
+        <!-- Botón Filtros / Limpiar -->
+        <button 
+          class="pill-btn primary" 
+          [class.active-reset]="comunaSeleccionada || precioMaximo || tipoSeleccionado || riesgoSeleccionado"
+          (click)="limpiarFiltros()">
+          <ion-icon name="options-outline"></ion-icon>
+          <span>{{ (comunaSeleccionada || precioMaximo || tipoSeleccionado || riesgoSeleccionado) ? 'Limpiar' : 'Filtros' }}</span>
+        </button>
+
+        <!-- Filtro Riesgo (Semáforo) -->
+        <button class="pill-btn white" [class.activo]="riesgoSeleccionado" id="pop-riesgo">
+          <span class="dot-indicator" *ngIf="riesgoSeleccionado" [ngClass]="'dot-' + riesgoSeleccionado">●</span>
+          <span>{{ riesgoSeleccionado ? ('Riesgo ' + riesgoSeleccionado) : 'Riesgo' }}</span>
+          <ion-icon name="chevron-down-outline"></ion-icon>
+        </button>
+        <ion-popover trigger="pop-riesgo" dismissOnSelect="true">
+          <ng-template>
+            <ion-content class="popover-content">
+              <ion-item button (click)="setRiesgo('')" [class.selected]="!riesgoSeleccionado">
+                Todos los riesgos
+              </ion-item>
+              <ion-item button (click)="setRiesgo('bajo')" [class.selected]="riesgoSeleccionado === 'bajo'">
+                <span class="dot-popover bajo">●</span> Riesgo bajo
+              </ion-item>
+              <ion-item button (click)="setRiesgo('medio')" [class.selected]="riesgoSeleccionado === 'medio'">
+                <span class="dot-popover medio">●</span> Riesgo medio
+              </ion-item>
+              <ion-item button (click)="setRiesgo('alto')" [class.selected]="riesgoSeleccionado === 'alto'">
+                <span class="dot-popover alto">●</span> Riesgo alto
+              </ion-item>
+            </ion-content>
+          </ng-template>
+        </ion-popover>
+
+        <!-- Filtro Comuna -->
+        <button class="pill-btn white" [class.activo]="comunaSeleccionada" id="pop-comuna">
+          <span>{{ comunaSeleccionada ? comunaSeleccionada : 'Comuna' }}</span>
+          <ion-icon name="chevron-down-outline"></ion-icon>
+        </button>
+        <ion-popover trigger="pop-comuna" dismissOnSelect="true">
+          <ng-template>
+            <ion-content class="popover-content">
+              <ion-item button (click)="setComuna('')" [class.selected]="!comunaSeleccionada">Todas las comunas</ion-item>
+              <ion-item *ngFor="let c of comunasDisponibles" button (click)="setComuna(c)" [class.selected]="comunaSeleccionada === c">
+                {{ c }}
+              </ion-item>
+            </ion-content>
+          </ng-template>
+        </ion-popover>
+
+        <!-- Filtro Precio -->
+        <button class="pill-btn white" [class.activo]="precioMaximo" id="pop-precio">
+          <span>{{ precioMaximo ? ('Hasta $' + (precioMaximo/1000000) + 'M') : 'Precio' }}</span>
+          <ion-icon name="chevron-down-outline"></ion-icon>
+        </button>
+        <ion-popover trigger="pop-precio" dismissOnSelect="true">
+          <ng-template>
+            <ion-content class="popover-content">
+              <ion-item button (click)="setPrecio(null)">Cualquier precio</ion-item>
+              <ion-item button (click)="setPrecio(40000000)">Hasta $40.000.000</ion-item>
+              <ion-item button (click)="setPrecio(70000000)">Hasta $70.000.000</ion-item>
+              <ion-item button (click)="setPrecio(100000000)">Hasta $100.000.000</ion-item>
+            </ion-content>
+          </ng-template>
+        </ion-popover>
+
+        <!-- Filtro Tipo -->
+        <button class="pill-btn white" [class.activo]="tipoSeleccionado" id="pop-tipo">
+          <span>{{ tipoSeleccionado ? tipoSeleccionado : 'Tipo' }}</span>
+          <ion-icon name="chevron-down-outline"></ion-icon>
+        </button>
+        <ion-popover trigger="pop-tipo" dismissOnSelect="true">
+          <ng-template>
+            <ion-content class="popover-content">
+              <ion-item button (click)="setTipo('')">Todos los tipos</ion-item>
+              <ion-item *ngFor="let t of tiposDisponibles" button (click)="setTipo(t)" [class.selected]="tipoSeleccionado === t">
+                {{ t }}
+              </ion-item>
+            </ion-content>
+          </ng-template>
+        </ion-popover>
+      </div>
+
+      <!-- Barra de Ordenar y Resultados -->
+      <div class="ordenar-bar">
+        <div class="ordenar-left" id="pop-orden">
+          <ion-icon name="swap-vertical-outline"></ion-icon>
+          <span>Ordenar: <strong>{{ getNombreOrden() }}</strong></span>
+          <ion-icon name="chevron-down-outline"></ion-icon>
+        </div>
+        <ion-popover trigger="pop-orden" dismissOnSelect="true">
+          <ng-template>
+            <ion-content class="popover-content">
+              <ion-item button (click)="setOrden('fecha')" [class.selected]="ordenSeleccionado === 'fecha'">Fecha de remate</ion-item>
+              <ion-item button (click)="setOrden('precio-asc')" [class.selected]="ordenSeleccionado === 'precio-asc'">Precio: menor a mayor</ion-item>
+              <ion-item button (click)="setOrden('precio-desc')" [class.selected]="ordenSeleccionado === 'precio-desc'">Precio: mayor a menor</ion-item>
+              <ion-item button (click)="setOrden('superficie')" [class.selected]="ordenSeleccionado === 'superficie'">Superficie</ion-item>
+            </ion-content>
+          </ng-template>
+        </ion-popover>
+
+        <span class="resultados-count">{{ propiedadesFiltradas.length }} resultados</span>
+      </div>
     </div>
-  </ion-toolbar>
 
-  <!-- Barra de Búsqueda -->
-  <div class="search-container">
-    <div class="custom-searchbar">
-      <ion-icon name="search-outline"></ion-icon>
-      <input 
-        type="text" 
-        placeholder="Busca por comuna o dirección" 
-        [(ngModel)]="textoBusqueda" 
-        (input)="filtrar()" />
-    </div>
-  </div>
+    <!-- Lista de Tarjetas Estilo HouseGreen -->
+    <div class="cards-container">
+      <div *ngFor="let p of propiedadesFiltradas" class="house-card">
 
-  <!-- Fila de Filtros -->
-  <div class="filtros-scroll">
-    <button class="btn-filtro principal">
-      <ion-icon name="options-outline"></ion-icon> Filtros
-    </button>
-    
-    <button class="btn-filtro dropdown">
-      Comuna <ion-icon name="chevron-down-outline"></ion-icon>
-    </button>
-
-    <button class="btn-filtro dropdown">
-      Precio <ion-icon name="chevron-down-outline"></ion-icon>
-    </button>
-
-    <button class="btn-filtro dropdown">
-      Tipo <ion-icon name="chevron-down-outline"></ion-icon>
-    </button>
-  </div>
-
-  <!-- Barra de Ordenamiento y Conteo -->
-  <div class="bar-ordenamiento">
-    <div class="orden-selector">
-      <ion-icon name="swap-vertical-outline"></ion-icon>
-      <span>Ordenar: <strong>Fecha de remate</strong></span>
-      <ion-icon name="chevron-down-outline" class="flecha"></ion-icon>
-    </div>
-    <span class="total-resultados">{{ propiedadesFiltradas.length }} resultados</span>
-  </div>
-</ion-header>
-
-<ion-content class="cuerpo-catalogo ion-padding-horizontal">
-
-  <div class="lista-propiedades">
-    @for (prop of propiedadesFiltradas; track prop.id) {
-      <div class="card-propiedad">
-
-        <!-- Banner Superior (Ilustración / Riesgo / Guardar) -->
-        <div class="banner-card" [ngClass]="'banner-' + prop.riesgoGlobal">
-          <div class="badge-riesgo" [ngClass]="'badge-' + prop.riesgoGlobal">
-            <span class="dot">•</span> Riesgo {{ prop.riesgoGlobal }}
+        <!-- Banner Superior Según Riesgo -->
+        <div class="card-banner" [ngClass]="'banner-' + p.riesgoGlobal">
+          <!-- Badge de Riesgo -->
+          <div class="badge-riesgo" [ngClass]="'badge-' + p.riesgoGlobal">
+            <span class="dot">●</span> Riesgo {{ p.riesgoGlobal }}
           </div>
 
-          <button class="btn-bookmark" (click)="toggleGuardar(prop, $event)">
-            <ion-icon [name]="prop.guardado ? 'bookmark' : 'bookmark-outline'"></ion-icon>
+          <!-- Icono de Favorito -->
+          <button class="btn-bookmark" (click)="toggleGuardar(p, $event)">
+            <ion-icon [name]="p.guardado ? 'bookmark' : 'bookmark-outline'"></ion-icon>
           </button>
 
-          <!-- Icono Central Representativo -->
-          <div class="icono-tipo-propiedad">
-            @if (prop.tipo === 'Casa') {
-              <ion-icon name="home-outline"></ion-icon>
-            } @else if (prop.tipo === 'Oficina') {
-              <ion-icon name="briefcase-outline"></ion-icon>
-            } @else if (prop.tipo === 'Terreno') {
-              <ion-icon name="square-outline"></ion-icon>
-            } @else {
-              <ion-icon name="business-outline"></ion-icon>
-            }
+          <!-- Icono central de tipo de propiedad -->
+          <div class="icon-ilustracion">
+            <ion-icon [name]="p.tipo === 'Casa' ? 'home-outline' : (p.tipo === 'Oficina' ? 'briefcase-outline' : 'business-outline')"></ion-icon>
           </div>
         </div>
 
         <!-- Cuerpo de la Tarjeta -->
-        <div class="body-card">
-          <span class="comuna-label">{{ prop.comuna }}</span>
-          <h2 class="titulo-propiedad">{{ prop.titulo }}</h2>
+        <div class="card-body">
+          <span class="comuna-label">{{ p.comuna }}</span>
+          <h2 class="propiedad-titulo">{{ p.titulo }}</h2>
 
-          <div class="precios-row">
-            <div class="col-precio">
-              <span class="label-precio">Precio mínimo</span>
-              <span class="monto-minimo">{{ formatearMoneda(prop.precioMinimo) }}</span>
+          <div class="precio-section">
+            <div class="precio-col">
+              <span class="precio-label">Precio mínimo</span>
+              <span class="precio-valor">{{ formatearMoneda(p.precioMinimo) }}</span>
             </div>
-            <div class="col-m2">
-              <span class="monto-m2">{{ formatearMoneda(prop.precioM2) }} / m²</span>
-            </div>
+            <span class="precio-m2">{{ formatearMoneda(p.precioM2) }} / m²</span>
           </div>
 
-          <!-- Badges de Superficie y Fecha -->
-          <div class="chips-info-row">
-            <span class="chip-info">
-              <ion-icon name="square-outline"></ion-icon> {{ prop.superficie }} m²
+          <!-- Pills de Detalles -->
+          <div class="detalles-pills">
+            <span class="detail-pill">
+              <ion-icon name="square-outline"></ion-icon> {{ p.superficie }} m²
             </span>
-            <span class="chip-info">
-              <ion-icon name="calendar-outline"></ion-icon> Remate {{ prop.fechaRemate }}
+            <span class="detail-pill">
+              <ion-icon name="calendar-outline"></ion-icon> Remate {{ p.fechaRemate }}
             </span>
           </div>
 
-          <!-- Footer con Fecha de Publicación y Link de Detalle -->
-          <div class="footer-card">
-            <span class="publicacion">Publicado {{ prop.fechaPublicacion }}</span>
-            <a [routerLink]="['/detalle-propiedad', prop.id]" class="link-detalle">
-              Ver detalle <ion-icon name="chevron-forward-outline"></ion-icon>
-            </a>
+          <!-- Footer de Tarjeta -->
+          <div class="card-footer">
+            <span class="fecha-publicacion">Publicado {{ p.fechaPublicacion }}</span>
+            <button class="btn-ver-detalle">Ver detalle &gt;</button>
           </div>
         </div>
 
       </div>
-    } @empty {
-      <div class="sin-resultados ion-text-center ion-padding">
-        <ion-icon name="search-discontent" size="large" color="medium"></ion-icon>
-        <p>No encontramos remates con ese criterio de búsqueda.</p>
-      </div>
-    }
-  </div>
+    </div>
 
+  </div>
 </ion-content>

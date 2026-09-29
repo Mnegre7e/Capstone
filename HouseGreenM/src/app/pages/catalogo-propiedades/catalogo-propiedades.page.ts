@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 export interface PropiedadItem {
   id: number;
@@ -10,7 +10,7 @@ export interface PropiedadItem {
   fechaRemate: string;
   fechaPublicacion: string;
   riesgoGlobal: 'bajo' | 'medio' | 'alto';
-  tipo: 'Departamento' | 'Casa' | 'Oficina' | 'Terreno';
+  tipo: 'Departamento' | 'Casa' | 'Oficina' | 'Terreno' | 'Local comercial';
   guardado: boolean;
 }
 
@@ -20,9 +20,17 @@ export interface PropiedadItem {
   styleUrls: ['./catalogo-propiedades.page.scss'],
   standalone: false
 })
-export class CatalogoPropiedadesPage {
+export class CatalogoPropiedadesPage implements OnInit {
 
   textoBusqueda: string = '';
+  ordenSeleccionado: string = 'fecha';
+  comunaSeleccionada: string = '';
+  precioMaximo: number | null = null;
+  tipoSeleccionado: string = '';
+  riesgoSeleccionado: string = '';
+
+  comunasDisponibles = ['Santiago Centro', 'Maipú', 'Estación Central', 'Providencia', 'Las Condes'];
+  tiposDisponibles = ['Departamento', 'Casa', 'Oficina', 'Terreno'];
 
   propiedades: PropiedadItem[] = [
     {
@@ -76,44 +84,113 @@ export class CatalogoPropiedadesPage {
       riesgoGlobal: 'bajo',
       tipo: 'Oficina',
       guardado: true
-    },
-    {
-      id: 5,
-      comuna: 'MAIPÚ',
-      titulo: 'Terreno Urbano Maipú',
-      precioMinimo: 35000000,
-      precioM2: 140000,
-      superficie: 250,
-      fechaRemate: 'mié 4 nov · 11:00',
-      fechaPublicacion: 'el 27 sep 2026',
-      riesgoGlobal: 'bajo',
-      tipo: 'Terreno',
-      guardado: false
     }
   ];
 
-  propiedadesFiltradas: PropiedadItem[] = [...this.propiedades];
+  propiedadesFiltradas: PropiedadItem[] = [];
 
-  filtrar() {
-    const q = this.textoBusqueda.trim().toLowerCase();
-    if (!q) {
-      this.propiedadesFiltradas = [...this.propiedades];
-      return;
+  ngOnInit() {
+    this.aplicarFiltrosYOrden();
+  }
+
+  setRiesgo(valor: string) {
+    this.riesgoSeleccionado = valor;
+    this.aplicarFiltrosYOrden();
+  }
+
+  setComuna(valor: string) {
+    this.comunaSeleccionada = valor;
+    this.aplicarFiltrosYOrden();
+  }
+
+  setPrecio(valor: number | null) {
+    this.precioMaximo = valor;
+    this.aplicarFiltrosYOrden();
+  }
+
+  setTipo(valor: string) {
+    this.tipoSeleccionado = valor;
+    this.aplicarFiltrosYOrden();
+  }
+
+  setOrden(valor: string) {
+    this.ordenSeleccionado = valor;
+    this.aplicarFiltrosYOrden();
+  }
+
+  limpiarFiltros() {
+    this.textoBusqueda = '';
+    this.comunaSeleccionada = '';
+    this.precioMaximo = null;
+    this.tipoSeleccionado = '';
+    this.riesgoSeleccionado = '';
+    this.ordenSeleccionado = 'fecha';
+    this.aplicarFiltrosYOrden();
+  }
+
+  getNombreOrden(): string {
+    switch (this.ordenSeleccionado) {
+      case 'precio-asc': return 'Precio: menor a mayor';
+      case 'precio-desc': return 'Precio: mayor a menor';
+      case 'superficie': return 'Superficie';
+      case 'fecha':
+      default: return 'Fecha de remate';
     }
-    this.propiedadesFiltradas = this.propiedades.filter(p =>
-      p.comuna.toLowerCase().includes(q) ||
-      p.titulo.toLowerCase().includes(q) ||
-      p.tipo.toLowerCase().includes(q)
-    );
+  }
+
+  aplicarFiltrosYOrden() {
+    let res = [...(this.propiedades || [])];
+
+    const q = (this.textoBusqueda || '').toString().trim().toLowerCase();
+    if (q) {
+      res = res.filter(p =>
+        (p?.comuna || '').toLowerCase().includes(q) ||
+        (p?.titulo || '').toLowerCase().includes(q)
+      );
+    }
+
+    if (this.riesgoSeleccionado) {
+      res = res.filter(p => p?.riesgoGlobal === this.riesgoSeleccionado);
+    }
+
+    if (this.comunaSeleccionada) {
+      res = res.filter(p => (p?.comuna || '').toLowerCase().includes(this.comunaSeleccionada.toLowerCase()));
+    }
+
+    if (this.precioMaximo) {
+      res = res.filter(p => (p?.precioMinimo || 0) <= (this.precioMaximo || Infinity));
+    }
+
+    if (this.tipoSeleccionado) {
+      res = res.filter(p => p?.tipo === this.tipoSeleccionado);
+    }
+
+    switch (this.ordenSeleccionado) {
+      case 'precio-asc':
+        res.sort((a, b) => (a?.precioMinimo || 0) - (b?.precioMinimo || 0));
+        break;
+      case 'precio-desc':
+        res.sort((a, b) => (b?.precioMinimo || 0) - (a?.precioMinimo || 0));
+        break;
+      case 'superficie':
+        res.sort((a, b) => (b?.superficie || 0) - (a?.superficie || 0));
+        break;
+      case 'fecha':
+      default:
+        res.sort((a, b) => (a?.id || 0) - (b?.id || 0));
+        break;
+    }
+
+    this.propiedadesFiltradas = res;
   }
 
   toggleGuardar(prop: PropiedadItem, event: Event) {
-    event.stopPropagation();
-    prop.guardado = !prop.guardado;
+    if (event) event.stopPropagation();
+    if (prop) prop.guardado = !prop.guardado;
   }
 
   formatearMoneda(valor: number): string {
-    if (valor === null || valor === undefined || isNaN(valor)) return '$0';
+    if (!valor) return '$0';
     return '$' + valor.toLocaleString('es-CL');
   }
 }
