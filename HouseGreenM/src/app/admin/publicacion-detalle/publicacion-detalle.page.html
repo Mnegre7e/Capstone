@@ -1,0 +1,117 @@
+<ion-content class="cuerpo-detalle" [fullscreen]="true">
+  <div class="contenedor-principal">
+
+    <!-- Header con botón Volver y Editar -->
+    <div class="header-nav">
+      <button class="btn-circular" (click)="volver()" aria-label="Volver">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <h2>Publicación</h2>
+      <button class="btn-circular" (click)="editarPublicacion()" aria-label="Editar">
+        <ion-icon name="pencil-outline"></ion-icon>
+      </button>
+    </div>
+
+    <!-- Banner / Ilustración con Badge de Riesgo -->
+    <div class="hero-banner">
+      <div class="badge-riesgo bajo">
+        <span class="punto"></span>
+        <span>Riesgo bajo</span>
+      </div>
+      <div class="ilustracion-edificio">
+        <ion-icon name="business-outline"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Título y Subtítulo de la Propiedad -->
+    <div class="encabezado-propiedad">
+      <h1>{{ propiedad.titulo }}</h1>
+      <p class="meta-subtitulo">
+        <ion-icon name="location-outline"></ion-icon>
+        {{ propiedad.comuna }} · remate {{ propiedad.fechaRemate }}
+      </p>
+    </div>
+
+    <!-- Tarjetas Métricas (Vistas y Guardados) -->
+    <div class="grid-metricas">
+      <div class="card-stat">
+        <div class="stat-numero">
+          <ion-icon name="eye-outline"></ion-icon>
+          <span>{{ propiedad.vistasUnicas }}</span>
+        </div>
+        <p class="stat-label">personas la vieron</p>
+        <p class="stat-subtext">{{ propiedad.vistasTotales }} vistas en total</p>
+      </div>
+
+      <div class="card-stat">
+        <div class="stat-numero">
+          <ion-icon name="bookmark-outline"></ion-icon>
+          <span>{{ propiedad.guardadosTotales }}</span>
+        </div>
+        <p class="stat-label">personas la guardaron</p>
+      </div>
+    </div>
+
+    <!-- Selector de Pestañas (La vieron / La guardaron) -->
+    <div class="segmento-tabs">
+      <button 
+        class="tab-btn" 
+        [class.active]="tabActiva === 'vieron'" 
+        (click)="tabActiva = 'vieron'">
+        La vieron · {{ usuariosVieron.length }}
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="tabActiva === 'guardaron'" 
+        (click)="tabActiva = 'guardaron'">
+        La guardaron · {{ usuariosGuardaron.length }}
+      </button>
+    </div>
+
+    <!-- Lista según pestaña activa -->
+    <div class="card-lista-usuarios">
+      @if (tabActiva === 'vieron') {
+        @for (user of usuariosVieron; track user.id) {
+          <div class="item-usuario">
+            <div class="avatar">{{ user.iniciales }}</div>
+            <div class="info-user">
+              <div class="row-nombre">
+                <h3>{{ user.nombre }}</h3>
+                @if (user.guardo) {
+                  <span class="badge-guardo">La guardó</span>
+                }
+              </div>
+              <p class="sub-info">{{ user.tiempo }} · {{ user.visitas }} {{ user.visitas === 1 ? 'visita' : 'visitas' }}</p>
+            </div>
+          </div>
+        }
+      } @else {
+        @for (user of usuariosGuardaron; track user.id) {
+          <div class="item-usuario clickable">
+            <div class="avatar">{{ user.iniciales }}</div>
+            <div class="info-user">
+              <h3>{{ user.nombre }}</h3>
+              <p class="sub-info">La guardó el {{ user.fechaGuardado }} · {{ user.visitas }} {{ user.visitas === 1 ? 'visita' : 'visitas' }}</p>
+            </div>
+            <ion-icon name="chevron-forward-outline" class="flecha"></ion-icon>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Botón Flotante de Acción Inferior -->
+    <div class="wrapper-boton-accion">
+      <button class="btn-enviar-anuncio" (click)="enviarAnuncio()">
+        <ion-icon name="paper-plane-outline"></ion-icon>
+        <span>
+          @if (tabActiva === 'vieron') {
+            Enviar anuncio a quienes la vieron
+          } @else {
+            Enviar anuncio a quienes la guardaron
+          }
+        </span>
+      </button>
+    </div>
+
+  </div>
+</ion-content>

@@ -1,0 +1,187 @@
+<ion-content class="cuerpo-publicaciones" [fullscreen]="true">
+  <div class="contenedor-principal">
+
+    <!-- Encabezado superior -->
+    <div class="header-seccion">
+      <div class="info-header">
+        <h1>Publicaciones</h1>
+        <p class="subtitulo">36 activas · Región Metropolitana</p>
+      </div>
+      <button class="btn-buscar" aria-label="Buscar">
+        <ion-icon name="search-outline"></ion-icon>
+      </button>
+    </div>
+
+    <!-- Barra de Filtros Rápidos -->
+    <div class="scroll-filtros">
+      <button class="btn-filtro-principal" (click)="abrirFiltros()">
+        <ion-icon name="options-outline"></ion-icon>
+        <span>Filtros</span>
+      </button>
+
+      <div class="chip-select" (click)="abrirFiltros()">
+        <span>Comuna: Todas</span>
+        <ion-icon name="chevron-down-outline"></ion-icon>
+      </div>
+
+      <div class="chip-select" (click)="abrirFiltros()">
+        <span>Guardados: Todos</span>
+        <ion-icon name="chevron-down-outline"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Sub-encabezado: Ordenar y Conteo -->
+    <div class="row-ordenar">
+      <div class="selector-orden" (click)="abrirFiltros()">
+        <ion-icon name="swap-vertical-outline"></ion-icon>
+        <span>Ordenar: <strong>Más vistas</strong></span>
+        <ion-icon name="chevron-down-outline"></ion-icon>
+      </div>
+      <span class="conteo-resultados">36 resultados</span>
+    </div>
+
+    <!-- Lista de Cards de Publicaciones -->
+    <div class="lista-publicaciones">
+      @for (pub of publicaciones; track pub.id) {
+        <div class="card-publicacion" (click)="verDetallePublicacion(pub.id)">
+          <!-- Iluminación / Thumbnail con Badge de Riesgo -->
+          <div class="thumb-card" [ngClass]="pub.tipoColor">
+            <div class="badge-riesgo" [ngClass]="pub.riesgo">
+              <span class="punto"></span>
+              <span>{{ pub.riesgoTexto }}</span>
+            </div>
+            <ion-icon [name]="pub.icono"></ion-icon>
+          </div>
+
+          <!-- Información Principal -->
+          <div class="info-card">
+            <h3>{{ pub.titulo }}</h3>
+            <p class="ubicacion">
+              <ion-icon name="location-outline"></ion-icon>
+              {{ pub.comuna }}
+            </p>
+            <div class="stats">
+              <span><ion-icon name="eye-outline"></ion-icon> {{ pub.vistas }} vistas</span>
+              <span><ion-icon name="bookmark-outline"></ion-icon> {{ pub.guardados }} guardados</span>
+            </div>
+          </div>
+
+          <!-- Flecha de navegación -->
+          <ion-icon name="chevron-forward-outline" class="flecha"></ion-icon>
+        </div>
+      }
+    </div>
+
+  </div>
+</ion-content>
+
+<!-- Modal de Ordenar y Filtrar (Bottom Sheet) -->
+<ion-modal [isOpen]="isFiltrosOpen" (didDismiss)="cerrarFiltros()" [initialBreakpoint]="0.88" [breakpoints]="[0, 0.88, 1.0]">
+  <ng-template>
+    <div class="modal-filtros-content">
+      
+      <div class="handle-bar"></div>
+
+      <!-- Header del Modal -->
+      <div class="modal-header">
+        <h2>Ordenar y filtrar</h2>
+        <button class="btn-cerrar" (click)="cerrarFiltros()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Sección 1: Ordenar por -->
+        <div class="grupo-filtro">
+          <label class="titulo-grupo">ORDENAR POR</label>
+          <div class="opciones-radio">
+            <label class="radio-item" [class.selected]="opcionOrden === 'vistas'" (click)="opcionOrden = 'vistas'">
+              <span class="radio-dot"></span>
+              <span>Más vistas</span>
+            </label>
+            <label class="radio-item" [class.selected]="opcionOrden === 'guardadas'" (click)="opcionOrden = 'guardadas'">
+              <span class="radio-dot"></span>
+              <span>Más guardadas</span>
+            </label>
+            <label class="radio-item" [class.selected]="opcionOrden === 'comuna'" (click)="opcionOrden = 'comuna'">
+              <span class="radio-dot"></span>
+              <span>Comuna (A-Z)</span>
+            </label>
+            <label class="radio-item" [class.selected]="opcionOrden === 'verdes'" (click)="opcionOrden = 'verdes'">
+              <span class="radio-dot"></span>
+              <span>Semáforo: <span class="dot verde"></span> verdes primero</span>
+            </label>
+            <label class="radio-item" [class.selected]="opcionOrden === 'amarillos'" (click)="opcionOrden = 'amarillos'">
+              <span class="radio-dot"></span>
+              <span>Semáforo: <span class="dot amarillo"></span> amarillos primero</span>
+            </label>
+            <label class="radio-item" [class.selected]="opcionOrden === 'rojos'" (click)="opcionOrden = 'rojos'">
+              <span class="radio-dot"></span>
+              <span>Semáforo: <span class="dot rojo"></span> rojos primero</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Sección 2: Comuna -->
+        <div class="grupo-filtro">
+          <label class="titulo-grupo">COMUNA</label>
+          <div class="chips-grid">
+            @for (comuna of comunas; track comuna.nombre) {
+              <button 
+                class="chip-tag" 
+                [class.selected]="comuna.selected" 
+                (click)="comuna.selected = !comuna.selected">
+                @if (comuna.selected) {
+                  <ion-icon name="checkmark-outline"></ion-icon>
+                }
+                {{ comuna.nombre }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Sección 3: Guardados -->
+        <div class="grupo-filtro">
+          <label class="titulo-grupo">GUARDADOS</label>
+          <div class="chips-grid">
+            <button class="chip-tag" [class.selected]="filtroGuardados === 'todas'" (click)="filtroGuardados = 'todas'">Todas</button>
+            <button class="chip-tag" [class.selected]="filtroGuardados === 'con_guardados'" (click)="filtroGuardados = 'con_guardados'">
+              @if (filtroGuardados === 'con_guardados') { <ion-icon name="checkmark-outline"></ion-icon> }
+              Con guardados
+            </button>
+            <button class="chip-tag" [class.selected]="filtroGuardados === 'sin_guardados'" (click)="filtroGuardados = 'sin_guardados'">Sin guardados</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="modal-footer">
+        <button class="btn-limpiar" (click)="limpiarFiltros()">Limpiar</button>
+        <button class="btn-aplicar" (click)="cerrarFiltros()">Ver 12 publicaciones</button>
+      </div>
+
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- Tab Bar Inferior -->
+<div class="admin-tabbar">
+  <button class="tab-item" (click)="irAPanel()">
+    <ion-icon name="bar-chart-outline"></ion-icon>
+    <span>Panel</span>
+  </button>
+  <button class="tab-item active">
+    <ion-icon name="document-text-outline"></ion-icon>
+    <span>Publicaciones</span>
+  </button>
+  <button class="tab-item">
+    <ion-icon name="chatbox-outline"></ion-icon>
+    <span>Opiniones</span>
+  </button>
+  <button class="tab-item">
+    <ion-icon name="volume-medium-outline"></ion-icon>
+    <span>Anuncios</span>
+  </button>
+</div>

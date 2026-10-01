@@ -67,6 +67,18 @@ const routes: Routes = [
     path: 'cambiar-contrasena',
     loadChildren: () => import('./pages/cambiar-contrasena/cambiar-contrasena.module').then( m => m.CambiarContrasenaPageModule)
   },
+  {
+    path: 'admin-home',
+    loadChildren: () => import('./admin/admin-home/admin-home.module').then( m => m.AdminHomePageModule)
+  },
+  {
+    path: 'publicaciones',
+    loadChildren: () => import('./admin/publicaciones/publicaciones.module').then( m => m.PublicacionesPageModule)
+  },
+  {
+    path: 'publicacion-detalle',
+    loadChildren: () => import('./admin/publicacion-detalle/publicacion-detalle.module').then( m => m.PublicacionDetallePageModule)
+  },
 
 
 
