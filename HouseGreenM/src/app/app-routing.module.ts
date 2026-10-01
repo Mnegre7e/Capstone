@@ -63,7 +63,11 @@ const routes: Routes = [
   {
   path: 'detalle-propiedad/:id', // <-- Debe tener /:id
   loadChildren: () => import('./pages/detalle-propiedad/detalle-propiedad.module').then(m => m.DetallePropiedadPageModule)
+  },  {
+    path: 'cambiar-contrasena',
+    loadChildren: () => import('./pages/cambiar-contrasena/cambiar-contrasena.module').then( m => m.CambiarContrasenaPageModule)
   },
+
 
 
 

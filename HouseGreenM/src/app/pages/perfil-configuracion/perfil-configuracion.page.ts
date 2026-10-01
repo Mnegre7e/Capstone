@@ -34,7 +34,7 @@ export class PerfilConfiguracionPage {
   }
 
   cambiarContrasena() {
-    console.log('Cambiar contraseña');
+    this.router.navigate(['/cambiar-contrasena']);
   }
 
   // Redirige a la vista de alertas
@@ -51,7 +51,7 @@ export class PerfilConfiguracionPage {
   }
 
   irASobreNosotros() {
-    console.log('Ir a Sobre HouseGreen');
+    this.router.navigate(['/nosotros']);
   }
   cerrarSesion() {
     this.router.navigate(['/login']);
