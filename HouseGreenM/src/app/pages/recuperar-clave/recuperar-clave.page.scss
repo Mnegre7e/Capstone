@@ -1,10 +1,17 @@
+// Variables de color de la paleta HouseGreen
+$gh-dark-green: #175339;
+$gh-primary-green: #1f6243;
+$gh-bg-light: #f2f7f4;
+$gh-text-title: #0f172a;
+
+// Sección texto y fondo
 .fondo {
-  --background: #2e7d32;
-  --color: white;
+  --background: #{$gh-dark-green};
+  --color: #ffffff;
 }
 
 .color-texto {
-  color: white;
+  color: #ffffff;
   margin-top: 10px;
   font-size: 20px;
 }
@@ -23,6 +30,7 @@
   object-fit: contain;
 }
 
+// Sección formulario
 .seccion-form {
   position: fixed;
   bottom: 0;
@@ -32,26 +40,33 @@
 }
 
 .recuperar {
-  background: rgb(211, 210, 210);
-  color: #2e7d32;
-  border-radius: 50px 50px 0 0;
-  padding: 10px; 
+  background: #{$gh-bg-light};
+  color: #{$gh-dark-green};
+  border-radius: 40px 40px 0 0;
+  padding: 20px 16px; 
   text-align: center;
   height: 100%;
 
   .quitar-linea {
     --border-width: 0;
   }
+
+  .color-negro {
+    color: #{$gh-text-title};
+  }
 }
 
 .ion-color {
-  color: #2e7d32;
+  color: #{$gh-dark-green};
 }
 
 .boton-inicio {
   margin-top: 30px;
-  --ion-color-primary: #2e7d32;
-  color: #fff;
+  --ion-color-primary: #{$gh-dark-green};
+  --background: #{$gh-dark-green};
+  --border-radius: 26px;
+  color: #ffffff;
+  font-weight: 800;
 }
 
 .txt-marcado {
