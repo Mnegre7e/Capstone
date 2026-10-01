@@ -1,72 +1,101 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar class="header-toolbar">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home" color="light"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Buzón de Sugerencias</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="contacto-content" [fullscreen]="true">
 
-<ion-content class="cuerpo-sugerencias ion-padding">
+  <div class="page-wrapper">
 
-  <!-- Encabezado -->
-  <div class="encabezado-sugerencias ion-text-center">
-    <div class="icono-avatar">
-      <ion-icon name="chatbox-ellipses-outline"></ion-icon>
+    <!-- ENCABEZADO CON BOTÓN VOLVER -->
+    <div class="header-section">
+      <button class="back-btn" (click)="goBack()" aria-label="Volver">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+
+      <h1 class="page-title">Sugerencias y calificación</h1>
+      <p class="page-subtitle">Cuéntanos cómo te va con HouseGreen y qué mejorarías.</p>
     </div>
-    <h2>Tu Opinión Nos Importa</h2>
-    <p>Ayúdanos a mejorar HouseGreen enviándonos tus ideas, comentarios o reportes.</p>
+
+    <!-- TARJETA 1: CALIFICACIÓN DE ESTRELLAS -->
+    <div class="card-box rating-card">
+      <h2 class="card-title">¿Cómo calificarías HouseGreen?</h2>
+
+      <div class="stars-row">
+        @for (star of estrellas; track star) {
+          <button 
+            class="star-box" 
+            [class.filled]="star <= calificacion" 
+            (click)="setCalificacion(star)"
+            aria-label="Calificar">
+            <ion-icon [name]="star <= calificacion ? 'star' : 'star-outline'"></ion-icon>
+          </button>
+        }
+      </div>
+
+      <p class="rating-label">
+        <strong>{{ calificacion }} de 5</strong> · {{ textosCalificacion[calificacion] }}
+      </p>
+    </div>
+
+    <!-- TARJETA 2: FORMULARIO DE SUGERENCIA -->
+    <div class="card-box form-card">
+      <h2 class="card-title">¿Sobre qué es tu sugerencia?</h2>
+
+      <!-- Chips de selección -->
+      <div class="chips-grid">
+        @for (cat of categorias; track cat) {
+          <button 
+            class="chip-item" 
+            [class.active]="categoriaSeleccionada === cat"
+            (click)="seleccionarCategoria(cat)">
+            @if (categoriaSeleccionada === cat) {
+              <ion-icon name="checkmark-outline" class="check-icon"></ion-icon>
+            }
+            <span>{{ cat }}</span>
+          </button>
+        }
+      </div>
+
+      <!-- Textarea sugerencia -->
+      <label class="input-label" for="sugerencia-input">Tu sugerencia</label>
+      <div class="textarea-wrapper">
+        <textarea 
+          id="sugerencia-input"
+          class="sugerencia-textarea"
+          [(ngModel)]="sugerenciaText"
+          [attr.maxlength]="maxCaracteres"
+          rows="4"
+          placeholder="Escribe tu comentario o sugerencia aquí...">
+        </textarea>
+      </div>
+
+      <div class="char-counter">
+        {{ sugerenciaText.length }} / {{ maxCaracteres }}
+      </div>
+
+      <!-- Checkbox de autorización -->
+      <div class="checkbox-row" (click)="toggleAutorizacion()">
+        <div class="custom-checkbox" [class.checked]="autorizaRespuesta">
+          @if (autorizaRespuesta) {
+            <ion-icon name="checkmark-outline"></ion-icon>
+          }
+        </div>
+        <span class="checkbox-label">Autorizo que HouseGreen responda mi sugerencia</span>
+      </div>
+
+    </div>
+
+    <!-- BOTÓN DE ENVÍO -->
+    <button 
+      class="submit-btn" 
+      [disabled]="!sugerenciaText.trim()"
+      (click)="enviarSugerencia()">
+      <ion-icon name="send-outline"></ion-icon>
+      <span>Enviar sugerencia</span>
+    </button>
+
+    <!-- PIE DE PAGINA / AYUDA DIRECTA -->
+    <div class="footer-help">
+      <p class="help-title">¿Necesitas ayuda directa?</p>
+      <a href="mailto:contacto@housegreen.cl" class="help-link">contacto@housegreen.cl</a>
+    </div>
+
   </div>
-
-  <!-- Formulario de Sugerencias -->
-  <ion-card class="card-formulario">
-    <ion-card-content>
-      <form (ngSubmit)="enviarSugerencia()">
-        
-        <!-- Tipo de Sugerencia -->
-        <ion-item class="item-input">
-          <ion-icon name="pricetag-outline" slot="start" color="success"></ion-icon>
-          <ion-label position="stacked">Tipo de Sugerencia</ion-label>
-          <ion-select [(ngModel)]="tipoSugerencia" name="tipoSugerencia" placeholder="Selecciona una opción" interface="action-sheet" required>
-            <ion-select-option value="mejora">Mejora de la App</ion-select-option>
-            <ion-select-option value="funcionalidad">Nueva Funcionalidad</ion-select-option>
-            <ion-select-option value="error">Reportar un Error</ion-select-option>
-            <ion-select-option value="otro">Otro Comentario</ion-select-option>
-          </ion-select>
-        </ion-item>
-
-        <!-- Asunto -->
-        <ion-item class="item-input">
-          <ion-icon name="text-outline" slot="start" color="success"></ion-icon>
-          <ion-label position="stacked">Asunto</ion-label>
-          <ion-input [(ngModel)]="asunto" name="asunto" type="text" placeholder="Ej: Filtro por cantidad de dormitorios" required></ion-input>
-        </ion-item>
-
-        <!-- Mensaje -->
-        <ion-item class="item-input">
-          <ion-icon name="create-outline" slot="start" color="success"></ion-icon>
-          <ion-label position="stacked">Mensaje o Detalle</ion-label>
-          <ion-textarea [(ngModel)]="mensaje" name="mensaje" rows="5" placeholder="Escribe aquí tu sugerencia con el mayor detalle posible..." required></ion-textarea>
-        </ion-item>
-
-        <!-- Deseas Respuesta -->
-        <ion-item class="item-toggle" lines="none">
-          <ion-icon name="mail-unread-outline" slot="start" color="success"></ion-icon>
-          <ion-label class="ion-text-wrap">
-            <h3>¿Deseas recibir respuesta?</h3>
-            <p>Te responderemos al correo registrado</p>
-          </ion-label>
-          <ion-toggle [(ngModel)]="requiereRespuesta" name="requiereRespuesta" color="success" slot="end"></ion-toggle>
-        </ion-item>
-
-        <!-- Botón de Envío -->
-        <ion-button expand="block" type="submit" color="success" class="btn-enviar" [disabled]="!asunto || !mensaje || !tipoSugerencia">
-          <ion-icon name="send-outline" slot="start"></ion-icon>
-          ENVIAR SUGERENCIA
-        </ion-button>
-
-      </form>
-    </ion-card-content>
-  </ion-card>
 
 </ion-content>

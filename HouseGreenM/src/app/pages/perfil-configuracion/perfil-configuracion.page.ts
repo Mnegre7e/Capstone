@@ -1,13 +1,7 @@
+
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-
-export interface UsuarioPerfil {
-  nombre: string;
-  rut: string;
-  email: string;
-  telefono: string;
-  tipoUsuario: string;
-}
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-perfil-configuracion',
@@ -18,19 +12,47 @@ export interface UsuarioPerfil {
 export class PerfilConfiguracionPage {
 
   private router = inject(Router);
+  private navCtrl = inject(NavController);
 
-  usuario: UsuarioPerfil = {
-    nombre: 'Juan Pérez',
-    rut: '12.345.678-9',
-    email: 'juan.perez@email.com',
+  usuario = {
+    nombre: 'Camila Rojas',
+    iniciales: 'CR',
+    email: 'camila.rojas@ejemplo.cl',
+    rut: '18.456.732-K',
     telefono: '+56 9 8765 4321',
-    tipoUsuario: 'Inversionista'
+    ultimaContrasena: '12 sep 2026',
+    comunasSiguiendo: 'Santiago, Providencia'
   };
 
-  irAFavoritos() {
-    this.router.navigate(['/catalogo-propiedades']);
+  // Volver a la pantalla anterior
+  regresar() {
+    this.navCtrl.back();
   }
 
+  editarPerfil() {
+    console.log('Editar perfil');
+  }
+
+  cambiarContrasena() {
+    console.log('Cambiar contraseña');
+  }
+
+  // Redirige a la vista de alertas
+  irAAlertas() {
+    this.router.navigate(['/alertas']);
+  }
+
+  irAComunas() {
+    console.log('Ir a comunas que sigo');
+  }
+
+  irASugerencias() {
+    this.router.navigate(['/contacto']);
+  }
+
+  irASobreNosotros() {
+    console.log('Ir a Sobre HouseGreen');
+  }
   cerrarSesion() {
     this.router.navigate(['/login']);
   }

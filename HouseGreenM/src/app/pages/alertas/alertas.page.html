@@ -1,13 +1,115 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>alertas</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="alertas-content" [fullscreen]="true">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">alertas</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <div class="page-wrapper">
+
+    <!-- ENCABEZADO -->
+    <div class="header-bar">
+      <button class="back-btn" (click)="goBack()" aria-label="Volver">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+
+      <h1 class="page-title">Notificaciones</h1>
+
+      <button class="mark-read-btn" (click)="marcarTodasLeidas()">
+        Marcar leídas
+      </button>
+    </div>
+
+    <!-- SECCIÓN: HOY -->
+    <section class="section-container">
+      <h2 class="section-label">HOY</h2>
+
+      <div class="alerts-card">
+        @for (item of alertasHoy; track item.id; let last = $last) {
+          <div class="alert-item" [class.border-bottom]="!last">
+            <!-- Icono según tipo -->
+            <div class="icon-avatar" [ngClass]="item.tipo">
+              @switch (item.tipo) {
+                @case ('remate_proximo') {
+                  <ion-icon name="calendar-outline"></ion-icon>
+                }
+                @case ('semaforo_alerta') {
+                  <ion-icon name="traffic-light-outline"></ion-icon>
+                }
+                @case ('nuevo_remate') {
+                  <ion-icon name="location-outline"></ion-icon>
+                }
+              }
+            </div>
+
+            <!-- Contenido -->
+            <div class="item-content">
+              <div class="item-header">
+                <h3 class="item-title">{{ item.titulo }}</h3>
+                @if (!item.leida) {
+                  <span class="unread-dot"></span>
+                }
+              </div>
+              <p class="item-desc">{{ item.descripcion }}</p>
+              <span class="item-time">{{ item.tiempo }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- SECCIÓN: ESTA SEMANA -->
+    <section class="section-container">
+      <h2 class="section-label">ESTA SEMANA</h2>
+
+      <div class="alerts-card">
+        @for (item of alertasEstaSemana; track item.id; let last = $last) {
+          <div class="alert-item" [class.border-bottom]="!last">
+            <!-- Icono según tipo -->
+            <div class="icon-avatar" [ngClass]="item.tipo">
+              @switch (item.tipo) {
+                @case ('precio_bajo') {
+                  <ion-icon name="trending-down-outline"></ion-icon>
+                }
+                @case ('reprogramado') {
+                  <ion-icon name="time-outline"></ion-icon>
+                }
+              }
+            </div>
+
+            <!-- Contenido -->
+            <div class="item-content">
+              <div class="item-header">
+                <h3 class="item-title">{{ item.titulo }}</h3>
+                @if (!item.leida) {
+                  <span class="unread-dot"></span>
+                }
+              </div>
+              <p class="item-desc">{{ item.descripcion }}</p>
+              <span class="item-time">{{ item.tiempo }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- SECCIÓN: PREFERENCIAS DE ALERTAS -->
+    <section class="section-container">
+      <h2 class="section-label">QUÉ QUIERES QUE TE AVISEMOS</h2>
+
+      <div class="preferences-card">
+        @for (pref of preferencias; track pref.id; let last = $last) {
+          <div class="preference-item" [class.border-bottom]="!last">
+            <div class="pref-text">
+              <h3 class="pref-title">{{ pref.titulo }}</h3>
+              <p class="pref-subtitle">{{ pref.subtitulo }}</p>
+            </div>
+
+            <ion-toggle 
+              [checked]="pref.activo" 
+              (ionChange)="togglePreferencia(pref)"
+              aria-label="Ajuste de alerta">
+            </ion-toggle>
+          </div>
+        }
+      </div>
+    </section>
+
+  </div>
+
 </ion-content>
