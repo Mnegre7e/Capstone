@@ -1,83 +1,320 @@
-.header-toolbar {
-  --background: #2e7d32;
-  --color: #ffffff;
-  font-weight: bold;
+// Paleta Greenhouse
+$gh-dark-green: #1b4332;
+$gh-primary-green: #2d6a4f;
+$gh-light-green: #d8f3dc;
+$gh-accent-green: #52b788;
+$gh-bg-light: #eef6ee;
+$gh-text-dark: #1f2937;
 
-  ion-title {
-    color: #ffffff;
-    font-weight: 700;
-  }
+$risk-low: #2d6a4f;
+$risk-med: #d97706;
+$risk-high: #dc2626;
+
+.map-content {
+  --background: #{$gh-bg-light};
+  position: relative;
 }
 
-.cuerpo-mapa {
-  --background: #f4f6f8;
+/* -------------------------------------------------------------
+   CONTROLES FLOTANTES SUPERIORES
+------------------------------------------------------------- */
+.top-controls-wrapper {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-// Estilo para el área del contenedor del mapa
-.contenedor-mapa-placeholder {
-  background: #e8f5e9;
-  border: 2px dashed #a5d6a7;
-  border-radius: 16px;
-  margin: 16px;
-  padding: 32px 16px;
+.header-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 
-  .icono-mapa {
-    font-size: 3.5rem;
-    color: #2e7d32;
-    margin-bottom: 8px;
-  }
+  .comuna-select-pill {
+    flex: 1;
+    background: #ffffff;
+    height: 48px;
+    border-radius: 24px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
-  h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #1b5e20;
-    margin: 0 0 4px 0;
-  }
-
-  p {
-    font-size: 0.85rem;
-    color: #4a7c59;
-    margin: 0;
-  }
-}
-
-// Estilos de la lista de marcadores / ítems
-.lista-marcadores {
-  padding-top: 0;
-
-  .titulo-seccion {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #1b5e20;
-    margin-bottom: 12px;
-  }
-
-  .item-marcador {
-    --background: #ffffff;
-    --color: #212121;
-    --border-radius: 12px;
-    --padding-start: 12px;
-    --inner-padding-end: 12px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-
-    .icono-pin {
-      color: #2e7d32;
-      font-size: 1.5rem;
+    .pin-icon {
+      font-size: 20px;
+      color: $gh-primary-green;
     }
 
-    h2 {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #1b5e20;
-      margin-bottom: 2px;
+    .label {
+      flex: 1;
+      font-size: 15px;
+      color: $gh-text-dark;
+      strong {
+        font-weight: 800;
+        color: $gh-dark-green;
+      }
     }
 
-    .precio-destacado {
-      font-size: 0.9rem;
+    .arrow-icon {
+      font-size: 18px;
+      color: #6b7280;
+    }
+  }
+
+  .filter-btn {
+    width: 48px;
+    height: 48px;
+    background: #ffffff;
+    border-radius: 24px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-size: 20px;
+    color: $gh-dark-green;
+  }
+}
+
+.chips-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chip-item {
+    background: #ffffff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    color: $gh-dark-green;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    white-space: nowrap;
+
+    &.active {
+      background: $gh-primary-green;
+      color: #ffffff;
+    }
+  }
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+
+  .count-chip {
+    background: #ffffff;
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: $gh-dark-green;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .legend-chip {
+    background: #ffffff;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #4b5563;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+    .dot {
+      font-size: 10px;
+      &.dot-bajo { color: $risk-low; }
+      &.dot-medio { color: $risk-med; }
+      &.dot-alto { color: $risk-high; }
+    }
+  }
+}
+
+/* -------------------------------------------------------------
+   MAPA Y CANVAS
+------------------------------------------------------------- */
+.map-viewport {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.map-svg-layer {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.map-label {
+  position: absolute;
+  font-size: 12px;
+  font-weight: 800;
+  color: #6b8e6b;
+
+  &.label-providencia {
+    top: 28%;
+    right: 8%;
+  }
+  &.label-alameda {
+    top: 45%;
+    left: 41%;
+    font-size: 11px;
+    color: #4b6b4b;
+  }
+  &.label-santiago {
+    bottom: 25%;
+    left: 38%;
+    letter-spacing: 2px;
+    font-size: 14px;
+    color: #2d6a4f;
+    opacity: 0.8;
+  }
+}
+
+/* -------------------------------------------------------------
+   PINES DE PRECIO EN EL MAPA
+------------------------------------------------------------- */
+.map-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+
+  .pin-dot {
+    font-size: 10px;
+    &.dot-bajo { color: $risk-low; }
+    &.dot-medio { color: $risk-med; }
+    &.dot-alto { color: $risk-high; }
+  }
+
+  .pin-price {
+    font-size: 13px;
+    font-weight: 800;
+    color: $gh-text-dark;
+  }
+
+  &.selected {
+    background: $gh-primary-green;
+    border: 2px solid #ffffff;
+    box-shadow: 0 6px 16px rgba(45, 106, 79, 0.4);
+    z-index: 15;
+    transform: translate(-50%, -50%) scale(1.1);
+
+    .pin-dot {
+      color: #ffffff;
+    }
+
+    .pin-price {
+      color: #ffffff;
+    }
+  }
+}
+
+/* -------------------------------------------------------------
+   TARJETA FLOTANTE INFERIOR
+------------------------------------------------------------- */
+.bottom-card-wrapper {
+  position: absolute;
+  bottom: 20px;
+  left: 16px;
+  right: 16px;
+  z-index: 25;
+}
+
+.preview-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  .icon-box {
+    width: 64px;
+    height: 64px;
+    background: $gh-light-green;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ion-icon {
+      font-size: 28px;
+      color: $gh-primary-green;
+    }
+  }
+
+  .card-details {
+    flex: 1;
+
+    .risk-label {
+      font-size: 12px;
       font-weight: 700;
-      color: #2e7d32;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      &.risk-bajo { color: $risk-low; }
+      &.risk-medio { color: $risk-med; }
+      &.risk-alto { color: $risk-high; }
+
+      .dot { font-size: 8px; }
+    }
+
+    .prop-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: $gh-text-dark;
+      margin: 2px 0;
+    }
+
+    .prop-subtext {
+      font-size: 13px;
+      color: #4b5563;
       margin: 0;
     }
+
+    .prop-date {
+      font-size: 12px;
+      color: #6b7280;
+      margin: 2px 0 0;
+    }
+  }
+
+  .card-arrow {
+    font-size: 20px;
+    color: #9ca3af;
   }
 }
