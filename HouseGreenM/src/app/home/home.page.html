@@ -1,84 +1,142 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="header-toolbar">
+    <!-- Botón para desplegar el menú lateral -->
     <ion-buttons slot="start">
-      <ion-menu-button color="light"></ion-menu-button>
+      <ion-menu-button class="menu-btn"></ion-menu-button>
     </ion-buttons>
-    <ion-title>Inicio</ion-title>
+
+    <ion-title class="brand-title">HouseGreen</ion-title>
+
+    <!-- Botón de notificaciones -->
+    <ion-buttons slot="end">
+      <button class="boton-notificacion" (click)="irANotificaciones()" aria-label="Notificaciones">
+        <ion-icon name="notifications-outline"></ion-icon>
+        @if (notificacionesCount > 0) {
+          <span class="badge">{{ notificacionesCount }}</span>
+        }
+      </button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="cuerpo-home ion-padding">
-  
-  <!-- Banner de Bienvenida -->
-  <ion-card class="card-bienvenida">
-    <ion-card-header>
-      <ion-card-subtitle>Bienvenido de vuelta</ion-card-subtitle>
-      <ion-card-title>{{ usuario }}</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      Encuentra las mejores oportunidades de inversión e inmuebles en remate hoy.
-    </ion-card-content>
-  </ion-card>
+<ion-content class="cuerpo-inicio" [fullscreen]="true">
+  <div class="contenedor-principal">
 
-  <!-- Tarjetas de Acceso Rápido -->
-  <div class="seccion-titulo">
-    <h3>Accesos Rápidos</h3>
+    <!-- Saludo inicial -->
+    <div class="seccion-saludo">
+      <h1>Hola, {{ usuarioNombre }}</h1>
+      <p>{{ rematesActivos }} remates activos en la Región Metropolitana</p>
+    </div>
+
+    <!-- Buscador -->
+    <div class="buscador-box">
+      <ion-icon name="search-outline"></ion-icon>
+      <input 
+        type="text" 
+        [(ngModel)]="busqueda" 
+        placeholder="Busca por comuna o dirección"
+        (keyup.enter)="buscar()" 
+      />
+    </div>
+
+    <!-- Semáforo de hoy -->
+    <div class="seccion-bloque">
+      <div class="encabezado-seccion">
+        <h2>Semáforo de hoy</h2>
+        <a [routerLink]="['/catalogo-propiedades']">Ver catálogo</a>
+      </div>
+
+      <div class="grid-semaforo">
+        <div class="card-semaforo bajo" (click)="filtrarPorRiesgo('bajo')">
+          <div class="icono-circulo bajo">
+            <ion-icon name="checkmark-outline"></ion-icon>
+          </div>
+          <span class="numero">{{ semaforo.bajo }}</span>
+          <span class="etiqueta">Riesgo bajo</span>
+        </div>
+
+        <div class="card-semaforo medio" (click)="filtrarPorRiesgo('medio')">
+          <div class="icono-circulo medio">
+            <span>!</span>
+          </div>
+          <span class="numero">{{ semaforo.medio }}</span>
+          <span class="etiqueta">Riesgo medio</span>
+        </div>
+
+        <div class="card-semaforo alto" (click)="filtrarPorRiesgo('alto')">
+          <div class="icono-circulo alto">
+            <ion-icon name="close-outline"></ion-icon>
+          </div>
+          <span class="numero">{{ semaforo.alto }}</span>
+          <span class="etiqueta">Riesgo alto</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rematan pronto (Carrusel Horizontal) -->
+    <div class="seccion-bloque">
+      <div class="encabezado-seccion">
+        <h2>Rematan pronto</h2>
+        <a [routerLink]="['/catalogo-propiedades']">Ver todos</a>
+      </div>
+
+      <div class="scroll-horizontal">
+        @for (item of rematanPronto; track item.id) {
+          <div class="card-remate" (click)="verDetalle(item.id)">
+            <div class="imagen-placeholder">
+              <div class="badge-riesgo" [ngClass]="item.riesgo">
+                <span class="punto"></span>
+                <span>Riesgo {{ item.riesgo }}</span>
+              </div>
+              <ion-icon name="business-outline" class="icono-propiedad"></ion-icon>
+            </div>
+
+            <div class="card-contenido">
+              <h3>{{ item.titulo }}</h3>
+              <p class="ubicacion">{{ item.comuna }} · {{ item.m2 }} m²</p>
+              <p class="precio">Mínimo ${{ item.precio | number:'1.0-0' }}</p>
+
+              <div class="card-pie">
+                <div class="fecha">
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  <span>{{ item.fecha }}</span>
+                </div>
+                <span class="badge-dias">{{ item.diasRestantes }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Recién publicados (Lista Vertical) -->
+    <div class="seccion-bloque">
+      <div class="encabezado-seccion">
+        <h2>Recién publicados</h2>
+        <a [routerLink]="['/catalogo-propiedades']">Ver todos</a>
+      </div>
+
+      <div class="lista-vertical">
+        @for (item of recienPublicados; track item.id) {
+          <div class="item-reciente" (click)="verDetalle(item.id)">
+            <div class="thumb-icono">
+              <ion-icon [name]="item.icono"></ion-icon>
+            </div>
+
+            <div class="item-info">
+              <div class="badge-riesgo-inline" [ngClass]="item.riesgo">
+                <span class="punto"></span>
+                <span>Riesgo {{ item.riesgo }}</span>
+              </div>
+              <h3>{{ item.titulo }} · {{ item.comuna }}</h3>
+              <p>${{ item.precio | number:'1.0-0' }} · {{ item.m2 }} m²</p>
+            </div>
+
+            <span class="tag-tiempo">{{ item.tiempo }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
   </div>
-
-  <ion-grid>
-    <ion-row>
-      <ion-col size="6">
-        <ion-card class="card-accion" [routerLink]="['/catalogo-propiedades']">
-          <ion-card-content>
-            <ion-icon name="business-outline" class="icono-card"></ion-icon>
-            <h4>Catálogo</h4>
-            <p>Ver remates</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="6">
-        <ion-card class="card-accion" [routerLink]="['/mapa-propiedades']">
-          <ion-card-content>
-            <ion-icon name="map-outline" class="icono-card"></ion-icon>
-            <h4>Mapa</h4>
-            <p>Ubicaciones</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="6">
-        <ion-card class="card-accion" [routerLink]="['/contacto']">
-          <ion-card-content>
-            <ion-icon name="chatbox-ellipses-outline" class="icono-card"></ion-icon>
-            <h4>¿Sugerencias?</h4>
-            <p>Compártelas con nosotros</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="6">
-        <ion-card class="card-accion" [routerLink]="['/propiedades-guardadas']">
-          <ion-card-content>
-            <ion-icon name="bookmark-outline" class="icono-card"></ion-icon>
-            <h4>Guardados</h4>
-            <p>Favoritos</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-
-  <!-- Botón Ubicación / Centro de Justicia -->
-  <ion-card class="card-ubicacion" (click)="AbrirMaps()">
-    <ion-item lines="none" class="item-maps">
-      <ion-icon name="location-outline" slot="start" class="icono-ubicacion"></ion-icon>
-      <ion-label>
-        <h2>Centro de Justicia</h2>
-        <p>Ver ubicación en Google Maps</p>
-      </ion-label>
-      <ion-icon name="open-outline" slot="end" color="medium"></ion-icon>
-    </ion-item>
-  </ion-card>
-
 </ion-content>
