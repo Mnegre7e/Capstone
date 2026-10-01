@@ -11,10 +11,10 @@ export class AdminHomePage {
   private router = inject(Router);
 
   irAPublicaciones() {
-    this.router.navigate(['/admin/publicaciones']);
+    this.router.navigate(['publicaciones']);
   }
 
   verDetallePublicacion(id: number) {
-    this.router.navigate(['/admin/publicaciones', id]);
+    this.router.navigate(['publicacion-detalle', id]);
   }
 }

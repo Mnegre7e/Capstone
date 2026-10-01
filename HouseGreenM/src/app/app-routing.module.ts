@@ -63,7 +63,8 @@ const routes: Routes = [
   {
   path: 'detalle-propiedad/:id', // <-- Debe tener /:id
   loadChildren: () => import('./pages/detalle-propiedad/detalle-propiedad.module').then(m => m.DetallePropiedadPageModule)
-  },  {
+  },
+  {
     path: 'cambiar-contrasena',
     loadChildren: () => import('./pages/cambiar-contrasena/cambiar-contrasena.module').then( m => m.CambiarContrasenaPageModule)
   },
@@ -78,6 +79,10 @@ const routes: Routes = [
   {
     path: 'publicacion-detalle',
     loadChildren: () => import('./admin/publicacion-detalle/publicacion-detalle.module').then( m => m.PublicacionDetallePageModule)
+  },
+  {
+    path: 'publicacion-detalle/:id', // <-- El :id es fundamental
+    loadChildren: () => import('./admin/publicacion-detalle/publicacion-detalle.module').then(m => m.PublicacionDetallePageModule)
   },
 
 
