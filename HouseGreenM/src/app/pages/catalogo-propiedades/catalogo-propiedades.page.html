@@ -1,190 +1,110 @@
-<ion-content class="bg-housegreen">
-  <div class="main-container">
+<ion-header class="ion-no-border">
+  <ion-toolbar class="greenhouse-toolbar">
+    <ion-buttons slot="start">
+      <!-- Botón de retorno (Back Button) -->
+      <ion-back-button defaultHref="/home" text="Volver" icon="chevron-back-outline"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Catálogo</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/propiedades-guardadas">
+        <ion-icon slot="icon-only" name="bookmark-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 
-    <!-- Encabezado -->
-    <div class="header-section">
-      <div class="header-top">
-        <div>
-          <h1 class="titulo-pagina">Catálogo</h1>
-          <p class="subtitulo-pagina">{{ propiedadesFiltradas.length }} remates · Región Metropolitana</p>
-        </div>
-        <button class="btn-icono-mapa">
-          <ion-icon name="map-outline"></ion-icon>
-        </button>
-      </div>
+<ion-content class="ion-padding greenhouse-content">
 
-      <!-- Buscador -->
-      <div class="search-box">
-        <ion-icon name="search-outline"></ion-icon>
-        <input 
-          type="text" 
-          [(ngModel)]="textoBusqueda" 
-          (input)="aplicarFiltrosYOrden()" 
-          placeholder="Busca por comuna o dirección" 
-        />
-      </div>
+  <!-- Buscador Estilo Greenhouse -->
+  <div class="search-container">
+    <ion-searchbar 
+      [(ngModel)]="textoBusqueda" 
+      (ionInput)="aplicarFiltrosYOrden()"
+      placeholder="Buscar por comuna, título o calle..."
+      debounce="300"
+      class="greenhouse-searchbar">
+    </ion-searchbar>
+  </div>
 
-      <!-- Barra de Filtros en Pills -->
-      <div class="scroll-filtros">
-        <!-- Botón Filtros / Limpiar -->
-        <button 
-          class="pill-btn primary" 
-          [class.active-reset]="comunaSeleccionada || precioMaximo || tipoSeleccionado || riesgoSeleccionado"
-          (click)="limpiarFiltros()">
-          <ion-icon name="options-outline"></ion-icon>
-          <span>{{ (comunaSeleccionada || precioMaximo || tipoSeleccionado || riesgoSeleccionado) ? 'Limpiar' : 'Filtros' }}</span>
-        </button>
+  <!-- Filtros Rápidos de Riesgo -->
+  <div class="filter-chips">
+    <ion-chip [ngClass]="{'active-chip': riesgoSeleccionado === 'bajo'}" (click)="setRiesgo('bajo')">
+      <ion-label>Riesgo Bajo</ion-label>
+    </ion-chip>
+    <ion-chip [ngClass]="{'active-chip': riesgoSeleccionado === 'medio'}" (click)="setRiesgo('medio')">
+      <ion-label>Riesgo Medio</ion-label>
+    </ion-chip>
+    <ion-chip [ngClass]="{'active-chip': riesgoSeleccionado === 'alto'}" (click)="setRiesgo('alto')">
+      <ion-label>Riesgo Alto</ion-label>
+    </ion-chip>
 
-        <!-- Filtro Riesgo (Semáforo) -->
-        <button class="pill-btn white" [class.activo]="riesgoSeleccionado" id="pop-riesgo">
-          <span class="dot-indicator" *ngIf="riesgoSeleccionado" [ngClass]="'dot-' + riesgoSeleccionado">●</span>
-          <span>{{ riesgoSeleccionado ? ('Riesgo ' + riesgoSeleccionado) : 'Riesgo' }}</span>
-          <ion-icon name="chevron-down-outline"></ion-icon>
-        </button>
-        <ion-popover trigger="pop-riesgo" dismissOnSelect="true">
-          <ng-template>
-            <ion-content class="popover-content">
-              <ion-item button (click)="setRiesgo('')" [class.selected]="!riesgoSeleccionado">
-                Todos los riesgos
-              </ion-item>
-              <ion-item button (click)="setRiesgo('bajo')" [class.selected]="riesgoSeleccionado === 'bajo'">
-                <span class="dot-popover bajo">●</span> Riesgo bajo
-              </ion-item>
-              <ion-item button (click)="setRiesgo('medio')" [class.selected]="riesgoSeleccionado === 'medio'">
-                <span class="dot-popover medio">●</span> Riesgo medio
-              </ion-item>
-              <ion-item button (click)="setRiesgo('alto')" [class.selected]="riesgoSeleccionado === 'alto'">
-                <span class="dot-popover alto">●</span> Riesgo alto
-              </ion-item>
-            </ion-content>
-          </ng-template>
-        </ion-popover>
+    @if (riesgoSeleccionado || comunaSeleccionada || tipoSeleccionado || precioMaximo) {
+      <ion-chip class="clear-chip" (click)="limpiarFiltros()">
+        <ion-icon name="close-circle-outline"></ion-icon>
+        <ion-label>Limpiar</ion-label>
+      </ion-chip>
+    }
+  </div>
 
-        <!-- Filtro Comuna -->
-        <button class="pill-btn white" [class.activo]="comunaSeleccionada" id="pop-comuna">
-          <span>{{ comunaSeleccionada ? comunaSeleccionada : 'Comuna' }}</span>
-          <ion-icon name="chevron-down-outline"></ion-icon>
-        </button>
-        <ion-popover trigger="pop-comuna" dismissOnSelect="true">
-          <ng-template>
-            <ion-content class="popover-content">
-              <ion-item button (click)="setComuna('')" [class.selected]="!comunaSeleccionada">Todas las comunas</ion-item>
-              <ion-item *ngFor="let c of comunasDisponibles" button (click)="setComuna(c)" [class.selected]="comunaSeleccionada === c">
-                {{ c }}
-              </ion-item>
-            </ion-content>
-          </ng-template>
-        </ion-popover>
+  <!-- Conteo de resultados -->
+  <div class="results-header">
+    <p class="results-count">{{ propiedadesFiltradas.length }} propiedades encontradas</p>
+  </div>
 
-        <!-- Filtro Precio -->
-        <button class="pill-btn white" [class.activo]="precioMaximo" id="pop-precio">
-          <span>{{ precioMaximo ? ('Hasta $' + (precioMaximo/1000000) + 'M') : 'Precio' }}</span>
-          <ion-icon name="chevron-down-outline"></ion-icon>
-        </button>
-        <ion-popover trigger="pop-precio" dismissOnSelect="true">
-          <ng-template>
-            <ion-content class="popover-content">
-              <ion-item button (click)="setPrecio(null)">Cualquier precio</ion-item>
-              <ion-item button (click)="setPrecio(40000000)">Hasta $40.000.000</ion-item>
-              <ion-item button (click)="setPrecio(70000000)">Hasta $70.000.000</ion-item>
-              <ion-item button (click)="setPrecio(100000000)">Hasta $100.000.000</ion-item>
-            </ion-content>
-          </ng-template>
-        </ion-popover>
-
-        <!-- Filtro Tipo -->
-        <button class="pill-btn white" [class.activo]="tipoSeleccionado" id="pop-tipo">
-          <span>{{ tipoSeleccionado ? tipoSeleccionado : 'Tipo' }}</span>
-          <ion-icon name="chevron-down-outline"></ion-icon>
-        </button>
-        <ion-popover trigger="pop-tipo" dismissOnSelect="true">
-          <ng-template>
-            <ion-content class="popover-content">
-              <ion-item button (click)="setTipo('')">Todos los tipos</ion-item>
-              <ion-item *ngFor="let t of tiposDisponibles" button (click)="setTipo(t)" [class.selected]="tipoSeleccionado === t">
-                {{ t }}
-              </ion-item>
-            </ion-content>
-          </ng-template>
-        </ion-popover>
-      </div>
-
-      <!-- Barra de Ordenar y Resultados -->
-      <div class="ordenar-bar">
-        <div class="ordenar-left" id="pop-orden">
-          <ion-icon name="swap-vertical-outline"></ion-icon>
-          <span>Ordenar: <strong>{{ getNombreOrden() }}</strong></span>
-          <ion-icon name="chevron-down-outline"></ion-icon>
-        </div>
-        <ion-popover trigger="pop-orden" dismissOnSelect="true">
-          <ng-template>
-            <ion-content class="popover-content">
-              <ion-item button (click)="setOrden('fecha')" [class.selected]="ordenSeleccionado === 'fecha'">Fecha de remate</ion-item>
-              <ion-item button (click)="setOrden('precio-asc')" [class.selected]="ordenSeleccionado === 'precio-asc'">Precio: menor a mayor</ion-item>
-              <ion-item button (click)="setOrden('precio-desc')" [class.selected]="ordenSeleccionado === 'precio-desc'">Precio: mayor a menor</ion-item>
-              <ion-item button (click)="setOrden('superficie')" [class.selected]="ordenSeleccionado === 'superficie'">Superficie</ion-item>
-            </ion-content>
-          </ng-template>
-        </ion-popover>
-
-        <span class="resultados-count">{{ propiedadesFiltradas.length }} resultados</span>
-      </div>
-    </div>
-
-    <!-- Lista de Tarjetas Estilo HouseGreen -->
-    <div class="cards-container">
-      <div *ngFor="let p of propiedadesFiltradas" class="house-card">
-
-        <!-- Banner Superior Según Riesgo -->
+  <!-- Lista de Tarjetas del Catálogo -->
+  <div class="catalog-grid">
+    @for (p of propiedadesFiltradas; track p.id) {
+      <div class="house-card" (click)="verDetallePropiedad(p)">
+        
+        <!-- Banner Greenhouse con indicador de riesgo -->
         <div class="card-banner" [ngClass]="'banner-' + p.riesgoGlobal">
-          <!-- Badge de Riesgo -->
           <div class="badge-riesgo" [ngClass]="'badge-' + p.riesgoGlobal">
-            <span class="dot">●</span> Riesgo {{ p.riesgoGlobal }}
+            <span class="dot">●</span> Riesgo {{ p.riesgoGlobal | titlecase }}
           </div>
 
-          <!-- Icono de Favorito -->
-          <button class="btn-bookmark" (click)="toggleGuardar(p, $event)">
+          <button class="btn-bookmark" (click)="toggleGuardar(p, $event)" [attr.aria-label]="'Guardar ' + p.titulo">
             <ion-icon [name]="p.guardado ? 'bookmark' : 'bookmark-outline'"></ion-icon>
           </button>
 
-          <!-- Icono central de tipo de propiedad -->
-          <div class="icon-ilustracion">
+          <div class="type-icon">
             <ion-icon [name]="p.tipo === 'Casa' ? 'home-outline' : (p.tipo === 'Oficina' ? 'briefcase-outline' : 'business-outline')"></ion-icon>
           </div>
         </div>
 
-        <!-- Cuerpo de la Tarjeta -->
+        <!-- Contenido principal de la tarjeta -->
         <div class="card-body">
-          <span class="comuna-label">{{ p.comuna }}</span>
-          <h2 class="propiedad-titulo">{{ p.titulo }}</h2>
+          <span class="comuna-tag">{{ p.comuna | uppercase }}</span>
+          <h2 class="prop-title">{{ p.titulo }}</h2>
+          <p class="prop-address">{{ p.direccion }}</p>
 
-          <div class="precio-section">
-            <div class="precio-col">
-              <span class="precio-label">Precio mínimo</span>
-              <span class="precio-valor">{{ formatearMoneda(p.precioMinimo) }}</span>
+          <div class="price-box">
+            <div class="price-main">
+              <span class="price-label">Precio Mínimo:</span>
+              <span class="price-value">{{ formatearMoneda(p.precioMinimo) }}</span>
             </div>
-            <span class="precio-m2">{{ formatearMoneda(p.precioM2) }} / m²</span>
+            <div class="price-market">
+              <span class="market-label">Mercado: {{ formatearMoneda(p.precioMercado) }}</span>
+              <span class="discount-badge">-{{ p.descuentoEstimado }}%</span>
+            </div>
           </div>
 
-          <!-- Pills de Detalles -->
-          <div class="detalles-pills">
-            <span class="detail-pill">
-              <ion-icon name="square-outline"></ion-icon> {{ p.superficie }} m²
-            </span>
-            <span class="detail-pill">
-              <ion-icon name="calendar-outline"></ion-icon> Remate {{ p.fechaRemate }}
-            </span>
+          <div class="card-specs">
+            <span><ion-icon name="square-outline"></ion-icon> {{ p.superficie }} m²</span>
+            <span><ion-icon name="calendar-outline"></ion-icon> {{ p.fechaRemate }}</span>
           </div>
 
-          <!-- Footer de Tarjeta -->
-          <div class="card-footer">
-            <span class="fecha-publicacion">Publicado {{ p.fechaPublicacion }}</span>
-            <button class="btn-ver-detalle">Ver detalle &gt;</button>
+          <div class="card-action">
+            <span class="lote-text">Lote #{{ p.lote }}</span>
+            <button class="btn-detail">Ver Detalle →</button>
           </div>
         </div>
 
       </div>
-    </div>
-
+    } @empty {
+      <div class="no-results">
+        <p>No se encontraron propiedades con esos criterios.</p>
+      </div>
+    }
   </div>
+
 </ion-content>

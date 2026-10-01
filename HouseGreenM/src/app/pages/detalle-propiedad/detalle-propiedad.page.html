@@ -1,281 +1,153 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar class="header-toolbar">
+  <ion-toolbar class="greenhouse-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/catalogo-propiedades" color="light"></ion-back-button>
+      <!-- Botón Volver al catálogo -->
+      <ion-back-button defaultHref="/catalogo-propiedades" text="Volver" icon="chevron-back-outline"></ion-back-button>
     </ion-buttons>
     <ion-title>Detalle de Propiedad</ion-title>
+    <ion-buttons slot="end">
+      @if (propiedad) {
+        <ion-button (click)="toggleGuardar()">
+          <ion-icon slot="icon-only" [name]="propiedad.guardado ? 'bookmark' : 'bookmark-outline'"></ion-icon>
+        </ion-button>
+      }
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="cuerpo-detalle ion-padding">
-
+<ion-content class="ion-padding greenhouse-content">
   @if (propiedad) {
-    <!-- Contenedor de Imagen y Badges -->
-    <div class="contenedor-imagen">
-      <img [src]="propiedad.imagen" [alt]="propiedad.titulo" />
-      <div class="badge-fotos">
-        <ion-icon name="camera-outline"></ion-icon> 1/6 fotos
+
+    <!-- Banner / Header de Riesgo Greenhouse Style -->
+    <div class="hero-card" [ngClass]="'hero-' + propiedad.riesgoGlobal">
+      <div class="risk-badge" [ngClass]="'badge-' + propiedad.riesgoGlobal">
+        <span class="dot">●</span> Riesgo {{ propiedad.riesgoGlobal | titlecase }} ({{ propiedad.puntajeRiesgo }}/10)
       </div>
-      <div class="badge-riesgo-flotante favorable">
-        • Riesgo bajo
+      <span class="type-badge">{{ propiedad.tipo }}</span>
+    </div>
+
+    <!-- Encabezado Principal -->
+    <div class="main-info">
+      <span class="comuna-tag">{{ propiedad.comuna | uppercase }}</span>
+      <h1 class="prop-title">{{ propiedad.titulo }}</h1>
+      <p class="prop-address">
+        <ion-icon name="location-outline"></ion-icon>
+        {{ propiedad.direccion }}
+      </p>
+    </div>
+
+    <!-- Precios y Descuento -->
+    <div class="price-card">
+      <div class="price-row">
+        <div>
+          <span class="price-label">Precio Mínimo Remate</span>
+          <h2 class="price-main">{{ formatearMoneda(propiedad.precioMinimo) }}</h2>
+        </div>
+        <div class="discount-box">
+          <span class="discount-percent">-{{ propiedad.descuentoEstimado }}%</span>
+          <span class="discount-text">vs Mercado</span>
+        </div>
+      </div>
+      <div class="market-subtext">
+        <span>Valor Mercado: <strong>{{ formatearMoneda(propiedad.precioMercado) }}</strong></span>
+        <span>M² Mínimo: <strong>{{ formatearMoneda(propiedad.precioM2Minimo) }}</strong></span>
       </div>
     </div>
 
-    <!-- Encabezado e Identificación del Remate -->
-    <div class="info-header-card">
-      <span class="ubicacion">{{ propiedad.ubicacion }}</span>
-      <h1 class="titulo-propiedad">{{ propiedad.titulo }}</h1>
-      <p class="causa-rol">{{ propiedad.tribunalRol }}</p>
+    <!-- Ficha Técnica -->
+    <div class="section-card">
+      <h3 class="section-title">Ficha Técnica</h3>
+      <div class="specs-grid">
+        <div class="spec-item">
+          <ion-icon name="square-outline"></ion-icon>
+          <span>{{ propiedad.superficie }} m² Sup.</span>
+        </div>
+        @if (propiedad.dormitorios !== undefined) {
+          <div class="spec-item">
+            <ion-icon name="bed-outline"></ion-icon>
+            <span>{{ propiedad.dormitorios }} Dorm.</span>
+          </div>
+        }
+        @if (propiedad.banos !== undefined) {
+          <div class="spec-item">
+            <ion-icon name="water-outline"></ion-icon>
+            <span>{{ propiedad.banos }} Baño(s)</span>
+          </div>
+        }
+        <div class="spec-item">
+          <ion-icon name="car-outline"></ion-icon>
+          <span>{{ propiedad.estacionamiento ? 'Con Estac.' : 'Sin Estac.' }}</span>
+        </div>
+        <div class="spec-item">
+          <ion-icon name="archive-outline"></ion-icon>
+          <span>{{ propiedad.bodega ? 'Con Bodega' : 'Sin Bodega' }}</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Tarjeta de Precio y Comparativa de Mercado -->
-    <ion-card class="card-seccion card-precios">
-      <ion-card-content>
-        <div class="comparativa-precios">
-          <div class="monto-box">
-            <span class="etiqueta">Precio mínimo</span>
-            <span class="monto-principal">{{ formatearMoneda(propiedad.precioMinimo) }}</span>
-          </div>
-          <div class="separador-vertical">|</div>
-          <div class="monto-box">
-            <span class="etiqueta">Valor estimado</span>
-            <span class="monto-estimado">{{ formatearMoneda(propiedad.valorEstimado) }}</span>
-          </div>
+    <!-- Información del Remate Judicial -->
+    <div class="section-card">
+      <h3 class="section-title">Información del Remate</h3>
+      <div class="info-list">
+        <div class="info-item">
+          <span class="info-label">Tribunal:</span>
+          <span class="info-value">{{ propiedad.tribunal }}</span>
         </div>
-
-        <div class="sub-metricas">
-          <span class="chip-m2">{{ formatearMoneda(propiedad.precioM2) }} por m²</span>
-          <span class="chip-descuento">{{ propiedad.descuentoPorcentaje }}% bajo el estimado</span>
+        <div class="info-item">
+          <span class="info-label">Causa:</span>
+          <span class="info-value">{{ propiedad.causa }}</span>
         </div>
-      </ion-card-content>
-    </ion-card>
-
-    <!-- Ficha Resumen / Tiempos -->
-    <ion-grid class="grid-resumen ion-no-padding">
-      <ion-row>
-        <ion-col size="6">
-          <div class="box-resumen">
-            <span class="label-resumen">Superficie</span>
-            <strong>{{ propiedad.superficie }} utiles</strong>
-          </div>
-        </ion-col>
-        <ion-col size="6">
-          <div class="box-resumen destacado-remate">
-            <span class="label-resumen">Fecha del remate</span>
-            <strong>{{ propiedad.fechaRemate }}</strong>
-            <span class="badge-dias">En {{ propiedad.diasRestantes }} días</span>
-          </div>
-        </ion-col>
-        <ion-col size="6">
-          <div class="box-resumen">
-            <span class="label-resumen">Publicado</span>
-            <span>{{ propiedad.fechaPublicacion }}</span>
-          </div>
-        </ion-col>
-        <ion-col size="6">
-          <div class="box-resumen">
-            <span class="label-resumen">Modalidad</span>
-            <span>{{ propiedad.modalidad }}</span>
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-
-    <!-- Botones de Acción Principal -->
-    <div class="acciones-remate">
-      <ion-button expand="block" color="success" class="btn-subasta">
-        Ir a la subasta
-      </ion-button>
-      <ion-button expand="block" fill="outline" color="success" class="btn-bases">
-        Ver bases del remate
-      </ion-button>
+        <div class="info-item">
+          <span class="info-label">Fecha y Hora:</span>
+          <span class="info-value highlight">{{ propiedad.fechaRemate }} a las {{ propiedad.horaRemate }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Modalidad:</span>
+          <span class="info-value">{{ propiedad.modalidad }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Garantía Exigida:</span>
+          <span class="info-value">{{ propiedad.porcentajeGarantia }}% ({{ formatearMoneda(propiedad.montoGarantia) }})</span>
+        </div>
+      </div>
     </div>
 
-    <!-- SEMÁFORO HOUSEGREEN -->
-    <ion-card class="card-seccion card-semaforo">
-      <ion-card-header>
-        <div class="header-semaforo">
-          <span class="titulo-semaforo">SEMÁFORO HOUSEGREEN</span>
-          <ion-badge class="badge-semaforo favorable">Riesgo bajo</ion-badge>
-        </div>
-        <p class="subtitulo-semaforo">
-          4 factores favorables | 1 en atención | sin vetos
-        </p>
-      </ion-card-header>
+    <!-- Descripción -->
+    <div class="section-card">
+      <h3 class="section-title">Descripción</h3>
+      <p class="prop-description">{{ propiedad.descripcion }}</p>
+    </div>
 
-      <ion-card-content>
-        <h3 class="titulo-subseccion">Factor por factor</h3>
-        
-        <div class="lista-factores">
-          @for (factor of propiedad.factores; track factor.nombre) {
-            <div class="item-factor">
-              <div class="header-factor">
-                <strong>{{ factor.nombre }}</strong>
-                <span class="tag-factor" [ngClass]="factor.estadoClass">{{ factor.estadoLabel }}</span>
-              </div>
-              <p class="detalle-factor">{{ factor.descripcion }}</p>
-              <span class="fuente-factor">Fuente: {{ factor.fuente }}</span>
+    <!-- Evaluación de Riesgo Greenhouse -->
+    <div class="section-card">
+      <h3 class="section-title">Análisis de Riesgo Greenhouse</h3>
+      <div class="risk-factors">
+        @for (factor of propiedad.factoresRiesgo; track factor.nombre) {
+          <div class="factor-card" [ngClass]="'factor-' + factor.nivel">
+            <div class="factor-header">
+              <span class="factor-name">{{ factor.nombre }}</span>
+              <span class="factor-score" [ngClass]="'score-' + factor.nivel">
+                Score: {{ factor.score }}/10
+              </span>
             </div>
-          }
-        </div>
+            <p class="factor-desc">{{ factor.descripcion }}</p>
+          </div>
+        }
+      </div>
+    </div>
 
-        <!-- Reglas de Veto -->
-        <div class="contenedor-veto">
-          <h3 class="titulo-subseccion">Reglas de veto</h3>
-          <p class="descriptivo-veto">
-            Si se cumple cualquiera, el semáforo pasa directo a <strong>riesgo alto</strong>.
-          </p>
-
-          <ion-grid class="grid-vetos ion-no-padding">
-            <ion-row class="row-veto">
-              <ion-col size="8">Ocupantes sin título</ion-col>
-              <ion-col size="4" class="ion-text-end"><span class="chip-no-aplica">No aplica</span></ion-col>
-            </ion-row>
-            <ion-row class="row-veto">
-              <ion-col size="8">Juicio pendiente sobre el dominio</ion-col>
-              <ion-col size="4" class="ion-text-end"><span class="chip-no-aplica">No aplica</span></ion-col>
-            </ion-row>
-            <ion-row class="row-veto">
-              <ion-col size="8">Contribuciones impagas sobre el 10% del mínimo</ion-col>
-              <ion-col size="4" class="ion-text-end"><span class="chip-no-aplica">No aplica</span></ion-col>
-            </ion-row>
-            <ion-row class="row-veto">
-              <ion-col size="8">Sin recepción final municipal</ion-col>
-              <ion-col size="4" class="ion-text-end"><span class="chip-no-aplica">No aplica</span></ion-col>
-            </ion-row>
-          </ion-grid>
-        </div>
-
-        <!-- Leyenda de Criterios -->
-        <div class="criterios-decision">
-          <h4>Cómo se decide el color</h4>
-          <p><strong>Bajo:</strong> sin vetos y como máximo 1 factor en atención.</p>
-          <p><strong>Medio:</strong> sin vetos y 2 o más factores en atención.</p>
-          <p><strong>Alto:</strong> se cumple al menos una regla de veto.</p>
-          <small class="nota-actualizacion">
-            Actualizado el {{ propiedad.fechaActualizacionSemaforo }}. Fuentes: bases del remate, expediente, TGR, SII, CBR y 4 comparables.
-          </small>
-        </div>
-      </ion-card-content>
-    </ion-card>
-
-    <!-- CONDICIONES DEL REMATE -->
-    <ion-card class="card-seccion">
-      <ion-card-header>
-        <ion-card-title>Condiciones del remate</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-list lines="inset" class="lista-condiciones">
-          <ion-item>
-            <ion-label class="ion-text-wrap">
-              <h3>Garantía para participar</h3>
-              <p><strong>{{ formatearMoneda(propiedad.condiciones.garantiaMonto) }}</strong> ({{ propiedad.condiciones.garantiaPorcentaje }}% del mínimo)</p>
-              <small>{{ propiedad.condiciones.garantiaDetalle }}</small>
-            </ion-label>
-          </ion-item>
-
-          <ion-item>
-            <ion-label class="ion-text-wrap">
-              <h3>Precio mínimo</h3>
-              <p><strong>{{ formatearMoneda(propiedad.precioMinimo) }}</strong>, {{ propiedad.condiciones.precioMinimoDetalle }}</p>
-            </ion-label>
-          </ion-item>
-
-          <ion-item>
-            <ion-label class="ion-text-wrap">
-              <h3>Pago del saldo</h3>
-              <p>{{ propiedad.condiciones.pagoSaldo }}</p>
-            </ion-label>
-          </ion-item>
-
-          <ion-item lines="none">
-            <ion-label class="ion-text-wrap">
-              <h3>Inscripción</h3>
-              <p>{{ propiedad.condiciones.inscripcion }}</p>
-            </ion-label>
-          </ion-item>
-        </ion-list>
-      </ion-card-content>
-    </ion-card>
-
-    <!-- CARACTERÍSTICAS DE LA PROPIEDAD -->
-    <ion-card class="card-seccion">
-      <ion-card-header>
-        <ion-card-title>Características</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-grid class="grid-caracteristicas">
-          <ion-row>
-            <ion-col size="4">
-              <span class="label-carac">Tipo</span>
-              <strong>{{ propiedad.tipo }}</strong>
-            </ion-col>
-            <ion-col size="4">
-              <span class="label-carac">Dormitorios</span>
-              <strong>{{ propiedad.habitaciones }}</strong>
-            </ion-col>
-            <ion-col size="4">
-              <span class="label-carac">Baños</span>
-              <strong>{{ propiedad.banos }}</strong>
-            </ion-col>
-            <ion-col size="4">
-              <span class="label-carac">Piso</span>
-              <strong>{{ propiedad.piso }}</strong>
-            </ion-col>
-            <ion-col size="4">
-              <span class="label-carac">Año</span>
-              <strong>{{ propiedad.anoConstruccion }}</strong>
-            </ion-col>
-            <ion-col size="4">
-              <span class="label-carac">Estacionamiento</span>
-              <strong>{{ propiedad.tieneEstacionamiento ? 'Sí' : 'No' }}</strong>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ion-card-content>
-    </ion-card>
-
-    <!-- DESCRIPCIÓN -->
-    <ion-card class="card-seccion">
-      <ion-card-header>
-        <ion-card-title>Descripción</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <p class="texto-descripcion">{{ propiedad.descripcion }}</p>
-      </ion-card-content>
-    </ion-card>
-
-    <!-- VERIFICA ANTES DE OFERTAR (VERIFICACIÓN EXTERNA) -->
-    <ion-card class="card-seccion card-verificacion">
-      <ion-card-header>
-        <ion-card-title>Verifica antes de ofertar</ion-card-title>
-        <p class="sub-rol">Consulta la información oficial con el rol de avalúo <strong>{{ propiedad.rolAvaluo }}</strong>.</p>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-list lines="none" class="lista-enlaces-oficiales">
-          <ion-item button detail="true" (click)="abrirEnlace('tgr')">
-            <ion-icon name="document-text-outline" slot="start" color="success"></ion-icon>
-            <ion-label>
-              <h3>Deuda de contribuciones</h3>
-              <p>Tesorería General de la República (TGR)</p>
-            </ion-label>
-          </ion-item>
-
-          <ion-item button detail="true" (click)="abrirEnlace('sii')">
-            <ion-icon name="document-attach-outline" slot="start" color="success"></ion-icon>
-            <ion-label>
-              <h3>Avalúo fiscal</h3>
-              <p>Servicio de Impuestos Internos (SII)</p>
-            </ion-label>
-          </ion-item>
-        </ion-list>
-      </ion-card-content>
-    </ion-card>
+    <!-- Botón de Acción Principal -->
+    <div class="action-footer">
+      <ion-button expand="block" class="greenhouse-btn-submit" size="large">
+        <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
+        Participar en Remate
+      </ion-button>
+    </div>
 
   } @else {
-    <div class="sin-datos ion-text-center ion-padding">
-      <p>Cargando datos del remate...</p>
+    <div class="empty-state">
+      <p>No se encontró la propiedad solicitada.</p>
+      <ion-button fill="clear" (click)="volver()">Volver al Catálogo</ion-button>
     </div>
   }
-
 </ion-content>
