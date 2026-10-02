@@ -1,0 +1,116 @@
+<ion-header class="ion-no-border bg-white">
+  <ion-toolbar class="px-2">
+    <ion-title>
+      <h1 class="main-title">Opiniones</h1>
+      <p class="subtitle">Feedback y valoraciones de usuarios</p>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding-horizontal">
+  <!-- Tarjeta de Resumen / Promedio -->
+  <div class="rating-summary-card">
+    <div class="score-box">
+      <span class="score-number">{{ promedioGeneral }}</span>
+      <div class="stars-row">
+        <ion-icon name="star" class="star-filled"></ion-icon>
+        <ion-icon name="star" class="star-filled"></ion-icon>
+        <ion-icon name="star" class="star-filled"></ion-icon>
+        <ion-icon name="star" class="star-filled"></ion-icon>
+        <ion-icon name="star-half" class="star-filled"></ion-icon>
+      </div>
+      <span class="total-reviews">{{ totalOpiniones }} valoraciones</span>
+    </div>
+
+    <!-- Barras por estrellas -->
+    <div class="bars-box">
+      @for (item of desgloseEstrellas; track item.estrellas) {
+        <div class="bar-row">
+          <span class="star-label">{{ item.estrellas }}★</span>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" [style.width.%]="item.porcentaje"></div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Chips de Filtro -->
+  <div class="chips-container">
+    <div class="chip-item" [class.active]="filtroActivo === 'todas'" (click)="setFiltro('todas')">
+      Todas
+    </div>
+    <div class="chip-item" [class.active]="filtroActivo === 'pendientes'" (click)="setFiltro('pendientes')">
+      Pendientes
+    </div>
+    <div class="chip-item" [class.active]="filtroActivo === 'sugerencias'" (click)="setFiltro('sugerencias')">
+      Sugerencias
+    </div>
+    <div class="chip-item" [class.active]="filtroActivo === 'respondidas'" (click)="setFiltro('respondidas')">
+      Respondidas
+    </div>
+  </div>
+
+  <!-- Listado de Opiniones -->
+  <div class="opiniones-list">
+    @for (item of opinionesFiltradas; track item.id) {
+      <div class="opinion-card">
+        <div class="card-header">
+          <div class="user-info">
+            <h4 class="user-name">{{ item.usuario }}</h4>
+            <span class="opinion-fecha">{{ item.fecha }}</span>
+          </div>
+          <div class="category-badge">
+            {{ item.categoria }}
+          </div>
+        </div>
+
+        <!-- Estrellas -->
+        <div class="stars-inline">
+          @for (star of [1,2,3,4,5]; track star) {
+            <ion-icon [name]="star <= item.estrellas ? 'star' : 'star-outline'" [class.active-star]="star <= item.estrellas"></ion-icon>
+          }
+        </div>
+
+        <p class="comment-text">"{{ item.comentario }}"</p>
+
+        <!-- Respuesta existente o Botón Responder -->
+        @if (item.respondido) {
+          <div class="response-box">
+            <strong>Respuesta enviada:</strong>
+            <p>{{ item.respuesta }}</p>
+          </div>
+        } @else {
+          <div class="action-row">
+            <button class="btn-responder" (click)="responder(item.id)">
+              <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+              Responder
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</ion-content>
+
+<!-- MENÚ INFERIOR / FOOTER -->
+<ion-footer class="ion-no-border">
+  <div class="custom-tab-bar">
+    <div class="tab-item" (click)="irA('admin-home')">
+      <ion-icon name="stats-chart-outline"></ion-icon>
+      <span>Panel</span>
+    </div>
+    <div class="tab-item" (click)="irA('publicaciones')">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <span>Publicaciones</span>
+    </div>
+    <div class="tab-item active">
+      <ion-icon name="chatbox-outline"></ion-icon>
+      <span>Opiniones</span>
+    </div>
+    <div class="tab-item" (click)="irA('anuncios')">
+      <ion-icon name="megaphone-outline"></ion-icon>
+      <span>Anuncios</span>
+    </div>
+  </div>
+</ion-footer>

@@ -81,11 +81,28 @@ const routes: Routes = [
     loadChildren: () => import('./admin/publicacion-detalle/publicacion-detalle.module').then( m => m.PublicacionDetallePageModule)
   },
   {
-    path: 'publicacion-detalle/:id', // <-- El :id es fundamental
+    path: 'publicacion-detalle/:id', 
     loadChildren: () => import('./admin/publicacion-detalle/publicacion-detalle.module').then(m => m.PublicacionDetallePageModule)
-  },  {
+  },
+  {
     path: 'anuncios',
     loadChildren: () => import('./admin/anuncios/anuncios.module').then( m => m.AnunciosPageModule)
+  },
+  {
+    path: 'opiniones',
+    loadChildren: () => import('./admin/opiniones/opiniones.module').then( m => m.OpinionesPageModule)
+  },
+  {
+    path: 'clasificaciones',
+    loadChildren: () => import('./admin/clasificaciones/clasificaciones.module').then( m => m.ClasificacionesPageModule)
+  },
+  {
+    path: 'editar-publicacion',
+    loadChildren: () => import('./admin/editar-publicacion/editar-publicacion.module').then( m => m.EditarPublicacionPageModule)
+  },
+  {
+  path: 'editar-publicacion/:id',
+  loadChildren: () => import('./admin/editar-publicacion/editar-publicacion.module').then(m => m.EditarPublicacionPageModule)
   },
 
 

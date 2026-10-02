@@ -1,0 +1,323 @@
+@use 'sass:color';
+
+$primary-green: #175339;
+$primary-light: #eaf4ef;
+$bg-light: #f4f7f5;
+$text-dark: #1a1a1a;
+$text-muted: #5a6e65;
+$border-color: #eef2f0;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  --ion-background-color: #{$bg-light};
+}
+
+.bg-white {
+  --background: #ffffff;
+  background: #ffffff;
+}
+
+// Header
+ion-header {
+  ion-toolbar {
+    --background: #ffffff;
+    --border-width: 0;
+    padding: 6px 8px;
+  }
+
+  .btn-back {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: $text-dark;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .header-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: $text-dark;
+  }
+
+  .btn-top-guardar {
+    background: $primary-green;
+    color: #ffffff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+
+// Contenido
+ion-content {
+  --background: #{$bg-light};
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 24px;
+}
+
+// Banner de Alerta Informática
+.info-alert-banner {
+  background: $primary-light;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  .alert-icon {
+    font-size: 20px;
+    color: $primary-green;
+    flex-shrink: 0;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: $primary-green;
+    line-height: 1.4;
+
+    strong {
+      font-weight: 700;
+    }
+  }
+}
+
+// Tarjeta Resumen Propiedad
+.property-summary-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  border: 1px solid $border-color;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  .property-icon-box {
+    width: 44px;
+    height: 44px;
+    background: #dcece3;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ion-icon {
+      font-size: 24px;
+      color: $primary-green;
+    }
+  }
+
+  .property-details {
+    flex: 1;
+
+    h3 {
+      font-size: 15px;
+      font-weight: 800;
+      color: $text-dark;
+      margin: 0;
+    }
+
+    p {
+      font-size: 12px;
+      color: $text-muted;
+      margin: 2px 0 0 0;
+    }
+  }
+
+  .lock-icon-end {
+    font-size: 18px;
+    color: #99aab0;
+  }
+}
+
+// Estructura de Secciones (Fotos / Descripción)
+.section-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 16px;
+  border: 1px solid $border-color;
+  margin-bottom: 16px;
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: $text-dark;
+      margin: 0;
+    }
+
+    .counter-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #7a8c85;
+    }
+  }
+
+  .section-sub {
+    font-size: 12px;
+    color: #7a8c85;
+    margin: 4px 0 16px 0;
+  }
+}
+
+// Grid de Fotos
+.fotos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+
+  @media (max-width: 360px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .foto-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #e9e8e3;
+    overflow: visible;
+
+    .btn-remove-foto {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      z-index: 2;
+
+      ion-icon {
+        font-size: 14px;
+        color: #cc3333;
+      }
+    }
+
+    .foto-placeholder {
+      width: 100%;
+      height: 100%;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #d8dee0;
+
+      &.is-portada {
+        background: #cbe3d7;
+      }
+
+      .placeholder-icon {
+        font-size: 28px;
+        color: #72848c;
+      }
+    }
+
+    .foto-badge {
+      position: absolute;
+      bottom: 6px;
+      background: #ffffff;
+      color: $text-dark;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+
+      &.badge-portada {
+        background: $primary-green;
+        color: #ffffff;
+      }
+    }
+
+    /* Botón Agregar */
+    &.add-foto-btn {
+      background: transparent;
+      border: 1.5px dashed #93b5a4;
+      color: $primary-green;
+      cursor: pointer;
+      gap: 2px;
+
+      ion-icon {
+        font-size: 22px;
+      }
+
+      span {
+        font-size: 11px;
+        font-weight: 700;
+      }
+    }
+  }
+}
+
+// Area de Descripción
+.textarea-wrapper {
+  margin-top: 10px;
+
+  textarea {
+    width: 100%;
+    border: 1.5px solid $primary-green;
+    border-radius: 16px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: $text-dark;
+    line-height: 1.4;
+    outline: none;
+    resize: none;
+    background: #ffffff;
+    font-family: inherit;
+
+    &:focus {
+      border-color: $primary-green;
+    }
+  }
+}
+
+// Botón Inferior Principal
+.main-action-container {
+  margin-top: 20px;
+  padding-bottom: 12px;
+
+  .btn-guardar-main {
+    width: 100%;
+    background: $primary-green;
+    color: #ffffff;
+    border: none;
+    border-radius: 24px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(23, 83, 57, 0.2);
+    transition: background 0.2s ease;
+
+    &:active {
+      background: color.adjust($primary-green, $lightness: -5%);
+    }
+  }
+}
