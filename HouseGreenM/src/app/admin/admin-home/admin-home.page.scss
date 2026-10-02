@@ -239,42 +239,67 @@ $text-muted: #64748b;
   }
 }
 
-/* Tabbar Bottom */
-.admin-tabbar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 65px;
+// Ajuste local para el ion-footer en esta página
+ion-footer {
+  --background: #ffffff;
   background: #ffffff;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid #eef2f0;
+}
+
+// Estilos del footer en admin-home.page.scss
+ion-footer {
+  --background: #ffffff;
+  background: #ffffff;
+  border-top: 1px solid #eef2f0;
+}
+
+.custom-tab-bar {
   display: flex;
+  flex-direction: row;
   justify-content: space-around;
   align-items: center;
-  padding: 0 10px;
-  z-index: 100;
+  width: 100%;
+  padding: 8px 12px 12px 12px;
+  background: #ffffff;
 
   .tab-item {
-    background: transparent;
-    border: none;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
+    justify-content: center;
     font-size: 11px;
-    font-weight: 700;
-    color: #94a3b8;
-    padding: 6px 14px;
-    border-radius: 16px;
+    font-weight: 600;
+    color: #5a6e65;
     cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 18px;
+    transition: all 0.2s ease;
 
     ion-icon {
-      font-size: 20px;
+      font-size: 22px;
+      color: #5a6e65;
+      margin-bottom: 3px;
     }
 
+    span {
+      color: #5a6e65;
+    }
+
+    /* Píldora activa vertical idéntica a publicaciones */
     &.active {
-      background-color: $green-soft;
-      color: $green-primary;
+      background: #eaf4ef;
+      color: #175339;
+      font-weight: 800;
+
+      ion-icon {
+        color: #175339;
+      }
+
+      span {
+        color: #175339;
+        font-weight: 800;
+      }
     }
   }
 }
+

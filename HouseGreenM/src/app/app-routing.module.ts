@@ -83,7 +83,11 @@ const routes: Routes = [
   {
     path: 'publicacion-detalle/:id', // <-- El :id es fundamental
     loadChildren: () => import('./admin/publicacion-detalle/publicacion-detalle.module').then(m => m.PublicacionDetallePageModule)
+  },  {
+    path: 'anuncios',
+    loadChildren: () => import('./admin/anuncios/anuncios.module').then( m => m.AnunciosPageModule)
   },
+
 
 
 

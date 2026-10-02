@@ -17,4 +17,8 @@ export class AdminHomePage {
   verDetallePublicacion(id: number) {
     this.router.navigate(['publicacion-detalle', id]);
   }
+  
+  irA(ruta: string) {
+    this.router.navigate([`/${ruta}`]);
+  }
 }

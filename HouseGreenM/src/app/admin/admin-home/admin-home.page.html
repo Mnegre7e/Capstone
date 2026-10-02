@@ -117,22 +117,31 @@
   </div>
 </ion-content>
 
-<!-- Tab Bar Inferior -->
-<div class="admin-tabbar">
-  <button class="tab-item active">
-    <ion-icon name="bar-chart-outline"></ion-icon>
-    <span>Panel</span>
-  </button>
-  <button class="tab-item" (click)="irAPublicaciones()">
-    <ion-icon name="newspaper-outline"></ion-icon>
-    <span>Publicaciones</span>
-  </button>
-  <button class="tab-item">
-    <ion-icon name="chatbox-outline"></ion-icon>
-    <span>Opiniones</span>
-  </button>
-  <button class="tab-item">
-    <ion-icon name="volume-high-outline"></ion-icon>
-    <span>Anuncios</span>
-  </button>
-</div>
+<!-- MENÚ INFERIOR / FOOTER -->
+<ion-footer class="ion-no-border">
+  <div class="custom-tab-bar">
+    <!-- Panel / Admin Home (Pestaña Activa) -->
+    <div class="tab-item active">
+      <ion-icon name="stats-chart-outline"></ion-icon>
+      <span>Panel</span>
+    </div>
+
+    <!-- Publicaciones -->
+    <div class="tab-item" (click)="irA('publicaciones')">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <span>Publicaciones</span>
+    </div>
+
+    <!-- Opiniones -->
+    <div class="tab-item" (click)="irA('opiniones')">
+      <ion-icon name="chatbox-outline"></ion-icon>
+      <span>Opiniones</span>
+    </div>
+
+    <!-- Anuncios -->
+    <div class="tab-item" (click)="irA('anuncios')">
+      <ion-icon name="megaphone-outline"></ion-icon>
+      <span>Anuncios</span>
+    </div>
+  </div>
+</ion-footer>

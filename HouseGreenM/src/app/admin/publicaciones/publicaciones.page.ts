@@ -75,7 +75,7 @@ verDetalle(id: number) {
       this.textoBusqueda = '';
     }
   }
- irA(ruta: string) {
-  this.router.navigate([`/${ruta}`]);
-}
+  irA(ruta: string) {
+    this.router.navigate([`/${ruta}`]);
+  }
 }

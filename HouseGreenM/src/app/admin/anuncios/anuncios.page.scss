@@ -1,0 +1,200 @@
+$primary-green: #175339;
+$primary-light: #eaf4ef;
+$bg-light: #f4f7f5;
+$text-dark: #1a1a1a;
+$text-muted: #5a6e65;
+$border-color: #eef2f0;
+
+// Estructura de página completa en Ionic
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  --ion-background-color: #{$bg-light};
+}
+
+.bg-white {
+  --background: #ffffff;
+  background: #ffffff;
+}
+
+// Header
+ion-header {
+  ion-toolbar {
+    --background: #ffffff;
+    --border-width: 0;
+    padding: 6px 4px;
+  }
+
+  .main-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: $primary-green;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: $text-muted;
+    margin: 2px 0 0 0;
+  }
+}
+
+// Botón + Nuevo
+.btn-nuevo {
+  --background: #{$primary-green};
+  --color: #ffffff;
+  --border-radius: 20px;
+  --padding-start: 14px;
+  --padding-end: 16px;
+  font-weight: 700;
+  font-size: 14px;
+  height: 36px;
+  margin-right: 8px;
+  text-transform: none;
+
+  ion-icon {
+    font-size: 18px;
+    margin-right: 2px;
+  }
+}
+
+// Contenido
+ion-content {
+  --background: #{$bg-light};
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 20px;
+  flex: 1;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6c7a89;
+  letter-spacing: 0.8px;
+  margin: 8px 0 12px 4px;
+}
+
+.anuncios-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.anuncio-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  border: 1px solid $border-color;
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+
+    .anuncio-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: $text-dark;
+      margin: 0;
+      line-height: 1.3;
+    }
+
+    .anuncio-fecha {
+      font-size: 12px;
+      color: #8899a6;
+      white-space: nowrap;
+    }
+  }
+
+  .audiencia-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 14px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 12px;
+    background: $primary-light;
+    color: $primary-green;
+
+    ion-icon {
+      font-size: 15px;
+    }
+
+    strong {
+      margin-left: 2px;
+      font-weight: 800;
+    }
+  }
+
+  .leido-status {
+    font-size: 13px;
+    color: #666666;
+    margin: 10px 0 0 0;
+  }
+}
+
+// Footer e Íconos
+ion-footer {
+  --background: #ffffff;
+  background: #ffffff;
+  border-top: 1px solid $border-color;
+  position: relative;
+  z-index: 10;
+}
+
+.custom-tab-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  padding: 8px 12px 12px 12px;
+  background: #ffffff;
+
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: $text-muted;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 18px;
+    transition: all 0.2s ease;
+
+    ion-icon {
+      font-size: 22px;
+      color: $text-muted;
+      margin-bottom: 3px;
+    }
+
+    span {
+      color: $text-muted;
+    }
+
+    &.active {
+      background: $primary-light;
+      color: $primary-green;
+      font-weight: 800;
+
+      ion-icon {
+        color: $primary-green;
+      }
+
+      span {
+        color: $primary-green;
+        font-weight: 800;
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+<ion-header class="ion-no-border bg-white">
+  <ion-toolbar class="px-2">
+    <ion-title>
+      <h1 class="main-title">Anuncios</h1>
+      <p class="subtitle">Para todos o para un grupo</p>
+    </ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button class="btn-nuevo" fill="solid" (click)="crearNuevoAnuncio()">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Nuevo
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding-horizontal">
+  <div class="section-label">ENVIADOS</div>
+
+  <div class="anuncios-list">
+    @for (item of anuncios; track item.id) {
+      <div class="anuncio-card">
+        <div class="card-header">
+          <h3 class="anuncio-title">{{ item.titulo }}</h3>
+          <span class="anuncio-fecha">{{ item.fecha }}</span>
+        </div>
+
+        <!-- Badge de Audiencia -->
+        <div class="audiencia-badge">
+          <ion-icon [name]="item.tipoAudiencia === 'vieron' ? 'eye-outline' : (item.tipoAudiencia === 'guardaron' ? 'bookmark-outline' : (item.tipoAudiencia === 'persona' ? 'person-outline' : 'people-outline'))"></ion-icon>
+          <span>{{ item.labelAudiencia }}</span>
+          @if (item.conteoAudiencia) {
+            <strong>{{ item.conteoAudiencia }}</strong>
+          }
+        </div>
+
+        <p class="leido-status">{{ item.leidoTexto }}</p>
+      </div>
+    }
+  </div>
+</ion-content>
+
+<!-- MENÚ INFERIOR / FOOTER -->
+<ion-footer class="ion-no-border">
+  <div class="custom-tab-bar">
+    <div class="tab-item" (click)="irA('admin-home')">
+      <ion-icon name="stats-chart-outline"></ion-icon>
+      <span>Panel</span>
+    </div>
+    <div class="tab-item" (click)="irA('publicaciones')">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <span>Publicaciones</span>
+    </div>
+    <div class="tab-item" (click)="irA('opiniones')">
+      <ion-icon name="chatbox-outline"></ion-icon>
+      <span>Opiniones</span>
+    </div>
+    <div class="tab-item active">
+      <ion-icon name="megaphone-outline"></ion-icon>
+      <span>Anuncios</span>
+    </div>
+  </div>
+</ion-footer>
