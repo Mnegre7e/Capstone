@@ -12,11 +12,11 @@
       </button>
     </div>
 
-    <!-- Banner / Ilustración con Badge de Riesgo -->
+    <!-- Banner / Ilustración con Badge de Riesgo Dinámico -->
     <div class="hero-banner">
-      <div class="badge-riesgo bajo">
+      <div class="badge-riesgo" [ngClass]="propiedad.riesgo.toLowerCase()">
         <span class="punto"></span>
-        <span>Riesgo bajo</span>
+        <span>Riesgo {{ propiedad.riesgo.toLowerCase() }}</span>
       </div>
       <div class="ilustracion-edificio">
         <ion-icon name="business-outline"></ion-icon>

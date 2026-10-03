@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router'; // 1. Importar ActivatedRoute
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-publicacion-detalle',
@@ -11,7 +11,7 @@ import { Router, ActivatedRoute } from '@angular/router'; // 1. Importar Activat
 export class PublicacionDetallePage implements OnInit {
   private location = inject(Location);
   private router = inject(Router);
-  private route = inject(ActivatedRoute); // 2. Inyectar ActivatedRoute
+  private route = inject(ActivatedRoute);
 
   tabActiva: 'vieron' | 'guardaron' = 'vieron';
 
@@ -45,7 +45,15 @@ export class PublicacionDetallePage implements OnInit {
   ];
 
   ngOnInit() {
-    // 3. Capturar el 'id' enviado por la ruta
+    this.cargarPropiedad();
+  }
+
+  // Se ejecuta cada vez que Ionic entra a la pantalla
+  ionViewWillEnter() {
+    this.cargarPropiedad();
+  }
+
+  private cargarPropiedad() {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       const idBuscado = Number(idParam);
@@ -60,8 +68,9 @@ export class PublicacionDetallePage implements OnInit {
     this.location.back();
   }
 
+  // Redirección dinámica hacia editar-publicacion pasando la ID correspondiente
   editarPublicacion() {
-    console.log('Editar publicación', this.propiedad.id);
+    this.router.navigate(['/editar-publicacion', this.propiedad.id]);
   }
 
   enviarAnuncio() {
