@@ -103,7 +103,15 @@ const routes: Routes = [
   {
   path: 'editar-publicacion/:id',
   loadChildren: () => import('./admin/editar-publicacion/editar-publicacion.module').then(m => m.EditarPublicacionPageModule)
+  },  {
+    path: 'nuevo-anuncio',
+    loadChildren: () => import('./admin/nuevo-anuncio/nuevo-anuncio.module').then( m => m.NuevoAnuncioPageModule)
   },
+  {
+    path: 'anuncio-destinatario',
+    loadChildren: () => import('./admin/anuncio-destinatario/anuncio-destinatario.module').then( m => m.AnuncioDestinatarioPageModule)
+  },
+
 
 
 
