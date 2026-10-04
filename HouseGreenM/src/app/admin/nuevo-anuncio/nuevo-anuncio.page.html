@@ -1,13 +1,126 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>nuevo-anuncio</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="cuerpo-nuevo-anuncio" [fullscreen]="true">
+  <div class="contenedor-principal">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">nuevo-anuncio</ion-title>
-    </ion-toolbar>
-  </ion-header>
+    <!-- Header con 'X' de cierre -->
+    <div class="header-nav">
+      <button class="btn-circular" (click)="cerrar()" aria-label="Cerrar">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+      <h2>Nuevo anuncio</h2>
+    </div>
+
+    <!-- Formulario de Redacción -->
+    <div class="form-container">
+
+      <!-- Título -->
+      <div class="grupo-field">
+        <label>Título</label>
+        <input 
+          type="text" 
+          [(ngModel)]="formAnuncio.titulo" 
+          placeholder="Escribe el título del anuncio" />
+      </div>
+
+      <!-- Mensaje -->
+      <div class="grupo-field">
+        <label>Mensaje</label>
+        <textarea 
+          rows="4" 
+          [(ngModel)]="formAnuncio.mensaje" 
+          placeholder="Escribe el mensaje del anuncio..."></textarea>
+      </div>
+
+      <!-- Para quién (Segmented Control) -->
+      <div class="grupo-field">
+        <label>Para quién</label>
+        
+        <div class="segmento-dos">
+          <button 
+            class="seg-btn" 
+            [class.activo]="modoDestinatario === 'todos'"
+            (click)="modoDestinatario = 'todos'">
+            Todos los usuarios
+          </button>
+          <button 
+            class="seg-btn" 
+            [class.activo]="modoDestinatario === 'personalizado'"
+            (click)="modoDestinatario = 'personalizado'">
+            Personalizado
+          </button>
+        </div>
+
+        <!-- Tarjeta Audiencia Seleccionada -->
+        @if (modoDestinatario === 'personalizado') {
+          <div class="card-audiencia-resumen">
+            <div class="top-row">
+              <div class="col-icon">
+                <ion-icon name="eye-outline"></ion-icon>
+              </div>
+              <span class="label-audiencia">{{ audienciaConfigured.textoGrupo }}</span>
+              <button class="btn-cambiar" (click)="cambiarDestinatarios()">Cambiar</button>
+            </div>
+
+            <div class="bottom-row">
+              <div class="box-icon-prop">
+                <ion-icon name="business-outline"></ion-icon>
+              </div>
+              <div class="detalles-prop">
+                <h4>{{ audienciaConfigured.propiedadTitulo }}</h4>
+                <p>{{ audienciaConfigured.propiedadComuna }}</p>
+              </div>
+              <div class="col-conteo">
+                <strong>{{ audienciaConfigured.personas }}</strong>
+                <span>personas</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Cuándo -->
+      <div class="grupo-field">
+        <label>Cuándo</label>
+
+        <div class="segmento-dos">
+          <button 
+            class="seg-btn" 
+            [class.activo]="modoTiempo === 'ahora'"
+            (click)="modoTiempo = 'ahora'">
+            Enviar ahora
+          </button>
+          <button 
+            class="seg-btn" 
+            [class.activo]="modoTiempo === 'programar'"
+            (click)="modoTiempo = 'programar'">
+            Programar
+          </button>
+        </div>
+
+        <!-- Checkboxes Canales -->
+        <div class="lista-checkboxes">
+          <label class="item-check">
+            <input type="checkbox" [(ngModel)]="formAnuncio.notifApp" />
+            <span class="custom-box"></span>
+            <span class="txt">Notificación en la app</span>
+          </label>
+
+          <label class="item-check">
+            <input type="checkbox" [(ngModel)]="formAnuncio.correo" />
+            <span class="custom-box"></span>
+            <span class="txt">Correo</span>
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Botón Flotante de Envío -->
+    <div class="wrapper-boton-accion">
+      <button class="btn-enviar" (click)="enviarAnuncio()">
+        <ion-icon name="paper-plane-outline"></ion-icon>
+        <span>Enviar a {{ audienciaConfigured.personas }} personas</span>
+      </button>
+    </div>
+
+  </div>
 </ion-content>
