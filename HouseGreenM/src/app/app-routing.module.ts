@@ -107,10 +107,15 @@ const routes: Routes = [
   {
     path: 'anuncio-destinatario',
     loadChildren: () => import('./admin/anuncio-destinatario/anuncio-destinatario.module').then( m => m.AnuncioDestinatarioPageModule)
-  },  {
+  },
+  {
     path: 'responder-opinion',
     loadChildren: () => import('./admin/responder-opinion/responder-opinion.module').then( m => m.ResponderOpinionPageModule)
   },
+  {
+    path: 'responder-opinion/:id',
+    loadChildren: () => import('./admin/responder-opinion/responder-opinion.module').then(m => m.ResponderOpinionPageModule)
+  }
 
 
 

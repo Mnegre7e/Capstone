@@ -74,11 +74,9 @@ export class OpinionesPage {
     this.filtroActivo = filtro;
   }
 
-  // Redirección a la vista responder-opinion
-  responder(id: number) {
-    this.router.navigate(['/responder-opinion'], { queryParams: { id } });
-  }
-
+responder(id: number) {
+  this.router.navigate(['/responder-opinion', id]);
+}
   irA(ruta: string) {
     this.router.navigate([`/${ruta}`]);
   }
