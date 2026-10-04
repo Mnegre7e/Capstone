@@ -8,6 +8,7 @@ interface Opinion {
   estrellas: number;
   categoria: string;
   comentario: string;
+  autorizoRespuesta: boolean; // Agregado según diseño
   respondido: boolean;
   respuesta?: string;
 }
@@ -21,48 +22,37 @@ interface Opinion {
 export class OpinionesPage {
   private router = inject(Router);
 
-  // Filtro activo
   filtroActivo: string = 'todas';
-
-  // Resumen de valoraciones
   promedioGeneral: number = 4.3;
-  totalOpiniones: number = 28;
+  totalOpiniones: number = 86;
+
   desgloseEstrellas = [
-    { estrellas: 5, porcentaje: 65 },
-    { estrellas: 4, porcentaje: 20 },
+    { estrellas: 5, porcentaje: 55 },
+    { estrellas: 4, porcentaje: 25 },
     { estrellas: 3, porcentaje: 10 },
-    { estrellas: 2, porcentaje: 3 },
-    { estrellas: 1, porcentaje: 2 }
+    { estrellas: 2, porcentaje: 5 },
+    { estrellas: 1, porcentaje: 5 }
   ];
 
-  // Lista de opiniones
   opiniones: Opinion[] = [
     {
       id: 1,
-      usuario: 'Camila Silva',
-      fecha: 'Ayer 18:40',
-      estrellas: 5,
-      categoria: 'Atención',
-      comentario: 'Excelente proceso de remate, todo fue muy claro y transparente desde la primera vista.',
-      respondido: true,
-      respuesta: '¡Muchas gracias por tu comentario Camila! Seguimos mejorando la experiencia.'
-    },
-    {
-      id: 2,
-      usuario: 'Mateo González',
-      fecha: '25 sep',
-      estrellas: 3,
-      categoria: 'Sugerencia',
-      comentario: 'Estaría genial que agregaran más fotos de la cocina y el estacionamiento en las publicaciones.',
+      usuario: 'Camila Rojas',
+      fecha: 'vie 25 sep 2026 · 09:50',
+      estrellas: 4,
+      categoria: 'Semáforo',
+      comentario: 'Me gustaría ver el historial de cambios del semáforo de cada propiedad.',
+      autorizoRespuesta: true,
       respondido: false
     },
     {
-      id: 3,
-      usuario: 'Valentina Rojas',
-      fecha: '22 sep',
+      id: 2,
+      usuario: 'Diego Fuentes',
+      fecha: 'jue 24 sep 2026 · 18:20',
       estrellas: 5,
-      categoria: 'Proceso',
-      comentario: 'La aplicación funciona muy bien para guardar y hacer seguimiento a las propiedades de mi interés.',
+      categoria: 'Mapa',
+      comentario: 'El filtro por comuna me ahorra mucho tiempo. Sería útil dibujar una zona en el mapa.',
+      autorizoRespuesta: false,
       respondido: false
     }
   ];
@@ -84,8 +74,9 @@ export class OpinionesPage {
     this.filtroActivo = filtro;
   }
 
+  // Redirección a la vista responder-opinion
   responder(id: number) {
-    this.router.navigate(['/responder-sugerencia', id]);
+    this.router.navigate(['/responder-opinion'], { queryParams: { id } });
   }
 
   irA(ruta: string) {

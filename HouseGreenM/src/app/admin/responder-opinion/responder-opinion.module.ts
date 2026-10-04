@@ -4,17 +4,17 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular/lazy';
 
-import { ClasificacionesPageRoutingModule } from './clasificaciones-routing.module';
+import { ResponderOpinionPageRoutingModule } from './responder-opinion-routing.module';
 
-import { ClasificacionesPage } from './clasificaciones.page';
+import { ResponderOpinionPage } from './responder-opinion.page';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    ClasificacionesPageRoutingModule
+    ResponderOpinionPageRoutingModule
   ],
-  declarations: [ClasificacionesPage]
+  declarations: [ResponderOpinionPage]
 })
-export class ClasificacionesPageModule {}
+export class ResponderOpinionPageModule {}

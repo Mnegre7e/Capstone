@@ -93,24 +93,25 @@ const routes: Routes = [
     loadChildren: () => import('./admin/opiniones/opiniones.module').then( m => m.OpinionesPageModule)
   },
   {
-    path: 'clasificaciones',
-    loadChildren: () => import('./admin/clasificaciones/clasificaciones.module').then( m => m.ClasificacionesPageModule)
-  },
-  {
     path: 'editar-publicacion',
     loadChildren: () => import('./admin/editar-publicacion/editar-publicacion.module').then( m => m.EditarPublicacionPageModule)
   },
   {
   path: 'editar-publicacion/:id',
   loadChildren: () => import('./admin/editar-publicacion/editar-publicacion.module').then(m => m.EditarPublicacionPageModule)
-  },  {
+  },
+  {
     path: 'nuevo-anuncio',
     loadChildren: () => import('./admin/nuevo-anuncio/nuevo-anuncio.module').then( m => m.NuevoAnuncioPageModule)
   },
   {
     path: 'anuncio-destinatario',
     loadChildren: () => import('./admin/anuncio-destinatario/anuncio-destinatario.module').then( m => m.AnuncioDestinatarioPageModule)
+  },  {
+    path: 'responder-opinion',
+    loadChildren: () => import('./admin/responder-opinion/responder-opinion.module').then( m => m.ResponderOpinionPageModule)
   },
+
 
 
 
