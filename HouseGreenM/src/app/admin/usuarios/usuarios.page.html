@@ -1,13 +1,56 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>usuarios</ion-title>
+<ion-header class="ion-no-border bg-white">
+  <ion-toolbar class="px-2">
+    <ion-buttons slot="start">
+      <ion-button (click)="volver()">
+        <ion-icon slot="icon-only" name="chevron-back-outline" class="text-dark"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="main-title">Usuarios</ion-title>
   </ion-toolbar>
+  <div class="header-subtitle-box">
+    <p class="subtitle">{{ totalUsuarios }} registrados · {{ nuevosEstaSemana }} nuevos esta semana</p>
+  </div>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">usuarios</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding-horizontal">
+  <!-- Buscador -->
+  <div class="search-box">
+    <ion-icon name="search-outline" class="search-icon"></ion-icon>
+    <input 
+      type="text" 
+      placeholder="Busca por nombre, correo o RUT" 
+      [(ngModel)]="busqueda"
+    />
+  </div>
+
+  <!-- Chips de Filtro -->
+  <div class="chips-container">
+    <div class="chip-item" [class.active]="filtroActivo === 'todos'" (click)="setFiltro('todos')">
+      Todos
+    </div>
+    <div class="chip-item" [class.active]="filtroActivo === 'activos'" (click)="setFiltro('activos')">
+      Activos esta semana
+    </div>
+    <div class="chip-item" [class.active]="filtroActivo === 'nuevos'" (click)="setFiltro('nuevos')">
+      Nuevos
+    </div>
+  </div>
+
+  <!-- Tarjeta con Lista de Usuarios -->
+  <div class="users-card">
+    @for (user of usuariosFiltrados; track user.id; let last = $last) {
+      <div class="user-item" [class.border-bottom]="!last" (click)="verActividad(user.id)">
+        <div class="avatar-circle">
+          <span>{{ user.iniciales }}</span>
+        </div>
+        <div class="user-details">
+          <h4 class="user-name">{{ user.nombre }}</h4>
+          <p class="user-meta">
+            {{ user.vistas }} vistas · {{ user.guardados }} {{ user.guardados === 1 ? 'guardado' : 'guardados' }} · {{ user.ultimaActividad }}
+          </p>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="arrow-icon"></ion-icon>
+      </div>
+    }
+  </div>
 </ion-content>
