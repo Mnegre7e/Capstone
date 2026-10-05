@@ -1,12 +1,18 @@
 <ion-header class="ion-no-border bg-white">
   <ion-toolbar class="px-2">
+    <!-- Botón para volver al Panel / Admin Home -->
     <ion-buttons slot="start">
-      <ion-button (click)="volver()">
-        <ion-icon slot="icon-only" name="chevron-back-outline" class="text-dark"></ion-icon>
-      </ion-button>
+      <ion-back-button 
+        defaultHref="/admin-home" 
+        text="" 
+        icon="chevron-back-outline"
+        class="custom-back-btn"
+      ></ion-back-button>
     </ion-buttons>
+    
     <ion-title class="main-title">Usuarios</ion-title>
   </ion-toolbar>
+
   <div class="header-subtitle-box">
     <p class="subtitle">{{ totalUsuarios }} registrados · {{ nuevosEstaSemana }} nuevos esta semana</p>
   </div>

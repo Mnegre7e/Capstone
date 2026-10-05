@@ -212,6 +212,13 @@ $text-muted: #64748b;
     align-items: flex-start;
     gap: 4px;
     border: 1px solid rgba(0, 0, 0, 0.03);
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+
+    &:active {
+      transform: scale(0.97);
+      background-color: #f8faf9;
+    }
 
     .icono-box {
       width: 32px;
@@ -239,14 +246,7 @@ $text-muted: #64748b;
   }
 }
 
-// Ajuste local para el ion-footer en esta página
-ion-footer {
-  --background: #ffffff;
-  background: #ffffff;
-  border-top: 1px solid #eef2f0;
-}
-
-// Estilos del footer en admin-home.page.scss
+/* Footer / Menú inferior */
 ion-footer {
   --background: #ffffff;
   background: #ffffff;
@@ -285,7 +285,6 @@ ion-footer {
       color: #5a6e65;
     }
 
-    /* Píldora activa vertical idéntica a publicaciones */
     &.active {
       background: #eaf4ef;
       color: #175339;
@@ -302,4 +301,3 @@ ion-footer {
     }
   }
 }
-

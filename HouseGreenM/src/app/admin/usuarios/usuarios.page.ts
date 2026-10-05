@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 
 export interface Usuario {
@@ -22,7 +21,6 @@ export interface Usuario {
   standalone: false
 })
 export class UsuariosPage {
-  private location = inject(Location);
   private router = inject(Router);
 
   busqueda: string = '';
@@ -105,14 +103,12 @@ export class UsuariosPage {
 
   get usuariosFiltrados(): Usuario[] {
     return this.usuarios.filter(user => {
-      // Filtro de texto
       const texto = this.busqueda.toLowerCase().trim();
       const coincideBusqueda = !texto || 
         user.nombre.toLowerCase().includes(texto) || 
         user.email.toLowerCase().includes(texto) ||
         (user.rut && user.rut.toLowerCase().includes(texto));
 
-      // Filtro de categoría/chip
       let coincideFiltro = true;
       if (this.filtroActivo === 'activos') {
         coincideFiltro = !!user.activoEstaSemana;
@@ -130,9 +126,5 @@ export class UsuariosPage {
 
   verActividad(id: number) {
     this.router.navigate(['/actividad-usuario', id]);
-  }
-
-  volver() {
-    this.location.back();
   }
 }

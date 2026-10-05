@@ -1,10 +1,15 @@
 <ion-header class="ion-no-border bg-white">
   <ion-toolbar class="px-2">
+    <!-- Botón nativo para volver a la lista de Usuarios -->
     <ion-buttons slot="start">
-      <ion-button (click)="volver()">
-        <ion-icon slot="icon-only" name="chevron-back-outline" class="text-dark"></ion-icon>
-      </ion-button>
+      <ion-back-button 
+        defaultHref="/usuarios" 
+        text="" 
+        icon="chevron-back-outline"
+        class="custom-back-btn"
+      ></ion-back-button>
     </ion-buttons>
+
     <ion-title class="main-title">Actividad del usuario</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -62,7 +67,6 @@
   <div class="activity-card">
     @for (item of actividadesFiltradas; track item.id; let last = $last) {
       <div class="activity-item" [class.border-bottom]="!last">
-        <!-- Ícono ilustrativo según tipo de propiedad -->
         <div class="property-icon-box">
           <ion-icon [name]="getIconoPropiedad(item.tipo)"></ion-icon>
         </div>

@@ -20,6 +20,12 @@ ion-header {
   ion-toolbar {
     --background: #ffffff;
     --border-width: 0;
+
+    .custom-back-btn {
+      --color: #{$text-dark};
+      --icon-font-size: 24px;
+      margin-left: -4px;
+    }
   }
 
   .main-title {
@@ -48,7 +54,7 @@ ion-content {
   --padding-bottom: 24px;
 }
 
-// Buscador
+/* Buscador */
 .search-box {
   display: flex;
   align-items: center;
@@ -79,7 +85,7 @@ ion-content {
   }
 }
 
-// Chips
+/* Chips */
 .chips-container {
   display: flex;
   gap: 8px;
@@ -110,7 +116,7 @@ ion-content {
   }
 }
 
-// Tarjeta Contenedora de Lista
+/* Tarjeta Contenedora de Lista */
 .users-card {
   background: #ffffff;
   border-radius: 20px;

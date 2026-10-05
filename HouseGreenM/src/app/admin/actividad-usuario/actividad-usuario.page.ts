@@ -1,5 +1,4 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
 export interface ActividadItem {
@@ -18,14 +17,12 @@ export interface ActividadItem {
   standalone: false
 })
 export class ActividadUsuarioPage implements OnInit {
-  private location = inject(Location);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
   userId!: number;
   tabActiva: 'vio' | 'guardo' = 'vio';
 
-  // Datos del Usuario
   usuario = {
     id: 1,
     nombre: 'Camila Rojas',
@@ -38,7 +35,6 @@ export class ActividadUsuarioPage implements OnInit {
     sugerenciasCount: 1
   };
 
-  // Historial de propiedades
   actividades: ActividadItem[] = [
     {
       id: 101,
@@ -86,7 +82,6 @@ export class ActividadUsuarioPage implements OnInit {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.userId = Number(idParam);
-      // Aquí cargarías los datos reales según el ID del usuario
     }
   }
 
@@ -115,13 +110,10 @@ export class ActividadUsuarioPage implements OnInit {
     }
   }
 
+ 
   enviarAnuncio() {
-    console.log(`Abrir creador de anuncio para ${this.usuario.nombre} (${this.usuario.email})`);
-    // Navegación propuesta a la vista de crear anuncio con el usuario preseleccionado
-    this.router.navigate(['/anuncios/nuevo'], { queryParams: { userId: this.userId } });
-  }
-
-  volver() {
-    this.location.back();
+    this.router.navigate(['/anuncio-destinatario'], { 
+      queryParams: { userId: this.userId } 
+    });
   }
 }
