@@ -127,7 +127,23 @@ const routes: Routes = [
   {
     path: 'actividad-usuario/:id',
     loadChildren: () => import('./admin/actividad-usuario/actividad-usuario.module').then(m => m.ActividadUsuarioPageModule)
+  },  {
+    path: 'resumen',
+    loadChildren: () => import('./analista/resumen/resumen.module').then( m => m.ResumenPageModule)
   },
+  {
+    path: 'subasta',
+    loadChildren: () => import('./analista/subasta/subasta.module').then( m => m.SubastaPageModule)
+  },
+  {
+    path: 'usuarios',
+    loadChildren: () => import('./analista/usuarios/usuarios.module').then( m => m.UsuariosPageModule)
+  },
+  {
+    path: 'alcance',
+    loadChildren: () => import('./analista/alcance/alcance.module').then( m => m.AlcancePageModule)
+  },
+
 
 
 
