@@ -115,7 +115,15 @@ const routes: Routes = [
   {
     path: 'responder-opinion/:id',
     loadChildren: () => import('./admin/responder-opinion/responder-opinion.module').then(m => m.ResponderOpinionPageModule)
+  },  {
+    path: 'usuarios',
+    loadChildren: () => import('./admin/usuarios/usuarios.module').then( m => m.UsuariosPageModule)
+  },
+  {
+    path: 'actividad-usuario',
+    loadChildren: () => import('./admin/actividad-usuario/actividad-usuario.module').then( m => m.ActividadUsuarioPageModule)
   }
+
 
 
 
