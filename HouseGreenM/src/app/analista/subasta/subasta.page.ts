@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-subasta',
   templateUrl: './subasta.page.html',
   styleUrls: ['./subasta.page.scss'],
-  standalone: false,
+  standalone: false
 })
-export class SubastaPage implements OnInit {
+export class SubastaPage {
+  private router = inject(Router);
 
-  constructor() { }
-
-  ngOnInit() {
+  irA(ruta: string) {
+    this.router.navigate([`/${ruta}`]);
   }
-
 }

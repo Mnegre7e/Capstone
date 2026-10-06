@@ -1,13 +1,129 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>resumen</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="cuerpo-panel" [fullscreen]="true">
+  <div class="contenedor-principal">
+    
+    <!-- Top Header -->
+    <div class="top-header">
+      <div class="header-left">
+        <div class="badges-row">
+          <span class="badge-tag dark">Analista</span>
+          <span class="badge-tag light"><ion-icon name="eye-outline"></ion-icon> Solo lectura</span>
+        </div>
+        <h1>Resumen</h1>
+        <p class="subtitulo">Región Metropolitana · al 25 sep 2026</p>
+      </div>
+      <button class="btn-logout" aria-label="Cerrar sesión">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </button>
+    </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">resumen</ion-title>
-    </ion-toolbar>
-  </ion-header>
+    <!-- Filtro de tiempo -->
+    <div class="segmento-tiempo">
+      <button [class.active]="periodo === '7d'" (click)="periodo = '7d'">7 días</button>
+      <button [class.active]="periodo === '30d'" (click)="periodo = '30d'">30 días</button>
+      <button [class.active]="periodo === '12m'" (click)="periodo = '12m'">12 meses</button>
+    </div>
+
+    <!-- KPIs Principales -->
+    <div class="grid-kpi">
+      <div class="card-kpi">
+        <div class="kpi-label"><ion-icon name="newspaper-outline"></ion-icon> Subastas activas</div>
+        <div class="kpi-valor">36</div>
+        <div class="kpi-sub green">+5 vs agosto</div>
+      </div>
+      <div class="card-kpi">
+        <div class="kpi-label"><ion-icon name="person-outline"></ion-icon> Suscriptores</div>
+        <div class="kpi-valor">30</div>
+        <div class="kpi-sub green">+6 vs agosto</div>
+      </div>
+      <div class="card-kpi">
+        <div class="kpi-label"><ion-icon name="people-outline"></ion-icon> Registrados</div>
+        <div class="kpi-valor">248</div>
+        <div class="kpi-sub green">+41 en 30 días</div>
+      </div>
+      <div class="card-kpi">
+        <div class="kpi-label"><ion-icon name="eye-outline"></ion-icon> Alcance</div>
+        <div class="kpi-valor">231</div>
+        <div class="kpi-sub dark">93 % de los usuarios</div>
+      </div>
+    </div>
+
+    <!-- Gráfico Suscriptores -->
+    <div class="card-seccion">
+      <div class="card-header-flex">
+        <h3>Suscriptores por mes</h3>
+        <span class="meta-label">abr – sep 2026</span>
+      </div>
+      
+      <div class="chart-container">
+        <div class="linea-equilibrio">
+          <span>Punto de equilibrio: 17</span>
+        </div>
+        <div class="linea-grafico-puntos">
+          <div class="punto-col" style="--val: 20%"><span>8</span><div class="dot"></div><small>abr</small></div>
+          <div class="punto-col" style="--val: 28%"><span>10</span><div class="dot"></div><small>may</small></div>
+          <div class="punto-col" style="--val: 38%"><span>12</span><div class="dot"></div><small>jun</small></div>
+          <div class="punto-col" style="--val: 52%"><span>18</span><div class="dot"></div><small>jul</small></div>
+          <div class="punto-col" style="--val: 72%"><span>25</span><div class="dot"></div><small>ago</small></div>
+          <div class="punto-col active" style="--val: 90%"><span>30</span><div class="dot"></div><small>sep</small></div>
+        </div>
+      </div>
+      <p class="pie-card">Clientes con suscripción activa al cierre de cada mes.</p>
+    </div>
+
+    <!-- MRR -->
+    <div class="card-mrr">
+      <div class="mrr-icon">
+        <ion-icon name="cash-outline"></ion-icon>
+      </div>
+      <div class="mrr-info">
+        <span class="mrr-title">Ingreso mensual recurrente</span>
+        <div class="mrr-monto-row">
+          <span class="monto">$1.350.000</span>
+          <span class="badge-growth">+25 %</span>
+        </div>
+        <span class="mrr-sub">30 suscriptores × $45.000</span>
+      </div>
+    </div>
+
+    <!-- Semáforo Subastas -->
+    <div class="card-seccion">
+      <div class="card-header-flex">
+        <h3>Semáforo de las subastas</h3>
+        <span class="meta-label">36 activas</span>
+      </div>
+      <div class="barra-semaforo-multi">
+        <div class="seg verde" style="width: 33.3%;"></div>
+        <div class="seg amarillo" style="width: 50%;"></div>
+        <div class="seg rojo" style="width: 16.7%;"></div>
+      </div>
+      <div class="leyenda-semaforo">
+        <span><i class="dot verde"></i> Verdes <strong>12</strong></span>
+        <span><i class="dot amarillo"></i> Amarillas <strong>18</strong></span>
+        <span><i class="dot rojo"></i> Rojas <strong>6</strong></span>
+      </div>
+    </div>
+
+  </div>
 </ion-content>
+
+<!-- Menú Inferior -->
+<ion-footer class="ion-no-border">
+  <div class="custom-tab-bar">
+    <div class="tab-item active" (click)="irA('analista/resumen')">
+      <ion-icon name="bar-chart-outline"></ion-icon>
+      <span>Resumen</span>
+    </div>
+    <div class="tab-item" (click)="irA('analista/subastas')">
+      <ion-icon name="newspaper-outline"></ion-icon>
+      <span>Subastas</span>
+    </div>
+    <div class="tab-item" (click)="irA('analista/usuarios')">
+      <ion-icon name="people-outline"></ion-icon>
+      <span>Usuarios</span>
+    </div>
+    <div class="tab-item" (click)="irA('analista/alcance')">
+      <ion-icon name="eye-outline"></ion-icon>
+      <span>Alcance</span>
+    </div>
+  </div>
+</ion-footer>

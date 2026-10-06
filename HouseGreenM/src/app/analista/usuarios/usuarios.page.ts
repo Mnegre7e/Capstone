@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-usuarios',
   templateUrl: './usuarios.page.html',
   styleUrls: ['./usuarios.page.scss'],
-  standalone: false,
+  standalone: false
 })
-export class UsuariosPage implements OnInit {
+export class UsuariosPage {
+  private router = inject(Router);
 
-  constructor() { }
-
-  ngOnInit() {
+  irA(ruta: string) {
+    this.router.navigate([`/${ruta}`]);
   }
-
 }
