@@ -1,0 +1,82 @@
+<ion-content class="guardados-content" [fullscreen]="true">
+
+  <!-- encabezado -->
+  <div class="header-container">
+    <button class="back-btn" (click)="goBack()" aria-label="Volver">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+    </button>
+
+    <h1 class="page-title">Guardados</h1>
+    <p class="page-subtitle">
+      {{ propiedades.length }} {{ propiedades.length === 1 ? 'propiedad' : 'propiedades' }} · te avisamos si algo cambia
+    </p>
+  </div>
+
+  <!-- listado de propiedades guardadas -->
+  <div class="cards-list">
+    @for (prop of propiedades; track prop.id) {
+      <div class="property-card" (click)="verDetalle(prop)">
+        
+        <div class="icon-box">
+          <ion-icon name="business-outline"></ion-icon>
+        </div>
+
+        <div class="card-content">
+          <div class="risk-badge" [ngClass]="'risk-' + prop.riesgo">
+            <span class="dot">●</span> Riesgo {{ prop.riesgo }}
+          </div>
+
+          <div class="title-row">
+            <h2 class="card-title">{{ prop.titulo }}</h2>
+            <button class="delete-btn" (click)="solicitarEliminar(prop, $event)" aria-label="Eliminar propiedad">
+              <ion-icon name="trash-outline"></ion-icon>
+            </button>
+          </div>
+
+          <p class="price-text">Mínimo {{ formatearMoneda(prop.precioMinimo) }}</p>
+
+          <div class="time-text">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>En {{ prop.diasRestantes }} días · {{ prop.fechaRemate }}</span>
+          </div>
+        </div>
+
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <ion-icon name="bookmark-outline"></ion-icon>
+        <h3>No tienes propiedades guardadas</h3>
+        <p>Guarda remates de tu interés para recibir actualizaciones y alertas.</p>
+      </div>
+    }
+  </div>
+
+  <!-- alerta de confirmacion  -->
+  @if (mostrarModalEliminar && propiedadAEliminar) {
+    <div class="modal-backdrop" (click)="cerrarModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        
+        <div class="modal-icon-circle">
+          <ion-icon name="trash-outline"></ion-icon>
+        </div>
+
+        <h3 class="modal-title">¿Quitar de guardados?</h3>
+        
+        <p class="modal-body">
+          <strong>{{ propiedadAEliminar.titulo }}</strong> dejará de estar en tu lista y ya no recibirás avisos de este remate.
+        </p>
+
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="cerrarModal()">
+            Cancelar
+          </button>
+          <button class="btn-remove" (click)="confirmarEliminar()">
+            Quitar
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</ion-content>

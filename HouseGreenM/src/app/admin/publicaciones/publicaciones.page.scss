@@ -1,0 +1,323 @@
+// 1. Variables de diseño (deben ir siempre arriba)
+$green-primary: #175339;
+$green-soft: #e8f5e9;
+$text-dark: #0f172a;
+$text-muted: #64748b;
+$bg-card: #ffffff;
+
+// Colores por nivel de riesgo
+$riesgo-bajo-bg: #e6f4ea;
+$riesgo-bajo-text: #137333;
+
+$riesgo-medio-bg: #fef7e0;
+$riesgo-medio-text: #b06000;
+
+$riesgo-alto-bg: #fce8e6;
+$riesgo-alto-text: #c5221f;
+
+ion-content {
+  --background: #f8fafc;
+}
+
+// 2. Encabezado
+ion-toolbar {
+  --background: #ffffff;
+  --border-width: 0;
+  padding-top: 8px;
+
+  .main-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: $green-primary;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: $text-muted;
+    margin: 2px 0 0 0;
+    font-weight: 500;
+  }
+
+  .btn-search {
+    --color: #{$text-dark};
+    font-size: 22px;
+  }
+}
+
+ion-searchbar {
+  --background: #f1f5f9;
+  --border-radius: 12px;
+  --placeholder-color: #94a3b8;
+  --icon-color: #64748b;
+  padding: 0;
+}
+
+// 3. Fila de Filtros
+.filters-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-chip {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+
+    ion-select {
+      --padding-start: 0;
+      --padding-end: 0;
+      --padding-top: 0;
+      --padding-bottom: 0;
+      font-size: 13px;
+      color: $text-dark;
+      font-weight: 600;
+
+      &::part(icon) {
+        margin-left: 6px;
+        color: $text-muted;
+      }
+    }
+
+    strong {
+      color: $green-primary;
+    }
+  }
+}
+
+// 4. Contador de resultados
+.results-bar {
+  margin-bottom: 12px;
+
+  .results-count {
+    font-size: 13px;
+    color: $text-muted;
+    font-weight: 600;
+  }
+}
+
+// 5. Tarjetas de Propiedades
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 24px;
+}
+
+.property-card {
+  background: $bg-card;
+  border-radius: 20px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+  }
+
+  .card-icon-box {
+    width: 80px;
+    height: 80px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 28px;
+      margin-bottom: 4px;
+    }
+
+    .badge-riesgo {
+      background: #ffffff;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+    }
+
+    &.riesgo-bajo {
+      background: $riesgo-bajo-bg;
+      ion-icon { color: $riesgo-bajo-text; }
+      .badge-riesgo {
+        color: $riesgo-bajo-text;
+        .dot { background: $riesgo-bajo-text; }
+      }
+    }
+
+    &.riesgo-medio {
+      background: $riesgo-medio-bg;
+      ion-icon { color: $riesgo-medio-text; }
+      .badge-riesgo {
+        color: $riesgo-medio-text;
+        .dot { background: $riesgo-medio-text; }
+      }
+    }
+
+    &.riesgo-alto {
+      background: $riesgo-alto-bg;
+      ion-icon { color: $riesgo-alto-text; }
+      .badge-riesgo {
+        color: $riesgo-alto-text;
+        .dot { background: $riesgo-alto-text; }
+      }
+    }
+  }
+
+  .card-info {
+    flex: 1;
+    margin-left: 14px;
+    overflow: hidden;
+
+    .property-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: $text-dark;
+      margin: 0 0 4px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .property-location {
+      font-size: 13px;
+      color: $text-muted;
+      margin: 0 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+
+      ion-icon {
+        font-size: 14px;
+      }
+    }
+
+    .card-metrics {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: $text-dark;
+
+      span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        ion-icon {
+          font-size: 14px;
+          color: $text-muted;
+        }
+      }
+    }
+  }
+
+  .card-arrow {
+    margin-left: 8px;
+    color: #cbd5e1;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+// 6. Estado Vacío
+.empty-state {
+  text-align: center;
+  padding: 48px 16px;
+  color: $text-muted;
+
+  ion-icon {
+    font-size: 48px;
+    color: #cbd5e1;
+    margin-bottom: 12px;
+  }
+
+  p {
+    font-size: 14px;
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+// 7. Menú Inferior (Footer Custom)
+ion-footer {
+  background: #ffffff;
+  border-top: 1px solid #f1f5f9;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.custom-tab-bar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 12px 14px 12px;
+  background: #ffffff;
+
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 14px;
+    border-radius: 16px;
+    cursor: pointer;
+    color: $text-muted;
+    transition: all 0.2s ease;
+
+    ion-icon {
+      font-size: 22px;
+      margin-bottom: 2px;
+    }
+
+    span {
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    &.active {
+      background-color: $green-soft;
+      color: $green-primary;
+
+      ion-icon {
+        color: $green-primary;
+      }
+
+      span {
+        color: $green-primary;
+        font-weight: 800;
+      }
+    }
+  }
+}

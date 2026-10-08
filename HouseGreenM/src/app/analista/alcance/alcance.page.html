@@ -1,0 +1,192 @@
+<ion-content class="cuerpo-panel" [fullscreen]="true">
+  <div class="contenedor-principal">
+    
+    <!-- Top Header -->
+    <div class="top-header">
+      <div class="header-left">
+        <div class="badges-row">
+          <span class="badge-tag dark">Analista</span>
+          <span class="badge-tag light"><ion-icon name="eye-outline"></ion-icon> Solo lectura</span>
+        </div>
+        <h1>Alcance</h1>
+        <p class="subtitulo">Últimos 7 días · 19 al 25 sep 2026</p>
+      </div>
+      <button class="btn-logout" aria-label="Cerrar sesión">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </button>
+    </div>
+
+    <!-- Filtro de tiempo -->
+    <div class="segmento-tiempo">
+      <button [class.active]="periodo === '7d'" (click)="periodo = '7d'">7 días</button>
+      <button [class.active]="periodo === '30d'" (click)="periodo = '30d'">30 días</button>
+      <button [class.active]="periodo === '12m'" (click)="periodo = '12m'">12 meses</button>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid-kpi">
+      <div class="card-kpi">
+        <div class="kpi-label"><ion-icon name="people-outline"></ion-icon> Alcance</div>
+        <div class="kpi-valor">204</div>
+        <div class="kpi-sub dark">82 % de los usuarios</div>
+      </div>
+      <div class="card-kpi">
+        <div class="kpi-label"><ion-icon name="eye-outline"></ion-icon> Vistas</div>
+        <div class="kpi-valor">1.846</div>
+        <div class="kpi-sub green">+12 % vs anterior</div>
+      </div>
+      <div class="card-kpi">
+        <div class="kpi-label"><ion-icon name="bookmark-outline"></ion-icon> Guardados</div>
+        <div class="kpi-valor">96</div>
+        <div class="kpi-sub muted">5,2 por cada 100 vistas</div>
+      </div>
+      <div class="card-kpi">
+        <div class="kpi-label"><ion-icon name="notifications-outline"></ion-icon> Alertas abiertas</div>
+        <div class="kpi-valor">66 %</div>
+        <div class="kpi-sub muted">404 de 612</div>
+      </div>
+    </div>
+
+    <!-- Vistas por día -->
+    <div class="card-seccion">
+      <div class="card-header-flex">
+        <h3>Vistas por día</h3>
+        <span class="meta-label">1.846 en total</span>
+      </div>
+      <div class="bar-chart-bars">
+        <div class="bar-col"><span class="val">198</span><div class="bar" style="height: 60%;"></div><small>sáb 19</small></div>
+        <div class="bar-col"><span class="val">176</span><div class="bar" style="height: 52%;"></div><small>dom 20</small></div>
+        <div class="bar-col"><span class="val">284</span><div class="bar" style="height: 85%;"></div><small>lun 21</small></div>
+        <div class="bar-col active"><span class="val">312</span><div class="bar" style="height: 100%;"></div><small>mar 22</small></div>
+        <div class="bar-col"><span class="val">301</span><div class="bar" style="height: 94%;"></div><small>mié 23</small></div>
+        <div class="bar-col"><span class="val">296</span><div class="bar" style="height: 92%;"></div><small>jue 24</small></div>
+        <div class="bar-col"><span class="val">279</span><div class="bar" style="height: 82%;"></div><small>vie 25</small></div>
+      </div>
+    </div>
+
+    <!-- Publicaciones con más alcance -->
+    <div class="card-seccion">
+      <h3>Publicaciones con más alcance</h3>
+      <p class="subtitulo-card">Personas distintas que vieron cada una.</p>
+      
+      <div class="lista-alcance-items">
+        <div class="item-alcance">
+          <div class="top-info">
+            <div class="tit-box"><strong>Departamento 2D 1B</strong><small>Santiago Centro</small></div>
+            <div class="num-box"><strong>187</strong> personas<small>312 vistas</small></div>
+          </div>
+          <div class="track"><div class="fill" style="width: 100%;"></div></div>
+        </div>
+
+        <div class="item-alcance">
+          <div class="top-info">
+            <div class="tit-box"><strong>Casa 3D 2B</strong><small>Maipú</small></div>
+            <div class="num-box"><strong>142</strong> personas<small>241 vistas</small></div>
+          </div>
+          <div class="track"><div class="fill" style="width: 76%;"></div></div>
+        </div>
+
+        <div class="item-alcance">
+          <div class="top-info">
+            <div class="tit-box"><strong>Oficina</strong><small>Providencia</small></div>
+            <div class="num-box"><strong>118</strong> personas<small>188 vistas</small></div>
+          </div>
+          <div class="track"><div class="fill" style="width: 63%;"></div></div>
+        </div>
+
+        <div class="item-alcance">
+          <div class="top-info">
+            <div class="tit-box"><strong>Departamento 1D 1B</strong><small>Estación Central</small></div>
+            <div class="num-box"><strong>97</strong> personas<small>154 vistas</small></div>
+          </div>
+          <div class="track"><div class="fill" style="width: 52%;"></div></div>
+        </div>
+
+        <div class="item-alcance">
+          <div class="top-info">
+            <div class="tit-box"><strong>Casa 4D 2B</strong><small>La Florida</small></div>
+            <div class="num-box"><strong>71</strong> personas<small>115 vistas</small></div>
+          </div>
+          <div class="track"><div class="fill" style="width: 38%;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alertas abiertas por tipo -->
+    <div class="card-seccion">
+      <div class="card-header-flex">
+        <h3>Alertas abiertas por tipo</h3>
+        <span class="meta-label">612 enviadas</span>
+      </div>
+      <div class="funnel-list">
+        <div class="funnel-item">
+          <div class="funnel-info"><span>Recordatorio de remate</span><strong>167 de 214 · 78 %</strong></div>
+          <div class="track"><div class="fill" style="width: 78%;"></div></div>
+        </div>
+        <div class="funnel-item">
+          <div class="funnel-info"><span>Nuevo remate en comuna</span><strong>121 de 198 · 61 %</strong></div>
+          <div class="track"><div class="fill" style="width: 61%;"></div></div>
+        </div>
+        <div class="funnel-item">
+          <div class="funnel-info"><span>Cambio de semáforo</span><strong>80 de 126 · 63 %</strong></div>
+          <div class="track"><div class="fill" style="width: 63%;"></div></div>
+        </div>
+        <div class="funnel-item">
+          <div class="funnel-info"><span>Rebaja de precio</span><strong>36 de 74 · 49 %</strong></div>
+          <div class="track"><div class="fill" style="width: 49%;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canal de las alertas -->
+    <div class="card-seccion">
+      <h3>Canal de las alertas</h3>
+      <div class="stacked-bar-multi">
+        <div class="seg c1" style="width: 61%;"></div>
+        <div class="seg c2" style="width: 27%;"></div>
+        <div class="seg c3" style="width: 12%;"></div>
+      </div>
+      <div class="leyenda-inline">
+        <span><i class="dot c1"></i> Push <strong>61 %</strong></span>
+        <span><i class="dot c2"></i> Correo <strong>27 %</strong></span>
+        <span><i class="dot c3"></i> En la app <strong>12 %</strong></span>
+      </div>
+      <p class="pie-card">Porcentaje de alertas enviadas por cada canal.</p>
+    </div>
+
+    <!-- Card Último Anuncio -->
+    <div class="card-anuncio-box">
+      <div class="icon-mic"><ion-icon name="volume-high-outline"></ion-icon></div>
+      <div class="anuncio-details">
+        <span class="fecha">Último anuncio · jue 24 sep</span>
+        <div class="row-stats">
+          <strong>Enviado a 248 · leído por 171</strong>
+          <span class="badge-perc">69 %</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>
+
+<!-- Menú Inferior -->
+<ion-footer class="ion-no-border">
+  <div class="custom-tab-bar">
+    <div class="tab-item" (click)="irA('analista/resumen')">
+      <ion-icon name="bar-chart-outline"></ion-icon>
+      <span>Resumen</span>
+    </div>
+    <div class="tab-item" (click)="irA('analista/subastas')">
+      <ion-icon name="newspaper-outline"></ion-icon>
+      <span>Subastas</span>
+    </div>
+    <div class="tab-item" (click)="irA('analista/usuarios')">
+      <ion-icon name="people-outline"></ion-icon>
+      <span>Usuarios</span>
+    </div>
+    <div class="tab-item active" (click)="irA('analista/alcance')">
+      <ion-icon name="eye-outline"></ion-icon>
+      <span>Alcance</span>
+    </div>
+  </div>
+</ion-footer>

@@ -1,0 +1,147 @@
+
+<ion-content class="perfil-configuracion-content" [fullscreen]="true">
+
+  <div class="page-wrapper">
+
+    <!-- CABECERA CON BOTÓN VOLVER (Alineación opcional dentro del contenido) -->
+    <div class="top-header-row">
+      <button class="back-btn" (click)="regresar()" aria-label="Volver">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </button>
+      <h1 class="page-title">Perfil</h1>
+    </div>
+
+    <!-- TARJETA CABECERA DE USUARIO -->
+    <div class="user-card">
+      <div class="avatar-circle">
+        <span>{{ usuario.iniciales }}</span>
+      </div>
+
+      <div class="user-info">
+        <h2 class="user-name">{{ usuario.nombre }}</h2>
+        <p class="user-email">{{ usuario.email }}</p>
+      </div>
+
+      <button class="edit-btn" (click)="editarPerfil()">
+        Editar
+      </button>
+    </div>
+
+    <!-- SECCIÓN 1: DATOS PERSONALES -->
+    <div class="section-container">
+      <h2 class="section-label">DATOS PERSONALES</h2>
+
+      <div class="info-card">
+        <div class="data-row border-bottom">
+          <span class="data-label">RUT</span>
+          <span class="data-value">{{ usuario.rut }}</span>
+        </div>
+
+        <div class="data-row border-bottom">
+          <span class="data-label">Correo</span>
+          <span class="data-value text-bold">{{ usuario.email }}</span>
+        </div>
+
+        <div class="data-row">
+          <span class="data-label">Teléfono</span>
+          <span class="data-value">{{ usuario.telefono }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: SEGURIDAD -->
+    <div class="section-container">
+      <h2 class="section-label">SEGURIDAD</h2>
+
+      <div class="menu-card">
+        <div class="menu-item" (click)="cambiarContrasena()">
+          <div class="icon-avatar">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+          </div>
+
+          <div class="item-text">
+            <span class="item-title">Cambiar contraseña</span>
+            <span class="item-subtitle">Última actualización: {{ usuario.ultimaContrasena }}</span>
+          </div>
+
+          <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3: PREFERENCIAS -->
+    <div class="section-container">
+      <h2 class="section-label">PREFERENCIAS</h2>
+
+      <div class="menu-card">
+        <!-- Notificaciones -> Redirige a /alertas -->
+        <div class="menu-item border-bottom" (click)="irAAlertas()">
+          <div class="icon-avatar">
+            <ion-icon name="notifications-outline"></ion-icon>
+          </div>
+
+          <div class="item-text">
+            <span class="item-title">Notificaciones</span>
+          </div>
+
+          <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
+        </div>
+
+        <!-- Comunas que sigo -->
+        <div class="menu-item" (click)="irAComunas()">
+          <div class="icon-avatar">
+            <ion-icon name="location-outline"></ion-icon>
+          </div>
+
+          <div class="item-text">
+            <span class="item-title">Comunas que sigo</span>
+            <span class="item-subtitle">{{ usuario.comunasSiguiendo }}</span>
+          </div>
+
+          <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4: AYUDA -->
+    <div class="section-container">
+      <h2 class="section-label">AYUDA</h2>
+
+      <div class="menu-card">
+        <!-- Sugerencias y calificación -->
+        <div class="menu-item border-bottom" (click)="irASugerencias()">
+          <div class="icon-avatar">
+            <ion-icon name="star-outline"></ion-icon>
+          </div>
+
+          <div class="item-text">
+            <span class="item-title">Sugerencias y calificación</span>
+          </div>
+
+          <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
+        </div>
+
+        <!-- Sobre HouseGreen -->
+        <div class="menu-item" (click)="irASobreNosotros()">
+          <div class="icon-avatar">
+            <ion-icon name="information-circle-outline"></ion-icon>
+          </div>
+
+          <div class="item-text">
+            <span class="item-title">Sobre HouseGreen</span>
+          </div>
+
+          <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTÓN CERRAR SESIÓN -->
+    <button class="logout-btn" (click)="cerrarSesion()">
+      <ion-icon name="log-out-outline"></ion-icon>
+      <span>Cerrar sesión</span>
+    </button>
+
+  </div>
+
+</ion-content>

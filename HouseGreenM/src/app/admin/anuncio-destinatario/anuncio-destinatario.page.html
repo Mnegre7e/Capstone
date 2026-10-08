@@ -1,0 +1,201 @@
+<ion-content class="cuerpo-destinatario" [fullscreen]="true">
+  <div class="contenedor-principal">
+
+    <!-- Header -->
+    <div class="header-nav">
+      <button class="btn-circular" (click)="volver()" aria-label="Volver">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <h2>¿A quién se lo envías?</h2>
+    </div>
+
+    <!-- Opciones de Destinatario -->
+    <div class="lista-opciones">
+
+      <!-- Opción 1: Todos los usuarios -->
+      <div 
+        class="card-opcion" 
+        [class.activa]="tipoDestinatario === 'todos'"
+        (click)="tipoDestinatario = 'todos'">
+        <div class="radio-col">
+          <div class="radio-custom" [class.checked]="tipoDestinatario === 'todos'"></div>
+        </div>
+        <div class="info-col">
+          <h3>Todos los usuarios</h3>
+          <p>248 personas</p>
+        </div>
+        <div class="icono-col">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+      </div>
+
+      <!-- Opción 2: Una persona -->
+      <div 
+        class="card-opcion desplegada" 
+        [class.activa]="tipoDestinatario === 'persona'"
+        (click)="tipoDestinatario = 'persona'">
+        
+        <div class="head-card">
+          <div class="radio-col">
+            <div class="radio-custom" [class.checked]="tipoDestinatario === 'persona'"></div>
+          </div>
+          <div class="info-col">
+            <h3>Una persona</h3>
+            <p>Busca por nombre, correo o RUT</p>
+          </div>
+          <div class="icono-col">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Subsección desplegable cuando está activado Persona -->
+        @if (tipoDestinatario === 'persona') {
+          <div class="subseccion-persona" (click)="$event.stopPropagation()">
+            
+            @if (!personaSeleccionada) {
+              <!-- Input de Búsqueda -->
+              <div class="input-busqueda-wrapper">
+                <ion-icon name="search-outline" class="search-icon"></ion-icon>
+                <input 
+                  type="text" 
+                  [(ngModel)]="busquedaPersona" 
+                  placeholder="Escribe nombre, correo o RUT..." />
+              </div>
+
+              <!-- Lista de Resultados de Búsqueda -->
+              @if (busquedaPersona.trim()) {
+                <div class="resultados-busqueda">
+                  @for (p of personasFiltradas; track p.id) {
+                    <div class="item-persona-result" (click)="seleccionarPersona(p)">
+                      <div class="avatar-persona">
+                        {{ p.nombre.charAt(0) }}
+                      </div>
+                      <div class="info-persona-result">
+                        <h4>{{ p.nombre }}</h4>
+                        <p>{{ p.email }} · {{ p.rut }}</p>
+                      </div>
+                      <ion-icon name="add-circle-outline" class="icon-add"></ion-icon>
+                    </div>
+                  } @empty {
+                    <div class="sin-resultados">
+                      No se encontraron personas con "{{ busquedaPersona }}"
+                    </div>
+                  }
+                </div>
+              }
+            } @else {
+              <!-- Card de Persona Seleccionada -->
+              <div class="card-persona-seleccionada">
+                <div class="avatar-persona activo">
+                  {{ personaSeleccionada.nombre.charAt(0) }}
+                </div>
+                <div class="info-persona-result">
+                  <h4>{{ personaSeleccionada.nombre }}</h4>
+                  <p>{{ personaSeleccionada.email }} · {{ personaSeleccionada.rut }}</p>
+                </div>
+                <button class="btn-remover" (click)="limpiarPersona()" aria-label="Eliminar">
+                  <ion-icon name="close-circle-outline"></ion-icon>
+                </button>
+              </div>
+            }
+
+          </div>
+        }
+
+      </div>
+
+      <!-- Opción 3: Un grupo según una publicación -->
+      <div 
+        class="card-opcion desplegada" 
+        [class.activa]="tipoDestinatario === 'grupo'"
+        (click)="tipoDestinatario = 'grupo'">
+        
+        <div class="head-card">
+          <div class="radio-col">
+            <div class="radio-custom" [class.checked]="tipoDestinatario === 'grupo'"></div>
+          </div>
+          <div class="info-col">
+            <h3>Un grupo según una publicación</h3>
+            <p>Quienes la vieron o la guardaron</p>
+          </div>
+          <div class="icono-col">
+            <ion-icon name="newspaper-outline"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Subsección visible cuando está activado Grupo -->
+        @if (tipoDestinatario === 'grupo') {
+          <div class="subseccion-grupo">
+            
+            <label class="label-sub">Publicación</label>
+
+            <!-- Dropdown selector de las 4 publicaciones -->
+            <div class="select-propiedad-wrapper">
+              <div class="select-propiedad">
+                <div class="box-icon-prop">
+                  <ion-icon name="business-outline"></ion-icon>
+                </div>
+                <div class="detalles-prop">
+                  <h4>{{ publicacionSeleccionada.titulo }}</h4>
+                  <p>{{ publicacionSeleccionada.comuna }} · {{ publicacionSeleccionada.vistasTotales }} vistas</p>
+                </div>
+                <ion-icon name="chevron-down-outline" class="flecha-select"></ion-icon>
+              </div>
+
+              <!-- Select nativo sobrepuesto transparente -->
+              <select 
+                [ngModel]="publicacionSeleccionada.id" 
+                (ngModelChange)="onPublicacionChange($event)"
+                (click)="$event.stopPropagation()"
+                class="select-native-overlay">
+                @for (pub of publicacionesMock; track pub.id) {
+                  <option [value]="pub.id">
+                    {{ pub.titulo }} — {{ pub.comuna }} ({{ pub.vistasTotales }} vistas)
+                  </option>
+                }
+              </select>
+            </div>
+
+            <!-- Enviar a quienes (Subsegmentos) -->
+            <label class="label-sub mt-12">Enviar a quienes</label>
+
+            <div class="grid-subsegmentos">
+              <button 
+                class="btn-subsegmento" 
+                [class.activo]="subSegmento === 'vieron'"
+                (click)="$event.stopPropagation(); subSegmento = 'vieron'">
+                <ion-icon name="eye-outline"></ion-icon>
+                <span>La vieron · {{ publicacionSeleccionada.vistasUnicas }}</span>
+              </button>
+
+              <button 
+                class="btn-subsegmento" 
+                [class.activo]="subSegmento === 'guardaron'"
+                (click)="$event.stopPropagation(); subSegmento = 'guardaron'">
+                <ion-icon name="bookmark-outline"></ion-icon>
+                <span>La guardaron · {{ publicacionSeleccionada.guardados }}</span>
+              </button>
+            </div>
+
+            <!-- Banner Info HouseGreen -->
+            <div class="banner-info">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              <span>Solo lo reciben quienes aceptan mensajes de HouseGreen.</span>
+            </div>
+
+          </div>
+        }
+
+      </div>
+
+    </div>
+
+    <!-- Botón Flotante Acción -->
+    <div class="wrapper-boton-accion">
+      <button class="btn-listo" (click)="confirmarDestinatarios()">
+        Listo · {{ totalConteo }} {{ totalConteo === 1 ? 'persona' : 'personas' }}
+      </button>
+    </div>
+
+  </div>
+</ion-content>

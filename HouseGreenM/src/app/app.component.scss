@@ -1,0 +1,74 @@
+// Variables de color de la paleta HouseGreen
+$gh-dark-green: #175339;
+$gh-primary-green: #1f6243;
+$gh-light-green: #e2f1e8;
+$gh-bg-light: #f2f7f4;
+$gh-text-title: #0f172a;
+
+ion-menu {
+  // Enzabezado superior del menú
+  .menu-toolbar {
+    --background: #{$gh-dark-green};
+    --color: #ffffff;
+    font-weight: bold;
+
+    ion-title {
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+  }
+
+  // Cuerpo principal y lista de items
+  .cuerpo-menu {
+    --background: #ffffff;
+
+    ion-list {
+      background: #ffffff;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    ion-item {
+      --background: #ffffff;
+      --color: #{$gh-dark-green};
+      --border-color: #{$gh-light-green};
+      font-weight: 600;
+
+      ion-icon {
+        color: #{$gh-dark-green};
+        font-size: 1.3rem;
+      }
+
+      &:hover, &.activated {
+        --background: #{$gh-light-green};
+      }
+    }
+  }
+
+  // Pie de menú (Cerrar Sesión)
+  .menu-footer {
+    --background: #ffffff;
+    border-top: 1px solid #{$gh-light-green};
+
+    ion-item {
+      --background: #ffffff;
+      --color: #{$gh-dark-green};
+      font-weight: bold;
+
+      ion-icon {
+        color: #{$gh-dark-green};
+        font-size: 1.3rem;
+      }
+
+      &:hover, &.activated {
+        --background: #ffebee;
+        --color: #c62828;
+
+        ion-icon {
+          color: #c62828;
+        }
+      }
+    }
+  }
+}

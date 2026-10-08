@@ -1,0 +1,175 @@
+<ion-content class="cuerpo-panel" [fullscreen]="true">
+  <div class="contenedor-principal">
+    
+    <!-- Top Header -->
+    <div class="top-header">
+      <div class="header-left">
+        <div class="badges-row">
+          <span class="badge-tag dark">Analista</span>
+          <span class="badge-tag light"><ion-icon name="eye-outline"></ion-icon> Solo lectura</span>
+        </div>
+        <h1>Usuarios</h1>
+        <p class="subtitulo">Registros y suscripciones · al 25 sep 2026</p>
+      </div>
+      <button class="btn-logout" aria-label="Cerrar sesión">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </button>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid-kpi">
+      <div class="card-kpi">
+        <div class="kpi-label"><ion-icon name="people-outline"></ion-icon> Registrados</div>
+        <div class="kpi-valor">248</div>
+        <div class="kpi-sub green">+41 este mes</div>
+      </div>
+      <div class="card-kpi">
+        <div class="kpi-label"><ion-icon name="person-outline"></ion-icon> Suscriptores</div>
+        <div class="kpi-valor">30</div>
+        <div class="kpi-sub dark">12,1 % de conversión</div>
+      </div>
+      <div class="card-kpi">
+        <div class="kpi-label"><ion-icon name="trending-up-outline"></ion-icon> Nuevos</div>
+        <div class="kpi-valor">23</div>
+        <div class="kpi-sub green">últimos 7 días</div>
+      </div>
+      <div class="card-kpi">
+        <div class="kpi-label"><ion-icon name="log-out-outline"></ion-icon> Bajas del mes</div>
+        <div class="kpi-valor">1</div>
+        <div class="kpi-sub muted">3,3 % de los suscritos</div>
+      </div>
+    </div>
+
+    <!-- Nuevos registros por mes -->
+    <div class="card-seccion">
+      <div class="card-header-flex">
+        <h3>Nuevos registros por mes</h3>
+        <span class="meta-label">abr – sep 2026</span>
+      </div>
+      <div class="bar-chart-bars">
+        <div class="bar-col"><span class="val">62</span><div class="bar" style="height: 100%;"></div><small>abr</small></div>
+        <div class="bar-col"><span class="val">36</span><div class="bar" style="height: 58%;"></div><small>may</small></div>
+        <div class="bar-col"><span class="val">33</span><div class="bar" style="height: 53%;"></div><small>jun</small></div>
+        <div class="bar-col"><span class="val">37</span><div class="bar" style="height: 60%;"></div><small>jul</small></div>
+        <div class="bar-col"><span class="val">39</span><div class="bar" style="height: 63%;"></div><small>ago</small></div>
+        <div class="bar-col active"><span class="val">41</span><div class="bar" style="height: 66%;"></div><small>sep</small></div>
+      </div>
+      <p class="pie-card">Abril incluye el lanzamiento. 248 registrados en total.</p>
+    </div>
+
+    <!-- Embudo: Del registro a la suscripción -->
+    <div class="card-seccion">
+      <h3>Del registro a la suscripción</h3>
+      <p class="subtitulo-card">Usuarios de los últimos 30 días en cada paso.</p>
+      
+      <div class="funnel-list">
+        <div class="funnel-item">
+          <div class="funnel-info"><span>Registrados</span><strong>248 · 100 %</strong></div>
+          <div class="track"><div class="fill" style="width: 100%;"></div></div>
+        </div>
+        <div class="funnel-item">
+          <div class="funnel-info"><span>Activos en 30 días</span><strong>231 · 93 %</strong></div>
+          <div class="track"><div class="fill" style="width: 93%;"></div></div>
+        </div>
+        <div class="funnel-item">
+          <div class="funnel-info"><span>Guardaron una propiedad</span><strong>131 · 53 %</strong></div>
+          <div class="track"><div class="fill" style="width: 53%;"></div></div>
+        </div>
+        <div class="funnel-item">
+          <div class="funnel-info"><span>Activaron alertas</span><strong>88 · 35 %</strong></div>
+          <div class="track"><div class="fill" style="width: 35%;"></div></div>
+        </div>
+        <div class="funnel-item">
+          <div class="funnel-info"><span>Suscritos</span><strong>30 · 12 %</strong></div>
+          <div class="track"><div class="fill dark" style="width: 12%;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comunas que más siguen -->
+    <div class="card-seccion">
+      <div class="card-header-flex">
+        <h3>Comunas que más siguen</h3>
+        <span class="meta-label">para alertas</span>
+      </div>
+      <div class="lista-barras-horiz">
+        <div class="item-barra-h">
+          <span class="label">Santiago</span>
+          <div class="track"><div class="fill" style="width: 100%;"></div></div>
+          <span class="num">64</span>
+        </div>
+        <div class="item-barra-h">
+          <span class="label">Providencia</span>
+          <div class="track"><div class="fill" style="width: 80%;"></div></div>
+          <span class="num">51</span>
+        </div>
+        <div class="item-barra-h">
+          <span class="label">Ñuñoa</span>
+          <div class="track"><div class="fill" style="width: 60%;"></div></div>
+          <span class="num">38</span>
+        </div>
+        <div class="item-barra-h">
+          <span class="label">Maipú</span>
+          <div class="track"><div class="fill" style="width: 52%;"></div></div>
+          <span class="num">33</span>
+        </div>
+        <div class="item-barra-h">
+          <span class="label">Las Condes</span>
+          <div class="track"><div class="fill" style="width: 45%;"></div></div>
+          <span class="num">29</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calificación de la App -->
+    <div class="card-seccion">
+      <div class="card-header-flex">
+        <h3>Calificación de la app</h3>
+        <span class="meta-label">86 opiniones</span>
+      </div>
+
+      <div class="rating-layout">
+        <div class="rating-big">
+          <span class="num">4,3</span>
+          <div class="stars">
+            <ion-icon name="star"></ion-icon>
+            <ion-icon name="star"></ion-icon>
+            <ion-icon name="star"></ion-icon>
+            <ion-icon name="star"></ion-icon>
+            <ion-icon name="star-outline"></ion-icon>
+          </div>
+        </div>
+        <div class="rating-bars">
+          <div class="r-row"><span>5 ★</span><div class="track"><div class="fill" style="width: 80%;"></div></div><strong>48</strong></div>
+          <div class="r-row"><span>4 ★</span><div class="track"><div class="fill" style="width: 45%;"></div></div><strong>22</strong></div>
+          <div class="r-row"><span>3 ★</span><div class="track"><div class="fill" style="width: 20%;"></div></div><strong>9</strong></div>
+          <div class="r-row"><span>2 ★</span><div class="track"><div class="fill" style="width: 10%;"></div></div><strong>4</strong></div>
+          <div class="r-row"><span>1 ★</span><div class="track"><div class="fill" style="width: 8%;"></div></div><strong>3</strong></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>
+
+<!-- Menú Inferior -->
+<ion-footer class="ion-no-border">
+  <div class="custom-tab-bar">
+    <div class="tab-item" (click)="irA('analista/resumen')">
+      <ion-icon name="bar-chart-outline"></ion-icon>
+      <span>Resumen</span>
+    </div>
+    <div class="tab-item" (click)="irA('analista/subastas')">
+      <ion-icon name="newspaper-outline"></ion-icon>
+      <span>Subastas</span>
+    </div>
+    <div class="tab-item active" (click)="irA('analista/usuarios')">
+      <ion-icon name="people-outline"></ion-icon>
+      <span>Usuarios</span>
+    </div>
+    <div class="tab-item" (click)="irA('analista/alcance')">
+      <ion-icon name="eye-outline"></ion-icon>
+      <span>Alcance</span>
+    </div>
+  </div>
+</ion-footer>

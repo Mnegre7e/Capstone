@@ -1,0 +1,179 @@
+<ion-content class="cuerpo-panel" [fullscreen]="true">
+  <div class="contenedor-principal">
+    
+    <!-- Top Header -->
+    <div class="top-header">
+      <div class="header-left">
+        <div class="badges-row">
+          <span class="badge-tag dark">Analista</span>
+          <span class="badge-tag light"><ion-icon name="eye-outline"></ion-icon> Solo lectura</span>
+        </div>
+        <h1>Subastas</h1>
+        <p class="subtitulo">Región Metropolitana · al 25 sep 2026</p>
+      </div>
+      <button class="btn-logout" aria-label="Cerrar sesión">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </button>
+    </div>
+
+    <!-- KPIs 3 Columnas -->
+    <div class="grid-kpi-3">
+      <div class="card-kpi">
+        <div class="kpi-valor">36</div>
+        <div class="kpi-sub">subastas activas</div>
+      </div>
+      <div class="card-kpi">
+        <div class="kpi-valor">8</div>
+        <div class="kpi-sub">rematan en los próximos 7 días</div>
+      </div>
+      <div class="card-kpi">
+        <div class="kpi-valor">31 %</div>
+        <div class="kpi-sub">descuento real promedio</div>
+      </div>
+    </div>
+
+    <!-- Publicadas por mes -->
+    <div class="card-seccion">
+      <div class="card-header-flex">
+        <h3>Publicadas por mes</h3>
+        <span class="meta-label">abr – sep 2026</span>
+      </div>
+      <div class="bar-chart-bars">
+        <div class="bar-col"><span class="val">21</span><div class="bar" style="height: 50%;"></div><small>abr</small></div>
+        <div class="bar-col"><span class="val">26</span><div class="bar" style="height: 62%;"></div><small>may</small></div>
+        <div class="bar-col"><span class="val">30</span><div class="bar" style="height: 72%;"></div><small>jun</small></div>
+        <div class="bar-col"><span class="val">33</span><div class="bar" style="height: 80%;"></div><small>jul</small></div>
+        <div class="bar-col"><span class="val">38</span><div class="bar" style="height: 90%;"></div><small>ago</small></div>
+        <div class="bar-col active"><span class="val">41</span><div class="bar" style="height: 100%;"></div><small>sep</small></div>
+      </div>
+    </div>
+
+    <!-- Por zona del semáforo (Anillo / Donut) -->
+    <div class="card-seccion">
+      <h3>Por zona del semáforo</h3>
+      <div class="donut-container-layout">
+        <div class="donut-chart-box">
+          <div class="donut-ring"></div>
+          <div class="donut-center">
+            <strong>36</strong>
+            <span>activas</span>
+          </div>
+        </div>
+        <div class="donut-legend">
+          <div class="legend-row"><span class="dot verde"></span> Verde · 7 a 10 <strong>12</strong></div>
+          <div class="legend-row"><span class="dot amarillo"></span> Amarilla · 4 a 6 <strong>18</strong></div>
+          <div class="legend-row"><span class="dot rojo"></span> Roja · 0 a 3 <strong>6</strong></div>
+        </div>
+      </div>
+      <p class="pie-card">De las rojas, 2 por veto y 1 sin datos.</p>
+    </div>
+
+    <!-- Por Comuna -->
+    <div class="card-seccion">
+      <div class="card-header-flex">
+        <h3>Por comuna</h3>
+        <span class="meta-label">activas</span>
+      </div>
+      <div class="lista-barras-horiz">
+        <div class="item-barra-h">
+          <span class="label">Santiago</span>
+          <div class="track"><div class="fill" style="width: 100%;"></div></div>
+          <span class="num">5</span>
+        </div>
+        <div class="item-barra-h">
+          <span class="label">Maipú</span>
+          <div class="track"><div class="fill" style="width: 80%;"></div></div>
+          <span class="num">4</span>
+        </div>
+        <div class="item-barra-h">
+          <span class="label">Providencia</span>
+          <div class="track"><div class="fill" style="width: 60%;"></div></div>
+          <span class="num">3</span>
+        </div>
+        <div class="item-barra-h">
+          <span class="label">La Florida</span>
+          <div class="track"><div class="fill" style="width: 60%;"></div></div>
+          <span class="num">3</span>
+        </div>
+        <div class="item-barra-h">
+          <span class="label">Las Condes</span>
+          <div class="track"><div class="fill" style="width: 40%;"></div></div>
+          <span class="num">2</span>
+        </div>
+        <div class="item-barra-h">
+          <span class="label">Ñuñoa</span>
+          <div class="track"><div class="fill" style="width: 40%;"></div></div>
+          <span class="num">2</span>
+        </div>
+        <div class="item-barra-h">
+          <span class="label">Estación Central</span>
+          <div class="track"><div class="fill" style="width: 40%;"></div></div>
+          <span class="num">2</span>
+        </div>
+        <div class="item-barra-h">
+          <span class="label">Puente Alto</span>
+          <div class="track"><div class="fill" style="width: 40%;"></div></div>
+          <span class="num">2</span>
+        </div>
+        <div class="item-barra-h">
+          <span class="label">Otras 11 comunas</span>
+          <div class="track"><div class="fill suave" style="width: 100%;"></div></div>
+          <span class="num">13</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Por tipo de propiedad -->
+    <div class="card-seccion">
+      <h3>Por tipo de propiedad</h3>
+      <div class="stacked-bar-multi">
+        <div class="seg c1" style="width: 47%;"></div>
+        <div class="seg c2" style="width: 33%;"></div>
+        <div class="seg c3" style="width: 8%;"></div>
+        <div class="seg c4" style="width: 6%;"></div>
+        <div class="seg c5" style="width: 6%;"></div>
+      </div>
+      <div class="leyenda-inline">
+        <span><i class="dot c1"></i> Departamento <strong>17</strong></span>
+        <span><i class="dot c2"></i> Casa <strong>12</strong></span>
+        <span><i class="dot c3"></i> Oficina <strong>3</strong></span>
+        <span><i class="dot c4"></i> Terreno <strong>2</strong></span>
+        <span><i class="dot c5"></i> Local <strong>2</strong></span>
+      </div>
+    </div>
+
+    <!-- Cobertura de mercado -->
+    <div class="card-seccion">
+      <h3>Cobertura del mercado</h3>
+      <div class="monto-destacado">6,7 %</div>
+      <p class="sub-destacado">36 de los 540 remates judiciales activos en la RM</p>
+      <div class="track-simple">
+        <div class="fill" style="width: 12%;"></div>
+      </div>
+      <p class="pie-card">Fuente del total: Capital Remates, sep 2026.</p>
+    </div>
+
+  </div>
+</ion-content>
+
+<!-- Menú Inferior -->
+<ion-footer class="ion-no-border">
+  <div class="custom-tab-bar">
+    <div class="tab-item" (click)="irA('analista/resumen')">
+      <ion-icon name="bar-chart-outline"></ion-icon>
+      <span>Resumen</span>
+    </div>
+    <div class="tab-item active" (click)="irA('analista/subastas')">
+      <ion-icon name="newspaper-outline"></ion-icon>
+      <span>Subastas</span>
+    </div>
+    <div class="tab-item" (click)="irA('analista/usuarios')">
+      <ion-icon name="people-outline"></ion-icon>
+      <span>Usuarios</span>
+    </div>
+    <div class="tab-item" (click)="irA('analista/alcance')">
+      <ion-icon name="eye-outline"></ion-icon>
+      <span>Alcance</span>
+    </div>
+  </div>
+</ion-footer>

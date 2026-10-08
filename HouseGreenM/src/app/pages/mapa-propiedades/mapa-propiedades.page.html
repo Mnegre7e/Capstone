@@ -1,0 +1,113 @@
+<ion-content [fullscreen]="true" class="map-content">
+
+  
+  <div class="top-controls-wrapper">
+    
+    <!--Botón Volver, Dropdown de Comuna y Filtros -->
+    <div class="header-row">
+      <button class="back-btn" (click)="goBack()" aria-label="Volver">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </button>
+
+      <div class="comuna-select-pill">
+        <ion-icon name="location-outline" class="pin-icon"></ion-icon>
+        <span class="label">Comuna: <strong>{{ comunaSeleccionada }}</strong></span>
+        <ion-icon name="chevron-down-outline" class="arrow-icon"></ion-icon>
+      </div>
+
+      <button class="filter-btn" aria-label="Abrir filtros">
+        <ion-icon name="options-outline"></ion-icon>
+      </button>
+    </div>
+
+    <!-- Selección de Comuna -->
+    <div class="chips-row">
+      @for (c of comunas; track c) {
+        <button 
+          class="chip-item" 
+          [class.active]="comunaSeleccionada === c"
+          (click)="seleccionarComuna(c)">
+          {{ c }}
+        </button>
+      }
+    </div>
+
+    <!-- Fila 3: Contador y Riesgo -->
+    <div class="info-row">
+      <div class="count-chip">
+        {{ propiedadesFiltradas.length }} remates en {{ comunaSeleccionada }}
+      </div>
+
+      <div class="legend-chip">
+        <span class="dot dot-bajo">●</span> Bajo
+        <span class="dot dot-medio">●</span> Medio
+        <span class="dot dot-alto">●</span> Alto
+      </div>
+    </div>
+
+  </div>
+
+  <!-- mapa interactivo (placeholder) -->
+  <div class="map-viewport">
+    <svg class="map-svg-layer" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <line x1="0" y1="20" x2="100" y2="20" stroke="#e0ece0" stroke-width="0.8" />
+      <line x1="0" y1="40" x2="100" y2="40" stroke="#e0ece0" stroke-width="0.8" />
+      <line x1="0" y1="60" x2="100" y2="60" stroke="#e0ece0" stroke-width="0.8" />
+      <line x1="0" y1="80" x2="100" y2="80" stroke="#e0ece0" stroke-width="0.8" />
+
+      <line x1="20" y1="0" x2="20" y2="100" stroke="#e0ece0" stroke-width="0.8" />
+      <line x1="45" y1="0" x2="45" y2="100" stroke="#e0ece0" stroke-width="0.8" />
+      <line x1="68" y1="0" x2="68" y2="100" stroke="#e0ece0" stroke-width="0.8" />
+      <line x1="88" y1="0" x2="88" y2="100" stroke="#e0ece0" stroke-width="0.8" />
+
+      <polygon 
+        points="10,28 90,24 95,74 15,74" 
+        fill="rgba(45, 106, 79, 0.03)" 
+        stroke="#1b4332" 
+        stroke-width="0.6" 
+        stroke-dasharray="2,2" />
+    </svg>
+
+    <span class="map-label label-providencia">Providencia</span>
+    <span class="map-label label-alameda">Alameda</span>
+    <span class="map-label label-santiago">SANTIAGO</span>
+
+    @for (p of propiedadesFiltradas; track p.id) {
+      <div 
+        class="map-pin" 
+        [style.top]="p.top" 
+        [style.left]="p.left"
+        [class.selected]="propiedadSeleccionada?.id === p.id"
+        (click)="seleccionarPropiedad(p)">
+        
+        <span class="pin-dot" [ngClass]="'dot-' + p.riesgoGlobal">●</span>
+        <span class="pin-price">{{ p.precioTexto }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- tarjeta inferior -->
+  @if (propiedadSeleccionada; as prop) {
+    <div class="bottom-card-wrapper">
+      <div class="preview-card" (click)="verDetalle(prop)">
+        <div class="icon-box">
+          <ion-icon name="business-outline"></ion-icon>
+        </div>
+
+        <div class="card-details">
+          <div class="risk-label" [ngClass]="'risk-' + prop.riesgoGlobal">
+            <span class="dot">●</span> Riesgo {{ prop.riesgoGlobal }}
+          </div>
+          <h2 class="prop-title">{{ prop.titulo }}</h2>
+          <p class="prop-subtext">{{ formatearMoneda(prop.precioCompleto) }} · {{ prop.superficie }} m²</p>
+          <p class="prop-date">Remate {{ prop.fechaRemate }} · {{ prop.horaRemate }}</p>
+        </div>
+
+        <div class="card-arrow">
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </div>
+      </div>
+    </div>
+  }
+
+</ion-content>

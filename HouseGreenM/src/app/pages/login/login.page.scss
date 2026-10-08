@@ -1,0 +1,77 @@
+// Variables de color de la paleta HouseGreen
+$gh-dark-green: #175339;
+$gh-primary-green: #1f6243;
+$gh-bg-light: #f2f7f4;
+$gh-text-title: #0f172a;
+
+// Sección texto y fondo
+.fondo {
+  --background: #{$gh-dark-green};
+}
+
+.img-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 25px;
+  margin-bottom: 8px;
+}
+
+.logo-app {
+  width: 170px; 
+  height: 170px;
+  object-fit: contain;
+}
+
+.titulo {
+  margin-top: -20px;
+  font-weight: bold;
+  font-size: 35px;
+  text-align: center;
+  color: #ffffff;
+}
+
+.color {
+  color: #ffffff;
+}
+
+// Sección formulario
+.seccion-form {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50vh;
+  overflow-y: auto; 
+}
+
+.inicio-sesion {
+  background: #{$gh-bg-light}; // Cambiado del gris genérico al tono claro suave de HouseGreen
+  color: #{$gh-dark-green};
+  border-radius: 40px 40px 0px 0px;
+  padding: 20px 16px; 
+  text-align: center;
+  height: 100%;
+  overflow-y: auto; 
+
+  .color-negro {
+    color: #{$gh-text-title};
+  }
+}
+
+.ion-color {
+  color: #{$gh-dark-green};
+}
+
+.boton-inicio {
+  margin-top: 30px;
+  --ion-color-primary: #{$gh-dark-green};
+  --background: #{$gh-dark-green};
+  --border-radius: 26px;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.txt-marcado {
+  font-weight: bold;
+}

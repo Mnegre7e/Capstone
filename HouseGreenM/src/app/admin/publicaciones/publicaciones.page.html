@@ -1,0 +1,129 @@
+<ion-header class="ion-no-border bg-white">
+  <ion-toolbar>
+    <!-- Botón de Volver -->
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="admin-home" text="" icon="chevron-back-outline"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>
+      <h1 class="main-title">Publicaciones</h1>
+      <p class="subtitle">{{ publicacionesFiltradas.length }} activas · Región Metropolitana</p>
+    </ion-title>
+    
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleBuscador()" class="btn-search">
+        <ion-icon [name]="mostrarBuscador ? 'close-outline' : 'search-outline'"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Barra de búsqueda desplegable -->
+  <ion-toolbar *ngIf="mostrarBuscador" class="px-3">
+    <ion-searchbar 
+      [(ngModel)]="textoBusqueda" 
+      placeholder="Buscar por título o comuna..."
+      animated="true"
+      debounce="200">
+    </ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding-horizontal">
+  <!-- Fila de Filtros -->
+  <div class="filters-row">
+    <!-- Select de Comunas -->
+    <div class="filter-chip select-chip">
+      <ion-select [(ngModel)]="comunaSeleccionada" interface="popover" placeholder="Comuna">
+        <div slot="label">Comuna: <strong>{{ comunaSeleccionada }}</strong></div>
+        <ion-select-option *ngFor="let c of comunas" [value]="c">{{ c }}</ion-select-option>
+      </ion-select>
+    </div>
+
+    <!-- Select de Ordenamiento -->
+    <div class="filter-chip select-chip">
+      <ion-select [(ngModel)]="ordenSeleccionado" interface="popover">
+        <div slot="label">Ordenar por</div>
+        <ion-select-option value="mas-vistas">Más vistas</ion-select-option>
+        <ion-select-option value="mas-guardados">Más guardados</ion-select-option>
+      </ion-select>
+    </div>
+  </div>
+
+  <!-- Contador de Resultados -->
+  <div class="results-bar">
+    <span class="results-count">{{ publicacionesFiltradas.length }} resultados</span>
+  </div>
+
+  <!-- Lista de Propiedades -->
+  <div class="list-container">
+    <div 
+      *ngFor="let item of publicacionesFiltradas" 
+      class="property-card"
+      tappable
+      (click)="verDetalle(item.id)">
+      
+      <!-- Icono y Badge de Riesgo -->
+      <div class="card-icon-box" [ngClass]="'riesgo-' + item.nivelRiesgo.toLowerCase()">
+        <ion-icon [name]="item.tipoIcono === 'casa' ? 'home' : 'business'"></ion-icon>
+        <span class="badge-riesgo">
+          <span class="dot"></span> {{ item.nivelRiesgo }}
+        </span>
+      </div>
+
+      <!-- Información Principal -->
+      <div class="card-info">
+        <h3 class="property-title">{{ item.titulo }}</h3>
+        <p class="property-location">
+          <ion-icon name="location-outline"></ion-icon>
+          {{ item.comuna }}
+        </p>
+        
+        <!-- Métricas -->
+        <div class="card-metrics">
+          <span><ion-icon name="eye-outline"></ion-icon> {{ item.vistas }} vistas</span>
+          <span><ion-icon name="bookmark-outline"></ion-icon> {{ item.guardados }} guardados</span>
+        </div>
+      </div>
+
+      <!-- Flecha de Navegación -->
+      <div class="card-arrow">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Estado Vacío -->
+    <div *ngIf="publicacionesFiltradas.length === 0" class="empty-state">
+      <ion-icon name="search-outline"></ion-icon>
+      <p>No se encontraron publicaciones con los filtros seleccionados.</p>
+    </div>
+  </div>
+</ion-content>
+
+<!-- MENÚ INFERIOR / FOOTER -->
+<ion-footer class="ion-no-border">
+  <div class="custom-tab-bar">
+    <!-- Panel / Admin Home -->
+    <div class="tab-item" (click)="irA('admin-home')">
+      <ion-icon name="stats-chart-outline"></ion-icon>
+      <span>Panel</span>
+    </div>
+
+    <!-- Publicaciones (Pestaña Activa) -->
+    <div class="tab-item active">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <span>Publicaciones</span>
+    </div>
+
+    <!-- Opiniones -->
+    <div class="tab-item" (click)="irA('opiniones')">
+      <ion-icon name="chatbox-outline"></ion-icon>
+      <span>Opiniones</span>
+    </div>
+
+    <!-- Anuncios -->
+    <div class="tab-item" (click)="irA('anuncios')">
+      <ion-icon name="megaphone-outline"></ion-icon>
+      <span>Anuncios</span>
+    </div>
+  </div>
+</ion-footer>

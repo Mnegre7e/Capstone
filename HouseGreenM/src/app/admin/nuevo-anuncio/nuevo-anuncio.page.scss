@@ -1,0 +1,290 @@
+$green-primary: #175339;
+$green-bg: #f3f7f4;
+$green-soft: #e8f3ee;
+$text-dark: #0f172a;
+$text-muted: #64748b;
+
+.cuerpo-nuevo-anuncio {
+  --background: #{$green-bg};
+}
+
+.contenedor-principal {
+  padding: 16px 20px 110px;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Header */
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: $green-primary;
+    margin: 0;
+  }
+
+  .btn-circular {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    color: $text-dark;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* Form Container */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .grupo-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+      font-size: 13px;
+      font-weight: 800;
+      color: $text-dark;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: $text-dark;
+      outline: none;
+      font-family: inherit;
+
+      &:focus {
+        border-color: $green-primary;
+      }
+    }
+
+    textarea {
+      resize: none;
+      line-height: 1.4;
+    }
+  }
+}
+
+/* Segmented Control */
+.segmento-dos {
+  background: #e2e8f0;
+  border-radius: 16px;
+  padding: 4px;
+  display: flex;
+  gap: 4px;
+
+  .seg-btn {
+    flex: 1;
+    height: 42px;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 700;
+    color: $text-muted;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.activo {
+      background: #ffffff;
+      color: $text-dark;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+  }
+}
+
+/* Tarjeta Audiencia Resumen */
+.card-audiencia-resumen {
+  background: #ffffff;
+  border: 1px solid $green-primary;
+  border-radius: 20px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+
+  .top-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .col-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: $green-soft;
+      color: $green-primary;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .label-audiencia {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 800;
+      color: $text-dark;
+    }
+
+    .btn-cambiar {
+      background: transparent;
+      border: none;
+      color: $green-primary;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+  }
+
+  .bottom-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .box-icon-prop {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: #d1e7dd;
+      color: $green-primary;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .detalles-prop {
+      flex: 1;
+
+      h4 {
+        font-size: 13px;
+        font-weight: 800;
+        color: $text-dark;
+        margin: 0;
+      }
+
+      p {
+        font-size: 12px;
+        color: $text-muted;
+        margin: 1px 0 0 0;
+      }
+    }
+
+    .col-conteo {
+      text-align: right;
+
+      strong {
+        display: block;
+        font-size: 16px;
+        font-weight: 800;
+        color: $text-dark;
+        line-height: 1;
+      }
+
+      span {
+        font-size: 11px;
+        color: $text-muted;
+      }
+    }
+  }
+}
+
+/* Checkboxes estilizados */
+.lista-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+
+  .item-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+
+    input {
+      display: none;
+
+      &:checked + .custom-box {
+        background: $green-primary;
+        border-color: $green-primary;
+
+        &::after {
+          content: '✓';
+          color: #ffffff;
+          font-size: 12px;
+          font-weight: 800;
+        }
+      }
+    }
+
+    .custom-box {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 2px solid $green-primary;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .txt {
+      font-size: 13px;
+      font-weight: 700;
+      color: $text-dark;
+    }
+  }
+}
+
+/* Botón Flotante Acción */
+.wrapper-boton-accion {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 20px;
+  z-index: 90;
+
+  .btn-enviar {
+    width: 100%;
+    max-width: 440px;
+    height: 52px;
+    background-color: $green-primary;
+    color: #ffffff;
+    border: none;
+    border-radius: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 15px;
+    box-shadow: 0 4px 16px rgba(23, 83, 57, 0.25);
+    cursor: pointer;
+
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+}

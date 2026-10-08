@@ -1,0 +1,238 @@
+// Variables de color HouseGreen
+$gh-dark-green: #175339;
+$gh-primary-green: #1f6243;
+$gh-bg-light: #f2f7f4;
+$gh-card-bg: #ffffff;
+$gh-text-title: #0f172a;
+$gh-text-body: #475569;
+$gh-text-muted: #64748b;
+$gh-border-color: #f1f5f9;
+
+.alertas-content {
+  --background: #{$gh-bg-light};
+}
+
+.page-wrapper {
+  padding: 16px 20px 36px;
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* -------------------------------------------------------------
+   HEADER DE NAVEGACIÓN Y ACCIÓN
+------------------------------------------------------------- */
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+
+  .back-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: 24px;
+    color: $gh-dark-green;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+    &:active {
+      opacity: 0.7;
+    }
+  }
+
+  .page-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: $gh-dark-green;
+    margin: 0;
+    flex-grow: 1;
+    margin-left: 12px;
+    letter-spacing: -0.3px;
+  }
+
+  .mark-read-btn {
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    color: $gh-primary-green;
+    cursor: pointer;
+    padding: 4px 0;
+
+    &:active {
+      opacity: 0.6;
+    }
+  }
+}
+
+/* -------------------------------------------------------------
+   SECCIONES Y TARJETAS
+------------------------------------------------------------- */
+.section-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .section-label {
+    font-size: 13px;
+    font-weight: 800;
+    color: $gh-dark-green;
+    letter-spacing: 0.6px;
+    margin: 0 0 2px 4px;
+    text-transform: uppercase;
+  }
+}
+
+.alerts-card,
+.preferences-card {
+  background: $gh-card-bg;
+  border-radius: 24px;
+  padding: 8px 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+/* -------------------------------------------------------------
+   ITEMS DE ALERTA
+------------------------------------------------------------- */
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 0;
+
+  &.border-bottom {
+    border-bottom: 1px solid $gh-border-color;
+  }
+
+  .icon-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 22px;
+    }
+
+    &.remate_proximo,
+    &.nuevo_remate,
+    &.reprogramado {
+      background-color: #e2f1e8;
+      ion-icon {
+        color: $gh-primary-green;
+      }
+    }
+
+    &.semaforo_alerta {
+      background-color: #fde8e8;
+      ion-icon {
+        color: #e11d48;
+      }
+    }
+
+    &.precio_bajo {
+      background-color: #fef3c7;
+      ion-icon {
+        color: #d97706;
+      }
+    }
+  }
+
+  .item-content {
+    flex-grow: 1;
+
+    .item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+
+      .item-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: $gh-text-title;
+        margin: 0;
+        line-height: 1.25;
+      }
+
+      .unread-dot {
+        width: 9px;
+        height: 9px;
+        background-color: $gh-primary-green;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+    }
+
+    .item-desc {
+      font-size: 13px;
+      color: $gh-text-body;
+      margin: 0 0 6px 0;
+      line-height: 1.4;
+    }
+
+    .item-time {
+      font-size: 12px;
+      color: $gh-text-muted;
+      font-weight: 500;
+    }
+  }
+}
+
+/* -------------------------------------------------------------
+   PREFERENCIAS / TOGGLES
+------------------------------------------------------------- */
+.preference-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  gap: 12px;
+
+  &.border-bottom {
+    border-bottom: 1px solid $gh-border-color;
+  }
+
+  .pref-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .pref-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: $gh-text-title;
+      margin: 0;
+    }
+
+    .pref-subtitle {
+      font-size: 13px;
+      color: $gh-text-muted;
+      margin: 0;
+    }
+  }
+
+  ion-toggle {
+    --background: #cbd5e1;
+    --background-checked: #1f6243;
+    --handle-background: #ffffff;
+    --handle-background-checked: #ffffff;
+    --border-radius: 16px;
+    --width: 48px;
+    --height: 28px;
+    --handle-width: 22px;
+    --handle-height: 22px;
+    --handle-spacing: 3px;
+    padding: 0;
+  }
+}

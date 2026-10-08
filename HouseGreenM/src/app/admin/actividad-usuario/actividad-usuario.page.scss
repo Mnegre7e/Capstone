@@ -1,0 +1,247 @@
+$primary-green: #175339;
+$primary-light: #eaf4ef;
+$bg-light: #f4f7f5;
+$text-dark: #1a1a1a;
+$text-muted: #6b7c74;
+$border-color: #eef2f0;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.bg-white {
+  --background: #ffffff;
+  background: #ffffff;
+}
+
+ion-header {
+  ion-toolbar {
+    --background: #ffffff;
+    --border-width: 0;
+
+    .custom-back-btn {
+      --color: #{$text-dark};
+      --icon-font-size: 24px;
+      margin-left: -4px;
+    }
+  }
+
+  .main-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: $primary-green;
+    padding-left: 0;
+  }
+}
+
+ion-content {
+  --background: #{$bg-light};
+  --padding-top: 14px;
+  --padding-bottom: 24px;
+}
+
+/* Perfil de Usuario */
+.user-profile-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 16px;
+  border: 1px solid $border-color;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+
+  .avatar-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #e2f0e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    span {
+      font-size: 18px;
+      font-weight: 800;
+      color: $primary-green;
+    }
+  }
+
+  .user-info {
+    .user-name {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      color: $text-dark;
+    }
+
+    .user-email {
+      margin: 2px 0;
+      font-size: 13px;
+      color: $text-muted;
+    }
+
+    .user-dates {
+      margin: 2px 0 0 0;
+      font-size: 12px;
+      color: #8da096;
+    }
+  }
+}
+
+/* Grilla de Métricas */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+
+  .metric-box {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 14px 10px;
+    border: 1px solid $border-color;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+
+    .metric-number {
+      font-size: 24px;
+      font-weight: 800;
+      color: $text-dark;
+      line-height: 1;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: $text-muted;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+  }
+}
+
+/* Tabs Switcher */
+.segment-pill-container {
+  background: #e5ece8;
+  border-radius: 14px;
+  padding: 4px;
+  display: flex;
+  gap: 4px;
+  margin-bottom: 14px;
+
+  .pill-button {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: $text-muted;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.active {
+      background: #ffffff;
+      color: $text-dark;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+  }
+}
+
+/* Lista de Actividades */
+.activity-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid $border-color;
+  padding: 4px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+
+  .activity-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+
+    &.border-bottom {
+      border-bottom: 1px solid $border-color;
+    }
+
+    .property-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #eaf4ef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      flex-shrink: 0;
+
+      ion-icon {
+        font-size: 22px;
+        color: $primary-green;
+      }
+    }
+
+    .property-details {
+      flex: 1;
+
+      .property-title {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 800;
+        color: $text-dark;
+      }
+
+      .property-meta {
+        margin: 2px 0 0 0;
+        font-size: 12px;
+        color: $text-muted;
+      }
+    }
+
+    .badge-guardado {
+      background: #eaf4ef;
+      color: $primary-green;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+  }
+}
+
+/* Footer Botón Acción */
+ion-footer {
+  .footer-action-container {
+    padding: 12px 16px 20px 16px;
+    background: #ffffff;
+    border-top: 1px solid $border-color;
+
+    .btn-primary-action {
+      width: 100%;
+      background: $primary-green;
+      color: #ffffff;
+      border: none;
+      border-radius: 16px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(23, 83, 57, 0.2);
+
+      ion-icon {
+        font-size: 18px;
+      }
+    }
+  }
+}

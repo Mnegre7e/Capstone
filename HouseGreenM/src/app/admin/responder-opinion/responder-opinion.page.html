@@ -1,0 +1,89 @@
+<ion-content class="cuerpo-responder" [fullscreen]="true">
+  <div class="contenedor-principal">
+
+    <!-- Header -->
+    <div class="header-nav">
+      <button class="btn-circular" (click)="volver()" aria-label="Volver">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <h2>Responder sugerencia</h2>
+    </div>
+
+    <!-- Tarjeta 1: Información del Usuario -->
+    <div class="card-usuario">
+      <div class="avatar-circle">
+        {{ opinionData.usuario.iniciales }}
+      </div>
+      <div class="info-usuario">
+        <h3>{{ opinionData.usuario.nombre }}</h3>
+        <p>{{ opinionData.usuario.email }}</p>
+      </div>
+      <button class="btn-ver-actividad" (click)="verActividad()">
+        Ver actividad
+      </button>
+    </div>
+
+    <!-- Tarjeta 2: Detalle de la Sugerencia / Opinión -->
+    <div class="card-sugerencia">
+      <div class="fecha-recibida">
+        Recibida el {{ opinionData.fechaRecepcion }}
+      </div>
+
+      <div class="fila-calificacion">
+        <div class="estrellas">
+          @for (star of [1,2,3,4,5]; track star) {
+            <ion-icon 
+              [name]="star <= opinionData.estrellas ? 'star' : 'star-outline'"
+              class="icono-estrella">
+            </ion-icon>
+          }
+        </div>
+        <span class="txt-calificacion">{{ opinionData.calificacionTexto }}</span>
+        <span class="badge-categoria">{{ opinionData.categoria }}</span>
+      </div>
+
+      <p class="mensaje-sugerencia">
+        {{ opinionData.mensaje }}
+      </p>
+    </div>
+
+    <!-- Banner 3: Estado de Autorización -->
+    @if (opinionData.autorizoRespuesta) {
+      <div class="banner-autorizacion">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        <span>{{ opinionData.usuario.nombre.split(' ')[0] }} autorizó que HouseGreen le responda.</span>
+      </div>
+    }
+
+    <!-- Campo de Entrada: Respuesta -->
+    <div class="seccion-respuesta">
+      <label class="label-respuesta">Tu respuesta</label>
+
+      <div class="box-textarea-wrapper">
+        <textarea 
+          rows="5"
+          [(ngModel)]="respuestaTexto"
+          [attr.maxlength]="maxCaracteres"
+          placeholder="Escribe tu respuesta aquí...">
+        </textarea>
+      </div>
+
+      <div class="footer-respuesta">
+        <span class="txt-info-envio">Le llega a su correo y a sus notificaciones.</span>
+        <span class="txt-contador">{{ respuestaTexto.length }} / {{ maxCaracteres | number:'1.0-0' }}</span>
+      </div>
+    </div>
+
+    <!-- Botón Flotante Acción Principal -->
+    <div class="wrapper-boton-accion">
+      <button 
+        class="btn-enviar" 
+        [disabled]="!respuestaTexto.trim()" 
+        (click)="enviarRespuesta()">
+        <ion-icon name="paper-plane-outline"></ion-icon>
+        <span>Enviar respuesta</span>
+      </button>
+    </div>
+
+  </div>
+</ion-content>

@@ -1,0 +1,119 @@
+<ion-content class="cambiar-contrasena-content" [fullscreen]="true">
+
+  <div class="page-wrapper">
+
+    <!-- CABECERA -->
+    <div class="top-header">
+      <button class="back-btn" (click)="regresar()" aria-label="Volver">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <h1 class="page-title">Cambiar contraseña</h1>
+    </div>
+
+    <!-- SUBTÍTULO -->
+    <p class="subtitle">Por seguridad, primero confirma tu contraseña actual.</p>
+
+    <!-- TARJETA CON CAMPOS DE TEXTO -->
+    <div class="form-card">
+      
+      <!-- CONTRASEÑA ACTUAL -->
+      <div class="input-group">
+        <label class="input-label">Contraseña actual</label>
+        <div class="input-box">
+          <ion-icon name="lock-closed-outline" class="left-icon"></ion-icon>
+          <input 
+            [type]="showActual ? 'text' : 'password'" 
+            [(ngModel)]="actualContrasena" 
+            placeholder="••••••••" 
+          />
+          <button type="button" class="eye-btn" (click)="toggleShowActual()">
+            <ion-icon [name]="showActual ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- NUEVA CONTRASEÑA -->
+      <div class="input-group">
+        <label class="input-label">Nueva contraseña</label>
+        <div class="input-box active-focus">
+          <ion-icon name="lock-closed-outline" class="left-icon"></ion-icon>
+          <input 
+            [type]="showNueva ? 'text' : 'password'" 
+            [(ngModel)]="nuevaContrasena" 
+            placeholder="••••••••••••" 
+          />
+          <button type="button" class="eye-btn" (click)="toggleShowNueva()">
+            <ion-icon [name]="showNueva ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- REPITE LA NUEVA CONTRASEÑA -->
+      <div class="input-group">
+        <label class="input-label">Repite la nueva contraseña</label>
+        <div class="input-box">
+          <ion-icon name="lock-closed-outline" class="left-icon"></ion-icon>
+          <input 
+            [type]="showRepite ? 'text' : 'password'" 
+            [(ngModel)]="repiteContrasena" 
+            placeholder="••••••••••••" 
+          />
+          <button type="button" class="eye-btn" (click)="toggleShowRepite()">
+            <ion-icon [name]="showRepite ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TARJETA DE VALIDACIÓN DE REQUISITOS -->
+    <div class="validation-card">
+      <h3 class="validation-title">Tu nueva contraseña tiene</h3>
+
+      <ul class="checklist">
+        <li [class.valid]="hasMinLength">
+          <div class="check-icon">
+            <ion-icon name="checkmark-outline"></ion-icon>
+          </div>
+          <span>Al menos 8 caracteres</span>
+        </li>
+
+        <li [class.valid]="hasUpperAndLower">
+          <div class="check-icon">
+            <ion-icon name="checkmark-outline"></ion-icon>
+          </div>
+          <span>Una mayúscula y una minúscula</span>
+        </li>
+
+        <li [class.valid]="hasNumber">
+          <div class="check-icon">
+            <ion-icon name="checkmark-outline"></ion-icon>
+          </div>
+          <span>Al menos un número</span>
+        </li>
+
+        <li [class.valid]="passwordsMatch">
+          <div class="check-icon">
+            <ion-icon name="checkmark-outline"></ion-icon>
+          </div>
+          <span>Las dos contraseñas coinciden</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- BOTÓN PRINCIPAL DE ACCIÓN -->
+    <button 
+      class="submit-btn" 
+      [disabled]="!isFormValid" 
+      (click)="actualizarContrasena()">
+      Actualizar contraseña
+    </button>
+
+    <!-- ENLACE SECUNDARIO -->
+    <button class="forgot-link" (click)="olvidasteContrasena()">
+      ¿Olvidaste tu contraseña actual?
+    </button>
+
+  </div>
+
+</ion-content>

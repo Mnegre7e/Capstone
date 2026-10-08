@@ -1,0 +1,153 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="greenhouse-toolbar">
+    <ion-buttons slot="start">
+      <!-- Botón Volver al catálogo -->
+      <ion-back-button defaultHref="/catalogo-propiedades" text="Volver" icon="chevron-back-outline"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle de Propiedad</ion-title>
+    <ion-buttons slot="end">
+      @if (propiedad) {
+        <ion-button (click)="toggleGuardar()">
+          <ion-icon slot="icon-only" [name]="propiedad.guardado ? 'bookmark' : 'bookmark-outline'"></ion-icon>
+        </ion-button>
+      }
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding greenhouse-content">
+  @if (propiedad) {
+
+    <!-- Banner / Header de Riesgo Greenhouse Style -->
+    <div class="hero-card" [ngClass]="'hero-' + propiedad.riesgoGlobal">
+      <div class="risk-badge" [ngClass]="'badge-' + propiedad.riesgoGlobal">
+        <span class="dot">●</span> Riesgo {{ propiedad.riesgoGlobal | titlecase }} ({{ propiedad.puntajeRiesgo }}/10)
+      </div>
+      <span class="type-badge">{{ propiedad.tipo }}</span>
+    </div>
+
+    <!-- Encabezado Principal -->
+    <div class="main-info">
+      <span class="comuna-tag">{{ propiedad.comuna | uppercase }}</span>
+      <h1 class="prop-title">{{ propiedad.titulo }}</h1>
+      <p class="prop-address">
+        <ion-icon name="location-outline"></ion-icon>
+        {{ propiedad.direccion }}
+      </p>
+    </div>
+
+    <!-- Precios y Descuento -->
+    <div class="price-card">
+      <div class="price-row">
+        <div>
+          <span class="price-label">Precio Mínimo Remate</span>
+          <h2 class="price-main">{{ formatearMoneda(propiedad.precioMinimo) }}</h2>
+        </div>
+        <div class="discount-box">
+          <span class="discount-percent">-{{ propiedad.descuentoEstimado }}%</span>
+          <span class="discount-text">vs Mercado</span>
+        </div>
+      </div>
+      <div class="market-subtext">
+        <span>Valor Mercado: <strong>{{ formatearMoneda(propiedad.precioMercado) }}</strong></span>
+        <span>M² Mínimo: <strong>{{ formatearMoneda(propiedad.precioM2Minimo) }}</strong></span>
+      </div>
+    </div>
+
+    <!-- Ficha Técnica -->
+    <div class="section-card">
+      <h3 class="section-title">Ficha Técnica</h3>
+      <div class="specs-grid">
+        <div class="spec-item">
+          <ion-icon name="square-outline"></ion-icon>
+          <span>{{ propiedad.superficie }} m² Sup.</span>
+        </div>
+        @if (propiedad.dormitorios !== undefined) {
+          <div class="spec-item">
+            <ion-icon name="bed-outline"></ion-icon>
+            <span>{{ propiedad.dormitorios }} Dorm.</span>
+          </div>
+        }
+        @if (propiedad.banos !== undefined) {
+          <div class="spec-item">
+            <ion-icon name="water-outline"></ion-icon>
+            <span>{{ propiedad.banos }} Baño(s)</span>
+          </div>
+        }
+        <div class="spec-item">
+          <ion-icon name="car-outline"></ion-icon>
+          <span>{{ propiedad.estacionamiento ? 'Con Estac.' : 'Sin Estac.' }}</span>
+        </div>
+        <div class="spec-item">
+          <ion-icon name="archive-outline"></ion-icon>
+          <span>{{ propiedad.bodega ? 'Con Bodega' : 'Sin Bodega' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información del Remate Judicial -->
+    <div class="section-card">
+      <h3 class="section-title">Información del Remate</h3>
+      <div class="info-list">
+        <div class="info-item">
+          <span class="info-label">Tribunal:</span>
+          <span class="info-value">{{ propiedad.tribunal }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Causa:</span>
+          <span class="info-value">{{ propiedad.causa }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Fecha y Hora:</span>
+          <span class="info-value highlight">{{ propiedad.fechaRemate }} a las {{ propiedad.horaRemate }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Modalidad:</span>
+          <span class="info-value">{{ propiedad.modalidad }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Garantía Exigida:</span>
+          <span class="info-value">{{ propiedad.porcentajeGarantia }}% ({{ formatearMoneda(propiedad.montoGarantia) }})</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="section-card">
+      <h3 class="section-title">Descripción</h3>
+      <p class="prop-description">{{ propiedad.descripcion }}</p>
+    </div>
+
+    <!-- Evaluación de Riesgo Greenhouse -->
+    <div class="section-card">
+      <h3 class="section-title">Análisis de Riesgo Greenhouse</h3>
+      <div class="risk-factors">
+        @for (factor of propiedad.factoresRiesgo; track factor.nombre) {
+          <div class="factor-card" [ngClass]="'factor-' + factor.nivel">
+            <div class="factor-header">
+              <span class="factor-name">{{ factor.nombre }}</span>
+              <span class="factor-score" [ngClass]="'score-' + factor.nivel">
+                Score: {{ factor.score }}/10
+              </span>
+            </div>
+            <p class="factor-desc">{{ factor.descripcion }}</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Botón de Acción Principal -->
+    <div class="action-footer">
+      <ion-button expand="block" class="greenhouse-btn-submit" size="large">
+        <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
+        Participar en Remate
+      </ion-button>
+    </div>
+
+  } @else {
+    <div class="empty-state">
+      <p>No se encontró la propiedad solicitada.</p>
+      <ion-button fill="clear" (click)="volver()">Volver al Catálogo</ion-button>
+    </div>
+  }
+</ion-content>

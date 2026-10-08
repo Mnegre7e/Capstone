@@ -1,0 +1,147 @@
+<ion-content class="cuerpo-panel" [fullscreen]="true">
+  <div class="contenedor-principal">
+    
+    <!-- Header Superior -->
+    <div class="top-header">
+      <div class="header-left">
+        <span class="badge-admin">Administrador</span>
+        <h1>Panel</h1>
+        <p class="subtitulo">Últimos 7 días · 19 al 25 sep 2026</p>
+      </div>
+      <button class="btn-logout" aria-label="Cerrar sesión">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </button>
+    </div>
+
+    <!-- KPIs Principales -->
+    <div class="grid-kpi">
+      <div class="card-kpi">
+        <div class="kpi-encabezado">
+          <ion-icon name="people-outline"></ion-icon>
+          <span>Usuarios nuevos</span>
+        </div>
+        <span class="kpi-valor">23</span>
+      </div>
+
+      <div class="card-kpi">
+        <div class="kpi-encabezado">
+          <ion-icon name="newspaper-outline"></ion-icon>
+          <span>Publicaciones</span>
+        </div>
+        <span class="kpi-valor">36</span>
+      </div>
+    </div>
+
+    <!-- Sección: Más vistas esta semana -->
+    <div class="seccion-bloque">
+      <div class="encabezado-seccion">
+        <h2>Más vistas esta semana</h2>
+        <a class="link-ver-todas" (click)="irAPublicaciones()">Ver todas</a>
+      </div>
+
+      <div class="card-lista-vistas">
+        <div class="item-vista" (click)="verDetallePublicacion(1)">
+          <div class="thumb-edificio verde">
+            <ion-icon name="business-outline"></ion-icon>
+          </div>
+          <div class="info-item">
+            <h3>Departamento 2D 1B</h3>
+            <div class="meta-item">
+              <span><ion-icon name="eye-outline"></ion-icon> 312</span>
+              <span><ion-icon name="bookmark-outline"></ion-icon> 28</span>
+              <span class="comuna">Santiago Centro</span>
+            </div>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="flecha"></ion-icon>
+        </div>
+
+        <div class="item-vista" (click)="verDetallePublicacion(2)">
+          <div class="thumb-edificio beige">
+            <ion-icon name="home-outline"></ion-icon>
+          </div>
+          <div class="info-item">
+            <h3>Casa 3D 2B</h3>
+            <div class="meta-item">
+              <span><ion-icon name="eye-outline"></ion-icon> 241</span>
+              <span><ion-icon name="bookmark-outline"></ion-icon> 19</span>
+              <span class="comuna">Maipú</span>
+            </div>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="flecha"></ion-icon>
+        </div>
+
+        <div class="item-vista" (click)="verDetallePublicacion(3)">
+          <div class="thumb-edificio azul">
+            <ion-icon name="business-outline"></ion-icon>
+          </div>
+          <div class="info-item">
+            <h3>Oficina</h3>
+            <div class="meta-item">
+              <span><ion-icon name="eye-outline"></ion-icon> 188</span>
+              <span><ion-icon name="bookmark-outline"></ion-icon> 12</span>
+              <span class="comuna">Providencia</span>
+            </div>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="flecha"></ion-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accesos Rápidos Inferiores -->
+    <div class="grid-accesos">
+      <div class="card-acceso" (click)="irA('anuncios')">
+        <div class="icono-box">
+          <ion-icon name="volume-high-outline"></ion-icon>
+        </div>
+        <strong>Anunciar</strong>
+        <span>Todos o grupo</span>
+      </div>
+
+      <div class="card-acceso" (click)="irA('opiniones')">
+        <div class="icono-box">
+          <ion-icon name="chatbox-outline"></ion-icon>
+        </div>
+        <strong>Opiniones</strong>
+        <span>2 pendientes</span>
+      </div>
+
+      <div class="card-acceso" (click)="irA('usuarios')">
+        <div class="icono-box">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+        <strong>Usuarios</strong>
+        <span>248 en total</span>
+      </div>
+    </div>
+
+  </div>
+</ion-content>
+
+<!-- MENÚ INFERIOR / FOOTER -->
+<ion-footer class="ion-no-border">
+  <div class="custom-tab-bar">
+    <!-- Panel / Admin Home (Pestaña Activa) -->
+    <div class="tab-item active">
+      <ion-icon name="stats-chart-outline"></ion-icon>
+      <span>Panel</span>
+    </div>
+
+    <!-- Publicaciones -->
+    <div class="tab-item" (click)="irA('publicaciones')">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <span>Publicaciones</span>
+    </div>
+
+    <!-- Opiniones -->
+    <div class="tab-item" (click)="irA('opiniones')">
+      <ion-icon name="chatbox-outline"></ion-icon>
+      <span>Opiniones</span>
+    </div>
+
+    <!-- Anuncios -->
+    <div class="tab-item" (click)="irA('anuncios')">
+      <ion-icon name="megaphone-outline"></ion-icon>
+      <span>Anuncios</span>
+    </div>
+  </div>
+</ion-footer>

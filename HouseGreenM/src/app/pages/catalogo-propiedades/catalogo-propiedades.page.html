@@ -1,0 +1,110 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="greenhouse-toolbar">
+    <ion-buttons slot="start">
+      <!-- Botón de retorno (Back Button) -->
+      <ion-back-button defaultHref="/home" text="Volver" icon="chevron-back-outline"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Catálogo</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/propiedades-guardadas">
+        <ion-icon slot="icon-only" name="bookmark-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding greenhouse-content">
+
+  <!-- Buscador Estilo Greenhouse -->
+  <div class="search-container">
+    <ion-searchbar 
+      [(ngModel)]="textoBusqueda" 
+      (ionInput)="aplicarFiltrosYOrden()"
+      placeholder="Buscar por comuna, título o calle..."
+      debounce="300"
+      class="greenhouse-searchbar">
+    </ion-searchbar>
+  </div>
+
+  <!-- Filtros Rápidos de Riesgo -->
+  <div class="filter-chips">
+    <ion-chip [ngClass]="{'active-chip': riesgoSeleccionado === 'bajo'}" (click)="setRiesgo('bajo')">
+      <ion-label>Riesgo Bajo</ion-label>
+    </ion-chip>
+    <ion-chip [ngClass]="{'active-chip': riesgoSeleccionado === 'medio'}" (click)="setRiesgo('medio')">
+      <ion-label>Riesgo Medio</ion-label>
+    </ion-chip>
+    <ion-chip [ngClass]="{'active-chip': riesgoSeleccionado === 'alto'}" (click)="setRiesgo('alto')">
+      <ion-label>Riesgo Alto</ion-label>
+    </ion-chip>
+
+    @if (riesgoSeleccionado || comunaSeleccionada || tipoSeleccionado || precioMaximo) {
+      <ion-chip class="clear-chip" (click)="limpiarFiltros()">
+        <ion-icon name="close-circle-outline"></ion-icon>
+        <ion-label>Limpiar</ion-label>
+      </ion-chip>
+    }
+  </div>
+
+  <!-- Conteo de resultados -->
+  <div class="results-header">
+    <p class="results-count">{{ propiedadesFiltradas.length }} propiedades encontradas</p>
+  </div>
+
+  <!-- Lista de Tarjetas del Catálogo -->
+  <div class="catalog-grid">
+    @for (p of propiedadesFiltradas; track p.id) {
+      <div class="house-card" (click)="verDetallePropiedad(p)">
+        
+        <!-- Banner Greenhouse con indicador de riesgo -->
+        <div class="card-banner" [ngClass]="'banner-' + p.riesgoGlobal">
+          <div class="badge-riesgo" [ngClass]="'badge-' + p.riesgoGlobal">
+            <span class="dot">●</span> Riesgo {{ p.riesgoGlobal | titlecase }}
+          </div>
+
+          <button class="btn-bookmark" (click)="toggleGuardar(p, $event)" [attr.aria-label]="'Guardar ' + p.titulo">
+            <ion-icon [name]="p.guardado ? 'bookmark' : 'bookmark-outline'"></ion-icon>
+          </button>
+
+          <div class="type-icon">
+            <ion-icon [name]="p.tipo === 'Casa' ? 'home-outline' : (p.tipo === 'Oficina' ? 'briefcase-outline' : 'business-outline')"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Contenido principal de la tarjeta -->
+        <div class="card-body">
+          <span class="comuna-tag">{{ p.comuna | uppercase }}</span>
+          <h2 class="prop-title">{{ p.titulo }}</h2>
+          <p class="prop-address">{{ p.direccion }}</p>
+
+          <div class="price-box">
+            <div class="price-main">
+              <span class="price-label">Precio Mínimo:</span>
+              <span class="price-value">{{ formatearMoneda(p.precioMinimo) }}</span>
+            </div>
+            <div class="price-market">
+              <span class="market-label">Mercado: {{ formatearMoneda(p.precioMercado) }}</span>
+              <span class="discount-badge">-{{ p.descuentoEstimado }}%</span>
+            </div>
+          </div>
+
+          <div class="card-specs">
+            <span><ion-icon name="square-outline"></ion-icon> {{ p.superficie }} m²</span>
+            <span><ion-icon name="calendar-outline"></ion-icon> {{ p.fechaRemate }}</span>
+          </div>
+
+          <div class="card-action">
+            <span class="lote-text">Lote #{{ p.lote }}</span>
+            <button class="btn-detail">Ver Detalle →</button>
+          </div>
+        </div>
+
+      </div>
+    } @empty {
+      <div class="no-results">
+        <p>No se encontraron propiedades con esos criterios.</p>
+      </div>
+    }
+  </div>
+
+</ion-content>

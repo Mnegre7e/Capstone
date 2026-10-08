@@ -1,0 +1,101 @@
+<ion-header class="ion-no-border bg-white">
+  <ion-toolbar class="px-2">
+    <ion-buttons slot="start">
+      <button class="btn-back" (click)="volver()">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+    </ion-buttons>
+
+    <ion-title class="header-title">Editar publicación</ion-title>
+
+    <ion-buttons slot="end">
+      <button class="btn-top-guardar" (click)="guardarCambios()">
+        Guardar
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Banner Informativo -->
+  <div class="info-alert-banner">
+    <ion-icon name="lock-closed-outline" class="alert-icon"></ion-icon>
+    <p>
+      Solo puedes cambiar las <strong>fotos</strong> y la <strong>descripción</strong>. Los datos del remate no se editan.
+    </p>
+  </div>
+
+  <!-- Tarjeta Propiedad (Solo lectura) -->
+  <div class="property-summary-card">
+    <div class="property-icon-box">
+      <ion-icon name="business-outline"></ion-icon>
+    </div>
+    <div class="property-details">
+      <h3>{{ propiedad.titulo }}</h3>
+      <p>{{ propiedad.ubicacion }} · mínimo {{ propiedad.minimo }}</p>
+    </div>
+    <ion-icon name="lock-closed-outline" class="lock-icon-end"></ion-icon>
+  </div>
+
+  <!-- Bloque de Fotos -->
+  <div class="section-card">
+    <div class="section-header">
+      <h2>Fotos</h2>
+      <span class="counter-label">{{ fotos.length }} de {{ maxFotos }}</span>
+    </div>
+    <p class="section-sub">Arrastra para ordenar. La primera es la portada.</p>
+
+    <div class="fotos-grid">
+      @for (foto of fotos; track foto.id; let i = $index) {
+        <div class="foto-item">
+          <!-- Botón Eliminar X -->
+          <button class="btn-remove-foto" (click)="eliminarFoto(i)">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+
+          <!-- Imagen / Placeholder -->
+          <div class="foto-placeholder" [class.is-portada]="foto.esPortada">
+            <ion-icon name="image-outline" class="placeholder-icon"></ion-icon>
+          </div>
+
+          <!-- Etiqueta (Portada / Living / etc.) -->
+          <span class="foto-badge" [class.badge-portada]="foto.esPortada">
+            {{ foto.etiqueta }}
+          </span>
+        </div>
+      }
+
+      <!-- Botón Agregar Foto -->
+      @if (fotos.length < maxFotos) {
+        <div class="foto-item add-foto-btn" (click)="agregarFoto()">
+          <ion-icon name="add-outline"></ion-icon>
+          <span>Agregar</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Bloque de Descripción -->
+  <div class="section-card">
+    <div class="section-header">
+      <h2>Descripción</h2>
+      <span class="counter-label">{{ descripcion.length }} / {{ maxCaracteres }}</span>
+    </div>
+
+    <div class="textarea-wrapper">
+      <textarea
+        [(ngModel)]="descripcion"
+        [maxLength]="maxCaracteres"
+        rows="7"
+        placeholder="Escribe la descripción de la propiedad...">
+      </textarea>
+    </div>
+  </div>
+
+  <!-- Botón Guardar Cambios Principal -->
+  <div class="main-action-container">
+    <button class="btn-guardar-main" (click)="guardarCambios()">
+      Guardar cambios
+    </button>
+  </div>
+</ion-content>

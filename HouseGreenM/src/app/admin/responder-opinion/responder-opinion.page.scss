@@ -1,0 +1,279 @@
+$green-primary: #175339;
+$green-bg: #f3f7f4;
+$green-soft: #e8f3ee;
+$text-dark: #0f172a;
+$text-muted: #64748b;
+$card-bg: #ffffff;
+
+:host {
+  display: block;
+  background-color: $green-bg;
+  color: $text-dark;
+}
+
+/* Forzar modo claro en Ionic */
+.cuerpo-responder {
+  --background: #{$green-bg};
+  --color: #{$text-dark};
+  background-color: $green-bg;
+  color: $text-dark;
+}
+
+.contenedor-principal {
+  padding: 16px 20px 110px;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+/* Header Navbar */
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: $green-primary;
+    margin: 0;
+  }
+
+  .btn-circular {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    color: $text-dark;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+  }
+}
+
+/* Tarjeta 1: Usuario */
+.card-usuario {
+  background: $card-bg;
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1.5px solid rgba(0, 0, 0, 0.05);
+
+  .avatar-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #d1e7dd;
+    color: $green-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .info-usuario {
+    flex: 1;
+
+    h3 {
+      font-size: 16px;
+      font-weight: 800;
+      color: $text-dark;
+      margin: 0;
+    }
+
+    p {
+      font-size: 13px;
+      color: $text-muted;
+      margin: 2px 0 0 0;
+    }
+  }
+
+  .btn-ver-actividad {
+    background: transparent;
+    border: none;
+    color: $green-primary;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 0;
+  }
+}
+
+/* Tarjeta 2: Sugerencia / Opinión */
+.card-sugerencia {
+  background: $card-bg;
+  border-radius: 20px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1.5px solid rgba(0, 0, 0, 0.05);
+
+  .fecha-recibida {
+    font-size: 13px;
+    color: $text-muted;
+  }
+
+  .fila-calificacion {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    .estrellas {
+      display: flex;
+      gap: 2px;
+
+      .icono-estrella {
+        font-size: 16px;
+        color: $green-primary;
+      }
+    }
+
+    .txt-calificacion {
+      font-size: 14px;
+      font-weight: 800;
+      color: $text-dark;
+    }
+
+    .badge-categoria {
+      background: #f1f5f9;
+      color: $text-dark;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      margin-left: 2px;
+    }
+  }
+
+  .mensaje-sugerencia {
+    font-size: 15px;
+    line-height: 1.45;
+    color: $text-dark;
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+/* Banner Autorización */
+.banner-autorizacion {
+  background: $green-soft;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: $green-primary;
+  font-size: 13px;
+  font-weight: 600;
+
+  ion-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    color: $green-primary;
+  }
+}
+
+/* Sección de Respuesta (Input) */
+.seccion-respuesta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .label-respuesta {
+    font-size: 14px;
+    font-weight: 800;
+    color: $text-dark;
+  }
+
+  .box-textarea-wrapper {
+    textarea {
+      width: 100%;
+      background: $card-bg;
+      border: 1.5px solid $green-primary;
+      border-radius: 16px;
+      padding: 14px;
+      font-size: 14px;
+      line-height: 1.45;
+      color: $text-dark;
+      outline: none;
+      font-family: inherit;
+      resize: none;
+      box-sizing: border-box;
+
+      &:focus {
+        border-color: $green-primary;
+        box-shadow: 0 0 0 2px rgba(23, 83, 57, 0.1);
+      }
+    }
+  }
+
+  .footer-respuesta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: $text-muted;
+
+    .txt-info-envio {
+      font-size: 12px;
+      color: $text-muted;
+    }
+
+    .txt-contador {
+      font-size: 12px;
+      font-weight: 600;
+      color: $text-muted;
+    }
+  }
+}
+
+/* Botón Flotante Acción */
+.wrapper-boton-accion {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 20px;
+  z-index: 90;
+
+  .btn-enviar {
+    width: 100%;
+    max-width: 440px;
+    height: 52px;
+    background-color: $green-primary;
+    color: #ffffff;
+    border: none;
+    border-radius: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 15px;
+    box-shadow: 0 4px 16px rgba(23, 83, 57, 0.25);
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.2s ease;
+
+    ion-icon {
+      font-size: 18px;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}

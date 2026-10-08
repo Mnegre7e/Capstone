@@ -1,0 +1,101 @@
+<ion-content class="contacto-content" [fullscreen]="true">
+
+  <div class="page-wrapper">
+
+    <!-- ENCABEZADO CON BOTÓN VOLVER -->
+    <div class="header-section">
+      <button class="back-btn" (click)="goBack()" aria-label="Volver">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+
+      <h1 class="page-title">Sugerencias y calificación</h1>
+      <p class="page-subtitle">Cuéntanos cómo te va con HouseGreen y qué mejorarías.</p>
+    </div>
+
+    <!-- TARJETA 1: CALIFICACIÓN DE ESTRELLAS -->
+    <div class="card-box rating-card">
+      <h2 class="card-title">¿Cómo calificarías HouseGreen?</h2>
+
+      <div class="stars-row">
+        @for (star of estrellas; track star) {
+          <button 
+            class="star-box" 
+            [class.filled]="star <= calificacion" 
+            (click)="setCalificacion(star)"
+            aria-label="Calificar">
+            <ion-icon [name]="star <= calificacion ? 'star' : 'star-outline'"></ion-icon>
+          </button>
+        }
+      </div>
+
+      <p class="rating-label">
+        <strong>{{ calificacion }} de 5</strong> · {{ textosCalificacion[calificacion] }}
+      </p>
+    </div>
+
+    <!-- TARJETA 2: FORMULARIO DE SUGERENCIA -->
+    <div class="card-box form-card">
+      <h2 class="card-title">¿Sobre qué es tu sugerencia?</h2>
+
+      <!-- Chips de selección -->
+      <div class="chips-grid">
+        @for (cat of categorias; track cat) {
+          <button 
+            class="chip-item" 
+            [class.active]="categoriaSeleccionada === cat"
+            (click)="seleccionarCategoria(cat)">
+            @if (categoriaSeleccionada === cat) {
+              <ion-icon name="checkmark-outline" class="check-icon"></ion-icon>
+            }
+            <span>{{ cat }}</span>
+          </button>
+        }
+      </div>
+
+      <!-- Textarea sugerencia -->
+      <label class="input-label" for="sugerencia-input">Tu sugerencia</label>
+      <div class="textarea-wrapper">
+        <textarea 
+          id="sugerencia-input"
+          class="sugerencia-textarea"
+          [(ngModel)]="sugerenciaText"
+          [attr.maxlength]="maxCaracteres"
+          rows="4"
+          placeholder="Escribe tu comentario o sugerencia aquí...">
+        </textarea>
+      </div>
+
+      <div class="char-counter">
+        {{ sugerenciaText.length }} / {{ maxCaracteres }}
+      </div>
+
+      <!-- Checkbox de autorización -->
+      <div class="checkbox-row" (click)="toggleAutorizacion()">
+        <div class="custom-checkbox" [class.checked]="autorizaRespuesta">
+          @if (autorizaRespuesta) {
+            <ion-icon name="checkmark-outline"></ion-icon>
+          }
+        </div>
+        <span class="checkbox-label">Autorizo que HouseGreen responda mi sugerencia</span>
+      </div>
+
+    </div>
+
+    <!-- BOTÓN DE ENVÍO -->
+    <button 
+      class="submit-btn" 
+      [disabled]="!sugerenciaText.trim()"
+      (click)="enviarSugerencia()">
+      <ion-icon name="send-outline"></ion-icon>
+      <span>Enviar sugerencia</span>
+    </button>
+
+    <!-- PIE DE PAGINA / AYUDA DIRECTA -->
+    <div class="footer-help">
+      <p class="help-title">¿Necesitas ayuda directa?</p>
+      <a href="mailto:contacto@housegreen.cl" class="help-link">contacto@housegreen.cl</a>
+    </div>
+
+  </div>
+
+</ion-content>

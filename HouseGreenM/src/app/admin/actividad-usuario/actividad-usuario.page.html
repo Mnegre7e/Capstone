@@ -1,0 +1,97 @@
+<ion-header class="ion-no-border bg-white">
+  <ion-toolbar class="px-2">
+    <!-- Botón nativo para volver a la lista de Usuarios -->
+    <ion-buttons slot="start">
+      <ion-back-button 
+        defaultHref="/usuarios" 
+        text="" 
+        icon="chevron-back-outline"
+        class="custom-back-btn"
+      ></ion-back-button>
+    </ion-buttons>
+
+    <ion-title class="main-title">Actividad del usuario</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding-horizontal">
+  <!-- Tarjeta de Perfil de Usuario -->
+  <div class="user-profile-card">
+    <div class="avatar-circle">
+      <span>{{ usuario.iniciales }}</span>
+    </div>
+    <div class="user-info">
+      <h3 class="user-name">{{ usuario.nombre }}</h3>
+      <p class="user-email">{{ usuario.email }}</p>
+      <p class="user-dates">
+        Registrada el {{ usuario.fechaRegistro }} · activa {{ usuario.ultimaActividad }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Métricas Rápidas -->
+  <div class="metrics-grid">
+    <div class="metric-box">
+      <span class="metric-number">{{ usuario.vistasCount }}</span>
+      <span class="metric-label">vistas</span>
+    </div>
+    <div class="metric-box">
+      <span class="metric-number">{{ usuario.guardadosCount }}</span>
+      <span class="metric-label">guardados</span>
+    </div>
+    <div class="metric-box">
+      <span class="metric-number">{{ usuario.sugerenciasCount }}</span>
+      <span class="metric-label">sugerencia</span>
+    </div>
+  </div>
+
+  <!-- Switch / Selector de Pestañas -->
+  <div class="segment-pill-container">
+    <div 
+      class="pill-button" 
+      [class.active]="tabActiva === 'vio'" 
+      (click)="setTab('vio')"
+    >
+      Vio · {{ usuario.vistasCount }}
+    </div>
+    <div 
+      class="pill-button" 
+      [class.active]="tabActiva === 'guardo'" 
+      (click)="setTab('guardo')"
+    >
+      Guardó · {{ usuario.guardadosCount }}
+    </div>
+  </div>
+
+  <!-- Lista de Actividad -->
+  <div class="activity-card">
+    @for (item of actividadesFiltradas; track item.id; let last = $last) {
+      <div class="activity-item" [class.border-bottom]="!last">
+        <div class="property-icon-box">
+          <ion-icon [name]="getIconoPropiedad(item.tipo)"></ion-icon>
+        </div>
+
+        <div class="property-details">
+          <h4 class="property-title">{{ item.titulo }}</h4>
+          <p class="property-meta">{{ item.ubicacion }} · {{ item.fecha }}</p>
+        </div>
+
+        @if (item.guardo) {
+          <div class="badge-guardado">
+            La guardó
+          </div>
+        }
+      </div>
+    }
+  </div>
+</ion-content>
+
+<!-- Botón de Acción Inferior -->
+<ion-footer class="ion-no-border bg-white">
+  <div class="footer-action-container">
+    <button class="btn-primary-action" (click)="enviarAnuncio()">
+      <ion-icon name="paper-plane-outline"></ion-icon>
+      Enviar anuncio a {{ primerNombre }}
+    </button>
+  </div>
+</ion-footer>

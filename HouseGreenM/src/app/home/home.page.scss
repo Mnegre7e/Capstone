@@ -1,0 +1,394 @@
+// Variables de color de la paleta HouseGreen
+$gh-dark-green: #175339;
+$gh-primary-green: #1f6243;
+$gh-light-green: #e2f1e8;
+$gh-bg-light: #f2f7f4;
+$gh-text-title: #0f172a;
+$gh-text-body: #475569;
+
+// Colores para el Semáforo de Riesgo
+$risk-low-bg: #d1fae5;
+$risk-low-text: #065f46;
+$risk-med-bg: #fef3c7;
+$risk-med-text: #92400e;
+$risk-high-bg: #fee2e2;
+$risk-high-text: #991b1b;
+
+.header-toolbar {
+  --background: #{$gh-bg-light};
+  --border-color: transparent;
+  padding: 4px 8px;
+
+  .menu-btn {
+    --color: #{$gh-dark-green};
+  }
+
+  .brand-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #{$gh-dark-green};
+  }
+
+  .boton-notificacion {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+
+    ion-icon {
+      font-size: 22px;
+      color: #{$gh-dark-green};
+    }
+
+    .badge {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      background-color: #{$gh-dark-green};
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+.cuerpo-inicio {
+  --background: #{$gh-bg-light};
+}
+
+.contenedor-principal {
+  padding: 12px 20px 40px;
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Saludo */
+.seccion-saludo {
+  h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #{$gh-dark-green};
+    margin: 0 0 4px 0;
+    letter-spacing: -0.5px;
+  }
+
+  p {
+    font-size: 15px;
+    color: #{$gh-text-body};
+    margin: 0;
+  }
+}
+
+/* Buscador */
+.buscador-box {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 0 16px;
+  height: 52px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+
+  ion-icon {
+    font-size: 20px;
+    color: #64748b;
+    margin-right: 10px;
+  }
+
+  input {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 15px;
+    color: #{$gh-text-title};
+
+    &::placeholder {
+      color: #94a3b8;
+    }
+  }
+}
+
+/* Estructura general de secciones */
+.seccion-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .encabezado-seccion {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h2 {
+      font-size: 20px;
+      font-weight: 800;
+      color: #{$gh-dark-green};
+      margin: 0;
+    }
+
+    a {
+      color: #{$gh-primary-green};
+      font-size: 14px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+  }
+}
+
+/* Grid del Semáforo */
+.grid-semaforo {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  .card-semaforo {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+
+    .icono-circulo {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      font-weight: 800;
+
+      &.bajo { background: $risk-low-bg; color: $risk-low-text; }
+      &.medio { background: $risk-med-bg; color: $risk-med-text; }
+      &.alto { background: $risk-high-bg; color: $risk-high-text; }
+    }
+
+    .numero {
+      font-size: 28px;
+      font-weight: 800;
+      color: #{$gh-text-title};
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .etiqueta {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    &.bajo .etiqueta { color: $risk-low-text; }
+    &.medio .etiqueta { color: $risk-med-text; }
+    &.alto .etiqueta { color: $risk-high-text; }
+  }
+}
+
+/* Carrusel horizontal (Rematan pronto) */
+.scroll-horizontal {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .card-remate {
+    min-width: 250px;
+    width: 250px;
+    background: #ffffff;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    flex-shrink: 0;
+
+    .imagen-placeholder {
+      height: 120px;
+      background-color: #e6f4ea;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .icono-propiedad {
+        font-size: 44px;
+        color: #{$gh-primary-green};
+        opacity: 0.6;
+      }
+
+      .badge-riesgo {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        .punto {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+        }
+
+        &.bajo {
+          background-color: $risk-low-bg;
+          color: $risk-low-text;
+          .punto { background-color: $risk-low-text; }
+        }
+        &.medio {
+          background-color: $risk-med-bg;
+          color: $risk-med-text;
+          .punto { background-color: $risk-med-text; }
+        }
+      }
+    }
+
+    .card-contenido {
+      padding: 14px 16px;
+
+      h3 {
+        font-size: 16px;
+        font-weight: 800;
+        color: #{$gh-text-title};
+        margin: 0 0 2px 0;
+      }
+
+      .ubicacion {
+        font-size: 13px;
+        color: #{$gh-text-body};
+        margin: 0 0 8px 0;
+      }
+
+      .precio {
+        font-size: 15px;
+        font-weight: 800;
+        color: #{$gh-dark-green};
+        margin: 0 0 12px 0;
+      }
+
+      .card-pie {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .fecha {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 12px;
+          color: #{$gh-text-body};
+        }
+
+        .badge-dias {
+          background-color: #{$gh-light-green};
+          color: #{$gh-dark-green};
+          font-size: 11px;
+          font-weight: 800;
+          padding: 3px 8px;
+          border-radius: 8px;
+        }
+      }
+    }
+  }
+}
+
+/* Lista vertical (Recién publicados) */
+.lista-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .item-reciente {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+
+    .thumb-icono {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background-color: #e6f4ea;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      ion-icon {
+        font-size: 24px;
+        color: #{$gh-primary-green};
+      }
+    }
+
+    .item-info {
+      flex-grow: 1;
+
+      .badge-riesgo-inline {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        font-weight: 800;
+
+        .punto {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+        }
+
+        &.bajo { color: $risk-low-text; .punto { background-color: $risk-low-text; } }
+        &.medio { color: $risk-med-text; .punto { background-color: $risk-med-text; } }
+      }
+
+      h3 {
+        font-size: 15px;
+        font-weight: 800;
+        color: #{$gh-text-title};
+        margin: 2px 0;
+      }
+
+      p {
+        font-size: 13px;
+        color: #{$gh-text-body};
+        margin: 0;
+      }
+    }
+
+    .tag-tiempo {
+      font-size: 12px;
+      font-weight: 700;
+      color: #94a3b8;
+      align-self: flex-start;
+      margin-top: 4px;
+    }
+  }
+}
