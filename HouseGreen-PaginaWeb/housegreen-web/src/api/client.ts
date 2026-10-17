@@ -40,6 +40,9 @@ async function apiFetch(path: string, options: RequestInit = {}) {
   if (tokenActual) {
     headers["Authorization"] = `Bearer ${tokenActual}`;
   }
+  
+  // Paso 102: la API anota desde dónde se hizo cada acción (la app enviará "app")
+  headers["X-Plataforma"] = "web";
 
   const respuesta = await fetch(`${API_URL}${path}`, { ...options, headers });
 

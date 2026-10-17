@@ -1,6 +1,9 @@
 import re
+from datetime import datetime, timedelta, timezone
+from math import ceil
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -20,6 +23,8 @@ from app.schemas.user import (
 from app.auth.security import hash_password, verify_password, create_access_token, problema_de_contrasena
 from app.auth.dependencies import get_current_user
 from app.auth import two_factor
+from app.auditoria import anotar
+from app.models.audit import AuditLog
 
 router = APIRouter(prefix="/auth", tags=["Autenticación"])
 
@@ -73,8 +78,53 @@ def _clave_de_dos_pasos(usuario: User) -> str:
         raise HTTPException(status_code=500, detail=str(error))
 
 
+# ---------- Paso 102: intentos fallidos y bloqueo ----------
+# Después de 5 intentos fallidos en 15 minutos, ese correo debe esperar antes de volver a intentar
+# (aunque después escriba la contraseña correcta). Un inicio de sesión exitoso vuelve a contar desde cero.
+INTENTOS_PERMITIDOS = 5
+MINUTOS_DE_ESPERA = 15
+
+
+def _minutos_de_espera(db: Session, email: str) -> int:
+    """Cuántos minutos le faltan a ese correo para poder intentar de nuevo (0 = puede intentar ya)."""
+    # Solo cuentan los fallos posteriores al último inicio de sesión exitoso
+    ultimo_exito = (
+        db.query(func.max(AuditLog.id))
+        .filter(AuditLog.email == email, AuditLog.action == "inicio_sesion")
+        .scalar()
+    ) or 0
+    fallos = (
+        db.query(AuditLog.created_at)
+        .filter(
+            AuditLog.email == email,
+            AuditLog.action == "inicio_sesion_fallido",
+            AuditLog.id > ultimo_exito,
+        )
+        .order_by(AuditLog.id.desc())
+        .limit(INTENTOS_PERMITIDOS)
+        .all()
+    )
+    if len(fallos) < INTENTOS_PERMITIDOS:
+        return 0
+
+    # Se puede volver a intentar cuando el 5.º fallo más reciente cumple 15 minutos
+    quinto_fallo = fallos[-1][0]
+    if quinto_fallo.tzinfo is None:  # algunas bases entregan la hora sin zona: es hora UTC
+        quinto_fallo = quinto_fallo.replace(tzinfo=timezone.utc)
+    restante = quinto_fallo + timedelta(minutes=MINUTOS_DE_ESPERA) - datetime.now(timezone.utc)
+    if restante.total_seconds() <= 0:
+        return 0
+    return ceil(restante.total_seconds() / 60)
+
+
+def _anotar_fallo(db: Session, request: Request, email: str, usuario: User | None, motivo: str):
+    # El motivo queda solo en el registro (lo ve el administrador); la respuesta sigue siendo genérica
+    anotar(db, "inicio_sesion_fallido", request=request, usuario=usuario, email=email, despues={"motivo": motivo})
+    db.commit()  # se guarda antes de responder el error
+
+
 @router.post("/registro", response_model=UserOut)
-def registrar_usuario(datos: UserCreate, db: Session = Depends(get_db)):
+def registrar_usuario(datos: UserCreate, request: Request, db: Session = Depends(get_db)):
     # Verifica que el correo no esté ya registrado
     usuario_existente = db.query(User).filter(User.email == datos.email).first()
     if usuario_existente:
@@ -102,20 +152,37 @@ def registrar_usuario(datos: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(nuevo_usuario)  # trae de vuelta el id/created_at que generó la base de datos
 
+    # Paso 102: queda anotado el registro (y desde dónde: web o app)
+    anotar(db, "registro", request=request, usuario=nuevo_usuario)
+    db.commit()
+
     return nuevo_usuario
 
 
 @router.post("/login", response_model=Token)
-def iniciar_sesion(datos: UserLogin, db: Session = Depends(get_db)):
+def iniciar_sesion(datos: UserLogin, request: Request, db: Session = Depends(get_db)):
+    # Paso 102: si ese correo tuvo demasiados intentos fallidos, se rechaza sin revisar la contraseña
+    minutos = _minutos_de_espera(db, datos.email)
+    if minutos:
+        anotar(db, "inicio_sesion_bloqueado", request=request, email=datos.email)
+        db.commit()
+        raise HTTPException(
+            status_code=429,
+            detail=f"Demasiados intentos fallidos. Por seguridad, espera {minutos} "
+            f"{'minuto' if minutos == 1 else 'minutos'} antes de volver a intentarlo.",
+        )
+
     usuario = db.query(User).filter(User.email == datos.email).first()
 
     # Ojo: el mensaje de error es genérico a propósito ("correo o contraseña incorrectos"),
     # no decimos "el correo no existe" — eso evita que alguien pueda "adivinar" qué correos
     # están registrados probando uno por uno.
     if not usuario or not verify_password(datos.password, usuario.password_hash):
+        _anotar_fallo(db, request, datos.email, usuario, "contrasena_incorrecta" if usuario else "correo_no_registrado")
         raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
 
     if not usuario.is_active:
+        _anotar_fallo(db, request, datos.email, usuario, "cuenta_deshabilitada")
         raise HTTPException(status_code=403, detail="Esta cuenta está deshabilitada")
 
     # Paso 77: segundo paso. Recién aquí (con la contraseña ya correcta) se revisa el código.
@@ -124,9 +191,14 @@ def iniciar_sesion(datos: UserLogin, db: Session = Depends(get_db)):
             # Todavía no se entrega el token: la web debe pedir el código y volver a llamar
             return Token(requires_2fa=True)
         if not two_factor.codigo_correcto(_clave_de_dos_pasos(usuario), datos.code):
+            _anotar_fallo(db, request, datos.email, usuario, "codigo_incorrecto")
             raise HTTPException(status_code=401, detail=CODIGO_INCORRECTO)
 
     token = create_access_token(data={"sub": str(usuario.id), "email": usuario.email})
+
+    # Paso 102: inicio de sesión exitoso (el token NO se anota)
+    anotar(db, "inicio_sesion", request=request, usuario=usuario, despues={"dos_pasos": bool(usuario.two_fa_enabled)})
+    db.commit()
 
     return Token(access_token=token)
 
@@ -142,14 +214,30 @@ def usuario_actual(usuario: User = Depends(get_current_user)):
 @router.patch("/me", response_model=UserMe)
 def editar_perfil(
     datos: ProfileUpdate,
+    request: Request,
     db: Session = Depends(get_db),
     usuario: User = Depends(get_current_user),
 ):
+    antes = {"full_name": usuario.full_name, "phone": usuario.phone}
+
     # model_fields_set = los campos que de verdad vinieron en la petición
     if "full_name" in datos.model_fields_set:
         usuario.full_name = _nombre_revisado(datos.full_name)
     if "phone" in datos.model_fields_set:
         usuario.phone = _telefono_revisado(datos.phone)
+
+    # Paso 102: se anota solo si algo cambió, con el valor anterior y el nuevo
+    despues = {"full_name": usuario.full_name, "phone": usuario.phone}
+    cambios = [campo for campo in antes if antes[campo] != despues[campo]]
+    if cambios:
+        anotar(
+            db,
+            "perfil_editado",
+            request=request,
+            usuario=usuario,
+            antes={campo: antes[campo] for campo in cambios},
+            despues={campo: despues[campo] for campo in cambios},
+        )
 
     db.commit()
     db.refresh(usuario)
@@ -161,6 +249,7 @@ def editar_perfil(
 @router.post("/me/contrasena")
 def cambiar_contrasena(
     datos: PasswordChange,
+    request: Request,
     db: Session = Depends(get_db),
     usuario: User = Depends(get_current_user),
 ):
@@ -175,6 +264,8 @@ def cambiar_contrasena(
         raise HTTPException(status_code=400, detail="La contraseña nueva debe ser distinta de la actual.")
 
     usuario.password_hash = hash_password(datos.new_password)
+    # Paso 102: se anota QUE cambió la contraseña, nunca la contraseña
+    anotar(db, "contrasena_cambiada", request=request, usuario=usuario)
     db.commit()
     return {"mensaje": "Contraseña actualizada"}
 
@@ -202,6 +293,7 @@ def iniciar_dos_pasos(db: Session = Depends(get_db), usuario: User = Depends(get
 @router.post("/2fa/confirmar", response_model=UserMe)
 def confirmar_dos_pasos(
     datos: TwoFactorCode,
+    request: Request,
     db: Session = Depends(get_db),
     usuario: User = Depends(get_current_user),
 ):
@@ -214,6 +306,7 @@ def confirmar_dos_pasos(
         raise HTTPException(status_code=400, detail=CODIGO_INCORRECTO)
 
     usuario.two_fa_enabled = True
+    anotar(db, "dos_pasos_activada", request=request, usuario=usuario)  # paso 102
     db.commit()
     db.refresh(usuario)
     return _usuario_me(usuario)
@@ -224,6 +317,7 @@ def confirmar_dos_pasos(
 @router.post("/2fa/desactivar", response_model=UserMe)
 def desactivar_dos_pasos(
     datos: TwoFactorDisable,
+    request: Request,
     db: Session = Depends(get_db),
     usuario: User = Depends(get_current_user),
 ):
@@ -242,6 +336,7 @@ def desactivar_dos_pasos(
 
     usuario.two_fa_enabled = False
     usuario.two_fa_secret = None
+    anotar(db, "dos_pasos_desactivada", request=request, usuario=usuario)  # paso 102
     db.commit()
     db.refresh(usuario)
     return _usuario_me(usuario)
