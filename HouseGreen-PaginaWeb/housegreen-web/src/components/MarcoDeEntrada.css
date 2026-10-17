@@ -1,26 +1,11 @@
 /* Marco de las pantallas de entrada: panel verde con el semáforo + formulario */
 
+/* Paso 100: estas pantallas ya no tienen el encabezado de arriba, así que ocupan toda la pantalla */
 .entrada {
   display: grid;
   grid-template-columns: minmax(0, 11fr) minmax(0, 10fr);
-  min-height: calc(100vh - 61px); /* la pantalla menos el encabezado (para navegadores antiguos) */
+  min-height: 100vh;
   background-color: #f1f5f3;
-}
-
-/* Para que el panel llegue justo hasta abajo sin depender de cuánto mide el encabezado:
-   la caja que contiene el encabezado y esta página ocupa toda la pantalla, y esta página
-   se queda con el espacio que sobra. ":has" elige esa caja solo cuando contiene ".entrada". */
-@supports selector(:has(*)) {
-  #root > div:has(> .entrada) {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-
-  .entrada {
-    flex: 1;
-    min-height: 0;
-  }
 }
 
 /* ---------- Panel de la izquierda ---------- */
@@ -191,33 +176,38 @@
     padding: 22px 20px;
   }
 
-  /* Un semáforo chico a la izquierda y el título a su lado */
+  /* Un semáforo chico a la izquierda y, a su lado, el nombre con la frase debajo
+     (paso 100: sin el encabezado de arriba, el nombre se muestra aquí) */
   .entrada-contenido {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
+    grid-template-rows: auto auto;
     column-gap: 16px;
+    row-gap: 4px;
   }
 
-  /* En celular el nombre ya está en el encabezado, justo arriba: aquí queda solo la frase */
   .entrada-titulo {
-    display: none;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    font-size: 32px;
   }
 
   .entrada-bajada {
     grid-column: 2;
+    grid-row: 2;
+    align-self: start;
     max-width: none;
     margin: 0;
-    color: white;
-    font-size: 24px;
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
+    font-size: 16px;
+    line-height: 1.3;
+    letter-spacing: 0;
   }
 
   .entrada-semaforo {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 1 / span 2;
+    align-self: center;
     gap: 6px;
     margin: 0;
     padding: 8px 0;
