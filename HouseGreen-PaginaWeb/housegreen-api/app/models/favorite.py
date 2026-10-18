@@ -13,5 +13,6 @@ class SavedProperty(Base):
     property_id = Column(UUID(as_uuid=True), ForeignKey("properties.id", ondelete="CASCADE"), nullable=False)
     notes = Column(Text)
     saved_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    removed_at = Column(TIMESTAMP(timezone=True))  # paso 103: cuándo la quitó (vacío = sigue guardada)
 
     property = relationship("Property")

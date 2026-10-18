@@ -106,6 +106,7 @@ def enviar_anuncio(
             nadie = "Nadie ha visto esa publicación todavía."
         else:
             quienes = db.query(SavedProperty.user_id).filter(SavedProperty.property_id == publicacion.id)
+            quienes = quienes.filter(SavedProperty.removed_at.is_(None))  # paso 103: solo quienes la siguen teniendo guardada
             nadie = "Nadie tiene guardada esa publicación."
 
         # User.id.in_(...) deja solo a los inversionistas que aparecen en la otra consulta.

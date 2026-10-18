@@ -50,6 +50,7 @@ def listar_publicaciones(db: Session = Depends(get_db), usuario=Depends(requerir
         db.query(SavedProperty.property_id, func.count(SavedProperty.id))
         .join(User, User.id == SavedProperty.user_id)
         .filter(User.role_id == ROL_INVERSIONISTA_ID)
+        .filter(SavedProperty.removed_at.is_(None))  # paso 103: solo las que siguen guardadas
         .group_by(SavedProperty.property_id)
         .all()
     )
@@ -126,6 +127,7 @@ def detalle_publicacion(property_id: UUID, db: Session = Depends(get_db), usuari
         for g in db.query(SavedProperty)
         .join(User, User.id == SavedProperty.user_id)
         .filter(SavedProperty.property_id == property_id, User.role_id == ROL_INVERSIONISTA_ID)
+        .filter(SavedProperty.removed_at.is_(None))  # paso 103: solo quienes la siguen teniendo guardada
         .order_by(SavedProperty.saved_at.desc())
     }
 

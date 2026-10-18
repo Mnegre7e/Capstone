@@ -14,13 +14,16 @@ from app.schemas.admin_usuarios import UsuarioAdmin
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 
-def _cantidad_y_ultima(db: Session, columna_usuario, columna_id, columna_fecha) -> dict:
-    """Por cada usuario: (cuántas filas tiene, fecha de la más reciente). Una sola consulta con GROUP BY."""
+def _cantidad_y_ultima(db: Session, columna_usuario, columna_id, columna_fecha, *condiciones) -> dict:
+    """Por cada usuario: (cuántas filas tiene, fecha de la más reciente). Una sola consulta con GROUP BY.
+    Paso 103: las condiciones (opcionales) filtran las filas que se cuentan."""
     return {
         user_id: (cantidad, ultima)
         for user_id, cantidad, ultima in db.query(
             columna_usuario, func.count(columna_id), func.max(columna_fecha)
-        ).group_by(columna_usuario)
+        )
+        .filter(*condiciones)
+        .group_by(columna_usuario)
     }
 
 
@@ -29,7 +32,10 @@ def listar_usuarios(db: Session = Depends(get_db), usuario=Depends(requerir_admi
     roles = dict(db.query(Role.id, Role.name).all())
 
     vistas = _cantidad_y_ultima(db, PropertyView.user_id, PropertyView.id, PropertyView.viewed_at)
-    guardados = _cantidad_y_ultima(db, SavedProperty.user_id, SavedProperty.id, SavedProperty.saved_at)
+    # Paso 103: solo cuentan los favoritos que siguen guardados
+    guardados = _cantidad_y_ultima(
+        db, SavedProperty.user_id, SavedProperty.id, SavedProperty.saved_at, SavedProperty.removed_at.is_(None)
+    )
     opiniones = _cantidad_y_ultima(db, Feedback.user_id, Feedback.id, Feedback.created_at)
 
     resultado = []
