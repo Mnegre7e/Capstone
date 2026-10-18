@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import text
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -13,6 +13,7 @@ from app.models.user import User
 from app.schemas.alert import SavedFilterCreate, SavedFilterOut, AlertOut
 from app.auth.dependencies import get_current_user
 from app.routers.admin_panel import _esta_vigente  # la misma regla de "remate vigente" del Panel
+from app.auditoria import anotar
 
 router = APIRouter(tags=["Alertas"])
 
@@ -24,12 +25,31 @@ PRECIO_TOPE = Decimal("1000000000000")  # la columna de la base guarda hasta 12 
 NOMBRE_DEL_NIVEL = {"verde": "riesgo bajo", "amarillo": "riesgo medio", "rojo": "riesgo alto"}
 
 
+# Paso 104: eliminar una alerta ya no borra la fila: queda con la fecha en que se eliminó (removed_at).
+# Las alertas que siguen activas son las que tienen removed_at vacío y cuya cuenta está habilitada.
+def _alertas_activas(db: Session):
+    return (
+        db.query(SavedFilter)
+        .join(User, User.id == SavedFilter.user_id)
+        .filter(SavedFilter.removed_at.is_(None), User.is_active.is_(True))
+    )
+
+
+def _condiciones(filtro) -> dict:
+    # Las condiciones de una alerta, para anotarlas en el registro (el precio va como texto)
+    return {
+        "comuna_id": filtro.comuna_id,
+        "max_risk_level": filtro.max_risk_level,
+        "max_price": f"{filtro.max_price:.2f}" if filtro.max_price is not None else None,
+    }
+
+
 def notificar_nueva_propiedad(db: Session, propiedad: Property, nivel_riesgo: str):
     # Recorre TODOS los filtros guardados de TODOS los usuarios, y genera
     # una notificación para cada uno que calce con esta propiedad nueva.
     # Se llama automáticamente desde properties.py al crear una propiedad
     # (también cuando la crea el scraper, que usa esa misma función).
-    filtros = db.query(SavedFilter).all()
+    filtros = _alertas_activas(db).all()  # paso 104: sin las eliminadas ni las de cuentas deshabilitadas
     avisados = set()  # paso 93: aunque calce con varias de sus alertas, cada persona recibe UN aviso por propiedad
 
     for filtro in filtros:
@@ -73,7 +93,7 @@ def notificar_cambio_de_semaforo(
         return 0  # el remate ya pasó o fue retirado: no tiene sentido avisar
 
     # Solo interesan las alertas que piden un riesgo máximo
-    filtros = db.query(SavedFilter).filter(SavedFilter.max_risk_level.isnot(None)).all()
+    filtros = _alertas_activas(db).filter(SavedFilter.max_risk_level.isnot(None)).all()  # paso 104
     avisados = set()  # cada persona recibe UN aviso, aunque calce con varias de sus alertas
 
     for filtro in filtros:
@@ -143,7 +163,7 @@ def _alerta_para_la_web(filtro: SavedFilter, comunas: dict) -> SavedFilterOut:
 def listar_filtros(db: Session = Depends(get_db), usuario: User = Depends(get_current_user)):
     filtros = (
         db.query(SavedFilter)
-        .filter(SavedFilter.user_id == usuario.id)
+        .filter(SavedFilter.user_id == usuario.id, SavedFilter.removed_at.is_(None))  # paso 104
         .order_by(SavedFilter.created_at.desc())  # la más nueva primero
         .all()
     )
@@ -153,7 +173,10 @@ def listar_filtros(db: Session = Depends(get_db), usuario: User = Depends(get_cu
 
 @router.post("/alertas/filtros", response_model=SavedFilterOut)
 def crear_filtro(
-    datos: SavedFilterCreate, db: Session = Depends(get_db), usuario: User = Depends(get_current_user)
+    datos: SavedFilterCreate,
+    request: Request,
+    db: Session = Depends(get_db),
+    usuario: User = Depends(get_current_user),
 ):
     # Paso 93: se revisa lo que llega antes de guardarlo
     if datos.comuna_id is None and datos.max_risk_level is None and datos.max_price is None:
@@ -174,7 +197,8 @@ def crear_filtro(
         if datos.max_price >= PRECIO_TOPE:
             raise HTTPException(status_code=400, detail="El precio máximo es demasiado alto.")
 
-    mias = db.query(SavedFilter).filter(SavedFilter.user_id == usuario.id).all()
+    # Paso 104: solo cuentan las alertas que siguen activas
+    mias = db.query(SavedFilter).filter(SavedFilter.user_id == usuario.id, SavedFilter.removed_at.is_(None)).all()
     if len(mias) >= MAXIMO_DE_ALERTAS:
         raise HTTPException(
             status_code=400,
@@ -190,6 +214,16 @@ def crear_filtro(
 
     nuevo_filtro = SavedFilter(user_id=usuario.id, **datos.model_dump())
     db.add(nuevo_filtro)
+    db.flush()  # así la alerta ya tiene su id para anotarlo
+    anotar(
+        db,
+        "alerta_creada",
+        request=request,
+        usuario=usuario,
+        entidad_tipo="alerta",
+        entidad_id=nuevo_filtro.id,
+        despues=_condiciones(nuevo_filtro),
+    )
     db.commit()
     db.refresh(nuevo_filtro)
     return _alerta_para_la_web(nuevo_filtro, {comuna.id: comuna.name} if comuna else {})
@@ -197,16 +231,29 @@ def crear_filtro(
 
 @router.delete("/alertas/filtros/{filtro_id}")
 def eliminar_filtro(
-    filtro_id: UUID, db: Session = Depends(get_db), usuario: User = Depends(get_current_user)
+    filtro_id: UUID,
+    request: Request,
+    db: Session = Depends(get_db),
+    usuario: User = Depends(get_current_user),
 ):
     filtro = (
         db.query(SavedFilter)
-        .filter(SavedFilter.id == filtro_id, SavedFilter.user_id == usuario.id)
+        .filter(SavedFilter.id == filtro_id, SavedFilter.user_id == usuario.id, SavedFilter.removed_at.is_(None))
         .first()
     )
     if not filtro:
         raise HTTPException(status_code=404, detail="Alerta no encontrada")
-    db.delete(filtro)
+    # Paso 104: no se borra; queda marcada con la fecha en que se eliminó
+    filtro.removed_at = func.now()
+    anotar(
+        db,
+        "alerta_eliminada",
+        request=request,
+        usuario=usuario,
+        entidad_tipo="alerta",
+        entidad_id=filtro.id,
+        antes=_condiciones(filtro),
+    )
     db.commit()
     return {"mensaje": "Alerta eliminada"}
 

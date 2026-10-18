@@ -13,6 +13,7 @@ class SavedFilter(Base):
     max_risk_level = Column(ENUM("verde", "amarillo", "rojo", name="semaforo_level"))
     max_price = Column(Numeric(14, 2))
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    removed_at = Column(TIMESTAMP(timezone=True))  # paso 104: cuándo la eliminó (vacío = sigue activa)
 
 class Alert(Base):
     __tablename__ = "alerts"
