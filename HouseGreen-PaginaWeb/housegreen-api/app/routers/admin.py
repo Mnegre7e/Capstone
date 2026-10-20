@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Request
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 from uuid import UUID, uuid4
@@ -6,7 +6,8 @@ from pathlib import Path
 
 from app.database import get_db
 from app.auth.dependencies import requerir_admin
-from app.nube import subir_foto_a_la_nube, borrar_foto_de_la_nube, ErrorDeNube
+from app.auditoria import anotar
+from app.nube import subir_foto_a_la_nube, ErrorDeNube
 from app.models.property import (
     Property, Comuna, PropertyEvaluation, PropertyView, PropertyPhoto,
     PropertyFinancialInfo, PropertyLegalInfo,
@@ -19,6 +20,8 @@ from app.schemas.admin import (
 )
 
 # Todas las rutas de este archivo son solo para el administrador (role_id 3)
+# Paso 107: cada cambio que hace el admin (descripción, fotos, semáforo) queda en el registro de actividad,
+# y las fotos que quita no se borran: quedan guardadas con la fecha en que se quitaron.
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 # Igual que las vistas (paso 11), los guardados solo cuentan si los hizo un inversionista:
@@ -67,7 +70,11 @@ def listar_publicaciones(db: Session = Depends(get_db), usuario=Depends(requerir
     
     # 4b) Portada de cada propiedad que tenga fotos (paso 27): la de menor posición
     portadas = {}
-    for property_id, url in db.query(PropertyPhoto.property_id, PropertyPhoto.url).order_by(PropertyPhoto.position):
+    for property_id, url in (
+        db.query(PropertyPhoto.property_id, PropertyPhoto.url)
+        .filter(PropertyPhoto.removed_at.is_(None))  # paso 107: solo fotos que no se quitaron
+        .order_by(PropertyPhoto.position)
+    ):
         portadas.setdefault(property_id, url)  # setdefault guarda solo la primera que aparece
 
     # 4c) Paso 67: lo que el admin define del semáforo: { property_id: zona de precio } y { property_id: dominio }
@@ -158,12 +165,7 @@ def detalle_publicacion(property_id: UUID, db: Session = Depends(get_db), usuari
     ]
 
     # 4) Fotos, en orden (la primera es la portada)
-    fotos = (
-        db.query(PropertyPhoto)
-        .filter(PropertyPhoto.property_id == property_id)
-        .order_by(PropertyPhoto.position)
-        .all()
-    )
+    fotos = _fotos_ordenadas(db, property_id)
 
     # 5) Última evaluación del semáforo
     evaluacion = (
@@ -195,7 +197,11 @@ def detalle_publicacion(property_id: UUID, db: Session = Depends(get_db), usuari
 
 @router.patch("/publicaciones/{property_id}/descripcion")
 def editar_descripcion(
-    property_id: UUID, datos: DescripcionIn, db: Session = Depends(get_db), usuario=Depends(requerir_admin)
+    property_id: UUID,
+    datos: DescripcionIn,
+    request: Request,
+    db: Session = Depends(get_db),
+    usuario=Depends(requerir_admin),
 ):
     # El admin solo puede cambiar la descripción (y más adelante las fotos): los datos del remate no se editan
     propiedad = db.query(Property).filter(Property.id == property_id).first()
@@ -203,8 +209,23 @@ def editar_descripcion(
         raise HTTPException(status_code=404, detail="Propiedad no encontrada")
 
     texto = (datos.description or "").strip()
-    propiedad.description = texto or None  # si queda vacía, se guarda como "sin descripción"
+    anterior = propiedad.description
+    nueva = texto or None  # si queda vacía, se guarda como "sin descripción"
+    if nueva == anterior:
+        return {"description": anterior}  # no cambió nada: no se guarda ni se anota
+
+    propiedad.description = nueva
     propiedad.updated_at = func.now()
+    anotar(
+        db,
+        "descripcion_editada",
+        request=request,
+        usuario=usuario,
+        entidad_tipo="propiedad",
+        entidad_id=property_id,
+        antes={"descripcion": anterior},
+        despues={"descripcion": nueva},
+    )
     db.commit()
     return {"description": propiedad.description}
 
@@ -223,6 +244,7 @@ def _extension_de_imagen(contenido: bytes) -> str | None:
 @router.post("/publicaciones/{property_id}/fotos", response_model=FotoOut, status_code=201)
 def subir_foto(
     property_id: UUID,
+    request: Request,
     archivo: UploadFile = File(...),
     db: Session = Depends(get_db),
     usuario=Depends(requerir_admin),
@@ -231,7 +253,7 @@ def subir_foto(
     if not propiedad:
         raise HTTPException(status_code=404, detail="Propiedad no encontrada")
 
-    cantidad = db.query(PropertyPhoto).filter(PropertyPhoto.property_id == property_id).count()
+    cantidad = len(_fotos_ordenadas(db, property_id))  # paso 107: no cuentan las fotos quitadas
     if cantidad >= MAX_FOTOS:
         raise HTTPException(status_code=400, detail=f"La publicación ya tiene {MAX_FOTOS} fotos, que es el máximo")
 
@@ -253,63 +275,85 @@ def subir_foto(
     # Va al final de la lista; si es la primera foto (position 0), queda como portada
     foto = PropertyPhoto(property_id=property_id, url=url, position=cantidad)
     db.add(foto)
+    db.flush()  # así la foto ya tiene id para anotarlo
+    anotar(
+        db,
+        "foto_subida",
+        request=request,
+        usuario=usuario,
+        entidad_tipo="propiedad",
+        entidad_id=property_id,
+        despues={"foto_id": str(foto.id), "url": url, "posicion": cantidad},
+    )
     db.commit()
     db.refresh(foto)
     return foto
 
 
-# --- Paso 24: borrar, ordenar y etiquetar fotos ---
+# --- Paso 24: quitar, ordenar y etiquetar fotos ---
 
 def _fotos_ordenadas(db: Session, property_id: UUID) -> list[PropertyPhoto]:
+    # Paso 107: solo las fotos que se ven (las quitadas siguen en la base, con removed_at)
     return (
         db.query(PropertyPhoto)
-        .filter(PropertyPhoto.property_id == property_id)
+        .filter(PropertyPhoto.property_id == property_id, PropertyPhoto.removed_at.is_(None))
         .order_by(PropertyPhoto.position)
         .all()
     )
 
 
-def _borrar_archivo(url: str):
-    if url.startswith("/uploads/propiedades/"):
-        # Fotos antiguas, guardadas en la carpeta de la API. Path(url).name deja solo el nombre del archivo,
-        # así una url rara (con "../") no puede borrar nada fuera de uploads/propiedades.
-        (CARPETA_FOTOS / Path(url).name).unlink(missing_ok=True)
-    else:
-        # Paso 42: fotos en la nube (Cloudinary)
-        try:
-            borrar_foto_de_la_nube(url)
-        except ErrorDeNube:
-            # La foto ya se quitó de la base, así que para la web ya no existe.
-            # Si la nube falla (por ejemplo, sin internet), solo queda un archivo suelto en Cloudinary.
-            pass
+def _resumen_fotos(fotos: list[PropertyPhoto]) -> list[dict]:
+    # Para el registro: el orden y la etiqueta de cada foto
+    return [{"foto_id": str(f.id), "etiqueta": f.label} for f in fotos]
 
 
 @router.delete("/publicaciones/{property_id}/fotos/{foto_id}", response_model=list[FotoOut])
-def borrar_foto(property_id: UUID, foto_id: UUID, db: Session = Depends(get_db), usuario=Depends(requerir_admin)):
+def borrar_foto(
+    property_id: UUID,
+    foto_id: UUID,
+    request: Request,
+    db: Session = Depends(get_db),
+    usuario=Depends(requerir_admin),
+):
     foto = (
         db.query(PropertyPhoto)
-        .filter(PropertyPhoto.id == foto_id, PropertyPhoto.property_id == property_id)
+        .filter(
+            PropertyPhoto.id == foto_id,
+            PropertyPhoto.property_id == property_id,
+            PropertyPhoto.removed_at.is_(None),
+        )
         .first()
     )
     if not foto:
         raise HTTPException(status_code=404, detail="Foto no encontrada")
 
-    url = foto.url
-    db.delete(foto)
+    # Paso 107: la foto no se borra (ni de la base ni de Cloudinary): solo deja de mostrarse
+    foto.removed_at = func.now()
+    anotar(
+        db,
+        "foto_quitada",
+        request=request,
+        usuario=usuario,
+        entidad_tipo="propiedad",
+        entidad_id=property_id,
+        antes={"foto_id": str(foto.id), "url": foto.url, "etiqueta": foto.label, "posicion": foto.position},
+    )
 
-    # Las que quedan se renumeran 0, 1, 2...: si se borró la portada, la siguiente pasa a ser portada
+    # Las que quedan se renumeran 0, 1, 2...: si se quitó la portada, la siguiente pasa a ser portada
     restantes = [f for f in _fotos_ordenadas(db, property_id) if f.id != foto_id]
     for posicion, f in enumerate(restantes):
         f.position = posicion
     db.commit()
-
-    _borrar_archivo(url)  # el archivo se borra después de confirmar el cambio en la base
     return restantes
 
 
 @router.put("/publicaciones/{property_id}/fotos", response_model=list[FotoOut])
 def ordenar_fotos(
-    property_id: UUID, fotos: list[FotoOrdenIn], db: Session = Depends(get_db), usuario=Depends(requerir_admin)
+    property_id: UUID,
+    fotos: list[FotoOrdenIn],
+    request: Request,
+    db: Session = Depends(get_db),
+    usuario=Depends(requerir_admin),
 ):
     # Recibe TODAS las fotos en el orden nuevo, cada una con su etiqueta.
     # Sirve para reordenar, elegir la portada (se pone primera) y etiquetar, todo en un solo guardado.
@@ -317,7 +361,9 @@ def ordenar_fotos(
     if not propiedad:
         raise HTTPException(status_code=404, detail="Propiedad no encontrada")
 
-    actuales = {f.id: f for f in _fotos_ordenadas(db, property_id)}
+    lista_actual = _fotos_ordenadas(db, property_id)
+    antes = _resumen_fotos(lista_actual)
+    actuales = {f.id: f for f in lista_actual}
     ids_nuevos = [f.id for f in fotos]
     if len(ids_nuevos) != len(set(ids_nuevos)) or set(ids_nuevos) != set(actuales):
         raise HTTPException(
@@ -329,12 +375,38 @@ def ordenar_fotos(
         foto = actuales[dato.id]
         foto.position = posicion
         foto.label = (dato.label or "").strip() or None  # etiqueta vacía = sin etiqueta
+
+    despues = _resumen_fotos(sorted(actuales.values(), key=lambda f: f.position))
+    if despues != antes:  # solo se anota si de verdad cambió el orden o alguna etiqueta
+        anotar(
+            db,
+            "fotos_ordenadas",
+            request=request,
+            usuario=usuario,
+            entidad_tipo="propiedad",
+            entidad_id=property_id,
+            antes={"fotos": antes},
+            despues={"fotos": despues},
+        )
     db.commit()
     return _fotos_ordenadas(db, property_id)
 
+def _ultima_evaluacion(db: Session, property_id: UUID):
+    return (
+        db.query(PropertyEvaluation)
+        .filter(PropertyEvaluation.property_id == property_id)
+        .order_by(PropertyEvaluation.evaluated_at.desc())
+        .first()
+    )
+
+
 @router.patch("/publicaciones/{property_id}/semaforo", response_model=SemaforoAdminOut)
 def definir_semaforo(
-    property_id: UUID, datos: SemaforoAdminIn, db: Session = Depends(get_db), usuario=Depends(requerir_admin)
+    property_id: UUID,
+    datos: SemaforoAdminIn,
+    request: Request,
+    db: Session = Depends(get_db),
+    usuario=Depends(requerir_admin),
 ):
     # Paso 67: el admin elige la zona de precio y/o el tipo de dominio de una propiedad.
     # Después se recalcula el semáforo y se devuelve cómo quedó.
@@ -344,13 +416,23 @@ def definir_semaforo(
 
     # model_fields_set = los campos que de verdad vinieron en la petición (los demás no se tocan)
     financiero = db.query(PropertyFinancialInfo).filter_by(property_id=property_id).first()
+    legal = db.query(PropertyLegalInfo).filter_by(property_id=property_id).first()
+
+    # Paso 107: cómo estaba antes del cambio, para el registro
+    evaluacion_antes = _ultima_evaluacion(db, property_id)
+    antes = {
+        "zona_de_precio": financiero.market_zone if financiero else None,
+        "dominio": legal.domain_type if legal else None,
+        "nivel": evaluacion_antes.result_level if evaluacion_antes else None,
+        "puntos": evaluacion_antes.total_points if evaluacion_antes else None,
+    }
+
     if "market_zone" in datos.model_fields_set:
         if not financiero:
             financiero = PropertyFinancialInfo(property_id=property_id)
             db.add(financiero)
         financiero.market_zone = datos.market_zone
 
-    legal = db.query(PropertyLegalInfo).filter_by(property_id=property_id).first()
     if "domain_type" in datos.model_fields_set:
         if not legal:
             legal = PropertyLegalInfo(property_id=property_id)
@@ -366,12 +448,26 @@ def definir_semaforo(
 
     recalcular_semaforo_y_avisar(db, propiedad)
 
-    evaluacion = (
-        db.query(PropertyEvaluation)
-        .filter(PropertyEvaluation.property_id == property_id)
-        .order_by(PropertyEvaluation.evaluated_at.desc())
-        .first()
-    )
+    evaluacion = _ultima_evaluacion(db, property_id)
+    despues = {
+        "zona_de_precio": financiero.market_zone if financiero else None,
+        "dominio": legal.domain_type if legal else None,
+        "nivel": evaluacion.result_level if evaluacion else None,
+        "puntos": evaluacion.total_points if evaluacion else None,
+    }
+    if despues != antes:  # solo se anota si cambió algo
+        anotar(
+            db,
+            "semaforo_editado",
+            request=request,
+            usuario=usuario,
+            entidad_tipo="propiedad",
+            entidad_id=property_id,
+            antes=antes,
+            despues=despues,
+        )
+        db.commit()
+
     return SemaforoAdminOut(
         market_zone=financiero.market_zone if financiero else None,
         domain_type=legal.domain_type if legal else None,

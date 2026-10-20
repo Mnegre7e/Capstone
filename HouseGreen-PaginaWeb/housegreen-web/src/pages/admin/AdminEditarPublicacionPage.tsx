@@ -127,9 +127,9 @@ export function AdminEditarPublicacionPage() {
     setErroresFotos(errores);
   }
 
-  // Borra una foto al tiro (también se borra el archivo), después de confirmar
+  // Quita una foto al tiro, después de confirmar. Paso 107: no se borra, queda guardada en el registro
   async function borrarFoto(foto: Foto) {
-    if (!window.confirm("¿Borrar esta foto? No se puede deshacer.")) return;
+    if (!window.confirm("¿Quitar esta foto de la publicación?")) return;
     setMensaje(null);
     try {
       const quedan: Foto[] = await api.delete(`/admin/publicaciones/${id}/fotos/${foto.id}`);

@@ -171,6 +171,7 @@ class PropertyPhoto(Base):
     label = Column(String(40))
     position = Column(Integer, nullable=False, default=0)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    removed_at = Column(TIMESTAMP(timezone=True))  # paso 107: cuándo la quitó el admin (vacío = se ve)
 
 class PropertyAuctionInfo(Base):
     # Datos del remate que el scraper lee de la ficha del sitio de origen (tabla del paso 60).

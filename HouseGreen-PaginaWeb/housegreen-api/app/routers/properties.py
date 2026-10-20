@@ -73,6 +73,7 @@ def _armar_respuesta(db: Session, propiedad: Property) -> PropertyOut:
     portada = (
         db.query(PropertyPhoto.url)
         .filter(PropertyPhoto.property_id == propiedad.id)
+        .filter(PropertyPhoto.removed_at.is_(None))  # paso 107: solo fotos que no se quitaron
         .order_by(PropertyPhoto.position)
         .first()
     )
@@ -168,9 +169,12 @@ def listar_propiedades(db: Session = Depends(get_db), usuario=Depends(get_curren
 
     # Portada de cada propiedad: la primera foto según su posición
     portadas = {}
-    for property_id, url in db.query(PropertyPhoto.property_id, PropertyPhoto.url).order_by(PropertyPhoto.position):
+    for property_id, url in (
+        db.query(PropertyPhoto.property_id, PropertyPhoto.url)
+        .filter(PropertyPhoto.removed_at.is_(None))  # paso 107: solo fotos que no se quitaron
+        .order_by(PropertyPhoto.position)
+    ):
         portadas.setdefault(property_id, url)
-
     # Paso 64: detalle por factor de esas últimas evaluaciones (una sola consulta para todas)
     detalles = _detalles_de_evaluaciones(db, [evaluacion.id for evaluacion in evaluaciones.values()])
 
@@ -312,6 +316,7 @@ def listar_fotos(property_id: UUID, db: Session = Depends(get_db), usuario=Depen
     return (
         db.query(PropertyPhoto)
         .filter(PropertyPhoto.property_id == property_id)
+        .filter(PropertyPhoto.removed_at.is_(None))
         .order_by(PropertyPhoto.position)
         .all()
     )
