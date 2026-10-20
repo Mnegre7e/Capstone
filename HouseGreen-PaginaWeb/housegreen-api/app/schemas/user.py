@@ -65,6 +65,11 @@ class TwoFactorDisable(BaseModel):
     password: str
     code: str
 
+    # Paso 105: para eliminar la propia cuenta se pide la contraseña (y el código, si tiene dos pasos)
+class AccountDelete(BaseModel):
+    password: str
+    code: str | None = None
+
 # Lo que la API devuelve después de un login.
 # Paso 77: si la cuenta tiene verificación en dos pasos y todavía no se envió el código,
 # no se entrega el token: access_token viene vacío y requires_2fa en true.

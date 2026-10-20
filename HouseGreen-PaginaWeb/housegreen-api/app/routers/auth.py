@@ -18,10 +18,11 @@ from app.schemas.user import (
     TwoFactorSetup,
     TwoFactorCode,
     TwoFactorDisable,
+    AccountDelete,
     Token,
 )
 from app.auth.security import hash_password, verify_password, create_access_token, problema_de_contrasena
-from app.auth.dependencies import get_current_user
+from app.auth.dependencies import get_current_user, ROL_ADMIN_ID
 from app.auth import two_factor
 from app.auditoria import anotar
 from app.models.audit import AuditLog
@@ -117,6 +118,12 @@ def _minutos_de_espera(db: Session, email: str) -> int:
     return ceil(restante.total_seconds() / 60)
 
 
+# Paso 105: mensaje para una cuenta que su dueño eliminó (al entrar y al registrarse con ese correo)
+CUENTA_ELIMINADA = (
+    "Esta cuenta fue eliminada. Si quieres recuperarla, escribe a housegreen.capstone@gmail.com."
+)
+
+
 def _anotar_fallo(db: Session, request: Request, email: str, usuario: User | None, motivo: str):
     # El motivo queda solo en el registro (lo ve el administrador); la respuesta sigue siendo genérica
     anotar(db, "inicio_sesion_fallido", request=request, usuario=usuario, email=email, despues={"motivo": motivo})
@@ -128,6 +135,9 @@ def registrar_usuario(datos: UserCreate, request: Request, db: Session = Depends
     # Verifica que el correo no esté ya registrado
     usuario_existente = db.query(User).filter(User.email == datos.email).first()
     if usuario_existente:
+        # Paso 105: si es una cuenta eliminada, se explica cómo recuperarla
+        if usuario_existente.deleted_at is not None:
+            raise HTTPException(status_code=400, detail=CUENTA_ELIMINADA)
         raise HTTPException(status_code=400, detail="Ese correo ya está registrado")
 
     # Paso 73: la contraseña debe cumplir las reglas (app/auth/security.py)
@@ -182,6 +192,10 @@ def iniciar_sesion(datos: UserLogin, request: Request, db: Session = Depends(get
         raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
 
     if not usuario.is_active:
+        # Paso 105: la eliminó su dueño o la deshabilitó el administrador
+        if usuario.deleted_at is not None:
+            _anotar_fallo(db, request, datos.email, usuario, "cuenta_eliminada")
+            raise HTTPException(status_code=403, detail=CUENTA_ELIMINADA)
         _anotar_fallo(db, request, datos.email, usuario, "cuenta_deshabilitada")
         raise HTTPException(status_code=403, detail="Esta cuenta está deshabilitada")
 
@@ -268,6 +282,37 @@ def cambiar_contrasena(
     anotar(db, "contrasena_cambiada", request=request, usuario=usuario)
     db.commit()
     return {"mensaje": "Contraseña actualizada"}
+
+
+# ---------- Paso 105: eliminar mi cuenta ----------
+# La cuenta NO se borra: queda suspendida (no puede entrar, no recibe anuncios ni avisos)
+# y sus datos se conservan en la base, como pidió la profesora.
+@router.post("/me/eliminar")
+def eliminar_mi_cuenta(
+    datos: AccountDelete,
+    request: Request,
+    db: Session = Depends(get_db),
+    usuario: User = Depends(get_current_user),
+):
+    # Así nunca queda HouseGreen sin administrador por un error
+    if usuario.role_id == ROL_ADMIN_ID:
+        raise HTTPException(
+            status_code=400,
+            detail="Las cuentas de administrador no se pueden eliminar desde el Perfil.",
+        )
+    if not verify_password(datos.password, usuario.password_hash):
+        raise HTTPException(status_code=400, detail="La contraseña no es correcta.")
+    if usuario.two_fa_enabled:
+        if not datos.code:
+            raise HTTPException(status_code=400, detail="Escribe el código de 6 dígitos de tu aplicación.")
+        if not two_factor.codigo_correcto(_clave_de_dos_pasos(usuario), datos.code):
+            raise HTTPException(status_code=400, detail=CODIGO_INCORRECTO)
+
+    usuario.is_active = False
+    usuario.deleted_at = func.now()
+    anotar(db, "cuenta_eliminada", request=request, usuario=usuario)
+    db.commit()
+    return {"mensaje": "Tu cuenta fue eliminada"}
 
 
 # ---------- Paso 76: verificación en dos pasos (2FA) ----------

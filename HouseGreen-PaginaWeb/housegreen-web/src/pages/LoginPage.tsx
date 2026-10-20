@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { MarcoDeEntrada } from "../components/MarcoDeEntrada";
 import { CampoDeEntrada } from "../components/CampoDeEntrada";
+import { leerAvisoDelLogin, borrarAvisoDelLogin } from "../utils/avisoLogin";
 import "./LoginPage.css";
 
 export function LoginPage() {
@@ -17,6 +18,12 @@ export function LoginPage() {
 
   const { iniciarSesion, cargando } = useAuth();
   const navigate = useNavigate();
+
+  // Paso 105: aviso que dejó otra página (por ejemplo, al eliminar la cuenta). Se muestra una sola vez.
+  const [aviso] = useState(leerAvisoDelLogin);
+  useEffect(() => {
+    borrarAvisoDelLogin();
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -110,6 +117,12 @@ export function LoginPage() {
       <form key="acceso" className="login-form" onSubmit={handleSubmit}>
         <h1>Iniciar sesión</h1>
         <p className="login-subtitle">Entra para ver los remates y su semáforo.</p>
+
+        {aviso && !error && (
+          <p className="login-aviso" role="status">
+            {aviso}
+          </p>
+        )}
 
         {error && (
           <p className="login-error" role="alert">

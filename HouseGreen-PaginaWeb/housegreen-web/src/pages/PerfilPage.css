@@ -307,3 +307,11 @@
   font-size: 14px;
   line-height: 1.4;
 }
+/* Paso 105: la tarjeta para eliminar la cuenta, con borde rojo suave */
+.perfil-tarjeta.is-peligro {
+  border-color: #fecaca;
+}
+
+.perfil-consecuencias {
+  margin-bottom: 16px;
+}

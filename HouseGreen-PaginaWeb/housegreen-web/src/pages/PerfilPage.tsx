@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import type { UsuarioActual } from "../context/AuthContext";
 import { api } from "../api/client";
 import { problemaDeContrasena, REGLA_CONTRASENA } from "../utils/contrasena";
+import { EliminarCuenta } from "../components/EliminarCuenta";
 import "./PerfilPage.css";
 
 // Paso 74: Perfil. Cada persona ve y edita sus propios datos y cambia su contraseña.
@@ -447,6 +448,7 @@ export function PerfilPage() {
       <MisDatos usuario={usuario} />
       <CambiarContrasena />
       <DosPasos usuario={usuario} />
+      <EliminarCuenta />
 
       {/* En celular el botón "Cerrar sesión" no cabe en el encabezado: queda aquí */}
       <div className="perfil-salir">

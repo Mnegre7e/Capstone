@@ -25,6 +25,7 @@ class User(Base):
     two_fa_secret = Column(String(255))
     is_active = Column(Boolean, default=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    deleted_at = Column(TIMESTAMP(timezone=True))  # paso 105: cuándo la persona eliminó su cuenta (vacío = no la eliminó)
 
     # relationship() no crea una columna nueva — le permite a Python hacer
     # user.role.name en vez de tener que buscar el rol por separado con role_id.
