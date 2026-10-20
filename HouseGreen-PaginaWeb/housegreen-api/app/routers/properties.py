@@ -236,39 +236,9 @@ def crear_propiedad(datos: PropertyCreate, db: Session = Depends(get_db), usuari
     db.refresh(nueva_propiedad)
     return _armar_respuesta(db, nueva_propiedad)
 
-@router.put("/{property_id}", response_model=PropertyOut)
-def editar_propiedad(
-    property_id: UUID, datos: PropertyCreate, db: Session = Depends(get_db), usuario=Depends(requerir_admin)
-):
-    propiedad = db.query(Property).filter(Property.id == property_id).first()
-    if not propiedad:
-        raise HTTPException(status_code=404, detail="Propiedad no encontrada")
-
-    propiedad.title = datos.title
-    propiedad.address = datos.address
-    propiedad.comuna_id = datos.comuna_id
-    propiedad.property_type = datos.property_type
-    propiedad.auction_type = datos.auction_type
-    propiedad.opening_price = datos.opening_price
-    propiedad.image_url = datos.image_url
-    propiedad.description = datos.description
-    db.commit()
-
-    _guardar_datos_relacionados(db, property_id, datos)
-    _ejecutar_calculo_riesgo(db, property_id)  # recalcula el riesgo con los datos actualizados
-
-    db.refresh(propiedad)
-    return _armar_respuesta(db, propiedad)
-
-@router.delete("/{property_id}")
-def eliminar_propiedad(property_id: UUID, db: Session = Depends(get_db), usuario=Depends(requerir_admin)):
-    propiedad = db.query(Property).filter(Property.id == property_id).first()
-    if not propiedad:
-        raise HTTPException(status_code=404, detail="Propiedad no encontrada")
-
-    db.delete(propiedad)  # ON DELETE CASCADE en el SQL borra automáticamente sus tablas relacionadas
-    db.commit()
-    return {"mensaje": "Propiedad eliminada"}
+# Paso 108: ya no existen PUT ni DELETE /propiedades/{id}.
+# - Los datos del remate no se editan: vienen del sitio de origen (el admin solo cambia fotos y descripción).
+# - Las publicaciones no se borran: borrar una se llevaba también sus vistas, favoritos y evaluaciones.
 
 # --- Vistas (paso 11) ---
 

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.database import get_db
@@ -16,6 +16,7 @@ from app.schemas.feedback import (
     FeedbackReplyCreate,
 )
 from app.auth.dependencies import get_current_user, requerir_admin
+from app.auditoria import anotar
 
 # Paso 81: opiniones de los usuarios sobre HouseGreen
 router = APIRouter(prefix="/opiniones", tags=["Opiniones"])
@@ -33,6 +34,7 @@ MAXIMO_POR_DIA = 5  # para que nadie llene la lista de opiniones repetidas
 @router.post("", response_model=FeedbackOut)
 def enviar_opinion(
     datos: FeedbackCreate,
+    request: Request,
     db: Session = Depends(get_db),
     usuario: User = Depends(get_current_user),
 ):
@@ -67,6 +69,17 @@ def enviar_opinion(
         allows_reply=datos.allows_reply,
     )
     db.add(opinion)
+    db.flush()  # así la opinión ya tiene id para anotarlo
+    # Paso 108: el texto queda en la tabla feedback; aquí solo se anota que la envió
+    anotar(
+        db,
+        "opinion_enviada",
+        request=request,
+        usuario=usuario,
+        entidad_tipo="opinion",
+        entidad_id=opinion.id,
+        despues={"calificacion": opinion.rating, "tema": opinion.topic, "acepta_respuesta": opinion.allows_reply},
+    )
     db.commit()
     db.refresh(opinion)
     return opinion
@@ -131,6 +144,7 @@ def listar_opiniones(db: Session = Depends(get_db), usuario: User = Depends(requ
 def responder_opinion(
     feedback_id: UUID,
     datos: FeedbackReplyCreate,
+    request: Request,
     db: Session = Depends(get_db),
     usuario: User = Depends(requerir_admin),
 ):
@@ -149,7 +163,19 @@ def responder_opinion(
             detail=f"La respuesta puede tener como máximo {LARGO_MAXIMO_DE_LA_RESPUESTA} caracteres.",
         )
 
-    db.add(FeedbackReply(feedback_id=opinion.id, admin_id=usuario.id, message=mensaje))
+    respuesta = FeedbackReply(feedback_id=opinion.id, admin_id=usuario.id, message=mensaje)
+    db.add(respuesta)
+    db.flush()  # así la respuesta ya tiene id para anotarlo
+    # Paso 108: el texto queda en la tabla feedback_replies; aquí se anota quién respondió y a qué opinión
+    anotar(
+        db,
+        "opinion_respondida",
+        request=request,
+        usuario=usuario,
+        entidad_tipo="opinion",
+        entidad_id=opinion.id,
+        despues={"respuesta_id": str(respuesta.id)},
+    )
     db.commit()
     db.refresh(opinion)
     return _opinion_para_el_admin(opinion)

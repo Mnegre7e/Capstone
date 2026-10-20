@@ -1,12 +1,13 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.auth.dependencies import get_current_user, requerir_admin
+from app.auditoria import anotar
 from app.models.announcement import Announcement, AnnouncementRecipient
 from app.models.favorite import SavedProperty
 from app.models.property import Property, PropertyView
@@ -47,6 +48,7 @@ def _para_el_admin(anuncio: Announcement, destinatarios: int, leidos: int) -> An
 @router_admin.post("", response_model=AnnouncementAdminOut)
 def enviar_anuncio(
     datos: AnnouncementCreate,
+    request: Request,
     db: Session = Depends(get_db),
     usuario: User = Depends(requerir_admin),
 ):
@@ -126,6 +128,17 @@ def enviar_anuncio(
     db.add(anuncio)
     db.flush()  # flush le pide el id a la base sin terminar la operación; se necesita para las filas de abajo
     db.add_all([AnnouncementRecipient(announcement_id=anuncio.id, user_id=user_id) for user_id in destinatarios])
+    # Paso 108: el texto queda en la tabla announcements; aquí se anota quién lo envió y a cuántas personas
+    anotar(
+        db,
+        "anuncio_enviado",
+        request=request,
+        usuario=usuario,
+        entidad_tipo="anuncio",
+        entidad_id=anuncio.id,
+        despues={"titulo": titulo, "audiencia": datos.audience, "destinatarios": len(destinatarios)},
+    )
+    db.commit()  # el anuncio y sus destinatarios se guardan juntos: o todo o nada
     db.commit()  # el anuncio y sus destinatarios se guardan juntos: o todo o nada
     db.refresh(anuncio)
     return _para_el_admin(anuncio, destinatarios=len(destinatarios), leidos=0)
