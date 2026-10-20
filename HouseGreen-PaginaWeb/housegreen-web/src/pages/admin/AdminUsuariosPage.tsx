@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../api/client";
+import { useAuth } from "../../context/AuthContext";
 import { fechaCorta } from "../../utils/opiniones";
 import "./AdminUsuariosPage.css";
 
 // Paso 85: el administrador ve quiénes están registrados y cuánto usan la aplicación.
+// Paso 106: además ve el estado de cada cuenta, puede suspenderla y reactivar una suspendida o eliminada.
 
 // Lo que devuelve GET /admin/usuarios por cada persona
 interface UsuarioAdmin {
@@ -14,6 +16,7 @@ interface UsuarioAdmin {
   phone: string | null;
   role_name: string | null;
   is_active: boolean;
+  deleted_at: string | null; // paso 105: cuándo la eliminó su dueño (null = no la eliminó)
   two_fa_enabled: boolean;
   created_at: string | null;
   vistas: number;
@@ -23,6 +26,23 @@ interface UsuarioAdmin {
 }
 
 type Orden = "recientes" | "actividad" | "vistas" | "nombre";
+
+// Paso 106: estado de una cuenta
+type Estado = "activa" | "suspendida" | "eliminada";
+
+function estadoDe(u: UsuarioAdmin): Estado {
+  if (u.is_active) return "activa";
+  return u.deleted_at ? "eliminada" : "suspendida";
+}
+
+// Lo que responden POST /admin/usuarios/{id}/suspender y /reactivar
+interface EstadoCuenta {
+  id: string;
+  is_active: boolean;
+  deleted_at: string | null;
+}
+
+type Accion = "suspender" | "reactivar";
 
 const ROLES: { valor: string; nombre: string; plural: string }[] = [
   { valor: "inversionista", nombre: "Inversionista", plural: "Inversionistas" },
@@ -43,6 +63,7 @@ function tiempo(fechaIso: string | null) {
 }
 
 export function AdminUsuariosPage() {
+  const { usuario: yo } = useAuth();
   const [usuarios, setUsuarios] = useState<UsuarioAdmin[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +71,13 @@ export function AdminUsuariosPage() {
   const [busqueda, setBusqueda] = useState("");
   const [rol, setRol] = useState(""); // vacío = todos
   const [orden, setOrden] = useState<Orden>("recientes");
+  const [estado, setEstado] = useState<"" | Estado>(""); // vacío = todas
   const [tanda, setTanda] = useState(POR_TANDA);
+
+  // Paso 106: qué cuenta está pidiendo confirmación, y el resultado de la última acción
+  const [confirmando, setConfirmando] = useState<{ id: string; accion: Accion } | null>(null);
+  const [trabajando, setTrabajando] = useState(false);
+  const [resultado, setResultado] = useState<{ id: string; tipo: "ok" | "error"; texto: string } | null>(null);
 
   useEffect(() => {
     api
@@ -65,6 +92,7 @@ export function AdminUsuariosPage() {
     .filter(
       (u) =>
         (rol === "" || u.role_name === rol) &&
+        (estado === "" || estadoDe(u) === estado) &&
         (texto === "" || normalizar(u.full_name).includes(texto) || normalizar(u.email).includes(texto))
     )
     // filter() ya creó una lista nueva, así que sort() no desordena los datos originales
@@ -79,6 +107,28 @@ export function AdminUsuariosPage() {
   function cambiarFiltro(cambio: () => void) {
     cambio();
     setTanda(POR_TANDA);
+  }
+
+  // Paso 106: suspender o reactivar (después de confirmar)
+  async function hacer(u: UsuarioAdmin, accion: Accion) {
+    setTrabajando(true);
+    setResultado(null);
+    try {
+      const nuevo: EstadoCuenta = await api.post(`/admin/usuarios/${u.id}/${accion}`);
+      setUsuarios((todos) =>
+        todos.map((x) => (x.id === u.id ? { ...x, is_active: nuevo.is_active, deleted_at: nuevo.deleted_at } : x))
+      );
+      setResultado({
+        id: u.id,
+        tipo: "ok",
+        texto: accion === "suspender" ? "Cuenta suspendida." : "Cuenta reactivada: ya puede volver a entrar.",
+      });
+    } catch (err) {
+      setResultado({ id: u.id, tipo: "error", texto: err instanceof Error ? err.message : "No se pudo completar." });
+    } finally {
+      setConfirmando(null);
+      setTrabajando(false);
+    }
   }
 
   return (
@@ -121,6 +171,15 @@ export function AdminUsuariosPage() {
               </select>
             </label>
             <label>
+              Estado
+              <select value={estado} onChange={(e) => cambiarFiltro(() => setEstado(e.target.value as "" | Estado))}>
+                <option value="">Todas</option>
+                <option value="activa">Activas</option>
+                <option value="suspendida">Suspendidas</option>
+                <option value="eliminada">Eliminadas por la persona</option>
+              </select>
+            </label>
+            <label>
               Ordenar por
               <select value={orden} onChange={(e) => cambiarFiltro(() => setOrden(e.target.value as Orden))}>
                 <option value="recientes">Registro más reciente</option>
@@ -140,46 +199,116 @@ export function AdminUsuariosPage() {
           {filtrados.length === 0 && <div className="usu-vacio">Nadie coincide con esos filtros.</div>}
 
           <ul className="usu-lista">
-            {visibles.map((u) => (
-              <li key={u.id} className="usu-item">
-                <div className="usu-cabecera">
-                  <div className="usu-persona">
-                    <h2>{u.full_name}</h2>
-                    <p>
-                      {u.email}
-                      {u.phone && ` · ${u.phone}`}
+            {visibles.map((u) => {
+              const estadoCuenta = estadoDe(u);
+              // No se puede suspender a un administrador ni la propia cuenta
+              const puedeSuspender = estadoCuenta === "activa" && u.role_name !== "administrador" && u.id !== yo?.id;
+              const pide = confirmando?.id === u.id ? confirmando.accion : null;
+              return (
+                <li key={u.id} className="usu-item">
+                  <div className="usu-cabecera">
+                    <div className="usu-persona">
+                      <h2>{u.full_name}</h2>
+                      <p>
+                        {u.email}
+                        {u.phone && ` · ${u.phone}`}
+                      </p>
+                    </div>
+                    <div className="usu-etiquetas">
+                      <span className="usu-etiqueta">
+                        {ROLES.find((r) => r.valor === u.role_name)?.nombre ?? "Sin tipo"}
+                      </span>
+                      {u.two_fa_enabled && <span className="usu-etiqueta is-dos-pasos">Dos pasos</span>}
+                      {estadoCuenta === "suspendida" && <span className="usu-etiqueta is-deshabilitada">Suspendida</span>}
+                      {estadoCuenta === "eliminada" && (
+                        <span className="usu-etiqueta is-deshabilitada">Eliminada por la persona</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <dl className="usu-cifras">
+                    <div>
+                      <dt>Vistas</dt>
+                      <dd>{u.vistas.toLocaleString("es-CL")}</dd>
+                    </div>
+                    <div>
+                      <dt>Guardados</dt>
+                      <dd>{u.guardados.toLocaleString("es-CL")}</dd>
+                    </div>
+                    <div>
+                      <dt>Opiniones</dt>
+                      <dd>{u.opiniones.toLocaleString("es-CL")}</dd>
+                    </div>
+                  </dl>
+
+                  <p className="usu-fechas">
+                    {u.created_at ? `Se registró el ${fechaCorta(u.created_at)}` : "Sin fecha de registro"} ·{" "}
+                    {u.ultima_actividad ? `Última actividad: ${fechaCorta(u.ultima_actividad)}` : "Sin actividad todavía"}
+                    {u.deleted_at && ` · Eliminó su cuenta el ${fechaCorta(u.deleted_at)}`}
+                  </p>
+
+                  {/* Paso 106: suspender o reactivar, con confirmación */}
+                  {pide ? (
+                    <div className="usu-confirmar">
+                      <p>
+                        {pide === "suspender"
+                          ? `¿Suspender la cuenta de ${u.full_name}? No podrá entrar ni recibirá anuncios ni avisos. Sus datos se conservan.`
+                          : estadoCuenta === "eliminada"
+                            ? `¿Reactivar la cuenta de ${u.full_name}? Hazlo solo si la persona lo pidió por correo.`
+                            : `¿Reactivar la cuenta de ${u.full_name}? Podrá volver a entrar.`}
+                      </p>
+                      <div className="usu-acciones">
+                        <button
+                          type="button"
+                          className={`usu-boton ${pide === "suspender" ? "is-peligro" : "is-principal"}`}
+                          disabled={trabajando}
+                          onClick={() => hacer(u, pide)}
+                        >
+                          {trabajando ? "Guardando..." : pide === "suspender" ? "Sí, suspender" : "Sí, reactivar"}
+                        </button>
+                        <button type="button" className="usu-boton" disabled={trabajando} onClick={() => setConfirmando(null)}>
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    (estadoCuenta !== "activa" || puedeSuspender) && (
+                      <div className="usu-acciones">
+                        {estadoCuenta !== "activa" ? (
+                          <button
+                            type="button"
+                            className="usu-boton is-principal"
+                            onClick={() => {
+                              setResultado(null);
+                              setConfirmando({ id: u.id, accion: "reactivar" });
+                            }}
+                          >
+                            Reactivar cuenta
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="usu-boton is-peligro-suave"
+                            onClick={() => {
+                              setResultado(null);
+                              setConfirmando({ id: u.id, accion: "suspender" });
+                            }}
+                          >
+                            Suspender cuenta
+                          </button>
+                        )}
+                      </div>
+                    )
+                  )}
+
+                  {resultado?.id === u.id && (
+                    <p className={`usu-resultado is-${resultado.tipo}`} role={resultado.tipo === "error" ? "alert" : "status"}>
+                      {resultado.texto}
                     </p>
-                  </div>
-                  <div className="usu-etiquetas">
-                    <span className="usu-etiqueta">
-                      {ROLES.find((r) => r.valor === u.role_name)?.nombre ?? "Sin tipo"}
-                    </span>
-                    {u.two_fa_enabled && <span className="usu-etiqueta is-dos-pasos">Dos pasos</span>}
-                    {!u.is_active && <span className="usu-etiqueta is-deshabilitada">Deshabilitada</span>}
-                  </div>
-                </div>
-
-                <dl className="usu-cifras">
-                  <div>
-                    <dt>Vistas</dt>
-                    <dd>{u.vistas.toLocaleString("es-CL")}</dd>
-                  </div>
-                  <div>
-                    <dt>Guardados</dt>
-                    <dd>{u.guardados.toLocaleString("es-CL")}</dd>
-                  </div>
-                  <div>
-                    <dt>Opiniones</dt>
-                    <dd>{u.opiniones.toLocaleString("es-CL")}</dd>
-                  </div>
-                </dl>
-
-                <p className="usu-fechas">
-                  {u.created_at ? `Se registró el ${fechaCorta(u.created_at)}` : "Sin fecha de registro"} ·{" "}
-                  {u.ultima_actividad ? `Última actividad: ${fechaCorta(u.ultima_actividad)}` : "Sin actividad todavía"}
-                </p>
-              </li>
-            ))}
+                  )}
+                </li>
+              );
+            })}
           </ul>
 
           {filtrados.length > visibles.length && (
