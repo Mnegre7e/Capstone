@@ -21,6 +21,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { PerfilPage } from "./pages/PerfilPage";
 import { OpinionesPage } from "./pages/OpinionesPage";
 import { ReportesPage } from "./pages/ReportesPage";
+import { AdminAuditoriaPage } from "./pages/admin/AdminAuditoriaPage";
 
 
 // Clases de un enlace del menú: el de la sección actual queda marcado
@@ -166,6 +167,7 @@ function App() {
           <Route path="usuarios" element={<AdminUsuariosPage />} />
           <Route path="anuncios" element={<AdminAnunciosPage />} />
           <Route path="reportes" element={<ReportesPage />} />
+          <Route path="auditoria" element={<AdminAuditoriaPage />} />
         </Route>
 
         {/* Cualquier otra dirección: aviso en vez de página en blanco */}

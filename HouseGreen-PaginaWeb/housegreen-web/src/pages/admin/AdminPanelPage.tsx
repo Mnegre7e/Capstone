@@ -123,6 +123,7 @@ export function AdminPanelPage() {
       <p className="panel-accesos">
         <Link to="/admin/reportes">Ver los reportes ›</Link>
         <Link to="/admin/usuarios">Ver los usuarios registrados ›</Link>
+        <Link to="/admin/auditoria">Ver el registro de actividad ›</Link>
       </p>
 
       {/* Lo que el administrador tiene pendiente */}

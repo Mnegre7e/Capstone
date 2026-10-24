@@ -1,0 +1,287 @@
+/* Paso 111: registro de actividad (paleta "Menta sereno") */
+
+.aud-volver {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #1d6f55;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.aud-volver:hover {
+  text-decoration: underline;
+}
+
+/* Filtros: buscador más ancho y tres listas */
+.aud-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.aud-filtros > label,
+.aud-buscar {
+  flex: 1 1 160px;
+  color: #4e625b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.aud-buscar {
+  flex: 2 1 260px;
+}
+
+.aud-buscar-fila {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.aud-filtros input,
+.aud-filtros select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid #c9d8d1;
+  border-radius: 10px;
+  box-sizing: border-box;
+  background-color: white;
+  color: #1f2a26;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.aud-filtros select {
+  margin-top: 4px;
+}
+
+.aud-buscar button,
+.aud-mas button {
+  flex-shrink: 0;
+  padding: 9px 14px;
+  border: 1px solid #1d6f55;
+  border-radius: 10px;
+  background-color: #1d6f55;
+  color: white;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.aud-filtros input:focus-visible,
+.aud-filtros select:focus-visible,
+.aud-buscar button:focus-visible,
+.aud-mas button:focus-visible,
+.aud-limpiar:focus-visible,
+.aud-detalle summary:focus-visible,
+.aud-volver:focus-visible,
+.aud-frase a:focus-visible {
+  outline: 2px solid #1d6f55;
+  outline-offset: 2px;
+}
+
+.aud-cuenta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 14px 0 0;
+  color: #4e625b;
+  font-size: 14px;
+}
+
+.aud-limpiar {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #1d6f55;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.aud-limpiar:hover {
+  text-decoration: underline;
+}
+
+.aud-error {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.aud-vacio {
+  margin-top: 12px;
+  padding: 24px;
+  border: 1px dashed #c9d8d1;
+  border-radius: 14px;
+  background-color: white;
+  color: #4e625b;
+  text-align: center;
+}
+
+/* ---------- La lista ---------- */
+.aud-lista {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  border: 1px solid #dce6e1;
+  border-radius: 16px;
+  background-color: white;
+  overflow: hidden;
+}
+
+.aud-lista.is-cargando {
+  opacity: 0.6;
+}
+
+/* Título de cada día ("Hoy", "Ayer", "Jueves, 22 de octubre de 2026") */
+.aud-dia {
+  padding: 8px 16px;
+  background-color: #f2f6f4;
+  color: #0f3d30;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.aud-dia + .aud-item {
+  border-top: none;
+}
+
+.aud-item {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid #e4ece8;
+}
+
+/* Intentos fallidos y bloqueos: una marca roja a la izquierda, para verlos de un vistazo */
+.aud-item.is-fallo {
+  box-shadow: inset 3px 0 0 #dc2626;
+}
+
+.aud-hora {
+  padding-top: 1px;
+  color: #4e625b;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.aud-contenido {
+  min-width: 0;
+}
+
+.aud-frase {
+  margin: 0;
+  color: #1f2a26;
+  font-size: 15px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.aud-frase a {
+  color: #1d6f55;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.aud-frase a:hover {
+  text-decoration: underline;
+}
+
+.aud-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 4px 0 0;
+  color: #4e625b;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.aud-chip {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: #e4f3ec;
+  color: #1d6f55;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.aud-chip.is-sin-cuenta {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* "Ver detalle": antes → después */
+.aud-detalle {
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.aud-detalle summary {
+  color: #1d6f55;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.aud-detalle dl {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background-color: #f2f6f4;
+}
+
+.aud-detalle dl > div {
+  display: grid;
+  grid-template-columns: minmax(120px, 30%) minmax(0, 1fr);
+  gap: 8px;
+  padding: 3px 0;
+}
+
+.aud-detalle dt {
+  color: #4e625b;
+}
+
+.aud-detalle dd {
+  margin: 0;
+  color: #1f2a26;
+  overflow-wrap: anywhere;
+}
+
+.aud-antes {
+  color: #4e625b;
+  text-decoration: line-through;
+}
+
+.aud-mas {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.aud-mas button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .aud-item {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .aud-detalle dl > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}
