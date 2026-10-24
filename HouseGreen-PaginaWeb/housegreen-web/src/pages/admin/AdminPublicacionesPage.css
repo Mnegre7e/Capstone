@@ -278,3 +278,21 @@
 .pub-vacio p {
   margin: 0 0 12px;
 }
+
+/* ---------- Paso 113: estado del remate ---------- */
+/* "Ya se remató" o "Retirada": gris, porque ya no está en el catálogo */
+.pub-estado {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background-color: #ececec;
+  color: #525252;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Cantidad dentro de los botones del filtro de estado */
+.pub-chip-cuenta {
+  margin-left: 2px;
+  opacity: 0.7;
+  font-weight: 400;
+}

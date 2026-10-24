@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../../api/client";
 import { FotoPublicacion } from "./FotoPublicacion";
-import { nombreComuna, plural, textoZona, type PublicacionAdmin } from "./publicacion";
+import { estadoPublicacion, nombreComuna, plural, textoZona, type PublicacionAdmin } from "./publicacion";
 import "./AdminPublicacionDetallePage.css";
 
 // Lo que devuelve GET /admin/publicaciones/{id} (paso 17)
@@ -24,6 +24,7 @@ interface PersonaQueLaGuardo {
 }
 
 interface PublicacionDetalle extends PublicacionAdmin {
+  description: string | null; // paso 112: la descripción que escribió el admin
   la_vieron: PersonaQueLaVio[];
   la_guardaron: PersonaQueLaGuardo[];
 }
@@ -50,6 +51,14 @@ function formatearFecha(iso: string) {
   if (diasAtras === 0) return `hoy ${hora}`;
   if (diasAtras === 1) return `ayer ${hora}`;
   return fecha.toLocaleDateString("es-CL", { weekday: "short", day: "numeric", month: "short" });
+}
+
+// Paso 113: "7 de octubre de 2026, 13:00" (sin la hora si es 00:00, que significa "hora no informada")
+function fechaDelRemate(iso: string) {
+  const fecha = new Date(iso);
+  const dia = fecha.toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" });
+  if (fecha.getHours() === 0 && fecha.getMinutes() === 0) return dia;
+  return `${dia}, ${fecha.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", hour12: false })}`;
 }
 
 export function AdminPublicacionDetallePage() {
@@ -89,14 +98,31 @@ export function AdminPublicacionDetallePage() {
     );
   }
 
+  // Paso 113: si el remate ya se realizó o se retiró, no aparece en el catálogo y no se edita
+  const estado = estadoPublicacion(detalle);
+
   return (
     <section>
-        <div className="det-arriba">
+      <div className="det-arriba">
         {volver}
-            <Link to={`/admin/publicaciones/${id}/editar`} className="det-editar">
-                ✎ Editar
-            </Link>
-        </div>
+        {estado === "vigente" && (
+          <Link to={`/admin/publicaciones/${id}/editar`} className="det-editar">
+            ✎ Editar
+          </Link>
+        )}
+      </div>
+
+      {estado !== "vigente" && (
+        <p className="det-aviso-estado" role="status">
+          <strong>
+            {estado === "retirada"
+              ? "El sitio de origen retiró este remate."
+              : `Este remate ya se realizó${detalle.auction_date ? ` el ${fechaDelRemate(detalle.auction_date)}` : ""}.`}
+          </strong>{" "}
+          Ya no aparece en el catálogo y se guarda solo como registro, por eso no se puede editar. Si el sitio lo volvió a
+          publicar con otra fecha, está como una publicación nueva.
+        </p>
+      )}
 
       <div className="det-foto-caja">
         <FotoPublicacion url={detalle.image_url} alt={detalle.title} className="det-foto" />
@@ -110,6 +136,18 @@ export function AdminPublicacionDetallePage() {
       <p className="admin-subtitulo">
         {nombreComuna(detalle)} · {detalle.property_type}
       </p>
+
+      {/* Paso 112: la descripción que ven los inversionistas (se cambia con ✎ Editar) */}
+      <div className="det-descripcion">
+        <p className="det-descripcion-titulo">Descripción</p>
+        {detalle.description ? (
+          <p className="det-descripcion-texto">{detalle.description}</p>
+        ) : (
+          <p className="det-descripcion-vacia">
+            {estado === "vigente" ? "Sin descripción. Puedes agregar una con ✎ Editar." : "Sin descripción."}
+          </p>
+        )}
+      </div>
 
       {/* Resumen: personas que la vieron (con vistas totales) y personas que la guardaron */}
       <div className="det-cifras">

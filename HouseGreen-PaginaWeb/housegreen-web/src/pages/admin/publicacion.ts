@@ -1,5 +1,7 @@
 // Tipos y funciones que comparten la lista y el detalle de publicaciones del admin
 
+import { remateFinalizado, remateRetirado } from "../../components/estadoRemate";
+
 export type Zona = "verde" | "amarillo" | "rojo";
 
 // Lo que devuelve GET /admin/publicaciones (paso 14)
@@ -41,4 +43,14 @@ export function textoZona(p: PublicacionAdmin) {
 // "1 vista", "3 vistas"
 export function plural(n: number, singular: string, varios: string) {
   return `${n} ${n === 1 ? singular : varios}`;
+}
+
+// Paso 113: estado del remate, con la misma regla que usa el catálogo del inversionista.
+// Solo las "vigentes" aparecen en el catálogo; las otras quedan guardadas como registro.
+export type EstadoPublicacion = "vigente" | "finalizada" | "retirada";
+
+export function estadoPublicacion(p: Pick<PublicacionAdmin, "status" | "auction_date">): EstadoPublicacion {
+  if (remateRetirado(p.status)) return "retirada";
+  if (remateFinalizado(p.auction_date)) return "finalizada";
+  return "vigente";
 }

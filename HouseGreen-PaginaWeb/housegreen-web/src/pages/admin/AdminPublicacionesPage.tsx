@@ -2,11 +2,21 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../api/client";
 import { FotoPublicacion } from "./FotoPublicacion";
-import { nombreComuna, plural, textoZona, type PublicacionAdmin, type Zona } from "./publicacion";
+import {
+  estadoPublicacion,
+  nombreComuna,
+  plural,
+  textoZona,
+  type EstadoPublicacion,
+  type PublicacionAdmin,
+  type Zona,
+} from "./publicacion";
 import "./AdminPublicacionesPage.css";
 
 type Orden = "vistas" | "guardadas" | "comuna" | Zona;
 type FiltroGuardados = "todas" | "con" | "sin";
+// Paso 113: por defecto solo las vigentes, que son las que ve el inversionista en el catálogo
+type FiltroEstado = EstadoPublicacion | "todas";
 
 const OPCIONES_ORDEN: { valor: Orden; texto: string }[] = [
   { valor: "vistas", texto: "Más vistas" },
@@ -21,6 +31,13 @@ const OPCIONES_GUARDADOS: { valor: FiltroGuardados; texto: string }[] = [
   { valor: "todas", texto: "Todas" },
   { valor: "con", texto: "Con guardados" },
   { valor: "sin", texto: "Sin guardados" },
+];
+
+const OPCIONES_ESTADO: { valor: FiltroEstado; texto: string }[] = [
+  { valor: "vigente", texto: "Vigentes" },
+  { valor: "finalizada", texto: "Ya se remataron" },
+  { valor: "retirada", texto: "Retiradas" },
+  { valor: "todas", texto: "Todas" },
 ];
 
 // Orden de las zonas para cada opción del semáforo; las "Sin evaluar" (null) siempre al final
@@ -50,6 +67,7 @@ export function AdminPublicacionesPage() {
   const [orden, setOrden] = useState<Orden>("vistas");
   const [comunasElegidas, setComunasElegidas] = useState<string[]>([]); // vacío = todas
   const [guardados, setGuardados] = useState<FiltroGuardados>("todas");
+  const [estado, setEstado] = useState<FiltroEstado>("vigente");
 
   useEffect(() => {
     api
@@ -62,13 +80,18 @@ export function AdminPublicacionesPage() {
   // Comunas que aparecen en las publicaciones, sin repetir y de la A a la Z
   const comunas = [...new Set(publicaciones.map(nombreComuna))].sort((a, b) => a.localeCompare(b, "es"));
 
+  // Paso 113: cuántas hay en cada estado (para mostrarlo en los botones del filtro)
+  const porEstado: Record<FiltroEstado, number> = { vigente: 0, finalizada: 0, retirada: 0, todas: publicaciones.length };
+  for (const p of publicaciones) porEstado[estadoPublicacion(p)]++;
+
   // filter() crea una lista nueva, así sort() no desordena el estado original
   const resultado = publicaciones
+    .filter((p) => estado === "todas" || estadoPublicacion(p) === estado)
     .filter((p) => comunasElegidas.length === 0 || comunasElegidas.includes(nombreComuna(p)))
     .filter((p) => guardados === "todas" || (guardados === "con" ? p.guardados > 0 : p.guardados === 0))
     .sort((a, b) => comparar(orden, a, b));
 
-  const filtrosActivos = comunasElegidas.length + (guardados !== "todas" ? 1 : 0);
+  const filtrosActivos = comunasElegidas.length + (guardados !== "todas" ? 1 : 0) + (estado !== "vigente" ? 1 : 0);
   const textoOrden = OPCIONES_ORDEN.find((o) => o.valor === orden)?.texto;
 
   function alternarComuna(comuna: string) {
@@ -81,13 +104,16 @@ export function AdminPublicacionesPage() {
     setOrden("vistas");
     setComunasElegidas([]);
     setGuardados("todas");
+    setEstado("vigente");
   }
 
   return (
     <section>
       <h1 className="admin-titulo">Publicaciones</h1>
       <p className="admin-subtitulo">
-        {cargando ? "Cargando..." : plural(publicaciones.length, "publicación", "publicaciones")}
+        {cargando
+          ? "Cargando..."
+          : `${plural(porEstado.vigente, "vigente", "vigentes")} en el catálogo · ${publicaciones.length} en total`}
       </p>
 
       {error && <p className="pub-error">No se pudieron cargar las publicaciones: {error}</p>}
@@ -122,6 +148,28 @@ export function AdminPublicacionesPage() {
                 {o.texto}
               </label>
             ))}
+          </fieldset>
+
+          {/* Paso 113: las que ya se remataron o se retiraron quedan como registro, pero no se editan */}
+          <fieldset className="pub-grupo">
+            <legend>Estado del remate</legend>
+            <div className="pub-chips">
+              {OPCIONES_ESTADO.map((o) => {
+                const activa = estado === o.valor;
+                return (
+                  <button
+                    key={o.valor}
+                    type="button"
+                    className={`pub-chip ${activa ? "is-activo" : ""}`}
+                    aria-pressed={activa}
+                    onClick={() => setEstado(o.valor)}
+                  >
+                    {activa && "✓ "}
+                    {o.texto} <span className="pub-chip-cuenta">{porEstado[o.valor]}</span>
+                  </button>
+                );
+              })}
+            </div>
           </fieldset>
 
           <fieldset className="pub-grupo">
@@ -187,32 +235,38 @@ export function AdminPublicacionesPage() {
       )}
 
       <ul className="pub-lista">
-        {resultado.map((p) => (
-          <li key={p.id} className="pub-item">
-            <Link to={`/admin/publicaciones/${p.id}`} className="pub-tarjeta">
-              <FotoPublicacion url={p.image_url} alt={p.title} />
+        {resultado.map((p) => {
+          const estadoDeEsta = estadoPublicacion(p);
+          return (
+            <li key={p.id} className="pub-item">
+              <Link to={`/admin/publicaciones/${p.id}`} className="pub-tarjeta">
+                <FotoPublicacion url={p.image_url} alt={p.title} />
 
-              <div className="pub-datos">
-                <h2 className="pub-titulo">{p.title}</h2>
-                <p className="pub-comuna">
-                  {nombreComuna(p)} · {p.property_type}
-                </p>
-                <div className="pub-cifras">
-                  <span className={`pub-zona pub-zona-${p.result_level ?? "sin"}`}>
-                    <span className="pub-zona-punto" />
-                    {textoZona(p)}
-                  </span>
-                  <span>{plural(p.vistas, "vista", "vistas")}</span>
-                  <span>{plural(p.guardados, "guardado", "guardados")}</span>
+                <div className="pub-datos">
+                  <h2 className="pub-titulo">{p.title}</h2>
+                  <p className="pub-comuna">
+                    {nombreComuna(p)} · {p.property_type}
+                  </p>
+                  <div className="pub-cifras">
+                    {estadoDeEsta !== "vigente" && (
+                      <span className="pub-estado">{estadoDeEsta === "retirada" ? "Retirada" : "Ya se remató"}</span>
+                    )}
+                    <span className={`pub-zona pub-zona-${p.result_level ?? "sin"}`}>
+                      <span className="pub-zona-punto" />
+                      {textoZona(p)}
+                    </span>
+                    <span>{plural(p.vistas, "vista", "vistas")}</span>
+                    <span>{plural(p.guardados, "guardado", "guardados")}</span>
+                  </div>
                 </div>
-              </div>
 
-              <span className="pub-flecha" aria-hidden="true">
-                ›
-              </span>
-            </Link>
-          </li>
-        ))}
+                <span className="pub-flecha" aria-hidden="true">
+                  ›
+                </span>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

@@ -241,7 +241,15 @@ export function PropertyDetailPage() {
           </div>
         ))}
       </div>
-
+      {/* Paso 112: la descripción que escribe el admin va junto a los datos de la propiedad
+          (antes estaba al final de la página y no se veía) */}
+      {property.description && (
+        <div className="detail-seccion">
+          <h2>Descripción</h2>
+          <p className="detail-description">{property.description}</p>
+        </div>
+      )}
+      
       <TarjetaSemaforo evaluacion={property.evaluation} />
       
       <DatosRemate key={`remate-${property.id}`} propertyId={property.id} />
@@ -268,13 +276,6 @@ export function PropertyDetailPage() {
           ))}
         </ol>
       </div>
-
-      {property.description && (
-        <div className="detail-seccion">
-          <h2>Descripción</h2>
-          <p className="detail-description">{property.description}</p>
-        </div>
-      )}
     </div>
   );
 }

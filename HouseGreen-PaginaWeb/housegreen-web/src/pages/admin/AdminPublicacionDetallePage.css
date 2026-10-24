@@ -209,3 +209,43 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+/* Paso 112: descripción de la publicación */
+.det-descripcion {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid #dce6e1;
+  border-radius: 16px;
+  background-color: white;
+}
+
+.det-descripcion-titulo {
+  margin: 0 0 6px;
+  color: #4e625b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.det-descripcion-texto {
+  margin: 0;
+  color: #1f2a26;
+  line-height: 1.5;
+  white-space: pre-line; /* respeta los saltos de línea que escribió el admin */
+  overflow-wrap: anywhere;
+}
+
+.det-descripcion-vacia {
+  margin: 0;
+  color: #4e625b;
+  font-size: 14px;
+}
+/* Paso 113: aviso de remate que ya se realizó o se retiró */
+.det-aviso-estado {
+  margin: 0 0 14px;
+  padding: 12px 16px;
+  border-left: 4px solid #a3a3a3;
+  border-radius: 12px;
+  background-color: #f1f1f1;
+  color: #404040;
+  font-size: 14px;
+  line-height: 1.5;
+}
