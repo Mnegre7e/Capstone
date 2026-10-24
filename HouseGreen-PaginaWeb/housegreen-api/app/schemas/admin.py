@@ -23,6 +23,9 @@ class PublicacionAdmin(BaseModel):
     auction_date: datetime | None = None
     market_zone: str | None = None    # zona de precio que eligió el admin (None = todavía no la elige)
     domain_type: str | None = None    # "exclusivo", "otro" o None (no especificado)
+    # Paso 114: para distinguir publicaciones con el mismo título, y saber si el admin la quitó del catálogo
+    address: str | None = None
+    removed_at: datetime | None = None
 
 
 
@@ -81,3 +84,11 @@ class SemaforoAdminOut(BaseModel):
     domain_type: str | None = None
     result_level: str | None = None
     total_points: int | None = None
+
+# Paso 114: quitar una publicación del catálogo (no se borra) y volver a publicarla
+class QuitarPublicacionIn(BaseModel):
+    motivo: str = Field(max_length=300)  # por qué se quita; queda en el registro de actividad
+
+
+class EstadoPublicacionOut(BaseModel):
+    removed_at: datetime | None = None  # vacío = está publicada

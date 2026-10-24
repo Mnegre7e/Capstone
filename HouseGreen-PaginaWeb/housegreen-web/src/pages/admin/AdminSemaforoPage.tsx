@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { api } from "../../api/client";
-import { remateFinalizado, remateRetirado } from "../../components/estadoRemate";
-import { nombreComuna, plural, textoZona, type Dominio, type PublicacionAdmin, type Zona } from "./publicacion";
+import {
+  estadoPublicacion,
+  nombreComuna,
+  plural,
+  textoZona,
+  type Dominio,
+  type PublicacionAdmin,
+  type Zona,
+} from "./publicacion";
 import "./AdminPublicacionesPage.css"; // de aquí sale el distintivo de zona (.pub-zona)
 import "./AdminSemaforoPage.css";
 
@@ -71,9 +78,8 @@ export function AdminSemaforoPage() {
       .finally(() => setCargando(false));
   }, []);
 
-    // Pasos 70 y 71: los remates que ya se realizaron o que el sitio retiró no se revisan,
-  // así que no aparecen en ninguna de las dos pestañas
-  const vigentes = publicaciones.filter((p) => !remateFinalizado(p.auction_date) && !remateRetirado(p.status));
+  // Paso 114: solo las que están en el catálogo (sin las rematadas, retiradas ni quitadas por el admin)
+  const vigentes = publicaciones.filter((p) => estadoPublicacion(p) === "vigente");
   const finalizadas = publicaciones.length - vigentes.length;
 
   const totalPendientes = vigentes.filter((p) => p.market_zone === null).length;
@@ -116,11 +122,10 @@ export function AdminSemaforoPage() {
       {finalizadas > 0 && (
         <p className="sem-nota">
           {finalizadas === 1
-            ? "No se muestra 1 remate que ya se realizó."
-            : `No se muestran ${finalizadas} remates que ya se realizaron.`}
+            ? "No se muestra 1 publicación que ya no está en el catálogo."
+            : `No se muestran ${finalizadas} publicaciones que ya no están en el catálogo.`}
         </p>
       )}
-
       {error && <p className="pub-error">No se pudieron cargar las propiedades: {error}</p>}
 
       <div className="sem-ayuda">

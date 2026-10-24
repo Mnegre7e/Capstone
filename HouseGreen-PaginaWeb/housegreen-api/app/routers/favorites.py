@@ -24,6 +24,8 @@ def listar_favoritos(db: Session = Depends(get_db), usuario: User = Depends(get_
     favoritos = (
         db.query(SavedProperty)
         .filter(SavedProperty.user_id == usuario.id, SavedProperty.removed_at.is_(None))
+        .join(Property, Property.id == SavedProperty.property_id)
+        .filter(Property.removed_at.is_(None))  # paso 114: sin las que el admin quitó del catálogo
         .all()
     )
 

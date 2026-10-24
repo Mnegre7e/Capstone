@@ -32,8 +32,11 @@ GRUPOS = {
     ],
     "favoritos_y_alertas": ["favorito_agregado", "favorito_quitado", "alerta_creada", "alerta_eliminada"],
     "opiniones": ["opinion_enviada", "opinion_respondida"],
-    "publicaciones": ["descripcion_editada", "foto_subida", "foto_quitada", "fotos_ordenadas", "semaforo_editado"],
-    "anuncios": ["anuncio_enviado"],
+    
+        "publicaciones": [
+        "descripcion_editada", "foto_subida", "foto_quitada", "fotos_ordenadas", "semaforo_editado",
+        "publicacion_quitada", "publicacion_restaurada",  # paso 114
+    ],
 }
 
 MAXIMO_POR_PAGINA = 100

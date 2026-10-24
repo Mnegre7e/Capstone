@@ -50,6 +50,7 @@ class Property(Base):
     description = Column(Text)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    removed_at = Column(TIMESTAMP(timezone=True))  # paso 114: cuándo el admin la quitó del catálogo (vacío = publicada)
     
     # Estas relationship() permiten hacer property.comuna.name, property.financial_info.repair_cost, etc.
     # uselist=False porque son relaciones 1 a 1 (cada propiedad tiene UN solo registro financiero, legal, etc.)

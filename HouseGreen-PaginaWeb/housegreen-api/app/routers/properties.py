@@ -13,7 +13,7 @@ from app.models.property import (
 )
 from app.schemas.property import PropertyOut, PropertyCreate, EvaluationOut, EvaluationDetailOut, AuctionInfoOut
 from app.schemas.admin import FotoOut
-from app.auth.dependencies import get_current_user, requerir_admin
+from app.auth.dependencies import get_current_user, requerir_admin, ROL_ADMIN_ID
 from app.routers.alerts import notificar_nueva_propiedad
 
 router = APIRouter(prefix="/propiedades", tags=["Propiedades"])
@@ -149,6 +149,7 @@ def listar_propiedades(db: Session = Depends(get_db), usuario=Depends(get_curren
     # selectinload trae los datos relacionados de TODAS las propiedades en una consulta por tabla
     propiedades = (
         db.query(Property)
+         .filter(Property.removed_at.is_(None))  # paso 114: sin las que el admin quitó del catálogo
         .options(
             selectinload(Property.financial_info),
             selectinload(Property.legal_info),
@@ -190,7 +191,8 @@ def listar_propiedades(db: Session = Depends(get_db), usuario=Depends(get_curren
 @router.get("/{property_id}", response_model=PropertyOut)
 def obtener_propiedad(property_id: UUID, db: Session = Depends(get_db), usuario=Depends(get_current_user)):
     propiedad = db.query(Property).filter(Property.id == property_id).first()
-    if not propiedad:
+    # Paso 114: una publicación que el admin quitó del catálogo solo la ve el admin
+    if not propiedad or (propiedad.removed_at is not None and usuario.role_id != ROL_ADMIN_ID):
         raise HTTPException(status_code=404, detail="Propiedad no encontrada")
     return _armar_respuesta(db, propiedad)
 

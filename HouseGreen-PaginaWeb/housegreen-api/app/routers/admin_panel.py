@@ -49,9 +49,11 @@ def ver_panel(db: Session = Depends(get_db), usuario=Depends(requerir_admin)):
 
     # 2) Publicaciones: se traen solo las columnas que se necesitan
     propiedades = db.query(
-        Property.id, Property.title, Property.comuna_id, Property.status, Property.auction_date, Property.created_at
+        Property.id, Property.title, Property.comuna_id, Property.status, Property.auction_date, Property.created_at,
+        Property.removed_at,  # paso 114
     ).all()
-    vigentes = {p.id for p in propiedades if _esta_vigente(p.status, p.auction_date, ahora)}
+    # Paso 114: las que el admin quitó del catálogo tampoco cuentan como vigentes
+    vigentes = {p.id for p in propiedades if p.removed_at is None and _esta_vigente(p.status, p.auction_date, ahora)}
     publicaciones_nuevas = db.query(Property).filter(Property.created_at >= desde).count()
 
     # 3) Vistas y guardados del período, por propiedad: { property_id: cantidad }

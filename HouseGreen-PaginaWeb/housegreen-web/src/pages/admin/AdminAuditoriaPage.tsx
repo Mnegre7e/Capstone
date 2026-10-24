@@ -105,6 +105,7 @@ const CAMPOS: Record<string, string> = {
   destinatarios: "Personas que lo recibieron",
   max_risk_level: "Nivel máximo",
   max_price: "Precio máximo",
+  quitada_el: "La había quitado el",
 };
 
 // Datos internos que no le sirven a quien lee el registro (la comuna de una alerta ya va en la frase)
@@ -140,7 +141,7 @@ function textoDelValor(campo: string, valor: unknown): string {
   if (campo === "max_price" && typeof valor === "string") {
     return Number(valor).toLocaleString("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
   }
-  if (campo === "eliminada_el" && typeof valor === "string") return `${dia(valor)}, ${hora(valor)}`;
+  if ((campo === "eliminada_el" || campo === "quitada_el") && typeof valor === "string") return `${dia(valor)}, ${hora(valor)}`;
   if (campo === "fotos" && Array.isArray(valor)) {
     return valor
       .map((foto, i) => `${i + 1}. ${(foto as { etiqueta?: string | null }).etiqueta || "sin etiqueta"}`)
@@ -202,6 +203,10 @@ function frase(registro: Registro, objeto: ReactNode): ReactNode {
       return <>envió el anuncio {objeto}</>;
     default:
       return registro.accion.replace(/_/g, " ");
+    case "publicacion_quitada":
+      return <>quitó del catálogo {objeto}</>;
+    case "publicacion_restaurada":
+      return <>volvió a publicar {objeto}</>;
   }
 }
 

@@ -33,10 +33,19 @@ const OPCIONES_GUARDADOS: { valor: FiltroGuardados; texto: string }[] = [
   { valor: "sin", texto: "Sin guardados" },
 ];
 
+// Etiqueta de las que no están en el catálogo
+const NOMBRE_DEL_ESTADO: Record<EstadoPublicacion, string> = {
+  vigente: "Vigente",
+  finalizada: "Ya se remató",
+  retirada: "Retirada",
+  quitada: "Quitada",
+};
+
 const OPCIONES_ESTADO: { valor: FiltroEstado; texto: string }[] = [
   { valor: "vigente", texto: "Vigentes" },
   { valor: "finalizada", texto: "Ya se remataron" },
   { valor: "retirada", texto: "Retiradas" },
+  { valor: "quitada", texto: "Quitadas por el admin" },
   { valor: "todas", texto: "Todas" },
 ];
 
@@ -80,9 +89,13 @@ export function AdminPublicacionesPage() {
   // Comunas que aparecen en las publicaciones, sin repetir y de la A a la Z
   const comunas = [...new Set(publicaciones.map(nombreComuna))].sort((a, b) => a.localeCompare(b, "es"));
 
-  // Paso 113: cuántas hay en cada estado (para mostrarlo en los botones del filtro)
-  const porEstado: Record<FiltroEstado, number> = { vigente: 0, finalizada: 0, retirada: 0, todas: publicaciones.length };
-  for (const p of publicaciones) porEstado[estadoPublicacion(p)]++;
+  const porEstado: Record<FiltroEstado, number> = {
+    vigente: 0,
+    finalizada: 0,
+    retirada: 0,
+    quitada: 0,
+    todas: publicaciones.length,
+  };
 
   // filter() crea una lista nueva, así sort() no desordena el estado original
   const resultado = publicaciones
@@ -247,9 +260,11 @@ export function AdminPublicacionesPage() {
                   <p className="pub-comuna">
                     {nombreComuna(p)} · {p.property_type}
                   </p>
+                  {/* Paso 114: la dirección, para distinguir las que tienen el mismo título */}
+                  {p.address && <p className="pub-direccion">{p.address}</p>}
                   <div className="pub-cifras">
                     {estadoDeEsta !== "vigente" && (
-                      <span className="pub-estado">{estadoDeEsta === "retirada" ? "Retirada" : "Ya se remató"}</span>
+                      <span className={`pub-estado is-${estadoDeEsta}`}>{NOMBRE_DEL_ESTADO[estadoDeEsta]}</span>
                     )}
                     <span className={`pub-zona pub-zona-${p.result_level ?? "sin"}`}>
                       <span className="pub-zona-punto" />

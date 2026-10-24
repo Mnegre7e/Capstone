@@ -296,3 +296,19 @@
   opacity: 0.7;
   font-weight: 400;
 }
+
+/* ---------- Paso 114 ---------- */
+.pub-direccion {
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: #4e625b;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* "Quitada": la sacó el admin del catálogo */
+.pub-estado.is-quitada {
+  background-color: #fee2e2;
+  color: #991b1b;
+}

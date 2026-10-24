@@ -61,11 +61,49 @@ function fechaDelRemate(iso: string) {
   return `${dia}, ${fecha.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", hour12: false })}`;
 }
 
+const LARGO_MAXIMO_DEL_MOTIVO = 300;
+
 export function AdminPublicacionDetallePage() {
   const { id } = useParams<{ id: string }>();
   const [detalle, setDetalle] = useState<PublicacionDetalle | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pestana, setPestana] = useState<Pestana>("vieron");
+
+  // Paso 114: quitar del catálogo (con motivo) y volver a publicar
+  const [quitando, setQuitando] = useState(false); // se está mostrando el formulario
+  const [motivo, setMotivo] = useState("");
+  const [guardando, setGuardando] = useState(false);
+  const [errorAccion, setErrorAccion] = useState<string | null>(null);
+
+  async function quitar() {
+    setGuardando(true);
+    setErrorAccion(null);
+    try {
+      const nuevo: { removed_at: string | null } = await api.post(`/admin/publicaciones/${id}/quitar`, {
+        motivo: motivo.trim(),
+      });
+      setDetalle((actual) => (actual ? { ...actual, removed_at: nuevo.removed_at } : actual));
+      setQuitando(false);
+      setMotivo("");
+    } catch (e) {
+      setErrorAccion((e as Error).message);
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  async function volverAPublicar() {
+    setGuardando(true);
+    setErrorAccion(null);
+    try {
+      await api.post(`/admin/publicaciones/${id}/volver-a-publicar`);
+      setDetalle((actual) => (actual ? { ...actual, removed_at: null } : actual));
+    } catch (e) {
+      setErrorAccion((e as Error).message);
+    } finally {
+      setGuardando(false);
+    }
+  }
 
   useEffect(() => {
     api
@@ -112,15 +150,29 @@ export function AdminPublicacionDetallePage() {
         )}
       </div>
 
-      {estado !== "vigente" && (
+      {/* Paso 114: la quitó el admin. Se puede volver a publicar. */}
+      {estado === "quitada" && detalle.removed_at && (
+        <div className="det-aviso-estado is-quitada" role="status">
+          <p>
+            <strong>Quitaste esta publicación del catálogo el {fechaDelRemate(detalle.removed_at)}.</strong> Los
+            inversionistas ya no la ven, pero se guarda con todo su historial. El motivo quedó en el Registro de
+            actividad.
+          </p>
+          <button type="button" className="det-boton" disabled={guardando} onClick={volverAPublicar}>
+            {guardando ? "Publicando..." : "Volver a publicar"}
+          </button>
+          {errorAccion && <p className="det-error-accion">{errorAccion}</p>}
+        </div>
+      )}
+
+      {(estado === "finalizada" || estado === "retirada") && (
         <p className="det-aviso-estado" role="status">
           <strong>
             {estado === "retirada"
               ? "El sitio de origen retiró este remate."
               : `Este remate ya se realizó${detalle.auction_date ? ` el ${fechaDelRemate(detalle.auction_date)}` : ""}.`}
           </strong>{" "}
-          Ya no aparece en el catálogo y se guarda solo como registro, por eso no se puede editar. Si el sitio lo volvió a
-          publicar con otra fecha, está como una publicación nueva.
+          Ya no aparece en el catálogo y se guarda solo como registro, por eso no se puede editar.
         </p>
       )}
 
@@ -135,6 +187,11 @@ export function AdminPublicacionDetallePage() {
       <h1 className="admin-titulo det-titulo">{detalle.title}</h1>
       <p className="admin-subtitulo">
         {nombreComuna(detalle)} · {detalle.property_type}
+      </p>
+      {/* Paso 114: dirección y fecha del remate, para distinguirla de otras con el mismo título */}
+      <p className="det-datos-remate">
+        {detalle.address ?? "Sin dirección informada"} ·{" "}
+        {detalle.auction_date ? `Remate: ${fechaDelRemate(detalle.auction_date)}` : "Sin fecha de remate"}
       </p>
 
       {/* Paso 112: la descripción que ven los inversionistas (se cambia con ✎ Editar) */}
@@ -219,6 +276,57 @@ export function AdminPublicacionDetallePage() {
             </li>
           ))}
         </ul>
+      )}
+
+      {/* Paso 114: sacarla del catálogo (por ejemplo, una propiedad de prueba). No se borra. */}
+      {estado !== "quitada" && (
+        <div className="det-quitar">
+          {!quitando ? (
+            <>
+              <p>
+                ¿Esta publicación no debería estar en HouseGreen (por ejemplo, es de prueba)? Puedes quitarla del
+                catálogo. No se borra: queda guardada con su historial y se puede volver a publicar.
+              </p>
+              <button type="button" className="det-boton is-peligro-suave" onClick={() => setQuitando(true)}>
+                Quitar del catálogo
+              </button>
+            </>
+          ) : (
+            <>
+              <label htmlFor="det-motivo">¿Por qué la quitas?</label>
+              <textarea
+                id="det-motivo"
+                rows={2}
+                maxLength={LARGO_MAXIMO_DEL_MOTIVO}
+                placeholder="Por ejemplo: propiedad de prueba"
+                value={motivo}
+                onChange={(e) => setMotivo(e.target.value)}
+              />
+              <div className="det-quitar-botones">
+                <button
+                  type="button"
+                  className="det-boton is-peligro"
+                  disabled={guardando || motivo.trim().length < 3}
+                  onClick={quitar}
+                >
+                  {guardando ? "Quitando..." : "Sí, quitar del catálogo"}
+                </button>
+                <button
+                  type="button"
+                  className="det-boton"
+                  disabled={guardando}
+                  onClick={() => {
+                    setQuitando(false);
+                    setErrorAccion(null);
+                  }}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </>
+          )}
+          {errorAccion && <p className="det-error-accion">{errorAccion}</p>}
+        </div>
       )}
     </section>
   );

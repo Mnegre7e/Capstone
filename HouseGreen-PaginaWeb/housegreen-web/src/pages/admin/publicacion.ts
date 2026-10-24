@@ -22,6 +22,9 @@ export interface PublicacionAdmin {
   auction_date: string | null;
   market_zone: Zona | null; // zona de precio que eligió el admin (null = todavía no la elige)
   domain_type: Dominio | null; // null = no especificado
+    // Paso 114
+  address: string | null;
+  removed_at: string | null; // cuándo el admin la quitó del catálogo (null = publicada)
 }
 
 export type Dominio = "exclusivo" | "otro";
@@ -47,9 +50,13 @@ export function plural(n: number, singular: string, varios: string) {
 
 // Paso 113: estado del remate, con la misma regla que usa el catálogo del inversionista.
 // Solo las "vigentes" aparecen en el catálogo; las otras quedan guardadas como registro.
-export type EstadoPublicacion = "vigente" | "finalizada" | "retirada";
+// Paso 114: "quitada" = el admin la sacó del catálogo (por ejemplo, una propiedad de prueba).
+export type EstadoPublicacion = "vigente" | "finalizada" | "retirada" | "quitada";
 
-export function estadoPublicacion(p: Pick<PublicacionAdmin, "status" | "auction_date">): EstadoPublicacion {
+export function estadoPublicacion(
+  p: Pick<PublicacionAdmin, "status" | "auction_date" | "removed_at">
+): EstadoPublicacion {
+  if (p.removed_at) return "quitada";
   if (remateRetirado(p.status)) return "retirada";
   if (remateFinalizado(p.auction_date)) return "finalizada";
   return "vigente";

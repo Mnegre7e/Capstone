@@ -249,3 +249,108 @@
   font-size: 14px;
   line-height: 1.5;
 }
+
+/* ---------- Paso 114 ---------- */
+.det-datos-remate {
+  margin: 4px 0 0;
+  color: #4e625b;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+/* Aviso de publicación quitada del catálogo: rojo suave y con botón */
+.det-aviso-estado.is-quitada {
+  border-left-color: #dc2626;
+  background-color: #fef2f2;
+}
+
+.det-aviso-estado p {
+  margin: 0;
+}
+
+.det-aviso-estado .det-boton {
+  margin-top: 10px;
+}
+
+.det-boton {
+  padding: 8px 14px;
+  border: 1px solid #c9d8d1;
+  border-radius: 10px;
+  background-color: white;
+  color: #0f3d30;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.det-boton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.det-boton.is-peligro {
+  border-color: #b91c1c;
+  background-color: #b91c1c;
+  color: white;
+}
+
+.det-boton.is-peligro-suave {
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.det-boton:focus-visible,
+.det-quitar textarea:focus-visible {
+  outline: 2px solid #1d6f55;
+  outline-offset: 2px;
+}
+
+/* "Quitar del catálogo": al final de la página, separado del resto */
+.det-quitar {
+  margin-top: 28px;
+  padding: 16px;
+  border: 1px dashed #e5c4c4;
+  border-radius: 16px;
+  background-color: white;
+}
+
+.det-quitar p {
+  margin: 0 0 10px;
+  color: #4e625b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.det-quitar label {
+  display: block;
+  margin-bottom: 6px;
+  color: #0f3d30;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.det-quitar textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 10px;
+  border: 1px solid #c9d8d1;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.det-quitar-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.det-error-accion {
+  margin: 10px 0 0;
+  color: #991b1b;
+  font-size: 14px;
+}

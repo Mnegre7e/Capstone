@@ -103,6 +103,8 @@ def listar_publicaciones(db: Session = Depends(get_db), usuario=Depends(requerir
                 auction_date=propiedad.auction_date,
                 market_zone=zonas_de_precio.get(propiedad.id),
                 domain_type=dominios.get(propiedad.id),
+                address=propiedad.address,  # paso 114
+                removed_at=propiedad.removed_at,  # paso 114
             )
         )
     return resultado
@@ -184,6 +186,8 @@ def detalle_publicacion(property_id: UUID, db: Session = Depends(get_db), usuari
         image_url=fotos[0].url if fotos else propiedad.image_url,  # portada si hay fotos (paso 27)
         opening_price=propiedad.opening_price,
         description=propiedad.description,
+        address=propiedad.address,  # paso 114
+        removed_at=propiedad.removed_at,  # paso 114
         fotos=[FotoOut.model_validate(f) for f in fotos],
         result_level=evaluacion.result_level if evaluacion else None,
         total_points=evaluacion.total_points if evaluacion else None,

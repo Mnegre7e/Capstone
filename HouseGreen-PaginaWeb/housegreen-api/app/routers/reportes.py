@@ -114,10 +114,12 @@ def ver_reporte(
 
     # ---------- 2) Publicaciones ----------
     propiedades = db.query(
-        Property.id, Property.title, Property.comuna_id, Property.status, Property.auction_date, Property.created_at
+        Property.id, Property.title, Property.comuna_id, Property.status, Property.auction_date, Property.created_at,
+        Property.removed_at,  # paso 114
     ).all()
     por_id = {p.id: p for p in propiedades}
-    vigentes = {p.id for p in propiedades if _esta_vigente(p.status, p.auction_date, datetime.now(timezone.utc))}
+    # Paso 114: las que el admin quitó del catálogo tampoco cuentan como vigentes
+    vigentes = {p.id for p in propiedades if p.removed_at is None and _esta_vigente(p.status, p.auction_date, datetime.now(timezone.utc))}
     nuevas = [p.created_at for p in propiedades if p.created_at is not None and _en_chile(p.created_at) >= desde_chile]
 
     # Última evaluación de cada una (de la más antigua a la más nueva: queda la más reciente)
