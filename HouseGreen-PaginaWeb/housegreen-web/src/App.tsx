@@ -20,6 +20,7 @@ import { RegisterPage } from "./pages/RegisterPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PerfilPage } from "./pages/PerfilPage";
 import { OpinionesPage } from "./pages/OpinionesPage";
+import { ReportesPage } from "./pages/ReportesPage";
 
 
 // Clases de un enlace del menú: el de la sección actual queda marcado
@@ -28,7 +29,7 @@ function claseDelEnlace({ isActive }: { isActive: boolean }) {
 }
 
 function App() {
-  const { estaLogueado, esAdmin, cerrarSesion } = useAuth();
+  const { estaLogueado, esAdmin, esAnalista, cerrarSesion } = useAuth();
   const { noLeidas } = useAlerts();
   const { sinLeer } = useAnuncios();
   // Paso 90: el número rojo junto a "Alertas" suma las notificaciones y los anuncios sin leer
@@ -65,6 +66,12 @@ function App() {
               {esAdmin && (
                 <NavLink to="/admin" className={claseDelEnlace}>
                   Admin
+                </NavLink>
+              )}
+              {/* Paso 110: el analista entra a los reportes desde el menú (el admin, desde su Panel) */}
+              {esAnalista && (
+                <NavLink to="/reportes" className={claseDelEnlace}>
+                  Reportes
                 </NavLink>
               )}
               <NavLink to="/alertas" className={claseDelEnlace}>
@@ -133,6 +140,15 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* Paso 110: reportes del analista (la página misma revisa que sea analista o administrador) */}
+        <Route
+          path="/reportes"
+          element={
+            <ProtectedRoute>
+              <ReportesPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin"
           element={
@@ -149,6 +165,7 @@ function App() {
           <Route path="opiniones" element={<AdminOpinionesPage />} />
           <Route path="usuarios" element={<AdminUsuariosPage />} />
           <Route path="anuncios" element={<AdminAnunciosPage />} />
+          <Route path="reportes" element={<ReportesPage />} />
         </Route>
 
         {/* Cualquier otra dirección: aviso en vez de página en blanco */}

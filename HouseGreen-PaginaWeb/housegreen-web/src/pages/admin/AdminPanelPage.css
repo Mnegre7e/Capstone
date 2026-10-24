@@ -275,3 +275,10 @@
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* Paso 110: dos accesos en la misma línea (Reportes y Usuarios) */
+.panel-accesos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}

@@ -4,6 +4,8 @@ import { api, guardarToken, borrarToken, obtenerToken } from "../api/client";
 
 // id del rol administrador en la tabla roles (el mismo que revisa requerir_admin en la API)
 const ROL_ADMIN_ID = 3;
+// Paso 110: el analista puede ver los reportes
+const ROL_ANALISTA_ID = 2;
 
 // Lo que responde GET /auth/me
 export interface UsuarioActual {
@@ -21,6 +23,7 @@ interface AuthContextType {
   usuario: UsuarioActual | null;
   estaLogueado: boolean;
   esAdmin: boolean;
+  esAnalista: boolean; // paso 110
   verificandoSesion: boolean; // true mientras se revisa un token guardado al abrir la página
   cargando: boolean;
   // Paso 78: devuelve true si entró, o false si la cuenta tiene verificación en dos pasos
@@ -79,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         usuario,
         estaLogueado: usuario !== null,
         esAdmin: usuario?.role_id === ROL_ADMIN_ID,
+        esAnalista: usuario?.role_id === ROL_ANALISTA_ID,
         verificandoSesion,
         cargando,
         iniciarSesion,

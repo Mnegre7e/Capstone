@@ -121,6 +121,7 @@ export function AdminPanelPage() {
 
       {/* Paso 85: Usuarios no está en el menú; se entra desde aquí */}
       <p className="panel-accesos">
+        <Link to="/admin/reportes">Ver los reportes ›</Link>
         <Link to="/admin/usuarios">Ver los usuarios registrados ›</Link>
       </p>
 
