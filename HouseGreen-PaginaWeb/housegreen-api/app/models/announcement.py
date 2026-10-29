@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, ForeignKey, TIMESTAMP
+from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, TIMESTAMP, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -18,6 +18,9 @@ class Announcement(Base):
     target_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"))  # solo si es "persona"
     property_id = Column(UUID(as_uuid=True), ForeignKey("properties.id", ondelete="SET NULL"))  # "vieron" o "guardaron"
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+        # Paso 116: si también se envió por correo y a cuántas personas les salió (vacío = se está enviando)
+    by_email = Column(Boolean, nullable=False, default=False, server_default=text("false"))
+    emails_sent = Column(Integer)
 
     # Esta tabla apunta dos veces a users (admin_id y target_user_id), así que hay que decirle
     # a SQLAlchemy cuál de las dos columnas usa esta relación.

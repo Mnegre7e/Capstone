@@ -1,13 +1,14 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
-from app.database import get_db
+from app.database import SessionLocal, get_db
 from app.auth.dependencies import get_current_user, requerir_admin
 from app.auditoria import anotar
+from app.correo import correo_configurado, enviar_correo
 from app.models.announcement import Announcement, AnnouncementRecipient
 from app.models.favorite import SavedProperty
 from app.models.property import Property, PropertyView
@@ -15,7 +16,7 @@ from app.models.user import User
 from app.schemas.announcement import AnnouncementCreate, AnnouncementAdminOut, AnnouncementOut
 
 # Paso 87: anuncios que el administrador envía a los inversionistas.
-# Llegan dentro de HouseGreen (no por correo) y se envían en el momento.
+# Llegan dentro de HouseGreen y se envían en el momento. Paso 116: también pueden ir por correo.
 router_admin = APIRouter(prefix="/admin/anuncios", tags=["Admin"])
 # Paso 89: lo que hace quien recibe los anuncios
 router = APIRouter(prefix="/anuncios", tags=["Anuncios"])
@@ -26,6 +27,8 @@ AUDIENCIAS = {"todos", "persona", "vieron", "guardaron"}
 LARGO_MAXIMO_DEL_TITULO = 120
 LARGO_MAXIMO_DEL_MENSAJE = 1000
 ROL_INVERSIONISTA_ID = 1
+# Paso 116: Gmail deja enviar unos 500 correos al día; se deja margen para los demás correos de HouseGreen
+MAXIMO_DE_CORREOS = 400
 
 
 def _para_el_admin(anuncio: Announcement, destinatarios: int, leidos: int) -> AnnouncementAdminOut:
@@ -41,7 +44,65 @@ def _para_el_admin(anuncio: Announcement, destinatarios: int, leidos: int) -> An
         publicacion=anuncio.property.title if anuncio.property else None,
         destinatarios=destinatarios,
         leidos=leidos,
+        by_email=bool(anuncio.by_email),
+        emails_sent=anuncio.emails_sent,
     )
+
+
+# ---------- Paso 116: el anuncio por correo ----------
+
+def _texto_del_correo(nombre: str, mensaje: str, publicacion: str | None) -> str:
+    lineas = [f"Hola {nombre}:", "", mensaje, ""]
+    if publicacion:
+        lineas += [f"Publicación: {publicacion}", ""]
+    lineas += [
+        "También puedes leer este anuncio en HouseGreen, en la sección Alertas.",
+        "",
+        "Equipo HouseGreen",
+        "",
+        "--",
+        "Recibes este correo porque tienes una cuenta en HouseGreen.",
+        "Si no quieres recibir anuncios por correo, responde a este mensaje y te sacamos de la lista.",
+    ]
+    return "\n".join(lineas)
+
+
+def enviar_anuncio_por_correo(anuncio_id: UUID) -> None:
+    """Se ejecuta DESPUÉS de responderle al administrador (en segundo plano), porque cada correo
+    tarda uno o dos segundos. Por eso abre su propia conexión a la base."""
+    db = SessionLocal()
+    try:
+        anuncio = db.query(Announcement).options(joinedload(Announcement.property)).filter(
+            Announcement.id == anuncio_id
+        ).first()
+        if anuncio is None:
+            return
+        personas = (
+            db.query(User.email, User.full_name)
+            .join(AnnouncementRecipient, AnnouncementRecipient.user_id == User.id)
+            .filter(AnnouncementRecipient.announcement_id == anuncio_id)
+            .all()
+        )
+        publicacion = anuncio.property.title if anuncio.property else None
+
+        enviados = 0
+        for persona in personas:
+            try:
+                # enviar_correo no envía a direcciones de prueba (@example.com): esas no cuentan
+                if enviar_correo(
+                    persona.email,
+                    f"HouseGreen: {anuncio.title}",
+                    _texto_del_correo(persona.full_name, anuncio.message, publicacion),
+                ):
+                    enviados += 1
+            except Exception as error:  # si un correo falla, se sigue con los demás
+                print(f"No se pudo enviar el anuncio a {persona.email}: {error}")
+
+        anuncio.emails_sent = enviados
+        db.commit()
+        print(f"Anuncio «{anuncio.title}» enviado por correo a {enviados} de {len(personas)} personas.")
+    finally:
+        db.close()
 
 
 # El administrador envía un anuncio. Se guarda el anuncio y una fila por cada persona que lo recibe.
@@ -49,6 +110,7 @@ def _para_el_admin(anuncio: Announcement, destinatarios: int, leidos: int) -> An
 def enviar_anuncio(
     datos: AnnouncementCreate,
     request: Request,
+    tareas: BackgroundTasks,  # paso 116: para enviar los correos después de responder
     db: Session = Depends(get_db),
     usuario: User = Depends(requerir_admin),
 ):
@@ -70,6 +132,12 @@ def enviar_anuncio(
         )
     if datos.audience not in AUDIENCIAS:
         raise HTTPException(status_code=400, detail="Elige a quiénes va el anuncio.")
+    # Paso 116: sin las claves del Gmail en el .env no se puede enviar por correo
+    if datos.by_email and not correo_configurado():
+        raise HTTPException(
+            status_code=400,
+            detail="El envío por correo no está configurado (faltan CORREO_USUARIO y CORREO_CLAVE en el .env de la API).",
+        )
 
     # Los anuncios solo llegan a inversionistas con la cuenta habilitada
     inversionistas = db.query(User.id).filter(User.role_id == ROL_INVERSIONISTA_ID, User.is_active.is_(True))
@@ -117,6 +185,13 @@ def enviar_anuncio(
         if not destinatarios:
             raise HTTPException(status_code=400, detail=nadie)
 
+    if datos.by_email and len(destinatarios) > MAXIMO_DE_CORREOS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Por correo se puede enviar a {MAXIMO_DE_CORREOS} personas como máximo (Gmail limita los envíos diarios). "
+            "Envíalo sin correo o elige un grupo más chico.",
+        )
+
     anuncio = Announcement(
         admin_id=usuario.id,
         title=titulo,
@@ -124,6 +199,7 @@ def enviar_anuncio(
         audience=datos.audience,
         target_user_id=persona_id,
         property_id=publicacion_id,
+        by_email=datos.by_email,
     )
     db.add(anuncio)
     db.flush()  # flush le pide el id a la base sin terminar la operación; se necesita para las filas de abajo
@@ -136,11 +212,20 @@ def enviar_anuncio(
         usuario=usuario,
         entidad_tipo="anuncio",
         entidad_id=anuncio.id,
-        despues={"titulo": titulo, "audiencia": datos.audience, "destinatarios": len(destinatarios)},
+        despues={
+            "titulo": titulo,
+            "audiencia": datos.audience,
+            "destinatarios": len(destinatarios),
+            "por_correo": datos.by_email,  # paso 116
+        },
     )
     db.commit()  # el anuncio y sus destinatarios se guardan juntos: o todo o nada
-    db.commit()  # el anuncio y sus destinatarios se guardan juntos: o todo o nada
     db.refresh(anuncio)
+
+    # Paso 116: los correos salen después de responder; mientras tanto emails_sent queda vacío
+    if datos.by_email:
+        tareas.add_task(enviar_anuncio_por_correo, anuncio.id)
+
     return _para_el_admin(anuncio, destinatarios=len(destinatarios), leidos=0)
 
 

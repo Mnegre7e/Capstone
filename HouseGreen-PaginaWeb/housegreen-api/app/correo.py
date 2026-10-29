@@ -27,10 +27,23 @@ def correo_configurado() -> bool:
     usuario, clave = _credenciales()
     return bool(usuario and clave)
 
+# Paso 116: dominios reservados para pruebas (no son de nadie). A esas direcciones nunca se envía nada:
+# así las cuentas de prueba como jose@example.com no hacen que Gmail rebote correos.
+DOMINIOS_DE_PRUEBA = {"example.com", "example.org", "example.net", "localhost"}
+TERMINACIONES_DE_PRUEBA = (".example", ".invalid", ".localhost", ".test")
+
+
+def es_correo_de_prueba(correo: str) -> bool:
+    dominio = correo.rsplit("@", 1)[-1].strip().lower()
+    return dominio in DOMINIOS_DE_PRUEBA or dominio.endswith(TERMINACIONES_DE_PRUEBA)
 
 def enviar_correo(destinatario: str, asunto: str, texto: str) -> bool:
     """Envía un correo de texto. Devuelve True si salió por Gmail y False si solo se mostró en la terminal."""
     usuario, clave = _credenciales()
+    
+    if es_correo_de_prueba(destinatario):
+        print(f"Correo NO enviado a {destinatario}: es una dirección de prueba.")
+        return False
 
     mensaje = EmailMessage()
     mensaje["From"] = formataddr((NOMBRE_REMITENTE, usuario or "sin-configurar@housegreen"))

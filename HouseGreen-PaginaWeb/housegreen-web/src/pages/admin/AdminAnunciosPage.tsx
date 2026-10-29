@@ -5,7 +5,8 @@ import type { PublicacionAdmin } from "./publicacion";
 import "./AdminAnunciosPage.css";
 
 // Paso 88: el administrador envía anuncios a los inversionistas y ve los que ya envió.
-// Los anuncios llegan dentro de HouseGreen (no por correo) y se envían en el momento.
+// Los anuncios llegan dentro de HouseGreen y se envían en el momento.
+// Paso 116: además pueden ir por correo (la API los envía en segundo plano).
 
 type Audiencia = "todos" | "persona" | "vieron" | "guardaron";
 
@@ -20,6 +21,8 @@ interface Anuncio {
   publicacion: string | null; // título de la publicación, si fue para quienes la vieron o guardaron
   destinatarios: number;
   leidos: number;
+  by_email: boolean; // paso 116: si también se envió por correo
+  emails_sent: number | null; // a cuántas personas les salió el correo (null = se está enviando)
 }
 
 // De GET /admin/usuarios solo se usa esto
@@ -49,10 +52,14 @@ const LARGO_MAXIMO_DEL_TITULO = 120;
 const LARGO_MAXIMO_DEL_MENSAJE = 1000;
 const OPCIONES_A_LA_VISTA = 5; // cuántos resultados muestra un buscador
 const POR_TANDA = 20; // cuántos anuncios enviados se muestran de una vez
+// Paso 116: mientras haya correos enviándose, la lista se vuelve a pedir cada 4 segundos
+// (solo para anuncios de los últimos 10 minutos, por si la API se reinició a medio enviar)
+const CADA_CUANTO_SE_REVISA = 4000;
+const DIEZ_MINUTOS = 10 * 60 * 1000;
 
 // "Irarrázaval" -> "irarrazaval": la búsqueda no distingue tildes ni mayúsculas
 function normalizar(texto: string) {
-  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  return texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
 // "2026-10-07T19:30:00Z" -> "7 oct 2026, 16:30"
@@ -86,6 +93,18 @@ function textoDeLectura(anuncio: Anuncio) {
     return `${cuantos} · ${anuncio.destinatarios === 1 ? "ya lo leyó" : "todos lo leyeron"}`;
   }
   return `${cuantos} · ${anuncio.leidos} lo ${anuncio.leidos === 1 ? "leyó" : "leyeron"}`;
+}
+
+// Paso 116: "También por correo · se envió a 3 personas"
+function textoDelCorreo(anuncio: Anuncio) {
+  if (anuncio.emails_sent === null) return "También por correo · enviándose...";
+  if (anuncio.emails_sent >= anuncio.destinatarios) {
+    return `También por correo · se envió a ${plural(anuncio.destinatarios, "persona", "personas")}`;
+  }
+  return (
+    `También por correo · se envió a ${anuncio.emails_sent} de ${plural(anuncio.destinatarios, "persona", "personas")} ` +
+    "(las otras direcciones son de prueba o no se pudieron enviar)"
+  );
 }
 
 // Buscador para elegir UNA opción de una lista (una persona o una publicación).
@@ -178,6 +197,7 @@ export function AdminAnunciosPage() {
   const [publicacion, setPublicacion] = useState<Opcion | null>(null);
   const [titulo, setTitulo] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [porCorreo, setPorCorreo] = useState(false); // paso 116
 
   const [confirmando, setConfirmando] = useState(false); // se pregunta antes de enviar
   const [enviando, setEnviando] = useState(false);
@@ -201,6 +221,21 @@ export function AdminAnunciosPage() {
       .then((datos: PublicacionAdmin[]) => setPublicaciones(datos))
       .catch(avisarError);
   }, []);
+
+  // Paso 116: si hay correos enviándose, se vuelve a pedir la lista hasta que terminen
+  useEffect(() => {
+    const hayCorreosEnviandose = anuncios.some(
+      (a) => a.by_email && a.emails_sent === null && Date.now() - Date.parse(a.created_at) < DIEZ_MINUTOS,
+    );
+    if (!hayCorreosEnviandose) return;
+    const reloj = window.setTimeout(() => {
+      api
+        .get("/admin/anuncios")
+        .then((datos: Anuncio[]) => setAnuncios(datos))
+        .catch(() => {}); // si falla, se queda como estaba; el administrador puede recargar la página
+    }, CADA_CUANTO_SE_REVISA);
+    return () => window.clearTimeout(reloj);
+  }, [anuncios]);
 
   // Solo reciben anuncios los inversionistas con la cuenta habilitada (la misma regla de la API)
   const inversionistas = personas?.filter((p) => p.role_name === "inversionista" && p.is_active) ?? null;
@@ -273,11 +308,16 @@ export function AdminAnunciosPage() {
         audience: para,
         target_user_id: para === "persona" ? persona?.id : null,
         property_id: para === "vieron" || para === "guardaron" ? publicacion?.id : null,
+        by_email: porCorreo,
       });
       setAnuncios((actuales) => [enviado, ...actuales]); // el nuevo queda primero
-      setAviso(`Anuncio enviado a ${plural(enviado.destinatarios, "persona", "personas")}.`);
+      setAviso(
+        `Anuncio enviado a ${plural(enviado.destinatarios, "persona", "personas")}.` +
+          (enviado.by_email ? " Los correos se están enviando: el resultado aparece abajo en unos segundos." : ""),
+      );
       setTitulo("");
       setMensaje("");
+      setPorCorreo(false);
       setPersona(null);
       setPublicacion(null);
     } catch (err) {
@@ -293,7 +333,9 @@ export function AdminAnunciosPage() {
   return (
     <section>
       <h1 className="admin-titulo">Anuncios</h1>
-      <p className="admin-subtitulo">Mensajes para los inversionistas. Les llegan dentro de HouseGreen.</p>
+      <p className="admin-subtitulo">
+        Mensajes para los inversionistas. Les llegan dentro de HouseGreen y, si quieres, también por correo.
+      </p>
 
       {/* ---------- Nuevo anuncio ---------- */}
       <form className="anu-formulario" onSubmit={revisar} noValidate>
@@ -389,6 +431,21 @@ export function AdminAnunciosPage() {
               onChange={(e) => alCambiar(() => setMensaje(e.target.value))}
             />
           </label>
+
+          {/* Paso 116 */}
+          <label className="anu-correo">
+            <input
+              type="checkbox"
+              checked={porCorreo}
+              onChange={(e) => alCambiar(() => setPorCorreo(e.target.checked))}
+            />
+            <span>
+              <strong>Enviar también por correo</strong>
+              <span className="anu-correo-ayuda">
+                Además de llegar a HouseGreen, le llega al correo de cada persona. Los correos salen en unos segundos.
+              </span>
+            </span>
+          </label>
         </fieldset>
 
         {errorDeEnvio && (
@@ -412,7 +469,8 @@ export function AdminAnunciosPage() {
         {(confirmando || enviando) && (
           <div className="anu-confirmar">
             <p>
-              ¿Enviar este anuncio a {destinoEnPalabras()}? Después no se puede retirar.
+              ¿Enviar este anuncio a {destinoEnPalabras()}
+              {porCorreo ? ", también por correo" : ""}? Después no se puede retirar.
             </p>
             <div className="anu-confirmar-botones">
               <button type="button" className="anu-boton-enviar" onClick={enviar} disabled={enviando}>
@@ -452,6 +510,7 @@ export function AdminAnunciosPage() {
             <p className="anu-item-para">Para: {paraQuien(anuncio)}</p>
             <p className="anu-item-mensaje">{anuncio.message}</p>
             <p className="anu-item-lectura">{textoDeLectura(anuncio)}</p>
+            {anuncio.by_email && <p className="anu-item-correo">{textoDelCorreo(anuncio)}</p>}
           </li>
         ))}
       </ul>

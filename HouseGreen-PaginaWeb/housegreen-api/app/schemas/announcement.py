@@ -11,6 +11,7 @@ class AnnouncementCreate(BaseModel):
     audience: str  # "todos", "persona", "vieron" o "guardaron"
     target_user_id: UUID | None = None  # obligatorio si audience es "persona"
     property_id: UUID | None = None  # obligatorio si audience es "vieron" o "guardaron"
+    by_email: bool = False  # paso 116: enviarlo también por correo
 
 # Lo que la API DEVUELVE al administrador por cada anuncio enviado
 class AnnouncementAdminOut(BaseModel):
@@ -25,6 +26,8 @@ class AnnouncementAdminOut(BaseModel):
     publicacion: str | None = None  # título de la publicación (si fue para quienes la vieron o guardaron)
     destinatarios: int  # a cuántas personas les llegó
     leidos: int  # cuántas ya lo leyeron
+    by_email: bool = False  # paso 116: si también se envió por correo
+    emails_sent: int | None = None  # a cuántas personas les salió el correo (vacío = se está enviando)
 
 
 # ---------- Paso 89: lo que ve quien recibe el anuncio ----------

@@ -103,6 +103,7 @@ const CAMPOS: Record<string, string> = {
   titulo: "Título",
   audiencia: "A quiénes",
   destinatarios: "Personas que lo recibieron",
+  por_correo: "También por correo",
   max_risk_level: "Nivel máximo",
   max_price: "Precio máximo",
   quitada_el: "La había quitado el",

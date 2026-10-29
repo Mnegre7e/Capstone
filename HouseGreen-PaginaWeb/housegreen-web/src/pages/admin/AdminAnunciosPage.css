@@ -372,6 +372,13 @@
   font-size: 13px;
 }
 
+/* Paso 116: si también se envió por correo */
+.anu-item-correo {
+  margin: 4px 0 0;
+  color: #4e625b;
+  font-size: 13px;
+}
+
 .anu-mas {
   margin-top: 16px;
   color: #4e625b;
@@ -392,4 +399,44 @@
   .anu-para {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+
+/* ---------- Paso 116: casilla "Enviar también por correo" ---------- */
+.anu-correo {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid #dce6e1;
+  border-radius: 12px;
+  background-color: #f7faf8;
+  color: #1f2a26;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.anu-correo input {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  accent-color: #1d6f55;
+  cursor: pointer;
+}
+
+.anu-correo strong {
+  display: block;
+}
+
+.anu-correo-ayuda {
+  display: block;
+  margin-top: 2px;
+  color: #4e625b;
+  font-size: 13px;
+}
+
+.anu-campos:disabled .anu-correo {
+  cursor: default;
 }
