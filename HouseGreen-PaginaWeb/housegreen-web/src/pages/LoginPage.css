@@ -267,3 +267,57 @@
   font-size: 14px;
   line-height: 1.4;
 }
+
+/* ---------- Paso 117: recuperar la contraseña ---------- */
+/* Enlace "¿Olvidaste tu contraseña?" debajo de la contraseña */
+.login-olvido {
+  margin: -8px 0 14px;
+  font-size: 14px;
+  text-align: right;
+}
+
+.login-olvido a {
+  color: #15803d;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-olvido a:hover {
+  text-decoration: underline;
+}
+
+.login-olvido a:focus-visible {
+  outline: 3px solid rgba(21, 128, 61, 0.45);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* El correo escrito: si es largo se corta en cualquier parte para no salirse de la tarjeta */
+.login-correo {
+  color: #2f3a35;
+  overflow-wrap: anywhere;
+}
+
+/* "No me llegó: enviar otro código" y "Usar otro correo" */
+.login-recuperar-otras {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-top: 16px;
+}
+
+.login-recuperar-otras .login-volver {
+  font-size: 14px;
+}
+
+.login-volver:disabled {
+  color: #9aa5a0;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+/* Paso 117b: segunda línea de enlaces, pegada a la de arriba */
+.login-switch-junto {
+  margin-top: 6px;
+}

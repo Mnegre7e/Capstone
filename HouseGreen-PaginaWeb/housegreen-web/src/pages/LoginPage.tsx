@@ -151,6 +151,10 @@ export function LoginPage() {
           visible={mostrar}
           alCambiarVisible={() => setMostrar(!mostrar)}
         />
+        {/* Paso 117 */}
+        <p className="login-olvido">
+          <Link to="/recuperar">¿Olvidaste tu contraseña?</Link>
+        </p>
 
         <button type="submit" className="login-button" disabled={cargando}>
           {cargando ? "Ingresando..." : "Ingresar"}

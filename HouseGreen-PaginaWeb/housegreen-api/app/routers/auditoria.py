@@ -25,20 +25,20 @@ NOMBRES_DE_ROL = {valor: nombre for nombre, valor in ROLES.items()}
 # Grupos de acciones para filtrar (la web muestra estos nombres en una lista)
 GRUPOS = {
     "sesiones": ["inicio_sesion", "inicio_sesion_fallido", "inicio_sesion_bloqueado"],
-    "intentos_fallidos": ["inicio_sesion_fallido", "inicio_sesion_bloqueado"],
+    "intentos_fallidos": ["inicio_sesion_fallido", "inicio_sesion_bloqueado", "recuperacion_fallida"],
     "cuentas": [
         "registro", "perfil_editado", "contrasena_cambiada", "dos_pasos_activada", "dos_pasos_desactivada",
         "cuenta_eliminada", "cuenta_suspendida", "cuenta_reactivada",
+        "recuperacion_pedida", "contrasena_recuperada",  # paso 117
     ],
     "favoritos_y_alertas": ["favorito_agregado", "favorito_quitado", "alerta_creada", "alerta_eliminada"],
     "opiniones": ["opinion_enviada", "opinion_respondida"],
-    
-        "publicaciones": [
+    "publicaciones": [
         "descripcion_editada", "foto_subida", "foto_quitada", "fotos_ordenadas", "semaforo_editado",
         "publicacion_quitada", "publicacion_restaurada",  # paso 114
     ],
+    "anuncios": ["anuncio_enviado"],
 }
-
 MAXIMO_POR_PAGINA = 100
 NIVELES = {"verde": "verde", "amarillo": "amarillo o mejor", "rojo": "cualquier nivel"}
 

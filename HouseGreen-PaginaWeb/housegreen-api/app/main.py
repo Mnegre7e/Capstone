@@ -10,6 +10,7 @@ from app.routers import announcements  # paso 87: anuncios
 from app.routers import reportes  # paso 109: reportes (administrador y analista)
 from app.routers import auditoria  # paso 111: registro de actividad para el administrador
 from app.routers import admin_catalogo  # paso 114: quitar una publicación del catálogo y volver a publicarla
+from app.routers import recuperacion  # paso 117: recuperar la contraseña con un código por correo
 
 app = FastAPI(title="HouseGreen API")
 
@@ -36,6 +37,7 @@ app.include_router(announcements.router)  # paso 89: anuncios para quien los rec
 app.include_router(reportes.router)  # paso 109
 app.include_router(auditoria.router)  # paso 111
 app.include_router(admin_catalogo.router)  # paso 114
+app.include_router(recuperacion.router)  # paso 117
 
 admin.CARPETA_UPLOADS.mkdir(exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=admin.CARPETA_UPLOADS), name="uploads")

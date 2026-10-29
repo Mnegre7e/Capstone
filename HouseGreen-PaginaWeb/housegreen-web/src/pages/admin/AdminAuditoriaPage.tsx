@@ -77,6 +77,8 @@ const MOTIVOS: Record<string, string> = {
   cuenta_deshabilitada: "la cuenta está suspendida",
   cuenta_eliminada: "la cuenta fue eliminada",
   codigo_incorrecto: "código de dos pasos incorrecto",
+  // Paso 117: al pedir un código para recuperar la contraseña
+  demasiados_pedidos: "pidió demasiados códigos seguidos (no se envió)",
 };
 
 // Nombres de los datos que aparecen en "Ver detalle"
@@ -104,6 +106,7 @@ const CAMPOS: Record<string, string> = {
   audiencia: "A quiénes",
   destinatarios: "Personas que lo recibieron",
   por_correo: "También por correo",
+  intentos: "Intentos con ese código", // paso 117
   max_risk_level: "Nivel máximo",
   max_price: "Precio máximo",
   quitada_el: "La había quitado el",
@@ -112,7 +115,7 @@ const CAMPOS: Record<string, string> = {
 // Datos internos que no le sirven a quien lee el registro (la comuna de una alerta ya va en la frase)
 const CAMPOS_OCULTOS = new Set(["foto_id", "respuesta_id", "comuna_id"]);
 
-const ES_FALLO = new Set(["inicio_sesion_fallido", "inicio_sesion_bloqueado"]);
+const ES_FALLO = new Set(["inicio_sesion_fallido", "inicio_sesion_bloqueado", "recuperacion_fallida"]);
 
 // Fecha y hora en Chile
 function dia(fechaIso: string) {
@@ -170,6 +173,13 @@ function frase(registro: Registro, objeto: ReactNode): ReactNode {
       return "cambió su contraseña";
     case "dos_pasos_activada":
       return "activó la verificación en dos pasos";
+    // Paso 117
+    case "recuperacion_pedida":
+      return `pidió un código para recuperar su contraseña${typeof motivo === "string" ? `: ${MOTIVOS[motivo] ?? motivo}` : ""}`;
+    case "recuperacion_fallida":
+      return "escribió mal el código para recuperar su contraseña";
+    case "contrasena_recuperada":
+      return "cambió su contraseña con un código enviado por correo";
     case "dos_pasos_desactivada":
       return "desactivó la verificación en dos pasos";
     case "cuenta_eliminada":

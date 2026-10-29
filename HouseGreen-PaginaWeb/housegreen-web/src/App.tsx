@@ -17,6 +17,7 @@ import { useAuth } from "./context/AuthContext";
 import { useAlerts } from "./context/AlertsContext";
 import { useAnuncios } from "./context/AnunciosContext";
 import { RegisterPage } from "./pages/RegisterPage";
+import { RecuperarPage } from "./pages/RecuperarPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PerfilPage } from "./pages/PerfilPage";
 import { OpinionesPage } from "./pages/OpinionesPage";
@@ -46,7 +47,7 @@ function App() {
 
   // Paso 100: en el inicio de sesión y en el registro no se muestra el encabezado.
   // Esas pantallas ya tienen el nombre y el semáforo en su panel verde.
-  const enEntrada = pathname === "/login" || pathname === "/registro";
+  const enEntrada = pathname === "/login" || pathname === "/registro" || pathname === "/recuperar"; // paso 117
 
   return (
     <div>
@@ -109,6 +110,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegisterPage />} />
+        <Route path="/recuperar" element={<RecuperarPage />} /> {/* paso 117 */}
 
         <Route
           path="/"

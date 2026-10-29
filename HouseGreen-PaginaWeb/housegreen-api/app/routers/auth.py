@@ -89,9 +89,10 @@ MINUTOS_DE_ESPERA = 15
 def _minutos_de_espera(db: Session, email: str) -> int:
     """Cuántos minutos le faltan a ese correo para poder intentar de nuevo (0 = puede intentar ya)."""
     # Solo cuentan los fallos posteriores al último inicio de sesión exitoso
+    # (paso 117: o a la última vez que recuperó su contraseña con el código del correo)
     ultimo_exito = (
         db.query(func.max(AuditLog.id))
-        .filter(AuditLog.email == email, AuditLog.action == "inicio_sesion")
+        .filter(AuditLog.email == email, AuditLog.action.in_(("inicio_sesion", "contrasena_recuperada")))
         .scalar()
     ) or 0
     fallos = (
