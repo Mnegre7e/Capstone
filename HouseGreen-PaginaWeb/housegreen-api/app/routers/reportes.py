@@ -8,17 +8,18 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.auth.dependencies import get_current_user, requerir_admin, ROL_ADMIN_ID
-from app.models.alert import SavedFilter
-from app.models.announcement import Announcement
+from app.models.alert import Alert, SavedFilter
+from app.models.announcement import Announcement, AnnouncementRecipient
 from app.models.audit import AuditLog
 from app.models.favorite import SavedProperty
 from app.models.feedback import Feedback
-from app.models.property import Property, Comuna, PropertyEvaluation, PropertyView
+from app.models.property import Property, Comuna, PropertyEvaluation, PropertyFinancialInfo, PropertyView
 from app.models.user import User
 from app.routers.admin_panel import _esta_vigente  # la misma regla de "vigente" que usa el Panel
 from app.schemas.reportes import (
     Reporte, UsuariosReporte, PublicacionesReporte, AlcanceReporte, PublicacionReporte,
     ActividadReporte, PuntoDeLaSerie, PersonaActiva,
+    Cantidad, SubastasReporte, EmbudoReporte, AvisoPorTipo, AvisosReporte, UltimoAnuncio,  # paso 115
 )
 
 # Paso 109: reportes del producto. Los puede ver el administrador y el analista
@@ -31,6 +32,8 @@ NOMBRES_DE_ROL = {1: "inversionista", 2: "analista", 3: "administrador"}
 ZONA_CHILE = ZoneInfo("America/Santiago")
 CUANTAS_EN_EL_RANKING = 10
 CUANTAS_PERSONAS = 10
+CUANTAS_COMUNAS = 8  # paso 115: las demás se suman en "Otras comunas"
+DIAS_PARA_REMATAR_PRONTO = 7  # paso 115: "se rematan pronto" = en los próximos 7 días
 
 
 def requerir_reportes(usuario: User = Depends(get_current_user)) -> User:
@@ -59,6 +62,17 @@ def _en_chile(fecha: datetime) -> datetime:
     if fecha.tzinfo is None:  # por si la base devuelve la fecha sin zona: se guarda en UTC
         fecha = fecha.replace(tzinfo=timezone.utc)
     return fecha.astimezone(ZONA_CHILE)
+
+
+def _las_primeras(conteo: Counter, cuantas: int, nombre_del_resto: str) -> list[Cantidad]:
+    """Paso 115: las que más tienen (de mayor a menor) y, si sobran, el resto sumado en una sola fila.
+    Si empatan, van por orden alfabético (así la lista sale siempre igual)."""
+    ordenadas = sorted(conteo.items(), key=lambda par: (-par[1], par[0]))
+    filas = [Cantidad(nombre=nombre, cantidad=cantidad) for nombre, cantidad in ordenadas[:cuantas]]
+    resto = sum(cantidad for _, cantidad in ordenadas[cuantas:])
+    if resto:
+        filas.append(Cantidad(nombre=nombre_del_resto, cantidad=resto))
+    return filas
 
 
 def _casillas_de_la_serie(desde: datetime, ahora: datetime, por_mes: bool) -> list[str]:
@@ -116,6 +130,7 @@ def ver_reporte(
     propiedades = db.query(
         Property.id, Property.title, Property.comuna_id, Property.status, Property.auction_date, Property.created_at,
         Property.removed_at,  # paso 114
+        Property.property_type,  # paso 115
     ).all()
     por_id = {p.id: p for p in propiedades}
     # Paso 114: las que el admin quitó del catálogo tampoco cuentan como vigentes
@@ -257,6 +272,104 @@ def ver_reporte(
             if uid in personas
         ]
 
+    # ---------- 8) Paso 115, Subastas: cuándo se rematan, dónde están y de qué tipo son los vigentes ----------
+    limite_pronto = ahora + timedelta(days=DIAS_PARA_REMATAR_PRONTO)
+    rematan_pronto = sum(
+        1
+        for pid in vigentes
+        if por_id[pid].auction_date is not None and _en_chile(por_id[pid].auction_date) <= limite_pronto
+    )
+    # "Revisadas": el administrador ya les puso la zona de precio (el semáforo se calcula con más datos)
+    con_zona = {
+        pid
+        for (pid,) in db.query(PropertyFinancialInfo.property_id).filter(PropertyFinancialInfo.market_zone.isnot(None))
+    }
+    subastas = SubastasReporte(
+        vigentes=len(vigentes),
+        rematan_pronto=rematan_pronto,
+        revisadas=len(vigentes & con_zona),
+        por_comuna=_las_primeras(
+            Counter(comunas.get(por_id[pid].comuna_id, "Sin comuna") for pid in vigentes), CUANTAS_COMUNAS, "Otras comunas"
+        ),
+        por_tipo=dict(Counter(por_id[pid].property_type for pid in vigentes)),
+    )
+
+    # ---------- 9) Paso 115, Usuarios: embudo, comunas que siguen y notas de las opiniones ----------
+    # El embudo es desde el inicio y solo cuenta inversionistas con la cuenta activa
+    activos = {uid for (uid,) in inversionistas.with_entities(User.id).filter(User.is_active.is_(True))}
+    vieron_alguna = {uid for (uid,) in db.query(PropertyView.user_id).distinct()} & activos
+    con_favoritos = {
+        uid for (uid,) in db.query(SavedProperty.user_id).filter(SavedProperty.removed_at.is_(None)).distinct()
+    } & activos
+    alertas_activas = [
+        alerta
+        for alerta in db.query(SavedFilter.user_id, SavedFilter.comuna_id).filter(SavedFilter.removed_at.is_(None))
+        if alerta.user_id in activos
+    ]
+    embudo = EmbudoReporte(
+        activos=len(activos),
+        vieron=len(vieron_alguna),
+        guardaron=len(con_favoritos),
+        con_alertas=len({alerta.user_id for alerta in alertas_activas}),
+    )
+    # Cuántas personas siguen cada comuna (una alerta sin comuna sigue "Todas las comunas")
+    personas_por_comuna = {}
+    for alerta in alertas_activas:
+        nombre = comunas.get(alerta.comuna_id, "Sin comuna") if alerta.comuna_id else "Todas las comunas"
+        personas_por_comuna.setdefault(nombre, set()).add(alerta.user_id)
+    comunas_seguidas = _las_primeras(
+        Counter({nombre: len(ids) for nombre, ids in personas_por_comuna.items()}), CUANTAS_COMUNAS, "Otras comunas"
+    )
+    # Las opiniones del período, por nota (de 1 a 5 estrellas)
+    por_nota = Counter(calificaciones)
+    notas = {str(nota): por_nota[nota] for nota in range(1, 6)}
+
+    # ---------- 10) Paso 115, Alcance: avisos automáticos, último anuncio y desde dónde entran ----------
+    avisos_del_periodo = (
+        db.query(Alert.alert_type, Alert.is_read)
+        .join(User, User.id == Alert.user_id)
+        .filter(User.role_id == ROL_INVERSIONISTA_ID, Alert.created_at >= desde)
+        .all()
+    )
+    enviados_por_tipo = Counter(aviso.alert_type for aviso in avisos_del_periodo)
+    leidos_por_tipo = Counter(aviso.alert_type for aviso in avisos_del_periodo if aviso.is_read)
+    avisos = AvisosReporte(
+        enviados=len(avisos_del_periodo),
+        leidos=sum(leidos_por_tipo.values()),
+        por_tipo=[
+            AvisoPorTipo(tipo=tipo, enviados=enviados, leidos=leidos_por_tipo[tipo])
+            for tipo, enviados in enviados_por_tipo.most_common()
+        ],
+    )
+
+    # El anuncio más reciente (de cualquier fecha) y cuántos de sus destinatarios lo abrieron
+    ultimo_anuncio = None
+    anuncio = db.query(Announcement).order_by(Announcement.created_at.desc()).first()
+    if anuncio is not None:
+        lecturas = [
+            leido_el
+            for (leido_el,) in db.query(AnnouncementRecipient.read_at).filter(
+                AnnouncementRecipient.announcement_id == anuncio.id
+            )
+        ]
+        ultimo_anuncio = UltimoAnuncio(
+            titulo=anuncio.title,
+            enviado_el=_en_chile(anuncio.created_at),
+            destinatarios=len(lecturas),
+            leidos=sum(1 for leido_el in lecturas if leido_el is not None),
+        )
+
+    # Inicios de sesión de inversionistas del período, según desde dónde entraron
+    plataformas_de_inicio = Counter(
+        plataforma
+        for (plataforma,) in db.query(AuditLog.platform).filter(
+            AuditLog.action == "inicio_sesion", AuditLog.created_at >= desde, AuditLog.role_id == ROL_INVERSIONISTA_ID
+        )
+    )
+    total_de_inicios = sum(plataformas_de_inicio.values())
+    inicios_por_plataforma = {"web": plataformas_de_inicio["web"], "app": plataformas_de_inicio["app"]}
+    inicios_por_plataforma["sin_dato"] = total_de_inicios - inicios_por_plataforma["web"] - inicios_por_plataforma["app"]
+
     return Reporte(
         periodo=periodo,
         desde=desde_chile,
@@ -271,4 +384,11 @@ def ver_reporte(
         actividad=actividad,
         serie=serie,
         personas_mas_activas=personas_mas_activas,
+        subastas=subastas,
+        embudo=embudo,
+        comunas_seguidas=comunas_seguidas,
+        calificaciones=notas,
+        avisos=avisos,
+        ultimo_anuncio=ultimo_anuncio,
+        inicios_por_plataforma=inicios_por_plataforma,
     )

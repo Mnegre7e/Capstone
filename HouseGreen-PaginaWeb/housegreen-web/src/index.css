@@ -142,6 +142,14 @@ h1 {
   }
 }
 
+/* Paso 115: el analista no tiene Perfil, así que en celular "Cerrar sesión" sigue en el encabezado */
+@media (max-width: 760px) {
+  .app-logout-btn.is-siempre {
+    display: inline-block;
+    margin-left: 0;
+  }
+}
+
 /* Celulares angostos: con el menú a la vista, del logo queda solo el semáforo */
 @media (max-width: 400px) {
   .app-header.is-con-menu .app-logo-nombre {

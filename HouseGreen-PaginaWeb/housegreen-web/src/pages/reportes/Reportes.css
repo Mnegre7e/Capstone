@@ -1,4 +1,5 @@
-/* Paso 110: pantalla de Reportes (paleta "Menta sereno", la misma del Panel) */
+/* Paso 115: las pantallas de Reportes del analista y del administrador
+   (paleta "Menta sereno", la misma del Panel). Reemplaza a pages/ReportesPage.css del paso 110. */
 
 /* El analista la abre sin el marco del administrador: le damos el mismo ancho */
 .rep.is-suelta {
@@ -8,10 +9,84 @@
 }
 
 /* Mientras llega el período nuevo, lo anterior se ve un poco apagado */
-.rep.is-cargando .rep-cifras,
-.rep.is-cargando .rep-tarjeta {
+.rep-contenido.is-cargando {
   opacity: 0.6;
   transition: opacity 0.2s;
+}
+
+/* ---------- Distintivo y menú del analista (como el del administrador) ---------- */
+.rep-chip {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background-color: #0f3d30;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Computador: pestañas arriba */
+.rep-menu {
+  display: flex;
+  gap: 6px;
+  margin: 16px 0 24px;
+  border-bottom: 1px solid #dce6e1;
+}
+
+.rep-menu .rep-pantalla {
+  padding: 10px 14px;
+  border-bottom: 3px solid transparent;
+  border-radius: 10px 10px 0 0;
+  color: #4e625b;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.rep-menu .rep-pantalla:hover {
+  background-color: #e4f3ec;
+}
+
+.rep-menu .rep-pantalla.is-activa {
+  border-bottom-color: #1d6f55;
+  color: #1d6f55;
+}
+
+/* ---------- Pestañas de Reportes dentro del Panel del administrador ---------- */
+.rep-secciones {
+  display: flex;
+  gap: 4px;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 16px;
+  padding: 4px;
+  border-radius: 12px;
+  background-color: #e4ece8;
+}
+
+.rep-secciones .rep-pantalla {
+  padding: 7px 14px;
+  border-radius: 9px;
+  color: #4e625b;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.rep-secciones .rep-pantalla:hover {
+  color: #0f3d30;
+}
+
+.rep-secciones .rep-pantalla.is-activa {
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(15, 61, 48, 0.18);
+  color: #0f3d30;
+}
+
+.rep-pantalla:focus-visible {
+  outline: 2px solid #1d6f55;
+  outline-offset: 2px;
 }
 
 .rep-volver {
@@ -430,44 +505,11 @@
   white-space: nowrap;
 }
 
-/* ---------- Usuarios y Actividad (lado a lado en PC) ---------- */
+/* ---------- Dos tarjetas lado a lado en PC ---------- */
 .rep-dos-columnas {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-}
-
-.rep-filas {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.rep-filas li {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 0;
-  color: #1f2a26;
-  font-size: 14px;
-}
-
-.rep-filas li + li {
-  border-top: 1px solid #e4ece8;
-}
-
-.rep-filas strong {
-  text-align: right;
-  white-space: nowrap;
-}
-
-/* "Desde la web 2 · desde la app 0": detalle de la fila de arriba, sin línea entre ambas */
-.rep-filas li.rep-fila-detalle {
-  padding-top: 0;
-  border-top: none;
-  color: #4e625b;
-  font-size: 13px;
 }
 
 /* ---------- Semáforo ---------- */
@@ -538,13 +580,96 @@
   border-radius: 50%;
 }
 
+/* ---------- Barras horizontales (comunas, tipos, embudo, avisos...) ---------- */
+.rep-barras {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rep-barras li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(80px, 1.2fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 0;
+  font-size: 14px;
+}
+
+.rep-barras-nombre {
+  min-width: 0;
+  overflow: hidden;
+  color: #1f2a26;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* La pista gris y el relleno verde: finos, con la punta redondeada */
+.rep-barras-pista {
+  height: 10px;
+  border-radius: 4px;
+  background-color: #eef3f1;
+}
+
+.rep-barras-relleno {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+  border-radius: 4px;
+  background-color: #1d6f55;
+}
+
+.rep-barras-valor {
+  min-width: 64px;
+  color: #1f2a26;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* En las tarjetas angostas (dos por fila) el nombre va arriba, con todo el ancho */
+.rep-dos-columnas .rep-barras li {
+  grid-template-columns: minmax(0, 1fr) auto;
+  row-gap: 4px;
+}
+
+.rep-dos-columnas .rep-barras-nombre {
+  grid-column: 1 / -1;
+}
+
+/* ---------- Último anuncio ---------- */
+.rep-anuncio p {
+  margin: 0;
+}
+
+.rep-anuncio-titulo {
+  color: #1f2a26;
+  font-weight: 700;
+}
+
+.rep-anuncio .rep-anuncio-cifra {
+  margin-top: 12px;
+  color: #1f2a26;
+}
+
+.rep-anuncio-cifra strong {
+  color: #0f3d30;
+  font-size: 28px;
+}
+
+.rep-dos-columnas + .rep-nota,
+.rep-contenido > .rep-nota {
+  margin-top: 16px;
+}
+
 /* ---------- Celular ---------- */
 @media (max-width: 720px) {
   .rep-cifras {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  /* Usuarios, Actividad y las dos favoritas: una debajo de la otra */
+  /* Las tarjetas que van de a dos y las dos favoritas: una debajo de la otra */
   .rep-dos-columnas,
   .rep-favoritas {
     grid-template-columns: minmax(0, 1fr);
@@ -579,5 +704,64 @@
     flex-wrap: wrap;
     align-items: baseline;
     gap: 0 8px;
+  }
+
+  /* El menú del analista queda fijo abajo, como el del administrador */
+  .rep.is-suelta {
+    padding-bottom: 96px;
+  }
+
+  /* Sin el menú arriba, el título queda separado del distintivo */
+  .rep.is-suelta .rep-titulo {
+    margin-top: 12px;
+  }
+
+  .rep-menu {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    justify-content: space-around;
+    margin: 0;
+    padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+    border-top: 1px solid #dce6e1;
+    border-bottom: none;
+    background-color: white;
+  }
+
+  .rep-menu .rep-pantalla {
+    flex: 1 1 0;
+    padding: 10px 2px;
+    border-bottom: none;
+    border-radius: 999px;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .rep-menu .rep-pantalla.is-activa {
+    background-color: #e4f3ec;
+  }
+
+  /* Las pestañas del administrador ocupan todo el ancho */
+  .rep-secciones {
+    width: 100%;
+  }
+
+  .rep-secciones .rep-pantalla {
+    flex: 1 1 0;
+    padding: 7px 4px;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* Barras: el nombre arriba y la barra con el número debajo */
+  .rep-barras li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 4px;
+  }
+
+  .rep-barras-nombre {
+    grid-column: 1 / -1;
   }
 }

@@ -5,10 +5,11 @@ import { useAuth } from "../context/AuthContext";
 interface ProtectedRouteProps {
   children: ReactNode;
   soloAdmin?: boolean; // true = además de iniciar sesión, tiene que ser administrador
+  soloAnalista?: boolean; // paso 115: true = la sección del analista (/analista)
 }
 
-export function ProtectedRoute({ children, soloAdmin = false }: ProtectedRouteProps) {
-  const { usuario, estaLogueado, esAdmin, verificandoSesion } = useAuth();
+export function ProtectedRoute({ children, soloAdmin = false, soloAnalista = false }: ProtectedRouteProps) {
+  const { usuario, estaLogueado, esAdmin, esAnalista, verificandoSesion } = useAuth();
 
   // Mientras se revisa el token guardado, todavía no sabemos si hay sesión
   if (verificandoSesion) {
@@ -19,6 +20,17 @@ export function ProtectedRoute({ children, soloAdmin = false }: ProtectedRoutePr
   // sin siquiera mostrar el contenido protegido ni un instante.
   if (!estaLogueado) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Paso 115: el analista solo tiene sus pantallas de reportes.
+  // Si intenta abrir el catálogo, las alertas, el perfil o el panel, vuelve a /analista.
+  if (esAnalista && !soloAnalista) {
+    return <Navigate to="/analista" replace />;
+  }
+
+  // Y nadie más entra a /analista (el administrador ve los mismos reportes en su Panel)
+  if (soloAnalista && !esAnalista) {
+    return <Navigate to="/" replace />;
   }
 
   // Si la página es solo para administradores y no lo es, vuelve al listado.

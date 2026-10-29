@@ -20,8 +20,12 @@ import { RegisterPage } from "./pages/RegisterPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PerfilPage } from "./pages/PerfilPage";
 import { OpinionesPage } from "./pages/OpinionesPage";
-import { ReportesPage } from "./pages/ReportesPage";
 import { AdminAuditoriaPage } from "./pages/admin/AdminAuditoriaPage";
+import { ReportesLayout } from "./pages/reportes/ReportesLayout";
+import { ResumenPage } from "./pages/reportes/ResumenPage";
+import { SubastasPage } from "./pages/reportes/SubastasPage";
+import { UsuariosPage } from "./pages/reportes/UsuariosPage";
+import { AlcancePage } from "./pages/reportes/AlcancePage";
 
 
 // Clases de un enlace del menú: el de la sección actual queda marcado
@@ -47,8 +51,9 @@ function App() {
   return (
     <div>
       {!enEntrada && (
-        <header className={`app-header ${estaLogueado ? "is-con-menu" : ""}`}>
-          <Link to="/" className="app-logo">
+        <header className={`app-header ${estaLogueado && !esAnalista ? "is-con-menu" : ""}`}>
+          {/* Paso 115: al analista el logo lo lleva a sus reportes */}
+          <Link to={esAnalista ? "/analista" : "/"} className="app-logo">
             {/* El mismo dibujo del ícono de la pestaña (public/favicon.svg) */}
             <svg viewBox="0 0 64 64" aria-hidden="true">
               <rect width="64" height="64" rx="14" fill="#0f3d30" />
@@ -59,7 +64,17 @@ function App() {
             <span className="app-logo-nombre">HouseGreen</span>
           </Link>
 
-          {estaLogueado && (
+          {/* Paso 115: el analista no tiene catálogo, alertas ni perfil: solo puede cerrar sesión.
+              Su menú (Resumen · Subastas · Usuarios · Alcance) está en la página de reportes. */}
+          {estaLogueado && esAnalista && (
+            <div className="app-header-actions">
+              <button onClick={cerrarSesion} className="app-logout-btn is-siempre">
+                Cerrar sesión
+              </button>
+            </div>
+          )}
+
+          {estaLogueado && !esAnalista && (
             <nav className="app-header-actions" aria-label="Menú principal">
               <Link to="/" className={`app-nav-link app-nav-inicio ${enRemates ? "is-activo" : ""}`}>
                 Remates
@@ -67,12 +82,6 @@ function App() {
               {esAdmin && (
                 <NavLink to="/admin" className={claseDelEnlace}>
                   Admin
-                </NavLink>
-              )}
-              {/* Paso 110: el analista entra a los reportes desde el menú (el admin, desde su Panel) */}
-              {esAnalista && (
-                <NavLink to="/reportes" className={claseDelEnlace}>
-                  Reportes
                 </NavLink>
               )}
               <NavLink to="/alertas" className={claseDelEnlace}>
@@ -141,15 +150,20 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* Paso 110: reportes del analista (la página misma revisa que sea analista o administrador) */}
+        {/* Paso 115: la sección del analista, con sus cuatro pantallas */}
         <Route
-          path="/reportes"
+          path="/analista"
           element={
-            <ProtectedRoute>
-              <ReportesPage />
+            <ProtectedRoute soloAnalista>
+              <ReportesLayout base="/analista" />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<ResumenPage />} />
+          <Route path="subastas" element={<SubastasPage />} />
+          <Route path="usuarios" element={<UsuariosPage />} />
+          <Route path="alcance" element={<AlcancePage />} />
+        </Route>
         <Route
           path="/admin"
           element={
@@ -166,7 +180,13 @@ function App() {
           <Route path="opiniones" element={<AdminOpinionesPage />} />
           <Route path="usuarios" element={<AdminUsuariosPage />} />
           <Route path="anuncios" element={<AdminAnunciosPage />} />
-          <Route path="reportes" element={<ReportesPage />} />
+          {/* Paso 115: los mismos reportes del analista, más las personas más activas */}
+          <Route path="reportes" element={<ReportesLayout base="/admin/reportes" />}>
+            <Route index element={<ResumenPage />} />
+            <Route path="subastas" element={<SubastasPage />} />
+            <Route path="usuarios" element={<UsuariosPage />} />
+            <Route path="alcance" element={<AlcancePage />} />
+          </Route>
           <Route path="auditoria" element={<AdminAuditoriaPage />} />
         </Route>
 

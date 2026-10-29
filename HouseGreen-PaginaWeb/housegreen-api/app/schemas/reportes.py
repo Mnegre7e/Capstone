@@ -56,6 +56,50 @@ class PuntoDeLaSerie(BaseModel):
     guardados: int
 
 
+# ---------- Paso 115: datos para las pantallas Subastas, Usuarios y Alcance ----------
+
+
+class Cantidad(BaseModel):
+    nombre: str  # una comuna, "Otras comunas" o "Todas las comunas"
+    cantidad: int
+
+
+class SubastasReporte(BaseModel):
+    vigentes: int  # remates vigentes hoy (los mismos del catálogo)
+    rematan_pronto: int  # de esos, los que se rematan en los próximos 7 días
+    revisadas: int  # de esos, los que ya tienen zona de precio (el semáforo tiene más datos)
+    por_comuna: list[Cantidad]  # las 8 comunas con más remates vigentes y "Otras comunas"
+    por_tipo: dict[str, int]  # vigentes por tipo, tal como lo escribe el sitio: {"Casa": 140, "Sitio": 30}
+
+
+class EmbudoReporte(BaseModel):
+    # Desde el inicio, solo inversionistas con la cuenta activa
+    activos: int
+    vieron: int  # vieron al menos un remate
+    guardaron: int  # tienen al menos un favorito
+    con_alertas: int  # tienen al menos una alerta activa
+
+
+class AvisoPorTipo(BaseModel):
+    tipo: str  # nueva_propiedad, cambio_semaforo, cambio_precio o cambio_estado
+    enviados: int
+    leidos: int
+
+
+class AvisosReporte(BaseModel):
+    # Avisos automáticos que recibieron los inversionistas en el período (por sus alertas)
+    enviados: int
+    leidos: int
+    por_tipo: list[AvisoPorTipo]
+
+
+class UltimoAnuncio(BaseModel):
+    titulo: str
+    enviado_el: datetime
+    destinatarios: int
+    leidos: int
+
+
 class PersonaActiva(BaseModel):
     # Solo la ve el administrador
     user_id: UUID
@@ -82,3 +126,12 @@ class Reporte(BaseModel):
 
     # Solo para el administrador (para el analista viene vacío: null)
     personas_mas_activas: list[PersonaActiva] | None = None
+
+    # Paso 115
+    subastas: SubastasReporte
+    embudo: EmbudoReporte
+    comunas_seguidas: list[Cantidad]  # comunas de las alertas activas (personas que siguen cada una)
+    calificaciones: dict[str, int]  # opiniones del período por nota: {"1": 0, ..., "5": 3}
+    avisos: AvisosReporte
+    ultimo_anuncio: UltimoAnuncio | None = None  # el anuncio más reciente y cuántos lo leyeron
+    inicios_por_plataforma: dict[str, int]  # inicios de sesión de inversionistas: {"web": 10, "app": 0, "sin_dato": 2}
