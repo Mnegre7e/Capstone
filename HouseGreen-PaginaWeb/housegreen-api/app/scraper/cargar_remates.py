@@ -2,15 +2,15 @@ from datetime import datetime
 from decimal import Decimal
 from zoneinfo import ZoneInfo
 
-import requests
 from fastapi import HTTPException
 
 from app.database import SessionLocal
-from app.models.property import Comuna, Property, Region
+from app.models.property import Comuna, Property
+from app.routers.alerts import recalcular_semaforo_y_avisar
 from app.routers.properties import crear_propiedad
 from app.schemas.property import PropertyCreate
-from app.scraper.comuna_matcher import nombre_para_direccion, normalizar
-from app.scraper.remates_scraper import URL_RM, extraer_comuna, extraer_pagina
+from app.scraper.comuna_matcher import normalizar
+from app.scraper.remates_scraper import leer_remates
 
 # Nombre de la fuente: se guarda en source_system junto con el número del remate (source_reference).
 # Con esos dos datos la base sabe si un remate ya fue cargado.
@@ -18,12 +18,18 @@ FUENTE = "rematesinmobiliarios"
 
 ZONA_CHILE = ZoneInfo("America/Santiago")
 
+# Paso 118b: si el precio en pesos cambia menos que esto, es solo la UF del día
+# (el sitio convierte a pesos los remates en UF): no se toma como un cambio del remate.
+CAMBIO_MINIMO_DE_PRECIO = 0.02  # 2 %
+
 def tipo_de_remate(texto: str | None) -> str | None:
-    # El sitio escribe "Remate Judicial" o "Remate Extrajudicial"; en la base se guarda "judicial" o "extrajudicial".
+    # En la base se guarda "judicial", "extrajudicial" o "contribuciones" (paso 118b: remates de la Tesorería).
     # Se pregunta primero por "extrajudicial" porque esa palabra también contiene "judicial".
     texto = normalizar(texto or "")
     if "extrajudicial" in texto:
         return "extrajudicial"
+    if "contribuciones" in texto or "tesoreria" in texto:
+        return "contribuciones"
     if "judicial" in texto:
         return "judicial"
     return None
@@ -48,21 +54,96 @@ def armar_propiedad(remate: dict, comuna: Comuna, tipo_remate: str) -> PropertyC
     )
 
 
+def pesos(valor) -> str:
+    # 45000000 -> "$45.000.000"
+    return "$" + f"{int(valor):,}".replace(",", ".")
+
+
+def actualizar_existente(db, guardado, remate: dict) -> tuple[str | None, bool]:
+    """Paso 118: un remate que ya estaba en la base vuelve a aparecer en el listado.
+    "guardado" son sus datos tal como están en la base (id, status, opening_price, auction_date).
+    Si el sitio le cambió el precio mínimo o la fecha, o lo volvió a publicar después de quitarlo,
+    se actualiza y se recalcula su semáforo.
+    Devuelve una frase con lo que cambió (None si nada cambió) y si cambió la fecha
+    (en ese caso hay que volver a leer su ficha, que trae la hora nueva)."""
+    cambios = []
+    nuevos = {}
+
+    if guardado.status == "retirada":
+        nuevos["status"] = "disponible"
+        cambios.append("volvió a aparecer en el sitio")
+
+    precio = remate["precio_minimo"]
+    anterior = guardado.opening_price or Decimal(0)
+    if precio and abs(Decimal(int(precio)) - anterior) > anterior * Decimal(str(CAMBIO_MINIMO_DE_PRECIO)):
+        nuevos["opening_price"] = Decimal(int(precio))
+        cambios.append(f"precio de {pesos(guardado.opening_price)} a {pesos(precio)}")
+
+    # Se compara solo el día (en hora de Chile): la hora exacta la pone la ficha
+    fecha = remate["fecha_remate"]
+    fecha_guardada = guardado.auction_date.astimezone(ZONA_CHILE).date() if guardado.auction_date else None
+    if fecha and fecha != fecha_guardada:
+        nuevos["auction_date"] = datetime(fecha.year, fecha.month, fecha.day, tzinfo=ZONA_CHILE)
+        antes = fecha_guardada.strftime("%d-%m-%Y") if fecha_guardada else "sin fecha"
+        cambios.append(f"fecha de {antes} a {fecha.strftime('%d-%m-%Y')}")
+
+    if not cambios:
+        return None, False  # lo normal: no cambió nada y no se toca la base
+
+    propiedad = db.get(Property, guardado.id)
+    for columna, valor in nuevos.items():
+        setattr(propiedad, columna, valor)
+    propiedad.updated_at = datetime.now(ZONA_CHILE)
+    db.commit()
+    # Cambió el precio o la fecha: se recalcula el semáforo (y se avisa si mejoró de nivel)
+    recalcular_semaforo_y_avisar(db, propiedad)
+    return ", ".join(cambios), "auction_date" in nuevos
+
+
 def cargar(remates: list[dict]) -> dict:
-    resumen = {"creados": 0, "ya_existian": 0, "sin_comuna": [], "sin_precio": [], "tipo_desconocido": [], "con_error": []}
+    resumen = {
+        "creados": 0,
+        "ya_existian": 0,
+        "nuevos": [],  # paso 118: cuáles se crearon
+        "actualizados": [],  # paso 118: cuáles cambiaron de precio o fecha, o volvieron al sitio
+        "fecha_cambiada": [],  # paso 118b: números de los que cambiaron de fecha (hay que releer su ficha)
+        "sin_comuna": [],
+        "sin_precio": [],
+        "tipo_desconocido": [],
+        "con_error": [],
+    }
     db = SessionLocal()
     try:
         # Se leen una sola vez: las comunas de la base y los remates que ya están cargados
         comunas = {normalizar(c.name): c for c in db.query(Comuna).all()}
+        # Paso 118: de los ya cargados se guardan sus datos actuales, para ver si el sitio los cambió
         ya_cargados = {
-            referencia
-            for (referencia,) in db.query(Property.source_reference).filter(Property.source_system == FUENTE)
+            fila.source_reference: fila
+            for fila in db.query(
+                Property.id,
+                Property.source_reference,
+                Property.title,
+                Property.status,
+                Property.opening_price,
+                Property.auction_date,
+            ).filter(Property.source_system == FUENTE)
         }
 
         for remate in remates:
             referencia = remate["remate_id"]
-            if referencia in ya_cargados:
+            guardado = ya_cargados.get(referencia)
+            if guardado is not None:
                 resumen["ya_existian"] += 1
+                try:
+                    cambio, cambio_la_fecha = actualizar_existente(db, guardado, remate)
+                    if cambio:
+                        resumen["actualizados"].append(f"{referencia} {guardado.title}: {cambio}")
+                        print(f"  ~ {referencia}  {guardado.title}: {cambio}")
+                    if cambio_la_fecha:
+                        resumen["fecha_cambiada"].append(referencia)
+                except Exception as error:
+                    db.rollback()
+                    resumen["con_error"].append(f"{referencia}: {type(error).__name__}")
                 continue
 
             comuna = comunas.get(normalizar(remate["comuna"]))
@@ -85,6 +166,7 @@ def cargar(remates: list[dict]) -> dict:
                 datos = armar_propiedad(remate, comuna, tipo_remate)
                 crear_propiedad(datos=datos, db=db, usuario=None)
                 resumen["creados"] += 1
+                resumen["nuevos"].append(f"{referencia} {datos.title}")
                 print(f"  + {referencia}  {datos.title}")
             except HTTPException:
                 # 409: otro proceso la cargó mientras tanto
@@ -105,6 +187,7 @@ def cargar(remates: list[dict]) -> dict:
 def mostrar_resumen(resumen: dict):
     print(f"\nCreados: {resumen['creados']}")
     print(f"Ya existían: {resumen['ya_existian']}")
+    print(f"Actualizados (precio, fecha o volvieron al sitio): {len(resumen['actualizados'])}")
     for nombre, texto in [
         ("sin_comuna", "Sin comuna en la base"),
         ("sin_precio", "Sin precio mínimo"),
@@ -114,43 +197,19 @@ def mostrar_resumen(resumen: dict):
         print(f"{texto}: {len(resumen[nombre])} {resumen[nombre]}")
 
 
+def solo_region_metropolitana(remates: list[dict]) -> list[dict]:
+    # Solo los remates que el sitio marca como Región Metropolitana
+    return [r for r in remates if normalizar(r["region"]).startswith("metropolitana")]
+
+
 def leer_region_metropolitana() -> list[dict]:
-    # Paso 50: junta los remates de la Región Metropolitana leyendo solo páginas públicas del sitio:
-    # la primera página de la región (los 25 más nuevos) y la página de cada comuna (hasta 25 por comuna).
-    # Las páginas 2, 3... del sitio se piden a /api-remates.php, que su robots.txt prohíbe usar; por eso no se usa.
-    db = SessionLocal()
-    try:
-        comunas = [
-            c.name
-            for c in db.query(Comuna)
-            .join(Region, Comuna.region_id == Region.id)
-            .filter(Region.name.ilike("%metropolitana%"))
-            .order_by(Comuna.name)
-        ]
-    finally:
-        db.close()
-
-    # Diccionario por número de remate: si un remate aparece en dos páginas, queda una sola vez
-    remates = {r["remate_id"]: r for r in extraer_pagina(URL_RM)}
-    print(f"  Primera página de la región: {len(remates)}")
-
-    for nombre in comunas:
-        try:
-            encontrados = extraer_comuna(nombre_para_direccion(nombre))
-        except requests.RequestException as error:
-            print(f"  {nombre}: no se pudo leer ({error})")
-            continue
-        if encontrados:
-            print(f"  {nombre}: {len(encontrados)}")
-        for remate in encontrados:
-            remates[remate["remate_id"]] = remate
-
-    # Por seguridad, solo se dejan los remates que el sitio marca como Región Metropolitana
-    return [r for r in remates.values() if normalizar(r["region"]).startswith("metropolitana")]
+    # Paso 118b: el sitio publica todos sus remates vigentes en una sola página (ver remates_scraper.py),
+    # así que ya no se recorre comuna por comuna: se pide una página y se dejan los de la Región Metropolitana.
+    return solo_region_metropolitana(leer_remates())
 
 
 if __name__ == "__main__":
-    print("Leyendo los listados del sitio (tarda cerca de 2 minutos)...")
+    print("Leyendo los remates del sitio...")
     remates = leer_region_metropolitana()
     print(f"\nSe leyeron {len(remates)} remates distintos. Guardando en la base (puede tardar varios minutos)...")
     mostrar_resumen(cargar(remates))
