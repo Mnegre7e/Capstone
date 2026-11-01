@@ -10,7 +10,8 @@
 #   2) Lee la ficha de los remates nuevos, la de los que cambiaron de fecha, y la de cada remate vigente nuestro
 #      que YA NO APARECE en el sitio: si su ficha dice que no existe, se marca como retirado.
 #   3) Cada propiedad que cambia recalcula su semáforo (y avisa a quien tenga una alerta).
-#   4) Guarda en la tabla ingestion_runs cuándo se hizo, cuánto duró y qué encontró.
+#   4) Paso 120a: una vez por semana, actualiza el precio típico de venta de cada comuna (PropiedadesYa).
+#   5) Guarda en la tabla ingestion_runs cuándo se hizo, cuánto duró y qué encontró.
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -19,6 +20,7 @@ from app.database import SessionLocal
 from app.models.ingesta import IngestionRun
 from app.scraper import cargar_fichas as fichas
 from app.scraper import cargar_remates as listados
+from app.scraper import precios_comuna as precios
 from app.scraper.remates_scraper import leer_remates
 
 # Una carga que lleva más que esto "en curso" se cortó sin terminar (se apagó el PC, se cayó internet...)
@@ -80,6 +82,7 @@ def ejecutar(origen: str = "manual") -> int:
     en_el_sitio = 0
     de_listados: dict | None = None
     de_fichas: dict | None = None
+    de_precios: dict = {}
     mensaje: str | None = None
 
     try:
@@ -103,6 +106,15 @@ def ejecutar(origen: str = "manual") -> int:
         fichas.mostrar_resumen(de_fichas)
         if de_fichas["detenida"]:
             mensaje = de_fichas["detenida"]
+
+        # Paso 120a: si PropiedadesYa falla, la carga de remates no se da por fallida (solo se anota el error)
+        print("\n3) Precio típico de venta por comuna (PropiedadesYa, una vez por semana)...")
+        try:
+            de_precios = precios.actualizar_precios()
+            precios.mostrar_resumen(de_precios)
+        except Exception as error:
+            de_precios = {"con_error": [f"Precios por comuna: {type(error).__name__}: {error}"[:300]]}
+            print("   No se pudieron actualizar:", de_precios["con_error"][0])
     except KeyboardInterrupt:
         # Ctrl+C en la terminal: se anota igual, para que la próxima carga no la crea "en curso"
         mensaje = "Se detuvo a mano (Ctrl+C)."
@@ -113,7 +125,7 @@ def ejecutar(origen: str = "manual") -> int:
 
     de_listados = de_listados or {}
     de_fichas = de_fichas or {}
-    errores = de_listados.get("con_error", []) + de_fichas.get("con_error", [])
+    errores = de_listados.get("con_error", []) + de_fichas.get("con_error", []) + de_precios.get("con_error", [])
     minutos = round((time.monotonic() - inicio) / 60, 1)
 
     if mensaje:
@@ -141,6 +153,13 @@ def ejecutar(origen: str = "manual") -> int:
         "fichas_nuevas": de_fichas.get("nuevas", 0),
         "fichas_revisadas": de_fichas.get("revisadas", 0),
         "errores": _lista(errores),
+        "precios_por_comuna": {
+            "omitida": de_precios.get("omitida"),
+            "comunas_leidas": de_precios.get("comunas_leidas", 0),
+            "con_precios": de_precios.get("con_precios", 0),
+            "sin_tabla": de_precios.get("sin_tabla", []),
+            "sin_pagina": de_precios.get("sin_pagina", []),
+        },
         "omitidos": {
             "sin_comuna": _lista(de_listados.get("sin_comuna", [])),
             "sin_precio": _lista(de_listados.get("sin_precio", [])),
