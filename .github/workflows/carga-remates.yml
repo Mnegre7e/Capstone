@@ -1,0 +1,48 @@
+# Paso 119: carga automática de los remates, todos los días.
+# Ejecuta el mismo comando que se usa a mano (python -m app.scraper.ingesta), pero en los servidores de GitHub.
+# La conexión a Neon NO está escrita aquí: se guarda en GitHub como secreto (Settings -> Secrets -> DATABASE_URL_NEON).
+name: Carga diaria de remates
+
+on:
+  schedule:
+    # Todos los días a las 09:17 UTC = 06:17 en Chile (en horario de invierno, 05:17).
+    # Se usa el minuto 17 porque a la hora en punto GitHub suele atrasar las tareas programadas.
+    - cron: "17 9 * * *"
+  # Botón "Run workflow" en la pestaña Actions, para ejecutarla a mano cuando se quiera
+  workflow_dispatch:
+
+# Solo necesita leer el código del repositorio
+permissions:
+  contents: read
+
+# Si una carga sigue corriendo, la siguiente espera (nunca corren dos a la vez)
+concurrency:
+  group: carga-remates
+  cancel-in-progress: false
+
+jobs:
+  carga:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    defaults:
+      run:
+        working-directory: HouseGreen-PaginaWeb/housegreen-api
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v6
+
+      - name: Instalar Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: HouseGreen-PaginaWeb/housegreen-api/requirements.txt
+
+      - name: Instalar las librerías de la API
+        run: pip install -r requirements.txt
+
+      - name: Cargar los remates del día
+        env:
+          DATABASE_URL_NEON: ${{ secrets.DATABASE_URL_NEON }}
+          TZ: America/Santiago
+        run: python -m app.scraper.ingesta --automatica
