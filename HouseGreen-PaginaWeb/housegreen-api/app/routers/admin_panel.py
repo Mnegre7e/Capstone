@@ -11,6 +11,8 @@ from app.models.property import Property, Comuna, PropertyEvaluation, PropertyVi
 from app.models.favorite import SavedProperty
 from app.models.feedback import Feedback, FeedbackReply
 from app.models.user import User
+from app.models.ingesta import IngestionRun
+from app.routers.admin_cargas import resumen_de_carga  # paso 121
 from app.schemas.admin_panel import PanelAdmin, PublicacionMasVista
 
 # Paso 84: Panel del administrador. Solo lectura: junta cifras que ya están en la base.
@@ -106,6 +108,9 @@ def ver_panel(db: Session = Depends(get_db), usuario=Depends(requerir_admin)):
         .count()
     )
 
+    # 7) Paso 121: la última carga de remates (el panel avisa si falló o si hace mucho que no hay una)
+    ultima = db.query(IngestionRun).order_by(IngestionRun.started_at.desc()).first()
+
     return PanelAdmin(
         dias=DIAS_DEL_RESUMEN,
         usuarios_nuevos=usuarios_nuevos,
@@ -117,4 +122,5 @@ def ver_panel(db: Session = Depends(get_db), usuario=Depends(requerir_admin)):
         mas_vistas=mas_vistas,
         semaforo=semaforo,
         opiniones_por_responder=opiniones_por_responder,
+        ultima_carga=resumen_de_carga(ultima) if ultima else None,
     )

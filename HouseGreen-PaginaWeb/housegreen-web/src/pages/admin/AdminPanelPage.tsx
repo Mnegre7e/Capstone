@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../api/client";
+import {
+  HORAS_SIN_CARGA,
+  NOMBRE_ESTADO,
+  horasDesde,
+  textoCifras,
+  textoCuando,
+  textoDuracion,
+  textoOrigen,
+  type CargaResumen,
+} from "./cargas";
+import "./AdminCargasPage.css"; // de aquí sale el distintivo del estado de la carga (.car-estado)
 import "./AdminPanelPage.css";
 
 // Paso 84: Panel del administrador. Resumen de los últimos días y lo que tiene pendiente.
@@ -25,6 +36,33 @@ interface Panel {
   mas_vistas: PublicacionMasVista[];
   semaforo: Record<string, number>; // verde, amarillo, rojo, sin_evaluar
   opiniones_por_responder: number;
+  ultima_carga: CargaResumen | null; // paso 121
+}
+
+// Una tarea pendiente. Paso 121: puede no tener número (el aviso de la carga de remates).
+interface Pendiente {
+  clave: string;
+  cantidad?: number;
+  texto: string;
+  enlace: string;
+  accion: string;
+}
+
+// Paso 121: aviso si la última carga de remates falló, o si hace mucho que no hay una
+function avisoDeCarga(ultima: CargaResumen | null): Pendiente | null {
+  const base = { clave: "carga", enlace: "/admin/cargas" };
+  if (!ultima) {
+    return { ...base, texto: "Todavía no hay ninguna carga de remates registrada.", accion: "Ver el historial" };
+  }
+  if (ultima.status === "fallida") {
+    return { ...base, texto: `La última carga de remates falló (${textoCuando(ultima.started_at)}).`, accion: "Ver la carga" };
+  }
+  const horas = horasDesde(ultima.started_at);
+  if (ultima.status !== "en_curso" && horas > HORAS_SIN_CARGA) {
+    const tiempo = horas >= 48 ? `${Math.floor(horas / 24)} días` : `${Math.floor(horas)} horas`;
+    return { ...base, texto: `No hay una carga de remates desde hace ${tiempo}.`, accion: "Ver el historial" };
+  }
+  return null;
 }
 
 // Las partes de la barra del semáforo, en orden: de menor a mayor riesgo
@@ -85,14 +123,18 @@ export function AdminPanelPage() {
   ];
 
   // Paso 120c: la zona de precio ya no es un pendiente del admin (el semáforo se calcula solo)
-  const pendientes = [
+  const pendientes: Pendiente[] = [
     {
+      clave: "opiniones",
       cantidad: panel.opiniones_por_responder,
       texto: panel.opiniones_por_responder === 1 ? "opinión por responder" : "opiniones por responder",
       enlace: "/admin/opiniones",
       accion: "Ver opiniones",
     },
-  ].filter((pendiente) => pendiente.cantidad > 0);
+  ].filter((pendiente) => (pendiente.cantidad ?? 1) > 0);
+  const avisoCarga = avisoDeCarga(panel.ultima_carga);
+  if (avisoCarga) pendientes.unshift(avisoCarga); // el aviso de la carga va primero
+  const ultima = panel.ultima_carga;
 
   const niveles = NIVELES.map((nivel) => ({ ...nivel, cantidad: panel.semaforo[nivel.valor] ?? 0 }));
   const totalSemaforo = niveles.reduce((suma, nivel) => suma + nivel.cantidad, 0);
@@ -128,15 +170,44 @@ export function AdminPanelPage() {
         ) : (
           <ul className="panel-pendientes">
             {pendientes.map((pendiente) => (
-              <li key={pendiente.enlace}>
+              <li key={pendiente.clave}>
                 <span>
-                  <strong>{numero(pendiente.cantidad)}</strong> {pendiente.texto}
+                  {pendiente.cantidad !== undefined && <strong>{numero(pendiente.cantidad)} </strong>}
+                  {pendiente.texto}
                 </span>
                 <Link to={pendiente.enlace}>{pendiente.accion} ›</Link>
               </li>
             ))}
           </ul>
         )}
+      </div>
+
+      {/* Paso 121: la última carga de remates y el enlace a su historial */}
+      <div className="panel-tarjeta">
+        <div className="panel-carga-cabecera">
+          <h2>Carga diaria de remates</h2>
+          {ultima && (
+            <span className={`car-estado is-${ultima.status}`}>
+              <span className="car-estado-punto" aria-hidden="true" />
+              {NOMBRE_ESTADO[ultima.status]}
+            </span>
+          )}
+        </div>
+        {ultima ? (
+          <>
+            <p className="panel-carga-cuando">
+              {textoCuando(ultima.started_at)} · {textoOrigen(ultima.origin).toLowerCase()} ·{" "}
+              {ultima.status === "en_curso" ? "todavía corriendo" : textoDuracion(ultima.minutos)}
+            </p>
+            {textoCifras(ultima) && <p className="panel-carga-cifras">{textoCifras(ultima)}</p>}
+            {ultima.error_message && <p className="car-motivo">Motivo: {ultima.error_message}</p>}
+          </>
+        ) : (
+          <p className="panel-vacio">Todavía no hay cargas registradas.</p>
+        )}
+        <p className="panel-enlace-final">
+          <Link to="/admin/cargas">Ver el historial de cargas ›</Link>
+        </p>
       </div>
 
       {/* Cómo están repartidas las publicaciones vigentes según su semáforo */}

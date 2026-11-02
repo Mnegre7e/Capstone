@@ -12,6 +12,7 @@ from app.routers import auditoria  # paso 111: registro de actividad para el adm
 from app.routers import admin_catalogo  # paso 114: quitar una publicación del catálogo y volver a publicarla
 from app.routers import recuperacion  # paso 117: recuperar la contraseña con un código por correo
 from app.routers import precio_comuna  # paso 120b: precio del remate frente a su comuna
+from app.routers import admin_cargas  # paso 121: historial de las cargas de remates
 
 app = FastAPI(title="HouseGreen API")
 
@@ -40,6 +41,7 @@ app.include_router(auditoria.router)  # paso 111
 app.include_router(admin_catalogo.router)  # paso 114
 app.include_router(recuperacion.router)  # paso 117
 app.include_router(precio_comuna.router)  # paso 120b
+app.include_router(admin_cargas.router)  # paso 121
 
 admin.CARPETA_UPLOADS.mkdir(exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=admin.CARPETA_UPLOADS), name="uploads")

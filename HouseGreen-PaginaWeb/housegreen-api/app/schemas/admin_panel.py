@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from uuid import UUID
+from app.schemas.cargas import CargaResumen
 
 # Paso 84: Panel del administrador (resumen de los últimos días)
 
@@ -28,3 +29,6 @@ class PanelAdmin(BaseModel):
 
     # Lo que el administrador tiene pendiente
     opiniones_por_responder: int  # opiniones que aceptan respuesta y todavía no tienen
+    
+    # Paso 121: la última carga de remates (None si todavía no hay ninguna)
+    ultima_carga: CargaResumen | None = None

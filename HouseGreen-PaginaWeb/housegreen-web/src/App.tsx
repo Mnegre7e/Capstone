@@ -22,6 +22,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { PerfilPage } from "./pages/PerfilPage";
 import { OpinionesPage } from "./pages/OpinionesPage";
 import { AdminAuditoriaPage } from "./pages/admin/AdminAuditoriaPage";
+import { AdminCargasPage } from "./pages/admin/AdminCargasPage"; // paso 121
 import { ReportesLayout } from "./pages/reportes/ReportesLayout";
 import { ResumenPage } from "./pages/reportes/ResumenPage";
 import { SubastasPage } from "./pages/reportes/SubastasPage";
@@ -190,6 +191,8 @@ function App() {
             <Route path="alcance" element={<AlcancePage />} />
           </Route>
           <Route path="auditoria" element={<AdminAuditoriaPage />} />
+          {/* Paso 121: historial de las cargas de remates (se entra desde el Panel) */}
+          <Route path="cargas" element={<AdminCargasPage />} />
         </Route>
 
         {/* Cualquier otra dirección: aviso en vez de página en blanco */}

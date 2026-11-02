@@ -1,0 +1,213 @@
+/* Paso 121: historial de cargas de remates (paleta "Menta sereno").
+   El distintivo del estado (.car-estado) también lo usa la tarjeta del Panel. */
+
+.car-volver {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #1d6f55;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.car-volver:hover {
+  text-decoration: underline;
+}
+
+.car-ayuda,
+.car-cuenta,
+.car-nota {
+  margin: 4px 0 0;
+  color: #4e625b;
+  font-size: 13px;
+}
+
+.car-cuenta {
+  margin-top: 16px;
+}
+
+.car-error {
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background-color: #fae3e0;
+  color: #a2322a;
+  font-size: 14px;
+}
+
+.car-vacio {
+  margin-top: 16px;
+  padding: 24px;
+  border: 1px dashed #9ad3bb;
+  border-radius: 14px;
+  background-color: white;
+  color: #4e625b;
+  text-align: center;
+}
+
+.car-lista {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.car-item {
+  padding: 14px 16px;
+  border: 1px solid #dce6e1;
+  border-radius: 16px;
+  background-color: white;
+}
+
+/* Las fallidas llevan una marca roja a la izquierda, para verlas de un vistazo */
+.car-item.is-fallida {
+  box-shadow: inset 3px 0 0 #dc2626;
+}
+
+.car-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.car-info {
+  min-width: 0;
+}
+
+.car-cuando {
+  margin: 0;
+  color: #0f3d30;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.car-meta {
+  margin: 2px 0 0;
+  color: #4e625b;
+  font-size: 13px;
+}
+
+/* Distintivo del estado: punto de color + nombre (el color nunca va solo) */
+.car-estado {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.car-estado-punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.car-estado.is-completa {
+  background-color: #e3f1df;
+  color: #2b6630;
+}
+
+.car-estado.is-con_errores {
+  background-color: #fbefd4;
+  color: #855400;
+}
+
+.car-estado.is-fallida {
+  background-color: #fae3e0;
+  color: #a2322a;
+}
+
+.car-estado.is-en_curso {
+  background-color: #e4ece8;
+  color: #1d6f55;
+}
+
+.car-cifras {
+  margin: 10px 0 0;
+  color: #1f2a26;
+  font-size: 14px;
+}
+
+.car-motivo {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background-color: #fae3e0;
+  color: #a2322a;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.car-ver {
+  margin-top: 10px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #1d6f55;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.car-ver:hover {
+  text-decoration: underline;
+}
+
+.car-ver:focus-visible,
+.car-volver:focus-visible {
+  outline: 2px solid #1d6f55;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Detalle de una carga */
+.car-detalle {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e8efec;
+}
+
+.car-bloque + .car-bloque {
+  margin-top: 12px;
+}
+
+.car-bloque h3 {
+  margin: 0;
+  color: #0f3d30;
+  font-size: 14px;
+}
+
+.car-bloque p {
+  margin: 4px 0 0;
+  color: #1f2a26;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.car-bloque .car-nota {
+  color: #4e625b;
+  font-size: 13px;
+}
+
+/* Listas de remates: si son largas, se desplazan dentro de su caja */
+.car-remates {
+  max-height: 220px;
+  margin: 6px 0 0;
+  padding: 6px 12px 6px 28px;
+  overflow-y: auto;
+  border: 1px solid #e4ece8;
+  border-radius: 10px;
+  background-color: #f7faf8;
+  color: #1f2a26;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}

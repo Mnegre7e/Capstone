@@ -282,3 +282,29 @@
   flex-wrap: wrap;
   gap: 8px 24px;
 }
+
+/* Paso 121: tarjeta "Carga diaria de remates" */
+.panel-carga-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-bottom: 8px;
+}
+
+.panel-carga-cabecera h2 {
+  margin: 0;
+}
+
+.panel-carga-cuando {
+  margin: 0;
+  color: #4e625b;
+  font-size: 14px;
+}
+
+.panel-carga-cifras {
+  margin: 6px 0 0;
+  color: #1f2a26;
+  font-size: 15px;
+}
