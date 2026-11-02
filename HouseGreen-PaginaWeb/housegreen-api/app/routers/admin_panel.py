@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.auth.dependencies import requerir_admin
-from app.models.property import Property, Comuna, PropertyEvaluation, PropertyView, PropertyFinancialInfo
+from app.models.property import Property, Comuna, PropertyEvaluation, PropertyView
 from app.models.favorite import SavedProperty
 from app.models.feedback import Feedback, FeedbackReply
 from app.models.user import User
@@ -99,14 +99,6 @@ def ver_panel(db: Session = Depends(get_db), usuario=Depends(requerir_admin)):
     for pid in vigentes:
         semaforo[ultimo_nivel.get(pid) or "sin_evaluar"] += 1
 
-    # 6) Pendientes del administrador
-    con_zona_de_precio = {
-        property_id
-        for (property_id,) in db.query(PropertyFinancialInfo.property_id).filter(
-            PropertyFinancialInfo.market_zone.isnot(None)
-        )
-    }
-    sin_zona_de_precio = len(vigentes - con_zona_de_precio)
     opiniones_por_responder = (
         db.query(Feedback)
         .outerjoin(FeedbackReply, FeedbackReply.feedback_id == Feedback.id)
@@ -124,6 +116,5 @@ def ver_panel(db: Session = Depends(get_db), usuario=Depends(requerir_admin)):
         guardados=sum(guardados.values()),
         mas_vistas=mas_vistas,
         semaforo=semaforo,
-        sin_zona_de_precio=sin_zona_de_precio,
         opiniones_por_responder=opiniones_por_responder,
     )

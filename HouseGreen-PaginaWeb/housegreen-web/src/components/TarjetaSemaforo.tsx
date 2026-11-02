@@ -75,7 +75,13 @@ function enPuntos(cantidad: number) {
 }
 
 // Paso 65: frase que explica qué le falta a la propiedad para subir de zona
-function fraseDeLoQueFalta(nivel: Nivel, puntos: number, tieneVeto: boolean, sinDato: string[]): string {
+function fraseDeLoQueFalta(
+  nivel: Nivel,
+  puntos: number,
+  tieneVeto: boolean,
+  sinDato: string[],
+  precioSinDato: boolean
+): string {
   const partes: string[] = [];
 
   if (!tieneVeto) {
@@ -90,14 +96,17 @@ function fraseDeLoQueFalta(nivel: Nivel, puntos: number, tieneVeto: boolean, sin
     }
   }
 
+  // Paso 120c: los datos ya no los completa nadie a mano, así que no se promete que "se completarán"
   if (sinDato.length === 1) {
-    partes.push(`Todavía no tiene dato en ${sinDato[0]}: cuando se complete puede sumar hasta 2 puntos.`);
+    partes.push(`Sin dato en ${sinDato[0]}: ese factor vale 0 puntos.`);
   } else if (sinDato.length > 1) {
     const ultimo = sinDato[sinDato.length - 1];
     const lista = `${sinDato.slice(0, -1).join(", ")} y ${ultimo}`;
-    partes.push(`Todavía no tiene dato en ${lista}: cuando se completen pueden sumar hasta ${sinDato.length * 2} puntos.`);
+    partes.push(`Sin dato en ${lista}: esos factores valen 0 puntos.`);
   }
-
+  if (precioSinDato) {
+    partes.push("El motivo del precio está más abajo.");
+  }
   return partes.join(" ");
 }
 
@@ -128,7 +137,10 @@ export function TarjetaSemaforo({ evaluacion }: { evaluacion: Evaluacion | null 
   const nombresSinDato = factores
     .filter((detalle) => !detalle.has_data)
     .map((detalle) => FACTORES[detalle.criteria_name].nombre.toLowerCase());
-  const explicacion = fraseDeLoQueFalta(nivel, puntos, tieneVeto, nombresSinDato);
+    
+  // Paso 120c: si el precio no se pudo comparar, el motivo está en la sección "Precio frente a la comuna"
+  const precioSinDato = factores.some((detalle) => detalle.criteria_name === "precio_rentabilidad" && !detalle.has_data);
+  const explicacion = fraseDeLoQueFalta(nivel, puntos, tieneVeto, nombresSinDato, precioSinDato);
 
   return (
     <section className={`semaforo semaforo-${nivel}`}>

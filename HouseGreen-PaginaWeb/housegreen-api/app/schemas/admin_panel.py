@@ -27,5 +27,4 @@ class PanelAdmin(BaseModel):
     semaforo: dict[str, int]
 
     # Lo que el administrador tiene pendiente
-    sin_zona_de_precio: int  # publicaciones vigentes sin zona de precio
     opiniones_por_responder: int  # opiniones que aceptan respuesta y todavía no tienen

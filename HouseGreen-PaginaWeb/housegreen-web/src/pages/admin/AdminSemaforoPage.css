@@ -1,4 +1,5 @@
-/* Paso 68: apartado "Semáforo" del administrador (paleta "Menta sereno") */
+/* Paso 68: apartado "Semáforo" del administrador (paleta "Menta sereno").
+   Paso 120c: ahora es solo para consultar; se quitaron los estilos de los botones y del selector. */
 
 .sem-ayuda {
   margin-top: 16px;
@@ -20,7 +21,17 @@
   padding-left: 20px;
 }
 
-/* Pestañas Pendientes / Revisadas */
+.sem-ayuda li + li {
+  margin-top: 2px;
+}
+
+.sem-ayuda .sem-ayuda-pie {
+  margin-top: 8px;
+  color: #4e625b;
+  font-size: 13px;
+}
+
+/* Pestañas Precio comparado / Sin referencia */
 .sem-pestanas {
   display: flex;
   gap: 4px;
@@ -130,102 +141,28 @@
   text-decoration: underline;
 }
 
-.sem-controles {
+.sem-datos {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 24px;
-  margin-top: 12px;
+  gap: 10px 32px;
+  margin: 12px 0 0;
   padding-top: 12px;
   border-top: 1px solid #e8efec;
 }
 
-.sem-grupo {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
+.sem-dato {
+  min-width: 0;
 }
 
-.sem-etiqueta {
-  margin-right: 2px;
+.sem-dato dt {
   color: #4e625b;
   font-size: 13px;
   font-weight: 700;
 }
 
-/* Botones de zona: contorno cuando no están elegidos, relleno cuando sí */
-.sem-zona {
-  padding: 7px 14px;
-  border: 1px solid #c9d6d0;
-  border-radius: 999px;
-  background-color: white;
+.sem-dato dd {
+  margin: 4px 0 0;
   color: #0f3d30;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.sem-zona:hover:not(:disabled) {
-  border-color: #1d6f55;
-}
-
-.sem-zona-verde.is-elegida {
-  border-color: #2b6630;
-  background-color: #2b6630;
-  color: white;
-}
-
-.sem-zona-amarillo.is-elegida {
-  border-color: #e0a100;
-  background-color: #f6c343;
-  color: #3d2c00;
-}
-
-.sem-zona-rojo.is-elegida {
-  border-color: #a2322a;
-  background-color: #a2322a;
-  color: white;
-}
-
-.sem-zona:disabled,
-.sem-quitar:disabled,
-.sem-select:disabled {
-  opacity: 0.6;
-  cursor: wait;
-}
-
-.sem-quitar {
-  padding: 7px 8px;
-  border: none;
-  background: none;
-  color: #4e625b;
-  font-size: 13px;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.sem-select {
-  max-width: 100%;
-  padding: 7px 10px;
-  border: 1px solid #c9d6d0;
-  border-radius: 10px;
-  background-color: white;
-  color: #0f3d30;
-  font-size: 14px;
-}
-
-.sem-estado {
-  margin: 10px 0 0;
-  color: #4e625b;
-  font-size: 13px;
-}
-
-.sem-error {
-  margin: 10px 0 0;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background-color: #fae3e0;
-  color: #a2322a;
   font-size: 14px;
 }
 

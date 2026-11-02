@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Request
-from sqlalchemy import func, text
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from uuid import UUID, uuid4
 from pathlib import Path
@@ -16,7 +16,7 @@ from app.models.favorite import SavedProperty
 from app.models.user import User
 from app.schemas.admin import (
     PublicacionAdmin, PublicacionDetalleAdmin, PersonaQueLaVio, PersonaQueLaGuardo, DescripcionIn, FotoOut,
-    FotoOrdenIn, SemaforoAdminIn, SemaforoAdminOut,
+    FotoOrdenIn,
 )
 
 # Todas las rutas de este archivo son solo para el administrador (role_id 3)
@@ -395,86 +395,3 @@ def ordenar_fotos(
     db.commit()
     return _fotos_ordenadas(db, property_id)
 
-def _ultima_evaluacion(db: Session, property_id: UUID):
-    return (
-        db.query(PropertyEvaluation)
-        .filter(PropertyEvaluation.property_id == property_id)
-        .order_by(PropertyEvaluation.evaluated_at.desc())
-        .first()
-    )
-
-
-@router.patch("/publicaciones/{property_id}/semaforo", response_model=SemaforoAdminOut)
-def definir_semaforo(
-    property_id: UUID,
-    datos: SemaforoAdminIn,
-    request: Request,
-    db: Session = Depends(get_db),
-    usuario=Depends(requerir_admin),
-):
-    # Paso 67: el admin elige la zona de precio y/o el tipo de dominio de una propiedad.
-    # Después se recalcula el semáforo y se devuelve cómo quedó.
-    propiedad = db.query(Property).filter(Property.id == property_id).first()
-    if not propiedad:
-        raise HTTPException(status_code=404, detail="Propiedad no encontrada")
-
-    # model_fields_set = los campos que de verdad vinieron en la petición (los demás no se tocan)
-    financiero = db.query(PropertyFinancialInfo).filter_by(property_id=property_id).first()
-    legal = db.query(PropertyLegalInfo).filter_by(property_id=property_id).first()
-
-    # Paso 107: cómo estaba antes del cambio, para el registro
-    evaluacion_antes = _ultima_evaluacion(db, property_id)
-    antes = {
-        "zona_de_precio": financiero.market_zone if financiero else None,
-        "dominio": legal.domain_type if legal else None,
-        "nivel": evaluacion_antes.result_level if evaluacion_antes else None,
-        "puntos": evaluacion_antes.total_points if evaluacion_antes else None,
-    }
-
-    if "market_zone" in datos.model_fields_set:
-        if not financiero:
-            financiero = PropertyFinancialInfo(property_id=property_id)
-            db.add(financiero)
-        financiero.market_zone = datos.market_zone
-
-    if "domain_type" in datos.model_fields_set:
-        if not legal:
-            legal = PropertyLegalInfo(property_id=property_id)
-            db.add(legal)
-        legal.domain_type = datos.domain_type
-
-    db.commit()
-
-    # Se recalcula con la función de la base (la misma que usa el resto de la API).
-    # Paso 98: si con esto la propiedad mejora de nivel, se avisa a quienes tienen una alerta que ahora cumple.
-    # (Se importa aquí adentro, y no arriba del archivo, para que el cambio quede en un solo lugar.)
-    from app.routers.alerts import recalcular_semaforo_y_avisar
-
-    recalcular_semaforo_y_avisar(db, propiedad)
-
-    evaluacion = _ultima_evaluacion(db, property_id)
-    despues = {
-        "zona_de_precio": financiero.market_zone if financiero else None,
-        "dominio": legal.domain_type if legal else None,
-        "nivel": evaluacion.result_level if evaluacion else None,
-        "puntos": evaluacion.total_points if evaluacion else None,
-    }
-    if despues != antes:  # solo se anota si cambió algo
-        anotar(
-            db,
-            "semaforo_editado",
-            request=request,
-            usuario=usuario,
-            entidad_tipo="propiedad",
-            entidad_id=property_id,
-            antes=antes,
-            despues=despues,
-        )
-        db.commit()
-
-    return SemaforoAdminOut(
-        market_zone=financiero.market_zone if financiero else None,
-        domain_type=legal.domain_type if legal else None,
-        result_level=evaluacion.result_level if evaluacion else None,
-        total_points=evaluacion.total_points if evaluacion else None,
-    )

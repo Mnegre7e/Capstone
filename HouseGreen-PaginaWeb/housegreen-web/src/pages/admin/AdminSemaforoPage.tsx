@@ -13,25 +13,23 @@ import "./AdminPublicacionesPage.css"; // de aquí sale el distintivo de zona (.
 import "./AdminSemaforoPage.css";
 
 // Paso 68: apartado del admin para completar el semáforo.
-// Muestra las propiedades que todavía no tienen zona de precio y permite elegirla con un clic.
+// Paso 120c: el semáforo ya se calcula solo (la zona de precio, en el paso 120b; el dominio, desde la ficha).
+// Este apartado ahora es solo para consultar: cómo quedó cada remate vigente y cuáles no tienen precio de referencia.
 
-type Vista = "pendientes" | "revisadas";
-
-// Lo que devuelve PATCH /admin/publicaciones/{id}/semaforo: cómo quedó la propiedad
-interface Respuesta {
-  market_zone: Zona | null;
-  domain_type: Dominio | null;
-  result_level: Zona | null;
-  total_points: number | null;
-}
+type Vista = "comparados" | "sin_referencia";
 
 const POR_TANDA = 20; // cuántas propiedades se muestran de una vez
 
-const ZONAS: { valor: Zona; texto: string }[] = [
-  { valor: "verde", texto: "Verde" },
-  { valor: "amarillo", texto: "Amarilla" },
-  { valor: "rojo", texto: "Roja" },
-];
+const ZONA_DE_PRECIO: Record<Zona, string> = {
+  verde: "Verde · 2 puntos",
+  amarillo: "Amarilla · 1 punto",
+  rojo: "Roja · 0 puntos",
+};
+
+const DOMINIO: Record<Dominio, string> = {
+  exclusivo: "Dominio exclusivo",
+  otro: "Otro tipo de dominio",
+};
 
 function formatCLP(valor: string | null) {
   if (valor === null) return "Sin precio";
@@ -62,13 +60,8 @@ export function AdminSemaforoPage() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [vista, setVista] = useState<Vista>("pendientes");
+  const [vista, setVista] = useState<Vista>("comparados");
   const [tanda, setTanda] = useState(POR_TANDA);
-  // Propiedades que se cambiaron en esta visita: siguen a la vista aunque ya no correspondan a la pestaña,
-  // así el admin alcanza a corregir si se equivocó de botón.
-  const [tocadas, setTocadas] = useState<string[]>([]);
-  const [guardando, setGuardando] = useState<string | null>(null); // id de la propiedad que se está guardando
-  const [errorFila, setErrorFila] = useState<{ id: string; mensaje: string } | null>(null);
 
   useEffect(() => {
     api
@@ -82,41 +75,26 @@ export function AdminSemaforoPage() {
   const vigentes = publicaciones.filter((p) => estadoPublicacion(p) === "vigente");
   const finalizadas = publicaciones.length - vigentes.length;
 
-  const totalPendientes = vigentes.filter((p) => p.market_zone === null).length;
-  const totalRevisadas = vigentes.length - totalPendientes;
+  const totalComparados = vigentes.filter((p) => p.market_zone !== null).length;
+  const totalSinReferencia = vigentes.length - totalComparados;
 
   const enVista = vigentes
-    .filter((p) => (vista === "pendientes" ? p.market_zone === null : p.market_zone !== null) || tocadas.includes(p.id))
+    .filter((p) => (vista === "comparados" ? p.market_zone !== null : p.market_zone === null))
     .sort(compararPorRemate);
   const visibles = enVista.slice(0, tanda);
 
   function cambiarVista(nueva: Vista) {
     setVista(nueva);
     setTanda(POR_TANDA);
-    setTocadas([]);
-    setErrorFila(null);
-  }
-
-  // Guarda la zona de precio o el dominio de una propiedad. La API recalcula el semáforo y devuelve cómo quedó.
-  async function guardar(id: string, cambio: { market_zone?: Zona | null; domain_type?: Dominio | null }) {
-    setGuardando(id);
-    setErrorFila(null);
-    try {
-      const respuesta: Respuesta = await api.patch(`/admin/publicaciones/${id}/semaforo`, cambio);
-      setPublicaciones((actuales) => actuales.map((p) => (p.id === id ? { ...p, ...respuesta } : p)));
-      setTocadas((actuales) => (actuales.includes(id) ? actuales : [...actuales, id]));
-    } catch (e) {
-      setErrorFila({ id, mensaje: e instanceof Error ? e.message : "error desconocido" });
-    } finally {
-      setGuardando(null);
-    }
   }
 
   return (
     <section>
       <h1 className="admin-titulo">Semáforo</h1>
       <p className="admin-subtitulo">
-        {cargando ? "Cargando..." : `${plural(totalPendientes, "propiedad", "propiedades")} sin zona de precio`}
+        {cargando
+          ? "Cargando..."
+          : `Se calcula solo, todos los días · ${plural(vigentes.length, "remate vigente", "remates vigentes")}`}
       </p>
 
       {finalizadas > 0 && (
@@ -130,124 +108,97 @@ export function AdminSemaforoPage() {
 
       <div className="sem-ayuda">
         <p>
-          <strong>Cómo elegir la zona de precio.</strong> Compara el precio mínimo con el valor de mercado de la
-          propiedad:
+          <strong>Cómo se calcula.</strong> Nadie lo completa a mano: la carga automática de cada mañana lo actualiza.
         </p>
         <ul>
           <li>
-            <strong>Verde:</strong> está 40 % o más bajo el valor de mercado.
+            <strong>Precio frente a la comuna:</strong> el precio mínimo se compara con el precio típico de los
+            departamentos o casas en venta en su comuna (PropiedadesYa). Verde: 40 % o más bajo · Amarilla: entre 15 % y
+            39,9 % · Roja: menos de 15 %.
           </li>
           <li>
-            <strong>Amarilla:</strong> está entre 15 % y 39,9 % más bajo.
+            <strong>Estado legal:</strong> sale de la ficha del remate.
           </li>
           <li>
-            <strong>Roja:</strong> el descuento es menor a 15 %.
+            <strong>Dinamismo del barrio y seguridad de la comuna:</strong> salen de los datos de cada comuna.
           </li>
         </ul>
+        <p className="sem-ayuda-pie">
+          "Sin referencia" son los sitios, parcelas, locales, derechos y otros tipos que no se comparan, o comunas con
+          muy pocos avisos: en ellos el precio no suma puntos.
+        </p>
       </div>
 
-      <div className="sem-pestanas" role="tablist" aria-label="Propiedades pendientes o revisadas">
+      <div className="sem-pestanas" role="tablist" aria-label="Remates con precio comparado o sin referencia">
         <button
           type="button"
           role="tab"
-          aria-selected={vista === "pendientes"}
-          className={`sem-pestana ${vista === "pendientes" ? "is-activa" : ""}`}
-          onClick={() => cambiarVista("pendientes")}
+          aria-selected={vista === "comparados"}
+          className={`sem-pestana ${vista === "comparados" ? "is-activa" : ""}`}
+          onClick={() => cambiarVista("comparados")}
         >
-          Pendientes · {totalPendientes}
+          Comparados · {totalComparados}
         </button>
         <button
           type="button"
           role="tab"
-          aria-selected={vista === "revisadas"}
-          className={`sem-pestana ${vista === "revisadas" ? "is-activa" : ""}`}
-          onClick={() => cambiarVista("revisadas")}
+          aria-selected={vista === "sin_referencia"}
+          className={`sem-pestana ${vista === "sin_referencia" ? "is-activa" : ""}`}
+          onClick={() => cambiarVista("sin_referencia")}
         >
-          Revisadas · {totalRevisadas}
+          Sin referencia · {totalSinReferencia}
         </button>
       </div>
 
       {!cargando && !error && enVista.length === 0 && (
         <p className="sem-vacio">
-          {vista === "pendientes"
-            ? "No se muestra 1 remate que ya se realizó o fue retirado."
-            : `No se muestran ${finalizadas} remates que ya se realizaron o fueron retirados.`}
+          {vista === "comparados"
+            ? "Ningún remate vigente tiene todavía su precio comparado."
+            : "Todos los remates vigentes tienen su precio comparado."}
         </p>
       )}
 
       <ul className="sem-lista">
-        {visibles.map((p) => {
-          const ocupada = guardando === p.id;
-          return (
-            <li key={p.id} className="sem-item">
-              <div className="sem-cabecera">
-                <div className="sem-info">
-                  <h2 className="sem-titulo">{p.title}</h2>
-                  <p className="sem-meta">
-                    {nombreComuna(p)} · {p.property_type} · {textoRemate(p.auction_date)}
-                  </p>
-                </div>
-                <span className={`pub-zona pub-zona-${p.result_level ?? "sin"}`}>
-                  <span className="pub-zona-punto" />
-                  {textoZona(p)}
-                </span>
+        {visibles.map((p) => (
+          <li key={p.id} className="sem-item">
+            <div className="sem-cabecera">
+              <div className="sem-info">
+                <h2 className="sem-titulo">{p.title}</h2>
+                <p className="sem-meta">
+                  {nombreComuna(p)} · {p.property_type} · {textoRemate(p.auction_date)}
+                </p>
               </div>
+              <span className={`pub-zona pub-zona-${p.result_level ?? "sin"}`}>
+                <span className="pub-zona-punto" />
+                {textoZona(p)}
+              </span>
+            </div>
 
-              <p className="sem-precio">
-                Precio mínimo <strong>{formatCLP(p.opening_price)}</strong>
-                <a href={`/propiedades/${p.id}`} target="_blank" rel="noopener noreferrer">
-                  Ver detalle ↗
-                </a>
-              </p>
+            <p className="sem-precio">
+              Precio mínimo <strong>{formatCLP(p.opening_price)}</strong>
+              <a href={`/propiedades/${p.id}`} target="_blank" rel="noopener noreferrer">
+                Ver detalle ↗
+              </a>
+            </p>
 
-              <div className="sem-controles">
-                <div className="sem-grupo" role="group" aria-label={`Zona de precio de ${p.title}`}>
-                  <span className="sem-etiqueta">Precio</span>
-                  {ZONAS.map((zona) => (
-                    <button
-                      key={zona.valor}
-                      type="button"
-                      className={`sem-zona sem-zona-${zona.valor} ${p.market_zone === zona.valor ? "is-elegida" : ""}`}
-                      aria-pressed={p.market_zone === zona.valor}
-                      disabled={ocupada}
-                      onClick={() => guardar(p.id, { market_zone: zona.valor })}
-                    >
-                      {zona.texto}
-                    </button>
-                  ))}
-                  {p.market_zone && (
-                    <button
-                      type="button"
-                      className="sem-quitar"
-                      disabled={ocupada}
-                      onClick={() => guardar(p.id, { market_zone: null })}
-                    >
-                      Quitar
-                    </button>
-                  )}
-                </div>
-
-                <label className="sem-grupo" htmlFor={`dominio-${p.id}`}>
-                  <span className="sem-etiqueta">Dominio</span>
-                  <select
-                    id={`dominio-${p.id}`}
-                    className="sem-select"
-                    value={p.domain_type ?? ""}
-                    disabled={ocupada}
-                    onChange={(e) => guardar(p.id, { domain_type: (e.target.value || null) as Dominio | null })}
-                  >
-                    <option value="">Sin especificar</option>
-                    <option value="exclusivo">Exclusivo</option>
-                    <option value="otro">Otro (derechos, cuota, usufructo)</option>
-                  </select>
-                </label>
+            {/* Paso 120c: los datos del semáforo se muestran, pero ya no se editan */}
+            <dl className="sem-datos">
+              <div className="sem-dato">
+                <dt>Precio frente a la comuna</dt>
+                <dd>
+                  <span className={`pub-zona pub-zona-${p.market_zone ?? "sin"}`}>
+                    <span className="pub-zona-punto" />
+                    {p.market_zone ? ZONA_DE_PRECIO[p.market_zone] : "Sin referencia"}
+                  </span>
+                </dd>
               </div>
-
-              {ocupada && <p className="sem-estado">Guardando...</p>}
-              {errorFila?.id === p.id && <p className="sem-error">No se pudo guardar: {errorFila.mensaje}</p>}
-            </li>
-          );
-        })}
+              <div className="sem-dato">
+                <dt>Estado legal</dt>
+                <dd>{p.domain_type ? DOMINIO[p.domain_type] : "Sin dato en la ficha"}</dd>
+              </div>
+            </dl>
+          </li>
+        ))}
       </ul>
 
       {enVista.length > visibles.length && (

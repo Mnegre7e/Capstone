@@ -24,7 +24,6 @@ interface Panel {
   guardados: number;
   mas_vistas: PublicacionMasVista[];
   semaforo: Record<string, number>; // verde, amarillo, rojo, sin_evaluar
-  sin_zona_de_precio: number;
   opiniones_por_responder: number;
 }
 
@@ -85,13 +84,8 @@ export function AdminPanelPage() {
     { titulo: "Guardados", valor: panel.guardados, nota: `favoritos agregados en los últimos ${panel.dias} días` },
   ];
 
+  // Paso 120c: la zona de precio ya no es un pendiente del admin (el semáforo se calcula solo)
   const pendientes = [
-    {
-      cantidad: panel.sin_zona_de_precio,
-      texto: panel.sin_zona_de_precio === 1 ? "publicación sin zona de precio" : "publicaciones sin zona de precio",
-      enlace: "/admin/semaforo",
-      accion: "Completar el semáforo",
-    },
     {
       cantidad: panel.opiniones_por_responder,
       texto: panel.opiniones_por_responder === 1 ? "opinión por responder" : "opiniones por responder",

@@ -34,9 +34,9 @@ export function SubastasPage() {
             nota: "en los próximos 7 días",
           },
           {
-            titulo: "Semáforo revisado",
+            titulo: "Precio comparado",
             valor: porcentaje(subastas.revisadas, subastas.vigentes),
-            nota: `${numero(subastas.revisadas)} de ${numero(subastas.vigentes)} con zona de precio`,
+            nota: `${numero(subastas.revisadas)} de ${numero(subastas.vigentes)} frente a su comuna`,
           },
         ]}
       />
@@ -59,8 +59,8 @@ export function SubastasPage() {
       </div>
 
       <p className="rep-nota">
-        "Semáforo revisado" son los remates a los que el administrador ya les asignó la zona de precio: sin ese dato el
-        semáforo se calcula con menos información.
+        "Precio comparado" son los departamentos y casas cuyo precio mínimo se comparó con el precio típico de su comuna
+        (PropiedadesYa). En los demás remates el precio no suma puntos en el semáforo.
       </p>
     </>
   );
