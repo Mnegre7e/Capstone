@@ -14,8 +14,6 @@ from app.models.property import (
 )
 from app.models.favorite import SavedProperty
 from app.models.user import User
-from app.models.ingesta import IngestionRun
-from app.routers.admin_cargas import resumen_de_carga  # paso 121
 from app.schemas.admin import (
     PublicacionAdmin, PublicacionDetalleAdmin, PersonaQueLaVio, PersonaQueLaGuardo, DescripcionIn, FotoOut,
     FotoOrdenIn,
