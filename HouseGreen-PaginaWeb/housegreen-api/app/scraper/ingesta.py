@@ -11,7 +11,8 @@
 #      que YA NO APARECE en el sitio: si su ficha dice que no existe, se marca como retirado.
 #   3) Cada propiedad que cambia recalcula su semáforo (y avisa a quien tenga una alerta).
 #   4) Paso 120a: una vez por semana, actualiza el precio típico de venta de cada comuna (PropiedadesYa).
-#   5) Guarda en la tabla ingestion_runs cuándo se hizo, cuánto duró y qué encontró.
+#   5) Paso 120b: recalcula la zona de precio del semáforo de los remates vigentes (solo cambia las que cambian).
+#   6) Guarda en la tabla ingestion_runs cuándo se hizo, cuánto duró y qué encontró.
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -21,6 +22,7 @@ from app.models.ingesta import IngestionRun
 from app.scraper import cargar_fichas as fichas
 from app.scraper import cargar_remates as listados
 from app.scraper import precios_comuna as precios
+from app.scraper import zona_precio as zonas
 from app.scraper.remates_scraper import leer_remates
 
 # Una carga que lleva más que esto "en curso" se cortó sin terminar (se apagó el PC, se cayó internet...)
@@ -83,6 +85,7 @@ def ejecutar(origen: str = "manual") -> int:
     de_listados: dict | None = None
     de_fichas: dict | None = None
     de_precios: dict = {}
+    de_zonas: dict = {}
     mensaje: str | None = None
 
     try:
@@ -115,6 +118,15 @@ def ejecutar(origen: str = "manual") -> int:
         except Exception as error:
             de_precios = {"con_error": [f"Precios por comuna: {type(error).__name__}: {error}"[:300]]}
             print("   No se pudieron actualizar:", de_precios["con_error"][0])
+
+        # Paso 120b: si esto falla, tampoco se da por fallida la carga de remates
+        print("\n4) Zona de precio del semáforo (precio mínimo frente al precio típico de la comuna)...")
+        try:
+            de_zonas = zonas.actualizar_zonas()
+            zonas.mostrar_resumen(de_zonas)
+        except Exception as error:
+            de_zonas = {"con_error": [f"Zona de precio: {type(error).__name__}: {error}"[:300]]}
+            print("   No se pudo calcular:", de_zonas["con_error"][0])
     except KeyboardInterrupt:
         # Ctrl+C en la terminal: se anota igual, para que la próxima carga no la crea "en curso"
         mensaje = "Se detuvo a mano (Ctrl+C)."
@@ -125,7 +137,12 @@ def ejecutar(origen: str = "manual") -> int:
 
     de_listados = de_listados or {}
     de_fichas = de_fichas or {}
-    errores = de_listados.get("con_error", []) + de_fichas.get("con_error", []) + de_precios.get("con_error", [])
+    errores = (
+        de_listados.get("con_error", [])
+        + de_fichas.get("con_error", [])
+        + de_precios.get("con_error", [])
+        + de_zonas.get("con_error", [])
+    )
     minutos = round((time.monotonic() - inicio) / 60, 1)
 
     if mensaje:
@@ -159,6 +176,13 @@ def ejecutar(origen: str = "manual") -> int:
             "con_precios": de_precios.get("con_precios", 0),
             "sin_tabla": de_precios.get("sin_tabla", []),
             "sin_pagina": de_precios.get("sin_pagina", []),
+        },
+        "zona_de_precio": {
+            "cambiados": de_zonas.get("cambiados", 0),
+            "verde": de_zonas.get("verde", 0),
+            "amarillo": de_zonas.get("amarillo", 0),
+            "rojo": de_zonas.get("rojo", 0),
+            "sin_referencia": de_zonas.get("sin_referencia", 0),
         },
         "omitidos": {
             "sin_comuna": _lista(de_listados.get("sin_comuna", [])),

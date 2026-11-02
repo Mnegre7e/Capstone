@@ -1,0 +1,109 @@
+/* Paso 120b: sección "Precio frente a la comuna" del detalle de la propiedad */
+
+/* Dos casillas lado a lado (una debajo de otra en el celular), como las de "Datos del remate" */
+.precio-cifras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  border: 1px solid #e5e5e4;
+  border-radius: 12px;
+  background-color: #e5e5e4;
+  overflow: hidden;
+}
+
+.precio-cifra {
+  flex: 1 1 240px;
+  min-width: 0;
+  padding: 14px 16px;
+  background-color: white;
+}
+
+.precio-cifra-etiqueta {
+  margin: 0;
+  color: #737373;
+  font-size: 13px;
+}
+
+.precio-cifra-valor {
+  margin: 4px 0 0;
+  color: #171717;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.precio-cifra-nota {
+  margin: 4px 0 0;
+  color: #737373;
+  font-size: 13px;
+}
+
+/* Resultado: punto de color (el mismo del factor en la tarjeta del semáforo) y el porcentaje */
+.precio-resultado {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background-color: #f5f5f4;
+  color: #262626;
+  font-size: 15px;
+  --color-zona: #a3a3a3;
+}
+
+.precio-resultado.is-verde {
+  background-color: #f0fdf4;
+  --color-zona: #16a34a;
+}
+
+.precio-resultado.is-amarillo {
+  background-color: #fefce8;
+  --color-zona: #facc15;
+}
+
+.precio-resultado.is-rojo {
+  background-color: #fef2f2;
+  --color-zona: #dc2626;
+}
+
+.precio-resultado-punto {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--color-zona);
+}
+
+.precio-regla {
+  margin: 8px 0 0;
+  color: #737373;
+  font-size: 13px;
+}
+
+.precio-nota,
+.precio-sin {
+  margin: 10px 0 0;
+  color: #525252;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.precio-sin {
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid #e5e5e4;
+  border-radius: 12px;
+  background-color: white;
+  font-size: 14px;
+}
+
+.precio-nota a {
+  color: #15803d;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.precio-nota a:hover {
+  text-decoration: underline;
+}

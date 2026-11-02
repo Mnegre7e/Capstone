@@ -7,6 +7,7 @@ import { RiskBadge } from "../components/RiskBadge";
 import { GaleriaFotos } from "../components/GaleriaFotos";
 import { TarjetaSemaforo } from "../components/TarjetaSemaforo";
 import { DatosRemate } from "../components/DatosRemate";
+import { PrecioComuna } from "../components/PrecioComuna";
 import { remateFinalizado, remateRetirado } from "../components/estadoRemate";
 import "./PropertyDetailPage.css";
 
@@ -251,6 +252,9 @@ export function PropertyDetailPage() {
       )}
       
       <TarjetaSemaforo evaluacion={property.evaluation} />
+      
+      {/* Paso 120b: con qué se comparó el precio del remate */}
+      <PrecioComuna key={`precio-${property.id}`} propertyId={property.id} />
       
       <DatosRemate key={`remate-${property.id}`} propertyId={property.id} />
 

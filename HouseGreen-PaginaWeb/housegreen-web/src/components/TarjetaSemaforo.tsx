@@ -35,10 +35,11 @@ const TEXTOS: Record<Nivel, { titulo: string; consejo: string }> = {
 
 // Cómo se muestra cada factor: su nombre, el texto según sus puntos (0, 1 o 2) y el texto cuando no tiene dato
 const FACTORES: Record<string, { nombre: string; porPuntos: [string, string, string]; sinDato: string }> = {
+  // Paso 120b: el precio se compara solo con el precio típico de la comuna (ya no lo elige el administrador)
   precio_rentabilidad: {
-    nombre: "Precio y rentabilidad",
+    nombre: "Precio frente a la comuna",
     porPuntos: ["Poco conveniente", "Regular", "Bueno"],
-    sinDato: "Sin revisar",
+    sinDato: "Sin referencia",
   },
   estado_legal: {
     nombre: "Estado legal",
