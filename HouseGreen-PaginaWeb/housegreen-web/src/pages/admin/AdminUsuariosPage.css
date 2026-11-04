@@ -285,3 +285,24 @@
   background-color: #fee2e2;
   color: #991b1b;
 }
+
+/* ---------- Paso 122e: plan Premium ---------- */
+/* Con el filtro "Plan" son 5 columnas: los selectores se angostan un poco para caber en una fila en PC,
+   y "Ordenar por" queda más ancho para que se lea completo */
+.usu-filtros label {
+  min-width: 140px;
+}
+
+.usu-filtros label:last-child {
+  min-width: 200px;
+}
+
+.usu-etiqueta.is-premium {
+  background-color: #fdf3c4;
+  color: #6b5200;
+}
+
+.usu-etiqueta.is-premium-vencido {
+  background-color: #f2f2f0;
+  color: #5c5c57;
+}

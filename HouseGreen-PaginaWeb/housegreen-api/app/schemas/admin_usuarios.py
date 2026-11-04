@@ -19,6 +19,10 @@ class UsuarioAdmin(BaseModel):
     guardados: int = 0  # propiedades que tiene en favoritos
     opiniones: int = 0  # opiniones que ha enviado
     ultima_actividad: datetime | None = None  # última vista, guardado u opinión (vacío si no tiene)
+    
+    # Paso 122e: plan Premium
+    premium_until: datetime | None = None  # hasta cuándo tiene (o tuvo) Premium; vacío = nunca lo ha pagado
+    pagos: int = 0  # pagos del plan aprobados por Webpay
 
 
 # Paso 106: lo que responden "suspender" y "reactivar": cómo quedó la cuenta

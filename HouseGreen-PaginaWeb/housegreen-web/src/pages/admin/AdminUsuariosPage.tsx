@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import { fechaCorta } from "../../utils/opiniones";
+import { planDe, type PlanPersona } from "./pagos"; // paso 122e
 import "./AdminUsuariosPage.css";
 
 // Paso 85: el administrador ve quiénes están registrados y cuánto usan la aplicación.
 // Paso 106: además ve el estado de cada cuenta, puede suspenderla y reactivar una suspendida o eliminada.
+// Paso 122e: también ve quién tiene el plan Premium (y hasta cuándo) y puede filtrar por plan.
 
 // Lo que devuelve GET /admin/usuarios por cada persona
 interface UsuarioAdmin {
@@ -23,6 +25,8 @@ interface UsuarioAdmin {
   guardados: number;
   opiniones: number;
   ultima_actividad: string | null;
+  premium_until: string | null; // paso 122e: hasta cuándo tiene (o tuvo) Premium; null = nunca lo ha pagado
+  pagos: number; // paso 122e: pagos del plan aprobados
 }
 
 type Orden = "recientes" | "actividad" | "vistas" | "nombre";
@@ -50,11 +54,23 @@ const ROLES: { valor: string; nombre: string; plural: string }[] = [
   { valor: "administrador", nombre: "Administrador", plural: "Administradores" },
 ];
 
+// Paso 122e: filtro por plan Premium
+const PLANES: { valor: PlanPersona; nombre: string }[] = [
+  { valor: "vigente", nombre: "Premium vigente" },
+  { valor: "vencido", nombre: "Premium vencido" },
+  { valor: "nunca", nombre: "Nunca ha pagado" },
+];
+
+// El Panel puede abrir esta página ya filtrada: /admin/usuarios?plan=vigente
+function planDeLaDireccion(valor: string | null): "" | PlanPersona {
+  return PLANES.some((p) => p.valor === valor) ? (valor as PlanPersona) : "";
+}
+
 const POR_TANDA = 20; // cuántas personas se muestran de una vez
 
 // "Irarrázaval" -> "irarrazaval": la búsqueda no distingue tildes ni mayúsculas
 function normalizar(texto: string) {
-  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  return texto.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 }
 
 // Fecha en milisegundos; sin fecha vale 0 para que quede al final al ordenar
@@ -72,6 +88,8 @@ export function AdminUsuariosPage() {
   const [rol, setRol] = useState(""); // vacío = todos
   const [orden, setOrden] = useState<Orden>("recientes");
   const [estado, setEstado] = useState<"" | Estado>(""); // vacío = todas
+  const [parametros] = useSearchParams();
+  const [plan, setPlan] = useState<"" | PlanPersona>(planDeLaDireccion(parametros.get("plan"))); // paso 122e
   const [tanda, setTanda] = useState(POR_TANDA);
 
   // Paso 106: qué cuenta está pidiendo confirmación, y el resultado de la última acción
@@ -93,6 +111,7 @@ export function AdminUsuariosPage() {
       (u) =>
         (rol === "" || u.role_name === rol) &&
         (estado === "" || estadoDe(u) === estado) &&
+        (plan === "" || planDe(u.premium_until) === plan) &&
         (texto === "" || normalizar(u.full_name).includes(texto) || normalizar(u.email).includes(texto))
     )
     // filter() ya creó una lista nueva, así que sort() no desordena los datos originales
@@ -179,6 +198,18 @@ export function AdminUsuariosPage() {
                 <option value="eliminada">Eliminadas por la persona</option>
               </select>
             </label>
+            {/* Paso 122e */}
+            <label>
+              Plan
+              <select value={plan} onChange={(e) => cambiarFiltro(() => setPlan(e.target.value as "" | PlanPersona))}>
+                <option value="">Todos</option>
+                {PLANES.map((p) => (
+                  <option key={p.valor} value={p.valor}>
+                    {p.nombre}
+                  </option>
+                ))}
+              </select>
+            </label>
             <label>
               Ordenar por
               <select value={orden} onChange={(e) => cambiarFiltro(() => setOrden(e.target.value as Orden))}>
@@ -204,6 +235,7 @@ export function AdminUsuariosPage() {
               // No se puede suspender a un administrador ni la propia cuenta
               const puedeSuspender = estadoCuenta === "activa" && u.role_name !== "administrador" && u.id !== yo?.id;
               const pide = confirmando?.id === u.id ? confirmando.accion : null;
+              const planPersona = planDe(u.premium_until); // paso 122e
               return (
                 <li key={u.id} className="usu-item">
                   <div className="usu-cabecera">
@@ -218,6 +250,13 @@ export function AdminUsuariosPage() {
                       <span className="usu-etiqueta">
                         {ROLES.find((r) => r.valor === u.role_name)?.nombre ?? "Sin tipo"}
                       </span>
+                      {/* Paso 122e: el plan Premium, con su fecha */}
+                      {planPersona === "vigente" && u.premium_until && (
+                        <span className="usu-etiqueta is-premium">Premium hasta el {fechaCorta(u.premium_until)}</span>
+                      )}
+                      {planPersona === "vencido" && u.premium_until && (
+                        <span className="usu-etiqueta is-premium-vencido">Premium venció el {fechaCorta(u.premium_until)}</span>
+                      )}
                       {u.two_fa_enabled && <span className="usu-etiqueta is-dos-pasos">Dos pasos</span>}
                       {estadoCuenta === "suspendida" && <span className="usu-etiqueta is-deshabilitada">Suspendida</span>}
                       {estadoCuenta === "eliminada" && (
@@ -245,6 +284,7 @@ export function AdminUsuariosPage() {
                     {u.created_at ? `Se registró el ${fechaCorta(u.created_at)}` : "Sin fecha de registro"} ·{" "}
                     {u.ultima_actividad ? `Última actividad: ${fechaCorta(u.ultima_actividad)}` : "Sin actividad todavía"}
                     {u.deleted_at && ` · Eliminó su cuenta el ${fechaCorta(u.deleted_at)}`}
+                    {u.pagos > 0 && ` · ${u.pagos === 1 ? "1 pago" : `${u.pagos} pagos`} del plan Premium`}
                   </p>
 
                   {/* Paso 106: suspender o reactivar, con confirmación */}

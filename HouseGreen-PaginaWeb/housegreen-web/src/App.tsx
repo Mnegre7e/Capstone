@@ -23,6 +23,7 @@ import { PerfilPage } from "./pages/PerfilPage";
 import { OpinionesPage } from "./pages/OpinionesPage";
 import { AdminAuditoriaPage } from "./pages/admin/AdminAuditoriaPage";
 import { AdminCargasPage } from "./pages/admin/AdminCargasPage"; // paso 121
+import { AdminPagosPage } from "./pages/admin/AdminPagosPage"; // paso 122e
 import { PremiumPage } from "./pages/PremiumPage"; // paso 122b
 import { PagoResultadoPage } from "./pages/PagoResultadoPage"; // paso 122d
 import { ReportesLayout } from "./pages/reportes/ReportesLayout";
@@ -162,7 +163,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        
+
         {/* Paso 122d: a donde vuelve la persona después de pagar en Webpay */}
         <Route
           path="/premium/resultado"
@@ -227,6 +228,7 @@ function App() {
           <Route path="opiniones" element={<AdminOpinionesPage />} />
           <Route path="usuarios" element={<AdminUsuariosPage />} />
           <Route path="anuncios" element={<AdminAnunciosPage />} />
+
           {/* Paso 115: los mismos reportes del analista, más las personas más activas */}
           <Route path="reportes" element={<ReportesLayout base="/admin/reportes" />}>
             <Route index element={<ResumenPage />} />
@@ -234,9 +236,15 @@ function App() {
             <Route path="usuarios" element={<UsuariosPage />} />
             <Route path="alcance" element={<AlcancePage />} />
           </Route>
+          
           <Route path="auditoria" element={<AdminAuditoriaPage />} />
+
           {/* Paso 121: historial de las cargas de remates (se entra desde el Panel) */}
           <Route path="cargas" element={<AdminCargasPage />} />
+
+          {/* Paso 122e: pagos del plan Premium (se entra desde el Panel) */}
+          <Route path="pagos" element={<AdminPagosPage />} />
+
         </Route>
 
         {/* Cualquier otra dirección: aviso en vez de página en blanco */}

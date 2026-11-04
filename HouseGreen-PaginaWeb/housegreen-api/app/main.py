@@ -14,6 +14,7 @@ from app.routers import recuperacion  # paso 117: recuperar la contraseña con u
 from app.routers import precio_comuna  # paso 120b: precio del remate frente a su comuna
 from app.routers import admin_cargas  # paso 121: historial de las cargas de remates
 from app.routers import pagos  # paso 122d: pago del plan Premium con Webpay
+from app.routers import admin_pagos  # paso 122e: pagos del plan Premium para el administrador
 
 app = FastAPI(title="HouseGreen API")
 
@@ -44,6 +45,7 @@ app.include_router(recuperacion.router)  # paso 117
 app.include_router(precio_comuna.router)  # paso 120b
 app.include_router(admin_cargas.router)  # paso 121
 app.include_router(pagos.router)  # paso 122d
+app.include_router(admin_pagos.router)  # paso 122e
 
 admin.CARPETA_UPLOADS.mkdir(exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=admin.CARPETA_UPLOADS), name="uploads")

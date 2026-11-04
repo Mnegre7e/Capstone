@@ -11,6 +11,7 @@ from app.models.property import PropertyView
 from app.models.favorite import SavedProperty
 from app.models.feedback import Feedback
 from app.models.user import User, Role
+from app.models.pago import Pago  # paso 122e
 from app.schemas.admin_usuarios import UsuarioAdmin, EstadoCuenta
 
 # Paso 85: usuarios registrados, para el administrador.
@@ -41,6 +42,8 @@ def listar_usuarios(db: Session = Depends(get_db), usuario=Depends(requerir_admi
         db, SavedProperty.user_id, SavedProperty.id, SavedProperty.saved_at, SavedProperty.removed_at.is_(None)
     )
     opiniones = _cantidad_y_ultima(db, Feedback.user_id, Feedback.id, Feedback.created_at)
+        # Paso 122e: pagos del plan Premium aprobados por Webpay
+    pagos = _cantidad_y_ultima(db, Pago.user_id, Pago.id, Pago.finished_at, Pago.status == "aprobado")
 
     resultado = []
     # Los más nuevos primero
@@ -48,6 +51,7 @@ def listar_usuarios(db: Session = Depends(get_db), usuario=Depends(requerir_admi
         n_vistas, ultima_vista = vistas.get(persona.id, (0, None))
         n_guardados, ultimo_guardado = guardados.get(persona.id, (0, None))
         n_opiniones, ultima_opinion = opiniones.get(persona.id, (0, None))
+        n_pagos, _ = pagos.get(persona.id, (0, None))  # paso 122e
         fechas = [fecha for fecha in (ultima_vista, ultimo_guardado, ultima_opinion) if fecha is not None]
         resultado.append(
             UsuarioAdmin(
@@ -64,6 +68,8 @@ def listar_usuarios(db: Session = Depends(get_db), usuario=Depends(requerir_admi
                 guardados=n_guardados,
                 opiniones=n_opiniones,
                 ultima_actividad=max(fechas) if fechas else None,
+                premium_until=persona.premium_until,  # paso 122e
+                pagos=n_pagos,
             )
         )
     return resultado

@@ -2,6 +2,8 @@
 # El catálogo lo ve cualquiera (incluso sin cuenta). El detalle de una propiedad, los favoritos y las alertas
 # son para quienes tienen el plan Premium vigente. El analista y el administrador ven todo sin pagar.
 # El plan dura hasta la fecha guardada en users.premium_until (la llena el pago, paso 122d).
+import os
+
 from datetime import datetime, timezone
 
 from sqlalchemy import func, or_
@@ -18,6 +20,11 @@ MENSAJE_PREMIUM = "Esta información es solo para usuarios Premium."
 PRECIO_PREMIUM = 9990  # pesos
 DIAS_PREMIUM = 30
 
+def ambiente_de_pago() -> str:
+    """Paso 122e: "integracion" (pagos de prueba de Transbank, sin dinero real) o "produccion",
+    según WEBPAY_AMBIENTE del .env. Está aquí (y no en routers/pagos.py) para que el Panel lo use
+    sin cargar el SDK de Transbank."""
+    return "produccion" if (os.getenv("WEBPAY_AMBIENTE") or "").strip().lower() == "produccion" else "integracion"
 
 def es_premium(usuario: User | None) -> bool:
     """True si la persona tiene el plan Premium vigente (pagado y sin vencer)."""

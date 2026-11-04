@@ -12,6 +12,16 @@ class PublicacionMasVista(BaseModel):
     vistas: int
     guardados: int
 
+# Paso 122e: el plan Premium en el Panel. Solo cuentan los pagos del ambiente actual de Webpay
+# (en integración son pagos de prueba, sin dinero real).
+class ResumenPremium(BaseModel):
+    activos: int  # inversionistas con el plan vigente hoy
+    vencidos: int  # inversionistas cuyo plan venció en el período y no lo renovaron
+    pagos: int  # pagos aprobados en el período
+    ingresos_periodo: int  # pesos de esos pagos
+    ingresos_mes: int  # pesos aprobados desde el día 1 de este mes (hora de Chile)
+    ambiente: str  # integracion o produccion
+
 class PanelAdmin(BaseModel):
     dias: int  # de cuántos días es el resumen (7)
 
@@ -32,3 +42,6 @@ class PanelAdmin(BaseModel):
     
     # Paso 121: la última carga de remates (None si todavía no hay ninguna)
     ultima_carga: CargaResumen | None = None
+
+    # Paso 122e: plan Premium
+    premium: ResumenPremium | None = None

@@ -11,6 +11,7 @@ import {
   textoOrigen,
   type CargaResumen,
 } from "./cargas";
+import { pesos } from "./pagos"; // paso 122e
 import "./AdminCargasPage.css"; // de aquí sale el distintivo del estado de la carga (.car-estado)
 import "./AdminPanelPage.css";
 
@@ -22,6 +23,16 @@ interface PublicacionMasVista {
   comuna: string | null;
   vistas: number;
   guardados: number;
+}
+
+// Paso 122e: el plan Premium (solo cuentan los pagos del ambiente actual de Webpay)
+interface ResumenPremium {
+  activos: number; // inversionistas con el plan vigente hoy
+  vencidos: number; // su plan venció en el período y no lo renovaron
+  pagos: number; // pagos aprobados en el período
+  ingresos_periodo: number;
+  ingresos_mes: number; // desde el día 1 de este mes
+  ambiente: string; // "integracion" = pagos de prueba
 }
 
 // Lo que responde GET /admin/panel
@@ -37,6 +48,7 @@ interface Panel {
   semaforo: Record<string, number>; // verde, amarillo, rojo, sin_evaluar
   opiniones_por_responder: number;
   ultima_carga: CargaResumen | null; // paso 121
+  premium: ResumenPremium | null; // paso 122e
 }
 
 // Una tarea pendiente. Paso 121: puede no tener número (el aviso de la carga de remates).
@@ -135,6 +147,8 @@ export function AdminPanelPage() {
   const avisoCarga = avisoDeCarga(panel.ultima_carga);
   if (avisoCarga) pendientes.unshift(avisoCarga); // el aviso de la carga va primero
   const ultima = panel.ultima_carga;
+  const premium = panel.premium; // paso 122e
+  const mesActual = new Date().toLocaleDateString("es-CL", { month: "long" }); // "noviembre"
 
   const niveles = NIVELES.map((nivel) => ({ ...nivel, cantidad: panel.semaforo[nivel.valor] ?? 0 }));
   const totalSemaforo = niveles.reduce((suma, nivel) => suma + nivel.cantidad, 0);
@@ -181,6 +195,46 @@ export function AdminPanelPage() {
           </ul>
         )}
       </div>
+
+      {/* Paso 122e: el plan Premium. Para ver el detalle: la lista de pagos y Usuarios filtrado por plan */}
+      {premium && (
+        <div className="panel-tarjeta">
+          <h2>Plan Premium</h2>
+          <dl className="panel-premium">
+            <div>
+              <dt>Con Premium hoy</dt>
+              <dd className="panel-premium-valor">{numero(premium.activos)}</dd>
+              <dd className="panel-premium-nota">inversionistas con el plan vigente</dd>
+            </div>
+            <div>
+              <dt>Pagos aprobados</dt>
+              <dd className="panel-premium-valor">{numero(premium.pagos)}</dd>
+              <dd className="panel-premium-nota">
+                {pesos(premium.ingresos_periodo)} en los últimos {panel.dias} días
+              </dd>
+            </div>
+            <div>
+              <dt>Ingresos del mes</dt>
+              <dd className="panel-premium-valor">{pesos(premium.ingresos_mes)}</dd>
+              <dd className="panel-premium-nota">desde el 1 de {mesActual}</dd>
+            </div>
+            <div>
+              <dt>Vencieron sin renovar</dt>
+              <dd className="panel-premium-valor">{numero(premium.vencidos)}</dd>
+              <dd className="panel-premium-nota">en los últimos {panel.dias} días</dd>
+            </div>
+          </dl>
+          {premium.ambiente === "integracion" && (
+            <p className="panel-premium-aviso">
+              Webpay está en modo de prueba (ambiente de integración de Transbank): estos montos no son dinero real.
+            </p>
+          )}
+          <p className="panel-enlace-final panel-premium-enlaces">
+            <Link to="/admin/pagos">Ver todos los pagos ›</Link>
+            <Link to="/admin/usuarios?plan=vigente">Ver quiénes tienen Premium ›</Link>
+          </p>
+        </div>
+      )}
 
       {/* Paso 121: la última carga de remates y el enlace a su historial */}
       <div className="panel-tarjeta">

@@ -13,7 +13,9 @@ from app.models.feedback import Feedback, FeedbackReply
 from app.models.user import User
 from app.models.ingesta import IngestionRun
 from app.routers.admin_cargas import resumen_de_carga  # paso 121
-from app.schemas.admin_panel import PanelAdmin, PublicacionMasVista
+from app.models.pago import Pago  # paso 122e
+from app.auth.premium import ambiente_de_pago  # paso 122e: integracion (pruebas) o produccion
+from app.schemas.admin_panel import PanelAdmin, PublicacionMasVista, ResumenPremium
 
 # Paso 84: Panel del administrador. Solo lectura: junta cifras que ya están en la base.
 router = APIRouter(prefix="/admin", tags=["Admin"])
@@ -111,6 +113,31 @@ def ver_panel(db: Session = Depends(get_db), usuario=Depends(requerir_admin)):
     # 7) Paso 121: la última carga de remates (el panel avisa si falló o si hace mucho que no hay una)
     ultima = db.query(IngestionRun).order_by(IngestionRun.started_at.desc()).first()
 
+    
+    # 8) Paso 122e: plan Premium. Solo cuentan los pagos del ambiente actual de Webpay, para que los pagos
+    #    de prueba no se sumen a los de verdad si algún día se pasa a producción.
+    ambiente = ambiente_de_pago()
+    inicio_del_mes = ahora.astimezone(ZONA_CHILE).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    def pesos_aprobados(desde_cuando: datetime) -> int:
+        return (
+            db.query(func.coalesce(func.sum(Pago.amount), 0))
+            .filter(Pago.status == "aprobado", Pago.environment == ambiente, Pago.finished_at >= desde_cuando)
+            .scalar()
+        )
+
+    premium = ResumenPremium(
+        activos=inversionistas.filter(User.premium_until > ahora).count(),
+        # Venció en el período y no lo renovó (si hubiera renovado, su fecha estaría en el futuro)
+        vencidos=inversionistas.filter(User.premium_until > desde, User.premium_until <= ahora).count(),
+        pagos=db.query(Pago)
+        .filter(Pago.status == "aprobado", Pago.environment == ambiente, Pago.finished_at >= desde)
+        .count(),
+        ingresos_periodo=pesos_aprobados(desde),
+        ingresos_mes=pesos_aprobados(inicio_del_mes),
+        ambiente=ambiente,
+    )
+
     return PanelAdmin(
         dias=DIAS_DEL_RESUMEN,
         usuarios_nuevos=usuarios_nuevos,
@@ -123,4 +150,5 @@ def ver_panel(db: Session = Depends(get_db), usuario=Depends(requerir_admin)):
         semaforo=semaforo,
         opiniones_por_responder=opiniones_por_responder,
         ultima_carga=resumen_de_carga(ultima) if ultima else None,
+        premium=premium,  # paso 122e
     )

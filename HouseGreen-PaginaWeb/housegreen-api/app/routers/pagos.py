@@ -25,7 +25,7 @@ from transbank.common.integration_commerce_codes import IntegrationCommerceCodes
 from transbank.webpay.webpay_plus.transaction import Transaction
 
 from app.auth.dependencies import ROL_ADMIN_ID, get_current_user
-from app.auth.premium import DIAS_PREMIUM, PRECIO_PREMIUM, ROLES_SIN_PAGO
+from app.auth.premium import DIAS_PREMIUM, PRECIO_PREMIUM, ROLES_SIN_PAGO, ambiente_de_pago
 from app.database import get_db
 from app.models.pago import Pago
 from app.models.user import User
@@ -35,7 +35,7 @@ router = APIRouter(prefix="/pagos", tags=["Pagos"])
 
 
 def _ambiente() -> str:
-    return "produccion" if (os.getenv("WEBPAY_AMBIENTE") or "").strip().lower() == "produccion" else "integracion"
+    return ambiente_de_pago()  # paso 122e: la regla quedó en app/auth/premium.py
 
 
 def _api_url() -> str:

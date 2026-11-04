@@ -308,3 +308,58 @@
   color: #1f2a26;
   font-size: 15px;
 }
+
+/* Paso 122e: tarjeta "Plan Premium": 4 cifras en PC, 2 en celular */
+.panel-premium {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.panel-premium div {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background-color: #f2f6f4;
+}
+
+.panel-premium dt {
+  color: #4e625b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.panel-premium-valor {
+  margin: 2px 0 0;
+  color: #0f3d30;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.panel-premium-nota {
+  margin: 2px 0 0;
+  color: #4e625b;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.panel-premium-aviso {
+  margin: 10px 0 0;
+  color: #6b5200;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.panel-premium-enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+@media (max-width: 720px) {
+  .panel-premium {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
