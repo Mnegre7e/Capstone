@@ -24,6 +24,7 @@ import { OpinionesPage } from "./pages/OpinionesPage";
 import { AdminAuditoriaPage } from "./pages/admin/AdminAuditoriaPage";
 import { AdminCargasPage } from "./pages/admin/AdminCargasPage"; // paso 121
 import { PremiumPage } from "./pages/PremiumPage"; // paso 122b
+import { PagoResultadoPage } from "./pages/PagoResultadoPage"; // paso 122d
 import { ReportesLayout } from "./pages/reportes/ReportesLayout";
 import { ResumenPage } from "./pages/reportes/ResumenPage";
 import { SubastasPage } from "./pages/reportes/SubastasPage";
@@ -131,7 +132,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegisterPage />} />
         <Route path="/recuperar" element={<RecuperarPage />} /> {/* paso 117 */}
-        
+
         {/* Paso 122c: el catálogo y el detalle (que sin Premium muestra el aviso del plan) se ven sin cuenta */}
         <Route
           path="/"
@@ -141,6 +142,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         {/* Paso 122c: el catálogo y el detalle (que sin Premium muestra el aviso del plan) se ven sin cuenta */}
         <Route
           path="/propiedades/:id"
@@ -150,12 +152,23 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         {/* Paso 122b: el plan Premium (qué incluye y, desde el paso 122d, el pago) */}
         <Route
           path="/premium"
           element={
             <ProtectedRoute publica>
               <PremiumPage />
+            </ProtectedRoute>
+          }
+        />
+        
+        {/* Paso 122d: a donde vuelve la persona después de pagar en Webpay */}
+        <Route
+          path="/premium/resultado"
+          element={
+            <ProtectedRoute>
+              <PagoResultadoPage />
             </ProtectedRoute>
           }
         />

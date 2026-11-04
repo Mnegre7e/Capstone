@@ -1,10 +1,12 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { BENEFICIOS_PREMIUM, DIAS_PREMIUM, PRECIO_PREMIUM_TEXTO } from "../components/planPremium";
 import "./PremiumPage.css";
 
 // Paso 122b: página del plan Premium. Explica qué incluye y cuánto cuesta.
-// El botón para pagar con Webpay se activa en el paso 122d.
+// Paso 122d: el botón lleva a la página de pago de Webpay (Transbank).
 // Paso 122c: se ve también sin cuenta; para suscribirse, primero se crea la cuenta y se vuelve aquí.
 
 // Qué ve cada uno: [lo que se ve, sin plan, con Premium]
@@ -23,6 +25,20 @@ function fechaLarga(iso: string) {
   return new Date(iso).toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" });
 }
 
+// Paso 122d: Webpay pide llegar a su página con un formulario (POST) que lleva el token de la transacción
+function irAWebpay(url: string, token: string) {
+  const formulario = document.createElement("form");
+  formulario.method = "POST";
+  formulario.action = url;
+  const campo = document.createElement("input");
+  campo.type = "hidden";
+  campo.name = "token_ws";
+  campo.value = token;
+  formulario.appendChild(campo);
+  document.body.appendChild(formulario);
+  formulario.submit();
+}
+
 function Marca({ incluido }: { incluido: boolean }) {
   return incluido ? (
     <span className="premium-marca is-si" aria-label="Sí">
@@ -39,6 +55,30 @@ export function PremiumPage() {
   const { usuario, esAdmin, esAnalista } = useAuth();
   const vigente = Boolean(usuario?.acceso_completo);
   const vencio = !vigente && usuario?.premium_until != null;
+
+  // Paso 122d: pago con Webpay
+  const [pagando, setPagando] = useState(false);
+  const [errorPago, setErrorPago] = useState<string | null>(null);
+  const [ambiente, setAmbiente] = useState<string | null>(null); // "integracion" = pagos de prueba
+
+  useEffect(() => {
+    api
+      .get("/pagos/plan")
+      .then((plan: { ambiente: string }) => setAmbiente(plan.ambiente))
+      .catch(() => setAmbiente(null));
+  }, []);
+
+  async function pagar() {
+    setPagando(true);
+    setErrorPago(null);
+    try {
+      const respuesta: { url: string; token: string } = await api.post("/pagos/webpay");
+      irAWebpay(respuesta.url, respuesta.token); // la página se va a Webpay
+    } catch (error) {
+      setErrorPago(error instanceof Error ? error.message : "No se pudo iniciar el pago.");
+      setPagando(false);
+    }
+  }
 
   return (
     <div className="premium-page">
@@ -90,10 +130,15 @@ export function PremiumPage() {
               {vencio && usuario?.premium_until && (
                 <p className="premium-plan-estado">Tu plan Premium venció el {fechaLarga(usuario.premium_until)}.</p>
               )}
-              <button type="button" className="premium-plan-boton" disabled>
-                Pagar {PRECIO_PREMIUM_TEXTO} con Webpay
+              <button type="button" className="premium-plan-boton" onClick={pagar} disabled={pagando}>
+                {pagando ? "Conectando con Webpay..." : `Pagar ${PRECIO_PREMIUM_TEXTO} con Webpay`}
               </button>
-              <p className="premium-plan-pronto">Muy pronto podrás pagar aquí con Webpay.</p>
+              {errorPago && (
+                <p className="premium-plan-error" role="alert">
+                  {errorPago}
+                </p>
+              )}
+              <p className="premium-plan-pronto">Te llevaremos a la página segura de Webpay para pagar.</p>
             </>
           )}
 
@@ -101,6 +146,12 @@ export function PremiumPage() {
             Pago único con Webpay de Transbank. No se renueva solo: cuando vence, puedes volver a pagar. HouseGreen no
             guarda los datos de tu tarjeta.
           </p>
+          {ambiente === "integracion" && (
+            <p className="premium-plan-prueba">
+              Modo de prueba: se usa el ambiente de integración de Transbank, con tarjetas de prueba. No se cobra dinero
+              real.
+            </p>
+          )}
         </section>
 
         <section className="premium-comparar" aria-labelledby="premium-comparar-titulo">

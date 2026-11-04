@@ -14,6 +14,11 @@ ROLES_SIN_PAGO = (2, 3)
 MENSAJE_PREMIUM = "Esta información es solo para usuarios Premium."
 
 
+# Paso 122d: el plan que se cobra con Webpay (la web muestra el mismo precio, en planPremium.ts)
+PRECIO_PREMIUM = 9990  # pesos
+DIAS_PREMIUM = 30
+
+
 def es_premium(usuario: User | None) -> bool:
     """True si la persona tiene el plan Premium vigente (pagado y sin vencer)."""
     return bool(usuario and usuario.premium_until and usuario.premium_until > datetime.now(timezone.utc))

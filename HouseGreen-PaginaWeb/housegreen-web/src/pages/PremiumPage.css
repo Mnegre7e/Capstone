@@ -263,3 +263,24 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+
+/* Paso 122d: error al iniciar el pago y aviso del modo de prueba */
+.premium-plan-error {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background-color: #fae3e0;
+  color: #a2322a;
+  font-size: 14px;
+}
+
+.premium-plan-prueba {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  border: 1px dashed rgba(250, 204, 21, 0.6);
+  border-radius: 10px;
+  color: #fde68a;
+  font-size: 12px;
+  line-height: 1.45;
+}

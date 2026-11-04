@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { api, guardarToken, borrarToken, obtenerToken } from "../api/client";
 
 // id del rol administrador en la tabla roles (el mismo que revisa requerir_admin en la API)
@@ -41,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<UsuarioActual | null>(null);
   const [verificandoSesion, setVerificandoSesion] = useState(obtenerToken() !== null);
   const [cargando, setCargando] = useState(false);
+  const navigate = useNavigate(); // paso 122d: para ir al inicio de sesión al cerrar sesión
 
   // Si había un token guardado de una sesión anterior, le preguntamos a la API
   // quién es. Si el token venció, la API responde 401 y partimos sin sesión.
@@ -73,9 +75,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // Paso 122d: al cerrar sesión siempre se va al inicio de sesión. Antes eso pasaba solo porque
+  // todas las páginas pedían cuenta; desde el paso 122c el catálogo y el plan se ven sin cuenta,
+  // y la persona se quedaba ahí como invitado.
   function cerrarSesion() {
     borrarToken();
     setUsuario(null);
+    navigate("/login", { replace: true });
   }
 
   return (
