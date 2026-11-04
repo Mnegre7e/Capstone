@@ -13,7 +13,8 @@ from app.models.property import (
 )
 from app.schemas.property import PropertyOut, PropertyCreate, EvaluationOut, EvaluationDetailOut, AuctionInfoOut
 from app.schemas.admin import FotoOut
-from app.auth.dependencies import get_current_user, requerir_admin, ROL_ADMIN_ID
+from app.auth.dependencies import get_usuario_opcional, requerir_admin, requerir_premium, ROL_ADMIN_ID
+from app.auth.premium import tiene_acceso_completo  # paso 122a
 from app.routers.alerts import notificar_nueva_propiedad
 
 router = APIRouter(prefix="/propiedades", tags=["Propiedades"])
@@ -81,6 +82,22 @@ def _armar_respuesta(db: Session, propiedad: Property) -> PropertyOut:
         salida.image_url = portada.url
     return salida
 
+def version_de_catalogo(salida: PropertyOut) -> PropertyOut:
+    # Paso 122a: lo que ve quien no es Premium (o no tiene cuenta): los datos de la tarjeta del catálogo
+    # y el color del semáforo. El puntaje, el porqué de cada factor y el resto del detalle son para Premium.
+    salida.description = None
+    salida.financial_info = None
+    salida.legal_info = None
+    salida.occupancy_info = None
+    salida.market_dynamics = None
+    salida.market_comparables = []
+    salida.debts = []
+    if salida.evaluation:
+        salida.evaluation = salida.evaluation.model_copy(
+            update={"score": None, "total_points": None, "veto_reason": None, "missing_data": None, "details": []}
+        )
+    return salida
+
 def _guardar_datos_relacionados(db: Session, property_id: UUID, datos: PropertyCreate):
     # Financiero
     financiero = db.query(PropertyFinancialInfo).filter_by(property_id=property_id).first()
@@ -142,7 +159,10 @@ def _guardar_datos_relacionados(db: Session, property_id: UUID, datos: PropertyC
     db.commit()
 
 @router.get("", response_model=list[PropertyOut])
-def listar_propiedades(db: Session = Depends(get_db), usuario=Depends(get_current_user)):
+def listar_propiedades(db: Session = Depends(get_db), usuario=Depends(get_usuario_opcional)):
+    # Paso 122a: el catálogo se puede ver sin cuenta; sin Premium llega solo lo que muestra la tarjeta
+    completo = tiene_acceso_completo(usuario)
+
     # Paso 47: antes se hacían unas 9 consultas por cada propiedad (con 500 remates, miles de consultas).
     # Ahora son unas 10 consultas en total, sin importar cuántas propiedades haya.
 
@@ -185,11 +205,11 @@ def listar_propiedades(db: Session = Depends(get_db), usuario=Depends(get_curren
         salida.evaluation = _evaluacion_con_detalle(evaluaciones.get(propiedad.id), detalles)
         if propiedad.id in portadas:
             salida.image_url = portadas[propiedad.id]
-        respuesta.append(salida)
+        respuesta.append(salida if completo else version_de_catalogo(salida))
     return respuesta
 
 @router.get("/{property_id}", response_model=PropertyOut)
-def obtener_propiedad(property_id: UUID, db: Session = Depends(get_db), usuario=Depends(get_current_user)):
+def obtener_propiedad(property_id: UUID, db: Session = Depends(get_db), usuario=Depends(requerir_premium)):
     propiedad = db.query(Property).filter(Property.id == property_id).first()
     # Paso 114: una publicación que el admin quitó del catálogo solo la ve el admin
     if not propiedad or (propiedad.removed_at is not None and usuario.role_id != ROL_ADMIN_ID):
@@ -253,7 +273,7 @@ ROL_INVERSIONISTA_ID = 1
 MINUTOS_ENTRE_VISITAS = 30
 
 @router.post("/{property_id}/vista")
-def registrar_vista(property_id: UUID, db: Session = Depends(get_db), usuario=Depends(get_current_user)):
+def registrar_vista(property_id: UUID, db: Session = Depends(get_db), usuario=Depends(requerir_premium)):
     propiedad = db.query(Property).filter(Property.id == property_id).first()
     if not propiedad:
         raise HTTPException(status_code=404, detail="Propiedad no encontrada")
@@ -279,9 +299,9 @@ def registrar_vista(property_id: UUID, db: Session = Depends(get_db), usuario=De
     return {"registrada": True}
 
 @router.get("/{property_id}/fotos", response_model=list[FotoOut])
-def listar_fotos(property_id: UUID, db: Session = Depends(get_db), usuario=Depends(get_current_user)):
+def listar_fotos(property_id: UUID, db: Session = Depends(get_db), usuario=Depends(requerir_premium)):
     # Fotos que subió el admin (paso 28), en orden: la primera es la portada.
-    # Las puede ver cualquier usuario con sesión (inversionista, analista o admin).
+    # Paso 122a: son parte del detalle, así que las ve quien tiene Premium (o es analista o admin).
     propiedad = db.query(Property).filter(Property.id == property_id).first()
     if not propiedad:
         raise HTTPException(status_code=404, detail="Propiedad no encontrada")
@@ -299,7 +319,7 @@ def listar_fotos(property_id: UUID, db: Session = Depends(get_db), usuario=Depen
 URL_FICHA_ORIGEN = "https://www.rematesinmobiliarios.cl/ficha-remate.php?id="
 
 @router.get("/{property_id}/remate", response_model=AuctionInfoOut | None)
-def obtener_datos_del_remate(property_id: UUID, db: Session = Depends(get_db), usuario=Depends(get_current_user)):
+def obtener_datos_del_remate(property_id: UUID, db: Session = Depends(get_db), usuario=Depends(requerir_premium)):
     # Datos que el scraper leyó de la ficha del remate: tribunal, rol de la causa, modalidad, garantía y anuncio.
     # Devuelve null si la propiedad no los tiene (no vino del scraper, o el sitio retiró el remate).
     propiedad = db.query(Property).filter(Property.id == property_id).first()

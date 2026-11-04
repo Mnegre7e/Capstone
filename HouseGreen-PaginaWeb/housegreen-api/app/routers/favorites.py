@@ -4,13 +4,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from uuid import UUID
 
-from app.routers.properties import _armar_respuesta
+from app.routers.properties import _armar_respuesta, version_de_catalogo
 from app.database import get_db
 from app.models.favorite import SavedProperty
 from app.models.property import Property
 from app.models.user import User
 from app.schemas.favorite import FavoriteCreate, FavoriteOut
-from app.auth.dependencies import get_current_user
+from app.auth.dependencies import get_current_user, requerir_premium
+from app.auth.premium import tiene_acceso_completo  # paso 122a
 from app.auditoria import anotar
 
 router = APIRouter(prefix="/favoritos", tags=["Favoritos"])
@@ -29,9 +30,13 @@ def listar_favoritos(db: Session = Depends(get_db), usuario: User = Depends(get_
         .all()
     )
 
+        # Paso 122a: si el plan Premium venció, la persona sigue viendo su lista, pero solo con los datos del catálogo
+    completo = tiene_acceso_completo(usuario)
     resultado = []
     for favorito in favoritos:
         propiedad_completa = _armar_respuesta(db, favorito.property)
+        if not completo:
+            propiedad_completa = version_de_catalogo(propiedad_completa)
         resultado.append(
             FavoriteOut(
                 id=favorito.id,
@@ -50,7 +55,7 @@ def agregar_favorito(
     datos: FavoriteCreate,
     request: Request,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(requerir_premium),  # paso 122a: guardar favoritos es de Premium
 ):
     propiedad = db.query(Property).filter(Property.id == property_id).first()
     if not propiedad:

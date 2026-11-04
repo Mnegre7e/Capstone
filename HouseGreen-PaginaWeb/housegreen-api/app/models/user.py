@@ -26,7 +26,8 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     deleted_at = Column(TIMESTAMP(timezone=True))  # paso 105: cuándo la persona eliminó su cuenta (vacío = no la eliminó)
-
+    premium_until = Column(TIMESTAMP(timezone=True))  # paso 122a: hasta cuándo tiene el plan Premium (vacío = no lo tiene)
+    
     # relationship() no crea una columna nueva — le permite a Python hacer
     # user.role.name en vez de tener que buscar el rol por separado con role_id.
     role = relationship("Role")

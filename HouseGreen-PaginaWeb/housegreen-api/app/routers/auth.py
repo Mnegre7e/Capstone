@@ -23,6 +23,7 @@ from app.schemas.user import (
 )
 from app.auth.security import hash_password, verify_password, create_access_token, problema_de_contrasena
 from app.auth.dependencies import get_current_user, ROL_ADMIN_ID
+from app.auth.premium import tiene_acceso_completo  # paso 122a
 from app.auth import two_factor
 from app.auditoria import anotar
 from app.models.audit import AuditLog
@@ -64,6 +65,8 @@ def _usuario_me(usuario: User) -> UserMe:
         role_name=usuario.role.name if usuario.role else None,
         two_fa_enabled=bool(usuario.two_fa_enabled),
         two_fa_required=two_factor.es_obligatoria_para(usuario.role_id),
+        premium_until=usuario.premium_until,  # paso 122a
+        acceso_completo=tiene_acceso_completo(usuario),
     )
 
 

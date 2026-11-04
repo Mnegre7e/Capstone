@@ -11,7 +11,8 @@ from app.models.alert import SavedFilter, Alert
 from app.models.property import Comuna, Property, PropertyEvaluation
 from app.models.user import User
 from app.schemas.alert import SavedFilterCreate, SavedFilterOut, AlertOut
-from app.auth.dependencies import get_current_user
+from app.auth.dependencies import get_current_user, requerir_premium
+from app.auth.premium import condicion_acceso_completo  # paso 122a
 from app.routers.admin_panel import _esta_vigente  # la misma regla de "remate vigente" del Panel
 from app.auditoria import anotar
 
@@ -25,13 +26,16 @@ PRECIO_TOPE = Decimal("1000000000000")  # la columna de la base guarda hasta 12 
 NOMBRE_DEL_NIVEL = {"verde": "riesgo bajo", "amarillo": "riesgo medio", "rojo": "riesgo alto"}
 
 
+
 # Paso 104: eliminar una alerta ya no borra la fila: queda con la fecha en que se eliminó (removed_at).
 # Las alertas que siguen activas son las que tienen removed_at vacío y cuya cuenta está habilitada.
+# Paso 122a: además, solo avisan las de quien tiene Premium vigente (o es analista o administrador).
 def _alertas_activas(db: Session):
     return (
         db.query(SavedFilter)
         .join(User, User.id == SavedFilter.user_id)
         .filter(SavedFilter.removed_at.is_(None), User.is_active.is_(True))
+        .filter(condicion_acceso_completo())
     )
 
 
@@ -176,7 +180,7 @@ def crear_filtro(
     datos: SavedFilterCreate,
     request: Request,
     db: Session = Depends(get_db),
-    usuario: User = Depends(get_current_user),
+    usuario: User = Depends(requerir_premium),  # paso 122a: crear alertas es de Premium
 ):
     # Paso 93: se revisa lo que llega antes de guardarlo
     if datos.comuna_id is None and datos.max_risk_level is None and datos.max_price is None:

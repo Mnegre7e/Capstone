@@ -3,6 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import { api } from "../api/client";
 import { useProperties } from "../context/PropertiesContext";
 import { useFavorites } from "../context/FavoritesContext";
+import { useAuth } from "../context/AuthContext";
+import { AvisoPremium } from "../components/AvisoPremium";
 import { RiskBadge } from "../components/RiskBadge";
 import { GaleriaFotos } from "../components/GaleriaFotos";
 import { TarjetaSemaforo } from "../components/TarjetaSemaforo";
@@ -101,18 +103,21 @@ export function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { properties, comunasPorId, cargando } = useProperties();
   const { esFavorito, alternarFavorito } = useFavorites();
+    // Paso 122b: el detalle es para Premium (o analista y administrador); el resto ve el aviso del plan
+  const { usuario } = useAuth();
+  const accesoCompleto = Boolean(usuario?.acceso_completo);
 
   // Registra la vista (paso 12): le avisa a la API que esta persona abrió la propiedad.
   // En desarrollo React ejecuta este efecto dos veces seguidas; el useRef recuerda
   // que ya avisamos por esta propiedad y evita la llamada doble.
   const vistaRegistrada = useRef<string | null>(null);
   useEffect(() => {
-    if (!id || vistaRegistrada.current === id) return;
+    if (!id || !accesoCompleto || vistaRegistrada.current === id) return; // paso 122b: sin Premium no hay vista
     vistaRegistrada.current = id;
     api.post(`/propiedades/${id}/vista`).catch(() => {
       // Si falla no mostramos nada: la vista es solo una estadística
     });
-  }, [id]);
+  }, [id, accesoCompleto]);
 
   if (cargando) {
     return <div className="detail-page">Cargando propiedad...</div>;
@@ -131,6 +136,24 @@ export function PropertyDetailPage() {
 
   const comuna = comunasPorId[property.comuna_id] ?? "Comuna desconocida";
   const favorito = esFavorito(property.id);
+
+  
+  // Paso 122b: sin Premium, en vez del detalle se muestra qué incluye el plan
+  if (!accesoCompleto) {
+    return (
+      <div className="detail-page">
+        <div className="detail-arriba">
+          <Link to="/" className="detail-back-link">
+            ‹ Volver al catálogo
+          </Link>
+        </div>
+        <AvisoPremium titulo="Para ver este remate necesitas el plan Premium">
+          Estás por abrir <strong>{property.title}</strong>, en {comuna}. Con Premium ves todo lo que hay detrás del color
+          del semáforo.
+        </AvisoPremium>
+      </div>
+    );
+  }
 
   // Paso 54: enlace a Google Maps con la dirección de la propiedad (solo si tiene dirección)
   const urlMapa = property.address

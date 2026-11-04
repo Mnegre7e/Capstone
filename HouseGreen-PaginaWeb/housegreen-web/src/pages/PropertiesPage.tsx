@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useProperties } from "../context/PropertiesContext";
 import { PropertyCard } from "../components/PropertyCard";
+import { Link } from "react-router-dom";
 import { useFavorites } from "../context/FavoritesContext";
+import { useAuth } from "../context/AuthContext";
+import { DIAS_PREMIUM, PRECIO_PREMIUM_TEXTO } from "../components/planPremium";
 import { remateFinalizado, remateRetirado } from "../components/estadoRemate";
 import { CATEGORIAS, categoriaDeTipo } from "../components/tipoPropiedad";
 import type { CategoriaTipo } from "../components/tipoPropiedad";
@@ -54,6 +57,7 @@ function alternar<T>(lista: T[], valor: T): T[] {
 }
 
 export function PropertiesPage() {
+  const { usuario } = useAuth(); // paso 122b: para el aviso del plan Premium
   const [busqueda, setBusqueda] = useState("");
   const [soloFavoritos, setSoloFavoritos] = useState(false);
 
@@ -202,6 +206,17 @@ export function PropertiesPage() {
       <h1>Propiedades en remate</h1>
       <p className="properties-count">{propiedadesFiltradas.length} propiedades encontradas</p>
 
+      {/* Paso 122b: sin Premium se ve el catálogo; el detalle de cada remate es parte del plan */}
+      {!usuario?.acceso_completo && (
+        <div className="properties-premium">
+          <p>
+            <strong>Estás viendo el catálogo.</strong> Para abrir cada remate y ver su puntaje, el precio frente a la
+            comuna y los datos del remate, hazte Premium: {PRECIO_PREMIUM_TEXTO} por {DIAS_PREMIUM} días.
+          </p>
+          <Link to="/premium">Ver el plan ›</Link>
+        </div>
+      )}
+      
       <div className="properties-filters">
         <input
           type="text"

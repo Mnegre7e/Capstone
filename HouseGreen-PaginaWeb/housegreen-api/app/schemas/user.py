@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
 
@@ -38,7 +39,9 @@ class UserMe(UserOut):
     role_name: str | None = None
     two_fa_enabled: bool = False  # paso 76: si tiene activada la verificación en dos pasos
     two_fa_required: bool = False  # paso 80: si su tipo de cuenta está obligado a usarla
-
+    premium_until: datetime | None = None  # paso 122a: hasta cuándo tiene el plan Premium
+    acceso_completo: bool = False  # paso 122a: si puede ver el detalle (Premium vigente, analista o administrador)
+    
 # Paso 73: lo que la web ENVÍA al editar el perfil (PATCH /auth/me).
 # Solo se cambia lo que viene en la petición; el correo no se puede cambiar.
 class ProfileUpdate(BaseModel):

@@ -1,0 +1,259 @@
+/* Paso 122b: página del plan Premium */
+
+.premium-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 16px 48px;
+}
+
+.premium-page h1 {
+  margin: 0;
+  color: #0f3d30;
+  font-size: 28px;
+}
+
+.premium-subtitulo {
+  margin: 6px 0 0;
+  color: #5f6b66;
+  font-size: 16px;
+}
+
+/* El plan a la izquierda y la comparación a la derecha (una debajo de otra en el celular) */
+.premium-columnas {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 20px;
+  align-items: start;
+  margin-top: 24px;
+}
+
+@media (max-width: 760px) {
+  .premium-columnas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- El plan: tarjeta verde oscuro ---------- */
+.premium-plan {
+  padding: 26px 24px 24px;
+  border-radius: 20px;
+  background-color: #0f3d30;
+  color: #e8f3ee;
+  box-shadow: 0 28px 56px -32px rgba(15, 61, 48, 0.6);
+}
+
+.premium-plan-sello {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background-color: #facc15;
+  color: #3d2c00;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.premium-plan-precio {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 16px 0 0;
+}
+
+.premium-plan-precio strong {
+  color: white;
+  font-size: 40px;
+  line-height: 1;
+}
+
+.premium-plan-precio span {
+  color: #b9d4c8;
+  font-size: 16px;
+}
+
+.premium-plan-lista {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.premium-plan-lista li {
+  position: relative;
+  padding-left: 26px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.premium-plan-lista li + li {
+  margin-top: 8px;
+}
+
+/* Visto amarillo */
+.premium-plan-lista li::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 3px;
+  width: 9px;
+  height: 5px;
+  border-bottom: 2px solid #facc15;
+  border-left: 2px solid #facc15;
+  transform: rotate(-45deg);
+}
+
+.premium-plan-estado {
+  margin: 20px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.08);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.premium-plan-estado.is-activo {
+  background-color: rgba(34, 197, 94, 0.18);
+}
+
+.premium-plan-estado strong {
+  color: white;
+}
+
+.premium-plan-boton {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 13px 18px;
+  border: none;
+  border-radius: 10px;
+  background-color: #facc15;
+  color: #3d2c00;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.premium-plan-boton:hover:not(:disabled) {
+  background-color: #fde047;
+}
+
+.premium-plan-boton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.premium-plan-boton:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+.premium-plan-pronto {
+  margin: 8px 0 0;
+  color: #b9d4c8;
+  font-size: 13px;
+  text-align: center;
+}
+
+.premium-plan-nota {
+  margin: 18px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  color: #b9d4c8;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ---------- Comparación ---------- */
+.premium-comparar {
+  padding: 22px 20px 20px;
+  border: 1px solid #e1e7e4;
+  border-radius: 20px;
+  background-color: white;
+}
+
+.premium-comparar h2 {
+  margin: 0;
+  color: #0f3d30;
+  font-size: 18px;
+}
+
+.premium-comparar table {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.premium-comparar thead th {
+  padding: 0 6px 8px;
+  color: #5f6b66;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.premium-comparar tbody th {
+  padding: 10px 8px 10px 0;
+  color: #2f3a35;
+  font-weight: 400;
+  text-align: left;
+}
+
+.premium-comparar tbody td {
+  width: 76px;
+  padding: 10px 6px;
+  text-align: center;
+}
+
+.premium-comparar tbody tr {
+  border-top: 1px solid #edf1ef;
+}
+
+/* La columna Premium, destacada */
+.premium-comparar td:last-child,
+.premium-comparar thead th:last-child {
+  background-color: #f2f8f5;
+}
+
+.premium-comparar thead th:last-child {
+  border-radius: 10px 10px 0 0;
+  color: #15803d;
+}
+
+.premium-marca {
+  font-weight: 700;
+}
+
+.premium-marca.is-si {
+  color: #15803d;
+}
+
+.premium-marca.is-no {
+  color: #a3aea9;
+}
+
+.premium-volver {
+  display: inline-block;
+  margin-top: 16px;
+  color: #15803d;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.premium-volver:hover {
+  text-decoration: underline;
+}
+
+/* Texto solo para lectores de pantalla */
+.premium-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

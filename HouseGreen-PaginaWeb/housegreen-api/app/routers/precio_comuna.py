@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.auth.dependencies import get_current_user
+from app.auth.dependencies import requerir_premium
 from app.database import get_db
 from app.models.precio_comuna import ComunaMarketPrice
 from app.models.property import Comuna, Property
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/propiedades", tags=["Propiedades"])
 
 
 @router.get("/{property_id}/precio", response_model=PrecioComunaOut)
-def precio_frente_a_la_comuna(property_id: UUID, db: Session = Depends(get_db), usuario=Depends(get_current_user)):
+def precio_frente_a_la_comuna(property_id: UUID, db: Session = Depends(get_db), usuario=Depends(requerir_premium)):
     propiedad = db.query(Property).filter(Property.id == property_id).first()
     if not propiedad:
         raise HTTPException(status_code=404, detail="Propiedad no encontrada")

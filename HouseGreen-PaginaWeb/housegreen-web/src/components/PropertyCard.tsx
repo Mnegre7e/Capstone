@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RiskBadge } from "./RiskBadge";
 import { useFavorites } from "../context/FavoritesContext";
 import { useProperties } from "../context/PropertiesContext";
+import { useAuth } from "../context/AuthContext";
 import { urlDeArchivo } from "../api/client";
 import { SinFoto } from "./SinFoto";
 import { remateFinalizado, remateRetirado } from "./estadoRemate";
@@ -58,6 +59,8 @@ function textoRemate(iso: string) {
 export function PropertyCard({ property }: PropertyCardProps) {
   const { esFavorito, alternarFavorito } = useFavorites();
   const { comunasPorId } = useProperties();
+  const { usuario } = useAuth();
+  const navigate = useNavigate();
   const favorito = esFavorito(property.id);
 
   // Paso 52: si la foto no carga (dirección rota), se recuerda cuál falló y se muestra el dibujo.
@@ -68,6 +71,11 @@ export function PropertyCard({ property }: PropertyCardProps) {
   function handleFavoritoClick(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
+    // Paso 122b: guardar favoritos es de Premium; sin el plan, el corazón lleva a la página del plan
+    if (!usuario?.acceso_completo) {
+      navigate("/premium");
+      return;
+    }
     alternarFavorito(property.id);
   }
 

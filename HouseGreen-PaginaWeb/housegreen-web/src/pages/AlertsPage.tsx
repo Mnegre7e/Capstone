@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import { useAlerts } from "../context/AlertsContext";
+import { useAuth } from "../context/AuthContext";
+import { AvisoPremium } from "../components/AvisoPremium";
 import { useProperties } from "../context/PropertiesContext";
 import { MisAnuncios } from "../components/MisAnuncios";
 import { RiskBadge } from "../components/RiskBadge";
@@ -41,6 +43,8 @@ function textoDelRiesgo(nivel: Riesgo | null) {
 }
 
 export function AlertsPage() {
+  const { usuario } = useAuth();
+  const accesoCompleto = Boolean(usuario?.acceso_completo); // paso 122b
   const { notificaciones, noLeidas, cargando, error, recargar, marcarLeida, marcarTodasLeidas } = useAlerts();
   const { properties, comunasPorId } = useProperties();
 
@@ -219,62 +223,74 @@ export function AlertsPage() {
 
         {/* ---------- De qué quiere que le avisen ---------- */}
         <aside className="alerts-lateral">
-          <h2 className="alerts-section-title">Mis alertas</h2>
-          <p className="alerts-ayuda">
-            Elige una o más condiciones. Te avisaremos cuando llegue un remate nuevo que las cumpla todas.
-          </p>
+                    <h2 className="alerts-section-title">Mis alertas</h2>
 
-          <form className="alerts-form" onSubmit={crearAlerta} noValidate>
-            <label className="alerts-campo">
-              Comuna
-              <select value={comunaId} onChange={(e) => setComunaId(e.target.value)}>
-                <option value="">Cualquier comuna</option>
-                {comunas.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.nombre}
-                  </option>
-                ))}
-              </select>
-            </label>
+          {/* Paso 122b: crear alertas es de Premium. Sin el plan se ven (y se pueden borrar) las que ya tenía. */}
+          {!accesoCompleto && (
+            <AvisoPremium titulo="Las alertas son parte del plan Premium" variante="compacto">
+              Te avisamos cuando llega un remate nuevo que cumple tus condiciones.
+            </AvisoPremium>
+          )}
 
-            <label className="alerts-campo">
-              Riesgo
-              <select value={riesgo} onChange={(e) => setRiesgo(e.target.value)}>
-                <option value="">Cualquier riesgo</option>
-                <option value="verde">Solo riesgo bajo</option>
-                <option value="amarillo">Riesgo bajo o medio</option>
-              </select>
-            </label>
-
-            <label className="alerts-campo">
-              Precio mínimo del remate, hasta
-              <span className="alerts-precio">
-                <span aria-hidden="true">$</span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="Sin tope"
-                  // Se guardan solo las cifras y se muestran con puntos: 60000000 -> 60.000.000
-                  value={precio === "" ? "" : Number(precio).toLocaleString("es-CL")}
-                  onChange={(e) => setPrecio(e.target.value.replace(/\D/g, "").slice(0, LARGO_MAXIMO_DEL_PRECIO))}
-                />
-              </span>
-            </label>
-
-            {errorDelFormulario && (
-              <p className="alerts-error-chico" role="alert">
-                {errorDelFormulario}
+          {accesoCompleto && (
+            <>
+              <p className="alerts-ayuda">
+                Elige una o más condiciones. Te avisaremos cuando llegue un remate nuevo que las cumpla todas.
               </p>
-            )}
 
-            <button type="submit" className="alerts-submit-btn" disabled={guardando}>
-              {guardando ? "Creando..." : "Crear alerta"}
-            </button>
-          </form>
+              <form className="alerts-form" onSubmit={crearAlerta} noValidate>
+                <label className="alerts-campo">
+                  Comuna
+                  <select value={comunaId} onChange={(e) => setComunaId(e.target.value)}>
+                    <option value="">Cualquier comuna</option>
+                    {comunas.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="alerts-campo">
+                  Riesgo
+                  <select value={riesgo} onChange={(e) => setRiesgo(e.target.value)}>
+                    <option value="">Cualquier riesgo</option>
+                    <option value="verde">Solo riesgo bajo</option>
+                    <option value="amarillo">Riesgo bajo o medio</option>
+                  </select>
+                </label>
+
+                <label className="alerts-campo">
+                  Precio mínimo del remate, hasta
+                  <span className="alerts-precio">
+                    <span aria-hidden="true">$</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="Sin tope"
+                      // Se guardan solo las cifras y se muestran con puntos: 60000000 -> 60.000.000
+                      value={precio === "" ? "" : Number(precio).toLocaleString("es-CL")}
+                      onChange={(e) => setPrecio(e.target.value.replace(/\D/g, "").slice(0, LARGO_MAXIMO_DEL_PRECIO))}
+                    />
+                  </span>
+                </label>
+
+                {errorDelFormulario && (
+                  <p className="alerts-error-chico" role="alert">
+                    {errorDelFormulario}
+                  </p>
+                )}
+
+                <button type="submit" className="alerts-submit-btn" disabled={guardando}>
+                  {guardando ? "Creando..." : "Crear alerta"}
+                </button>
+              </form>
+            </>
+          )}
 
           {errorDeAlertas && <p className="alerts-error">No se pudo completar: {errorDeAlertas}</p>}
           {alertas === null && !errorDeAlertas && <p className="alerts-empty">Cargando...</p>}
-          {alertas !== null && alertas.length === 0 && (
+                    {alertas !== null && alertas.length === 0 && accesoCompleto && (
             <p className="alerts-empty">Todavía no tienes alertas. Crea la primera con el formulario.</p>
           )}
 

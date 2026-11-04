@@ -17,6 +17,8 @@ export interface UsuarioActual {
   role_name: string | null;
   two_fa_enabled: boolean; // paso 76: si tiene activada la verificación en dos pasos
   two_fa_required: boolean;
+  premium_until: string | null; // paso 122a: hasta cuándo tiene el plan Premium
+  acceso_completo: boolean; // paso 122a: si puede ver el detalle (Premium vigente, analista o administrador)
 }
 
 interface AuthContextType {

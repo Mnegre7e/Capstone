@@ -23,6 +23,7 @@ import { PerfilPage } from "./pages/PerfilPage";
 import { OpinionesPage } from "./pages/OpinionesPage";
 import { AdminAuditoriaPage } from "./pages/admin/AdminAuditoriaPage";
 import { AdminCargasPage } from "./pages/admin/AdminCargasPage"; // paso 121
+import { PremiumPage } from "./pages/PremiumPage"; // paso 122b
 import { ReportesLayout } from "./pages/reportes/ReportesLayout";
 import { ResumenPage } from "./pages/reportes/ResumenPage";
 import { SubastasPage } from "./pages/reportes/SubastasPage";
@@ -129,6 +130,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* Paso 122b: el plan Premium (qué incluye y, desde el paso 122d, el pago) */}
+        <Route
+          path="/premium"
+          element={
+            <ProtectedRoute>
+              <PremiumPage />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/alertas"
           element={
