@@ -210,13 +210,13 @@ export function PropertiesPage() {
       {!usuario?.acceso_completo && (
         <div className="properties-premium">
           <p>
-            <strong>Estás viendo el catálogo.</strong> Para abrir cada remate y ver su puntaje, el precio frente a la
-            comuna y los datos del remate, hazte Premium: {PRECIO_PREMIUM_TEXTO} por {DIAS_PREMIUM} días.
+            <strong>Estás viendo el catálogo.</strong> Para ver el semáforo de riesgo de cada remate, el precio frente a
+            la comuna y los datos del remate, hazte Premium: {PRECIO_PREMIUM_TEXTO} por {DIAS_PREMIUM} días.
           </p>
           <Link to="/premium">Ver el plan ›</Link>
         </div>
       )}
-      
+
       <div className="properties-filters">
         <input
           type="text"
@@ -347,26 +347,29 @@ export function PropertiesPage() {
             </div>
           </fieldset>
 
-          <fieldset className="cat-grupo">
-            <legend>Riesgo según semáforo</legend>
-            <div className="cat-chips">
-              {(["verde", "amarillo", "rojo"] as Riesgo[]).map((r) => {
-                const activo = riesgosElegidos.includes(r);
-                return (
-                  <button
-                    key={r}
-                    type="button"
-                    className={`cat-chip ${activo ? "is-activo" : ""}`}
-                    aria-pressed={activo}
-                    onClick={() => setRiesgosElegidos(alternar(riesgosElegidos, r))}
-                  >
-                    <span className={`cat-punto cat-punto-${r}`} />
-                    {NOMBRE_RIESGO[r]}
-                  </button>
-                );
-              })}
-            </div>
-          </fieldset>
+          {/* Paso 122b2: filtrar por semáforo es de Premium (sin el plan no se ve el semáforo) */}
+          {usuario?.acceso_completo && (
+            <fieldset className="cat-grupo">
+              <legend>Riesgo según semáforo</legend>
+              <div className="cat-chips">
+                {(["verde", "amarillo", "rojo"] as Riesgo[]).map((r) => {
+                  const activo = riesgosElegidos.includes(r);
+                  return (
+                    <button
+                      key={r}
+                      type="button"
+                      className={`cat-chip ${activo ? "is-activo" : ""}`}
+                      aria-pressed={activo}
+                      onClick={() => setRiesgosElegidos(alternar(riesgosElegidos, r))}
+                    >
+                      <span className={`cat-punto cat-punto-${r}`} />
+                      {NOMBRE_RIESGO[r]}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+          )}
 
           <div className="cat-panel-botones">
             <button type="button" className="cat-boton-limpiar" onClick={limpiar}>

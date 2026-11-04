@@ -148,8 +148,8 @@ export function PropertyDetailPage() {
           </Link>
         </div>
         <AvisoPremium titulo="Para ver este remate necesitas el plan Premium">
-          Estás por abrir <strong>{property.title}</strong>, en {comuna}. Con Premium ves todo lo que hay detrás del color
-          del semáforo.
+          Estás por abrir <strong>{property.title}</strong>, en {comuna}. Con Premium ves su semáforo de riesgo y todo el
+          detalle del remate.
         </AvisoPremium>
       </div>
     );

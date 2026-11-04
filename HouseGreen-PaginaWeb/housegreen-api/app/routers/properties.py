@@ -83,8 +83,8 @@ def _armar_respuesta(db: Session, propiedad: Property) -> PropertyOut:
     return salida
 
 def version_de_catalogo(salida: PropertyOut) -> PropertyOut:
-    # Paso 122a: lo que ve quien no es Premium (o no tiene cuenta): los datos de la tarjeta del catálogo
-    # y el color del semáforo. El puntaje, el porqué de cada factor y el resto del detalle son para Premium.
+    # Paso 122a: lo que ve quien no es Premium (o no tiene cuenta): solo los datos de la tarjeta del catálogo.
+    # Paso 122b2: tampoco el semáforo (ni el color): todo el semáforo y el resto del detalle son para Premium.
     salida.description = None
     salida.financial_info = None
     salida.legal_info = None
@@ -92,10 +92,7 @@ def version_de_catalogo(salida: PropertyOut) -> PropertyOut:
     salida.market_dynamics = None
     salida.market_comparables = []
     salida.debts = []
-    if salida.evaluation:
-        salida.evaluation = salida.evaluation.model_copy(
-            update={"score": None, "total_points": None, "veto_reason": None, "missing_data": None, "details": []}
-        )
+    salida.evaluation = None
     return salida
 
 def _guardar_datos_relacionados(db: Session, property_id: UUID, datos: PropertyCreate):

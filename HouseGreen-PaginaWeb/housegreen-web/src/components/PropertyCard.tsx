@@ -113,10 +113,12 @@ export function PropertyCard({ property }: PropertyCardProps) {
         ) : (
           <SinFoto tipo={property.property_type} className="property-card-image" />
         )}
-        <div className="property-card-badge">
-          <RiskBadge riesgo={riesgo} />
-        </div>
-
+        {/* Paso 122b2: el semáforo (incluso el color) es solo para Premium */}
+        {usuario?.acceso_completo && (
+          <div className="property-card-badge">
+            <RiskBadge riesgo={riesgo} />
+          </div>
+        )}
         <button
           onClick={handleFavoritoClick}
           className={`property-card-fav-btn ${favorito ? "is-favorito" : ""}`}

@@ -9,9 +9,9 @@ import "./PremiumPage.css";
 // Qué ve cada uno: [lo que se ve, sin plan, con Premium]
 const COMPARACION: [string, boolean, boolean][] = [
   ["Catálogo de remates", true, true],
-  ["Color del semáforo", true, true],
-  ["Detalle de cada remate", false, true],
+  ["Semáforo de riesgo (color)", false, true], // paso 122b2: sin plan ya no se ve el color
   ["Puntaje del semáforo y por qué lo tiene", false, true],
+  ["Detalle de cada remate", false, true],
   ["Precio frente a la comuna", false, true],
   ["Datos del remate y fotos", false, true],
   ["Favoritos y alertas", false, true],
