@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { MarcoDeEntrada } from "../components/MarcoDeEntrada";
 import { CampoDeEntrada } from "../components/CampoDeEntrada";
 import { leerAvisoDelLogin, borrarAvisoDelLogin } from "../utils/avisoLogin";
+import { conVuelta, rutaDeVuelta } from "../utils/volver";
 import "./LoginPage.css";
 
 export function LoginPage() {
@@ -18,6 +19,8 @@ export function LoginPage() {
 
   const { iniciarSesion, cargando } = useAuth();
   const navigate = useNavigate();
+    // Paso 122c: si llegó desde otra página (por ejemplo, el plan Premium), vuelve a ella al entrar
+  const volver = rutaDeVuelta(useLocation().search);
 
   // Paso 105: aviso que dejó otra página (por ejemplo, al eliminar la cuenta). Se muestra una sola vez.
   const [aviso] = useState(leerAvisoDelLogin);
@@ -42,7 +45,7 @@ export function LoginPage() {
     try {
       const entro = await iniciarSesion(email, password, pideCodigo ? codigo : undefined);
       if (entro) {
-        navigate("/");
+        navigate(volver ?? "/");
       } else {
         // La contraseña está bien, pero la cuenta pide el código: se muestra el segundo paso
         setPideCodigo(true);
@@ -161,7 +164,12 @@ export function LoginPage() {
         </button>
 
         <p className="login-switch">
-          ¿No tienes cuenta? <Link to="/registro">Regístrate</Link>
+          ¿No tienes cuenta? <Link to={conVuelta("/registro", volver)}>Regístrate</Link>
+        </p>
+
+        {/* Paso 122c: entrar como invitado, sin cuenta: se ve el catálogo */}
+        <p className="login-switch">
+          ¿Solo quieres mirar? <Link to="/">Ver los remates sin cuenta</Link>
         </p>
 
         <p className="login-nota">

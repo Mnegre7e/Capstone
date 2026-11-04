@@ -5,6 +5,7 @@ import "./PremiumPage.css";
 
 // Paso 122b: página del plan Premium. Explica qué incluye y cuánto cuesta.
 // El botón para pagar con Webpay se activa en el paso 122d.
+// Paso 122c: se ve también sin cuenta; para suscribirse, primero se crea la cuenta y se vuelve aquí.
 
 // Qué ve cada uno: [lo que se ve, sin plan, con Premium]
 const COMPARACION: [string, boolean, boolean][] = [
@@ -71,6 +72,18 @@ export function PremiumPage() {
               <Link to="/" className="premium-plan-boton">
                 Ir a los remates
               </Link>
+            </>
+          ) : !usuario ? (
+            <>
+              <p className="premium-plan-estado">
+                Para suscribirte, primero crea tu cuenta (es gratis). Al terminar vuelves aquí para pagar.
+              </p>
+              <Link to="/registro?volver=%2Fpremium" className="premium-plan-boton">
+                Crear mi cuenta
+              </Link>
+              <p className="premium-plan-pronto">
+                ¿Ya tienes cuenta? <Link to="/login?volver=%2Fpremium">Inicia sesión</Link>
+              </p>
             </>
           ) : (
             <>

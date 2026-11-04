@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import { problemaDeContrasena, REGLA_CONTRASENA } from "../utils/contrasena";
 import { MarcoDeEntrada } from "../components/MarcoDeEntrada";
 import { CampoDeEntrada } from "../components/CampoDeEntrada";
+import { conVuelta, rutaDeVuelta } from "../utils/volver";
 import "./LoginPage.css"; // reutilizamos los mismos estilos del login
 
 export function RegisterPage() {
@@ -19,6 +20,8 @@ export function RegisterPage() {
 
   const { iniciarSesion } = useAuth();
   const navigate = useNavigate();
+    // Paso 122c: si viene del plan Premium, al crear la cuenta vuelve ahí para pagar
+  const volver = rutaDeVuelta(useLocation().search);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,7 +57,7 @@ export function RegisterPage() {
       // 2. Apenas se crea, lo logueamos automáticamente para que no
       // tenga que volver a escribir sus datos en la pantalla de login.
       await iniciarSesion(email, password);
-      navigate("/");
+      navigate(volver ?? "/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al registrar la cuenta");
     } finally {
@@ -135,7 +138,7 @@ export function RegisterPage() {
         </button>
 
         <p className="login-switch">
-          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
+          ¿Ya tienes cuenta? <Link to={conVuelta("/login", volver)}>Inicia sesión</Link>
         </p>
 
         <p className="login-nota">

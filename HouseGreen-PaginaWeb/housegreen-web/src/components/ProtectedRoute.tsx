@@ -1,4 +1,4 @@
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import type { ReactNode } from "react";
 import { useAuth } from "../context/AuthContext";
 
@@ -6,10 +6,12 @@ interface ProtectedRouteProps {
   children: ReactNode;
   soloAdmin?: boolean; // true = además de iniciar sesión, tiene que ser administrador
   soloAnalista?: boolean; // paso 115: true = la sección del analista (/analista)
+  publica?: boolean; // paso 122c: true = también se ve sin cuenta (catálogo, detalle con el aviso Premium y el plan)
 }
 
-export function ProtectedRoute({ children, soloAdmin = false, soloAnalista = false }: ProtectedRouteProps) {
+export function ProtectedRoute({ children, soloAdmin = false, soloAnalista = false, publica = false }: ProtectedRouteProps) {
   const { usuario, estaLogueado, esAdmin, esAnalista, verificandoSesion } = useAuth();
+  const { pathname } = useLocation();
 
   // Mientras se revisa el token guardado, todavía no sabemos si hay sesión
   if (verificandoSesion) {
@@ -18,8 +20,11 @@ export function ProtectedRoute({ children, soloAdmin = false, soloAnalista = fal
 
   // Si no está logueado, <Navigate> lo redirige a /login automáticamente,
   // sin siquiera mostrar el contenido protegido ni un instante.
+  // Paso 122c: las páginas públicas se ven igual como invitado; en las demás, después de iniciar
+  // sesión se vuelve a la página que quería abrir (?volver=...).
   if (!estaLogueado) {
-    return <Navigate to="/login" replace />;
+    if (publica) return <>{children}</>;
+    return <Navigate to={`/login?volver=${encodeURIComponent(pathname)}`} replace />;
   }
 
   // Paso 115: el analista solo tiene sus pantallas de reportes.

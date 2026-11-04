@@ -37,7 +37,7 @@ function claseDelEnlace({ isActive }: { isActive: boolean }) {
 }
 
 function App() {
-  const { estaLogueado, esAdmin, esAnalista, cerrarSesion } = useAuth();
+  const { estaLogueado, esAdmin, esAnalista, cerrarSesion, verificandoSesion } = useAuth();
   const { noLeidas } = useAlerts();
   const { sinLeer } = useAnuncios();
   // Paso 90: el número rojo junto a "Alertas" suma las notificaciones y los anuncios sin leer
@@ -54,7 +54,7 @@ function App() {
   return (
     <div>
       {!enEntrada && (
-        <header className={`app-header ${estaLogueado && !esAnalista ? "is-con-menu" : ""}`}>
+        <header className={`app-header ${!esAnalista ? "is-con-menu" : ""}`}>
           {/* Paso 115: al analista el logo lo lleva a sus reportes */}
           <Link to={esAnalista ? "/analista" : "/"} className="app-logo">
             {/* El mismo dibujo del ícono de la pestaña (public/favicon.svg) */}
@@ -75,6 +75,24 @@ function App() {
                 Cerrar sesión
               </button>
             </div>
+          )}
+
+          {/* Paso 122c: menú del invitado (sin cuenta): ve los remates y el plan, y puede entrar o crear su cuenta */}
+          {!estaLogueado && !verificandoSesion && (
+            <nav className="app-header-actions" aria-label="Menú principal">
+              <Link to="/" className={`app-nav-link app-nav-inicio ${enRemates ? "is-activo" : ""}`}>
+                Remates
+              </Link>
+              <NavLink to="/premium" className={claseDelEnlace}>
+                Premium
+              </NavLink>
+              <Link to={`/login?volver=${encodeURIComponent(pathname)}`} className="app-nav-link">
+                Iniciar sesión
+              </Link>
+              <Link to={`/registro?volver=${encodeURIComponent(pathname)}`} className="app-cuenta-btn">
+                Crear cuenta
+              </Link>
+            </nav>
           )}
 
           {estaLogueado && !esAnalista && (
@@ -113,19 +131,21 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegisterPage />} />
         <Route path="/recuperar" element={<RecuperarPage />} /> {/* paso 117 */}
-
+        
+        {/* Paso 122c: el catálogo y el detalle (que sin Premium muestra el aviso del plan) se ven sin cuenta */}
         <Route
           path="/"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute publica>
               <PropertiesPage />
             </ProtectedRoute>
           }
         />
+        {/* Paso 122c: el catálogo y el detalle (que sin Premium muestra el aviso del plan) se ven sin cuenta */}
         <Route
           path="/propiedades/:id"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute publica>
               <PropertyDetailPage />
             </ProtectedRoute>
           }
@@ -134,7 +154,7 @@ function App() {
         <Route
           path="/premium"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute publica>
               <PremiumPage />
             </ProtectedRoute>
           }

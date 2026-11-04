@@ -19,8 +19,9 @@ export interface CargaResumen {
   error_message: string | null;
 }
 
-// Si pasa más que esto sin una carga, el Panel lo avisa (la automática corre cada mañana)
-export const HORAS_SIN_CARGA = 30;
+// Si pasa más que esto sin una carga, el Panel lo avisa. La automática está programada a las 06:17,
+// pero GitHub a veces la atrasa varias horas (se vio a las 14:04 y a las 16:30): por eso 40 y no 30.
+export const HORAS_SIN_CARGA = 40;
 
 export const NOMBRE_ESTADO: Record<EstadoCarga, string> = {
   en_curso: "En curso",

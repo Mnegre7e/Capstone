@@ -235,10 +235,13 @@ export function PropertiesPage() {
           Filtros y orden{filtrosActivos > 0 && ` · ${filtrosActivos}`}
         </button>
 
-        <label className="properties-fav-toggle">
-          <input type="checkbox" checked={soloFavoritos} onChange={(e) => setSoloFavoritos(e.target.checked)} />
-          Solo favoritos
-        </label>
+        {/* Paso 122c: el invitado no tiene favoritos */}
+        {usuario && (
+          <label className="properties-fav-toggle">
+            <input type="checkbox" checked={soloFavoritos} onChange={(e) => setSoloFavoritos(e.target.checked)} />
+            Solo favoritos
+          </label>
+        )}
       </div>
 
       <p className="cat-orden-actual">

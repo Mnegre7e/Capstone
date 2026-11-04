@@ -50,7 +50,7 @@ interface PropertiesContextType {
 const PropertiesContext = createContext<PropertiesContextType | undefined>(undefined);
 
 export function PropertiesProvider({ children }: { children: ReactNode }) {
-  const { estaLogueado } = useAuth();
+  const { usuario, verificandoSesion } = useAuth();
   const [properties, setProperties] = useState<PropertyApiResponse[]>([]);
   const [comunasPorId, setComunasPorId] = useState<Record<number, string>>({});
   const [cargando, setCargando] = useState(true);
@@ -82,18 +82,13 @@ export function PropertiesProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Antes esto corría una sola vez al abrir la página, cuando todavía no había
-  // token, y la API respondía con error. Ahora se ejecuta cada vez que cambia
-  // "estaLogueado": al iniciar sesión pide los datos; al cerrarla, los limpia.
+  // Paso 122c: el catálogo se ve también sin cuenta (como invitado). Se pide de nuevo cada vez que cambia
+  // quién está conectado o su plan, porque la API le entrega el semáforo y el detalle solo a quien tiene Premium.
+  const quien = usuario ? `${usuario.id}-${usuario.acceso_completo}` : "invitado";
   useEffect(() => {
-    if (estaLogueado) {
-      recargar();
-    } else {
-      setProperties([]);
-      setComunasPorId({});
-      setCargando(true); // así, al volver a entrar, se ve "Cargando..." hasta que lleguen los datos
-    }
-  }, [estaLogueado, recargar]);
+    if (verificandoSesion) return; // primero se sabe si hay sesión, así el catálogo no se pide dos veces
+    recargar();
+  }, [verificandoSesion, quien, recargar]);
 
   return (
     <PropertiesContext.Provider value={{ properties, comunasPorId, cargando, error, recargar }}>
