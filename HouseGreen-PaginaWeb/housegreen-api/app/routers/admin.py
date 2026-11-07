@@ -83,7 +83,7 @@ def listar_publicaciones(db: Session = Depends(get_db), usuario=Depends(requerir
 
     # 5) Se arma una fila por propiedad; si no tiene vistas o guardados, va con 0
     resultado = []
-    for propiedad in db.query(Property).all():
+    for propiedad in db.query(Property).filter(Property.duplicate_of.is_(None)).all():  # paso 124d: sin repetidos
         n_vistas, n_personas = vistas.get(propiedad.id, (0, 0))
         evaluacion = evaluaciones.get(propiedad.id)
         resultado.append(

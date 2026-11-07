@@ -10,10 +10,11 @@
 #   2) Lee la ficha de los remates nuevos, la de los que cambiaron de fecha, y la de cada remate vigente nuestro
 #      que YA NO APARECE en el sitio: si su ficha dice que no existe, se marca como retirado.
 #   3) Cada propiedad que cambia recalcula su semáforo (y avisa a quien tenga una alerta).
-#   4) Paso 120a: una vez por semana, actualiza el precio típico de venta de cada comuna (PropiedadesYa).
-#   5) Paso 120b: recalcula la zona de precio del semáforo de los remates vigentes (solo cambia las que cambian).
-#   6) Paso 124a: ubica en el mapa (OpenStreetMap) los remates nuevos o que cambiaron de dirección.
-#   7) Guarda en la tabla ingestion_runs cuándo se hizo, cuánto duró y qué encontró.
+#   4) Paso 124d: revisa los remates repetidos (el sitio publica algunos más de una vez): se muestra uno solo.
+#   5) Paso 120a: una vez por semana, actualiza el precio típico de venta de cada comuna (PropiedadesYa).
+#   6) Paso 120b: recalcula la zona de precio del semáforo de los remates vigentes (solo cambia las que cambian).
+#   7) Paso 124a: ubica en el mapa (OpenStreetMap) los remates nuevos o que cambiaron de dirección.
+#   8) Guarda en la tabla ingestion_runs cuándo se hizo, cuánto duró y qué encontró.
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -22,6 +23,7 @@ from app.database import SessionLocal
 from app.models.ingesta import IngestionRun
 from app.scraper import cargar_fichas as fichas
 from app.scraper import cargar_remates as listados
+from app.scraper import duplicados  # paso 124d
 from app.scraper import precios_comuna as precios
 from app.scraper import ubicaciones  # paso 124a
 from app.scraper import zona_precio as zonas
@@ -81,11 +83,13 @@ def ejecutar(origen: str = "manual") -> int:
         return 0
 
     inicio = time.monotonic()
+    empezo = datetime.now(timezone.utc)  # paso 124d: para anotar los repetidos que llegaron en esta carga
     print(f"Carga n° {numero} ({origen}) empezó: {datetime.now():%d-%m-%Y %H:%M}")
     remates: list[dict] = []
     en_el_sitio = 0
     de_listados: dict | None = None
     de_fichas: dict | None = None
+    de_repetidos: dict = {}  # paso 124d
     de_precios: dict = {}
     de_zonas: dict = {}
     de_ubicaciones: dict = {}  # paso 124a
@@ -113,8 +117,17 @@ def ejecutar(origen: str = "manual") -> int:
         if de_fichas["detenida"]:
             mensaje = de_fichas["detenida"]
 
+        # Paso 124d: si esto falla, tampoco se da por fallida la carga de remates
+        print("\n3) Remates repetidos (el sitio publica algunos más de una vez)...")
+        try:
+            de_repetidos = duplicados.revisar_todos(desde=empezo)
+            duplicados.mostrar_resumen(de_repetidos)
+        except Exception as error:
+            de_repetidos = {"con_error": [f"Repetidos: {type(error).__name__}: {error}"[:300]]}
+            print("   No se pudieron revisar:", de_repetidos["con_error"][0])
+
         # Paso 120a: si PropiedadesYa falla, la carga de remates no se da por fallida (solo se anota el error)
-        print("\n3) Precio típico de venta por comuna (PropiedadesYa, una vez por semana)...")
+        print("\n4) Precio típico de venta por comuna (PropiedadesYa, una vez por semana)...")
         try:
             de_precios = precios.actualizar_precios()
             precios.mostrar_resumen(de_precios)
@@ -123,7 +136,7 @@ def ejecutar(origen: str = "manual") -> int:
             print("   No se pudieron actualizar:", de_precios["con_error"][0])
 
         # Paso 120b: si esto falla, tampoco se da por fallida la carga de remates
-        print("\n4) Zona de precio del semáforo (precio mínimo frente al precio típico de la comuna)...")
+        print("\n5) Zona de precio del semáforo (precio mínimo frente al precio típico de la comuna)...")
         try:
             de_zonas = zonas.actualizar_zonas()
             zonas.mostrar_resumen(de_zonas)
@@ -132,7 +145,7 @@ def ejecutar(origen: str = "manual") -> int:
             print("   No se pudo calcular:", de_zonas["con_error"][0])
 
         # Paso 124a: si el buscador de OpenStreetMap falla, tampoco se da por fallida la carga de remates
-        print("\n5) Ubicación en el mapa (OpenStreetMap) de los remates nuevos...")
+        print("\n6) Ubicación en el mapa (OpenStreetMap) de los remates nuevos...")
         try:
             de_ubicaciones = ubicaciones.actualizar_ubicaciones(maximo=ubicaciones.MAXIMO_POR_CARGA)
             ubicaciones.mostrar_resumen(de_ubicaciones)
@@ -152,6 +165,7 @@ def ejecutar(origen: str = "manual") -> int:
     errores = (
         de_listados.get("con_error", [])
         + de_fichas.get("con_error", [])
+        + de_repetidos.get("con_error", [])
         + de_precios.get("con_error", [])
         + de_zonas.get("con_error", [])
         + de_ubicaciones.get("con_error", [])
@@ -183,6 +197,12 @@ def ejecutar(origen: str = "manual") -> int:
         "fichas_nuevas": de_fichas.get("nuevas", 0),
         "fichas_revisadas": de_fichas.get("revisadas", 0),
         "errores": _lista(errores),
+        # Paso 124d: remates que el sitio publicó más de una vez (se muestra uno de cada grupo)
+        "repetidos": {
+            "grupos": de_repetidos.get("grupos", 0),
+            "escondidos": de_repetidos.get("escondidos", 0),
+            "cambios": _lista(de_repetidos.get("cambios", [])),
+        },
         "precios_por_comuna": {
             "omitida": de_precios.get("omitida"),
             "comunas_leidas": de_precios.get("comunas_leidas", 0),

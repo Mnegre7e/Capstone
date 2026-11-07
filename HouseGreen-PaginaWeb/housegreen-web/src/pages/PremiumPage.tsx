@@ -17,6 +17,7 @@ const COMPARACION: [string, boolean, boolean][] = [
   ["Detalle de cada remate", false, true],
   ["Precio frente a la comuna", false, true],
   ["Datos del remate y fotos", false, true],
+  ["Mapa de los remates", false, true], // paso 124b
   ["Favoritos y alertas", false, true],
 ];
 

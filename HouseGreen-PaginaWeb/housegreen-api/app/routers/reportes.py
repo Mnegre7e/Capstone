@@ -131,7 +131,7 @@ def ver_reporte(
         Property.id, Property.title, Property.comuna_id, Property.status, Property.auction_date, Property.created_at,
         Property.removed_at,  # paso 114
         Property.property_type,  # paso 115
-    ).all()
+    ).filter(Property.duplicate_of.is_(None)).all()  # paso 124d: sin los remates repetidos
     por_id = {p.id: p for p in propiedades}
     # Paso 114: las que el admin quitó del catálogo tampoco cuentan como vigentes
     vigentes = {p.id for p in propiedades if p.removed_at is None and _esta_vigente(p.status, p.auction_date, datetime.now(timezone.utc))}

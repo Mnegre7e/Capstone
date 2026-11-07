@@ -24,6 +24,7 @@ def puntos_del_mapa(db: Session = Depends(get_db), usuario=Depends(requerir_prem
         )
         .join(Property, Property.id == PropiedadUbicacion.property_id)
         .filter(Property.removed_at.is_(None), PropiedadUbicacion.latitude.isnot(None))
+        .filter(Property.duplicate_of.is_(None))  # paso 124d: sin los remates repetidos
         .all()
     )
     return [

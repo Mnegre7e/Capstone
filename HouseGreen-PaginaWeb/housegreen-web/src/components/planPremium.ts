@@ -17,5 +17,6 @@ export const BENEFICIOS_PREMIUM = [
   "El precio del remate frente al precio típico de su comuna",
   "Los datos del remate: tribunal, garantía, condiciones y anuncio",
   "Las fotos y el detalle completo de cada propiedad",
+    "El mapa de los remates, con el color de su semáforo", // paso 124b
   "Guardar favoritos y recibir alertas de remates nuevos",
 ];

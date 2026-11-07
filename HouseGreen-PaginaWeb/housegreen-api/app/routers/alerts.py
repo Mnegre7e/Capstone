@@ -91,6 +91,8 @@ def notificar_cambio_de_semaforo(
     Devuelve a cuántas personas se les avisó."""
     if nivel_anterior is None or nivel_nuevo is None:
         return 0
+    if propiedad.duplicate_of is not None:
+        return 0  # paso 124d: remate repetido (los avisos son solo del que se muestra)
     if ORDEN_RIESGO[nivel_nuevo] >= ORDEN_RIESGO[nivel_anterior]:
         return 0  # quedó igual o empeoró: no se avisa
     if not _esta_vigente(propiedad.status, propiedad.auction_date, datetime.now(timezone.utc)):

@@ -26,6 +26,7 @@ import { AdminCargasPage } from "./pages/admin/AdminCargasPage"; // paso 121
 import { AdminPagosPage } from "./pages/admin/AdminPagosPage"; // paso 122e
 import { PremiumPage } from "./pages/PremiumPage"; // paso 122b
 import { PagoResultadoPage } from "./pages/PagoResultadoPage"; // paso 122d
+import { MapaPage } from "./pages/MapaPage"; // paso 124b
 import { ReportesLayout } from "./pages/reportes/ReportesLayout";
 import { ResumenPage } from "./pages/reportes/ResumenPage";
 import { SubastasPage } from "./pages/reportes/SubastasPage";
@@ -102,6 +103,12 @@ function App() {
               <Link to="/" className={`app-nav-link app-nav-inicio ${enRemates ? "is-activo" : ""}`}>
                 Remates
               </Link>
+
+              {/* Paso 124b: el mapa (sin Premium muestra el aviso del plan) */}
+              <NavLink to="/mapa" className={claseDelEnlace}>
+                Mapa
+              </NavLink>
+
               {esAdmin && (
                 <NavLink to="/admin" className={claseDelEnlace}>
                   Admin
@@ -154,6 +161,16 @@ function App() {
           }
         />
 
+        {/* Paso 124b: el mapa de los remates (solo Premium; sin el plan, o sin cuenta, muestra el aviso) */}
+        <Route
+          path="/mapa"
+          element={
+            <ProtectedRoute publica>
+              <MapaPage />
+            </ProtectedRoute>
+          }
+        />
+        
         {/* Paso 122b: el plan Premium (qué incluye y, desde el paso 122d, el pago) */}
         <Route
           path="/premium"

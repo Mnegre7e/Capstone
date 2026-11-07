@@ -51,6 +51,8 @@ class Property(Base):
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     removed_at = Column(TIMESTAMP(timezone=True))  # paso 114: cuándo el admin la quitó del catálogo (vacío = publicada)
+        # Paso 124d: si el sitio publicó este mismo remate más de una vez, el que se muestra en su lugar (vacío = se muestra)
+    duplicate_of = Column(UUID(as_uuid=True), ForeignKey("properties.id", ondelete="SET NULL"))
     
     # Estas relationship() permiten hacer property.comuna.name, property.financial_info.repair_cost, etc.
     # uselist=False porque son relaciones 1 a 1 (cada propiedad tiene UN solo registro financiero, legal, etc.)

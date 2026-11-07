@@ -25,6 +25,10 @@ interface Detalle {
     sin_pagina?: string[];
   };
   zona_de_precio?: { cambiados?: number; verde?: number; amarillo?: number; rojo?: number; sin_referencia?: number };
+  // Paso 124a: remates ubicados en el mapa (OpenStreetMap)
+  mapa?: { ubicados?: number; direccion?: number; calle?: number; comuna?: number; sin_ubicacion?: number; quedan?: number };
+  // Paso 124d: remates que el sitio publicó más de una vez (se muestra uno de cada grupo)
+  repetidos?: { grupos?: number; escondidos?: number; cambios?: string[] };
   omitidos?: { sin_comuna?: string[]; sin_precio?: string[]; tipo_desconocido?: string[] };
 }
 
@@ -85,6 +89,12 @@ function DetalleCarga({ carga, detalle }: { carga: CargaResumen; detalle: Detall
   const hayZonas =
     zonas !== undefined &&
     (zonas.cambiados ?? 0) + (zonas.verde ?? 0) + (zonas.amarillo ?? 0) + (zonas.rojo ?? 0) + (zonas.sin_referencia ?? 0) > 0;
+  // Paso 124a
+  const mapa = detalle.mapa;
+  const hayMapa = mapa !== undefined && (mapa.ubicados ?? 0) + (mapa.quedan ?? 0) > 0;
+  // Paso 124d
+  const repetidos = detalle.repetidos;
+  const hayRepetidos = repetidos !== undefined && ((repetidos.grupos ?? 0) > 0 || (repetidos.cambios?.length ?? 0) > 0);
   const hayListas =
     cuantos(detalle.nuevos, carga.created) +
       cuantos(detalle.actualizados, carga.updated) +
@@ -96,7 +106,7 @@ function DetalleCarga({ carga, detalle }: { carga: CargaResumen; detalle: Detall
       cuantos(omitidos.tipo_desconocido) >
     0;
 
-  if (!hayDelSitio && !hayPrecios && !hayZonas && !hayListas) {
+  if (!hayDelSitio && !hayPrecios && !hayZonas && !hayMapa && !hayRepetidos && !hayListas) {
     return (
       <p className="car-detalle car-nota">
         {carga.status === "fallida"
@@ -134,6 +144,24 @@ function DetalleCarga({ carga, detalle }: { carga: CargaResumen; detalle: Detall
       />
       <Lista titulo="Errores" elementos={detalle.errores} total={carga.errors} />
 
+      {/* Paso 124d: remates que el sitio publicó más de una vez */}
+      {hayRepetidos && repetidos && (
+        <div className="car-bloque">
+          <h3>Remates repetidos</h3>
+          <p>
+            {numero(repetidos.grupos)} remates están publicados más de una vez en el sitio: se muestra uno de cada uno
+            y quedan escondidos {numero(repetidos.escondidos)} repetidos.
+          </p>
+          {(repetidos.cambios?.length ?? 0) > 0 && (
+            <ul className="car-remates">
+              {(repetidos.cambios ?? []).map((texto, i) => (
+                <li key={i}>{texto}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       {/* Paso 120a: precio típico de venta por comuna (una vez por semana) */}
       {hayPrecios && precios && (
         <div className="car-bloque">
@@ -158,6 +186,19 @@ function DetalleCarga({ carga, detalle }: { carga: CargaResumen; detalle: Detall
             Cambiaron {numero(zonas.cambiados)}. Quedaron: verde {numero(zonas.verde)} · amarilla{" "}
             {numero(zonas.amarillo)} · roja {numero(zonas.rojo)} · sin referencia {numero(zonas.sin_referencia)}.
           </p>
+        </div>
+      )}
+
+      {/* Paso 124a: ubicación en el mapa de los remates nuevos */}
+      {hayMapa && mapa && (
+        <div className="car-bloque">
+          <h3>Mapa (OpenStreetMap)</h3>
+          <p>
+            Se ubicaron {numero(mapa.ubicados)}: {numero(mapa.direccion)} con su dirección, {numero(mapa.calle)} en su
+            calle y {numero(mapa.comuna)} en el centro de su comuna
+            {(mapa.sin_ubicacion ?? 0) > 0 && ` (${numero(mapa.sin_ubicacion)} sin ubicación)`}.
+          </p>
+          {(mapa.quedan ?? 0) > 0 && <p>Quedan {numero(mapa.quedan)} para la próxima carga.</p>}
         </div>
       )}
 

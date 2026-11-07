@@ -55,11 +55,12 @@ def ver_panel(db: Session = Depends(get_db), usuario=Depends(requerir_admin)):
     propiedades = db.query(
         Property.id, Property.title, Property.comuna_id, Property.status, Property.auction_date, Property.created_at,
         Property.removed_at,  # paso 114
-    ).all()
+    ).filter(Property.duplicate_of.is_(None)).all()  # paso 124d: sin los remates repetidos
     # Paso 114: las que el admin quitó del catálogo tampoco cuentan como vigentes
     vigentes = {p.id for p in propiedades if p.removed_at is None and _esta_vigente(p.status, p.auction_date, ahora)}
-    publicaciones_nuevas = db.query(Property).filter(Property.created_at >= desde).count()
-
+    publicaciones_nuevas = (
+        db.query(Property).filter(Property.created_at >= desde, Property.duplicate_of.is_(None)).count()  # paso 124d
+    )
     # 3) Vistas y guardados del período, por propiedad: { property_id: cantidad }
     vistas = dict(
         db.query(PropertyView.property_id, func.count(PropertyView.id))

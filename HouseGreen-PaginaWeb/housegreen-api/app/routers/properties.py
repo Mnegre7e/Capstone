@@ -16,6 +16,7 @@ from app.schemas.admin import FotoOut
 from app.auth.dependencies import get_usuario_opcional, requerir_admin, requerir_premium, ROL_ADMIN_ID
 from app.auth.premium import tiene_acceso_completo  # paso 122a
 from app.routers.alerts import notificar_nueva_propiedad
+from app.scraper.duplicados import buscar_original  # paso 124d
 
 router = APIRouter(prefix="/propiedades", tags=["Propiedades"])
 
@@ -167,6 +168,7 @@ def listar_propiedades(db: Session = Depends(get_db), usuario=Depends(get_usuari
     propiedades = (
         db.query(Property)
          .filter(Property.removed_at.is_(None))  # paso 114: sin las que el admin quitó del catálogo
+        .filter(Property.duplicate_of.is_(None))  # paso 124d: sin los remates repetidos
         .options(
             selectinload(Property.financial_info),
             selectinload(Property.legal_info),
@@ -208,8 +210,9 @@ def listar_propiedades(db: Session = Depends(get_db), usuario=Depends(get_usuari
 @router.get("/{property_id}", response_model=PropertyOut)
 def obtener_propiedad(property_id: UUID, db: Session = Depends(get_db), usuario=Depends(requerir_premium)):
     propiedad = db.query(Property).filter(Property.id == property_id).first()
-    # Paso 114: una publicación que el admin quitó del catálogo solo la ve el admin
-    if not propiedad or (propiedad.removed_at is not None and usuario.role_id != ROL_ADMIN_ID):
+    # Paso 114: una publicación que el admin quitó del catálogo solo la ve el admin (paso 124d: lo mismo un repetido)
+    escondida = propiedad is not None and (propiedad.removed_at is not None or propiedad.duplicate_of is not None)
+    if not propiedad or (escondida and usuario.role_id != ROL_ADMIN_ID):
         raise HTTPException(status_code=404, detail="Propiedad no encontrada")
     return _armar_respuesta(db, propiedad)
 
@@ -246,10 +249,16 @@ def crear_propiedad(datos: PropertyCreate, db: Session = Depends(get_db), usuari
     db.commit()
     db.refresh(nueva_propiedad)
 
+    # Paso 124d: si el sitio ya había publicado este mismo remate con otro número, queda escondido como repetido
+    original = buscar_original(db, nueva_propiedad) if datos.source_system else None
+    if original is not None:
+        nueva_propiedad.duplicate_of = original.id
+        db.commit()
+
     _guardar_datos_relacionados(db, nueva_propiedad.id, datos)
     _ejecutar_calculo_riesgo(db, nueva_propiedad.id)
     evaluacion = _obtener_ultima_evaluacion(db, nueva_propiedad.id)
-    if evaluacion:
+    if evaluacion and original is None:  # paso 124d: de un remate repetido no se avisa (ya se avisó del original)
         notificar_nueva_propiedad(db, nueva_propiedad, evaluacion.result_level)
 
     db.refresh(nueva_propiedad)
