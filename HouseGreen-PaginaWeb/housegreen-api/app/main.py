@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.routers import auth
 from app.routers import auth, properties, favorites, alerts, comunas, admin
 from app.routers import feedback  # paso 81: opiniones
 from app.routers import admin_panel  # paso 84: panel del administrador
@@ -15,6 +14,7 @@ from app.routers import precio_comuna  # paso 120b: precio del remate frente a s
 from app.routers import admin_cargas  # paso 121: historial de las cargas de remates
 from app.routers import pagos  # paso 122d: pago del plan Premium con Webpay
 from app.routers import admin_pagos  # paso 122e: pagos del plan Premium para el administrador
+from app.routers import mapa  # paso 124a: ubicación de los remates en el mapa
 
 app = FastAPI(title="HouseGreen API")
 
@@ -46,6 +46,7 @@ app.include_router(precio_comuna.router)  # paso 120b
 app.include_router(admin_cargas.router)  # paso 121
 app.include_router(pagos.router)  # paso 122d
 app.include_router(admin_pagos.router)  # paso 122e
+app.include_router(mapa.router)  # paso 124a
 
 admin.CARPETA_UPLOADS.mkdir(exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=admin.CARPETA_UPLOADS), name="uploads")
