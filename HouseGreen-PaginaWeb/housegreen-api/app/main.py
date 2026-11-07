@@ -7,6 +7,7 @@ from app.routers import admin_panel  # paso 84: panel del administrador
 from app.routers import admin_usuarios  # paso 85: usuarios para el administrador
 from app.routers import announcements  # paso 87: anuncios
 from app.routers import reportes  # paso 109: reportes (administrador y analista)
+from app.routers import reportes_buscador  # paso 123d: buscador de remates y personas en Reportes
 from app.routers import auditoria  # paso 111: registro de actividad para el administrador
 from app.routers import admin_catalogo  # paso 114: quitar una publicación del catálogo y volver a publicarla
 from app.routers import recuperacion  # paso 117: recuperar la contraseña con un código por correo
@@ -47,6 +48,7 @@ app.include_router(admin_cargas.router)  # paso 121
 app.include_router(pagos.router)  # paso 122d
 app.include_router(admin_pagos.router)  # paso 122e
 app.include_router(mapa.router)  # paso 124a
+app.include_router(reportes_buscador.router)  # paso 123d
 
 admin.CARPETA_UPLOADS.mkdir(exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=admin.CARPETA_UPLOADS), name="uploads")

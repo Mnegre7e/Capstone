@@ -3,6 +3,7 @@
 // Paso 123a: períodos nuevos (Hoy, Esta semana, Este mes, Este año, Rango), filtros y gráfico por hora.
 // Paso 123b: plan Premium (suscripciones, ingresos y quiénes dejaron de pagar).
 
+
 // Paso 123a: Hoy · Esta semana (desde el lunes) · Este mes · Este año · Rango (dos fechas)
 export type Periodo = "hoy" | "semana" | "mes" | "anio" | "rango";
 // Cómo viene la serie del gráfico: una barra por hora (Hoy), por día o por mes
@@ -103,6 +104,8 @@ export interface ContextoReportes {
   reporte: Reporte;
   esAdmin: boolean;
   textoPeriodo: string; // "este mes" (se lee bien después de "en": "se registraron en este mes")
+  base: string; // paso 123d: "/analista" o "/admin/reportes" (para los enlaces a las fichas)
+  consultaDelPeriodo: string | null; // paso 123d: "periodo=mes" o "periodo=rango&desde=...&hasta=..." (null = rango sin pedir)
 }
 
 // Paso 123a: los botones de período. "texto" va después de "en" en las pantallas ("nuevas en esta semana").
@@ -113,6 +116,12 @@ export const PERIODOS: { valor: Periodo; nombre: string; texto: string }[] = [
   { valor: "anio", nombre: "Este año", texto: "este año" },
   { valor: "rango", nombre: "Rango", texto: "el período elegido" },
 ];
+
+// Paso 123d: el texto del período de un reporte o de una ficha ("este mes", "el período del 1 oct 2026 al 15 oct 2026")
+export function textoDelPeriodo(datos: { periodo: Periodo; desde: string; hasta: string }) {
+  if (datos.periodo === "rango") return `el período del ${fechaCorta(datos.desde)} al ${fechaCorta(datos.hasta)}`;
+  return PERIODOS.find((p) => p.valor === datos.periodo)?.texto ?? "el período elegido";
+}
 
 // Paso 123a: cómo se llama cada barra del gráfico
 export const CADA: Record<Agrupado, { titulo: string; por: string; columna: string }> = {

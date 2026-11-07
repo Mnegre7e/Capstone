@@ -32,6 +32,8 @@ import { ResumenPage } from "./pages/reportes/ResumenPage";
 import { SubastasPage } from "./pages/reportes/SubastasPage";
 import { UsuariosPage } from "./pages/reportes/UsuariosPage";
 import { AlcancePage } from "./pages/reportes/AlcancePage";
+import { FichaRematePage } from "./pages/reportes/FichaRematePage"; // paso 123d
+import { FichaPersonaPage } from "./pages/reportes/FichaPersonaPage"; // paso 123d
 
 
 // Clases de un enlace del menú: el de la sección actual queda marcado
@@ -228,6 +230,8 @@ function App() {
           <Route path="subastas" element={<SubastasPage />} />
           <Route path="usuarios" element={<UsuariosPage />} />
           <Route path="alcance" element={<AlcancePage />} />
+          {/* Paso 123d: ficha de un remate (desde el buscador) */}
+          <Route path="remate/:id" element={<FichaRematePage />} />
         </Route>
         <Route
           path="/admin"
@@ -252,6 +256,9 @@ function App() {
             <Route path="subastas" element={<SubastasPage />} />
             <Route path="usuarios" element={<UsuariosPage />} />
             <Route path="alcance" element={<AlcancePage />} />
+            {/* Paso 123d: fichas del buscador (la de una persona, solo el admin) */}
+            <Route path="remate/:id" element={<FichaRematePage />} />
+            <Route path="persona/:id" element={<FichaPersonaPage />} />
           </Route>
           
           <Route path="auditoria" element={<AdminAuditoriaPage />} />

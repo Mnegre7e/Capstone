@@ -957,3 +957,232 @@
     grid-column: 1;
   }
 }
+
+/* ---------- Paso 123d: buscador de remates y personas ---------- */
+/* El atributo hidden debe ganarle al display: flex de los filtros (en una ficha no se muestran) */
+.rep-filtros[hidden] {
+  display: none;
+}
+
+.rep-buscador {
+  position: relative;
+  max-width: 560px;
+  margin-top: 14px;
+}
+
+.rep-buscador input {
+  width: 100%;
+  padding: 10px 92px 10px 40px;
+  border: 1px solid #c9d8d1;
+  border-radius: 12px;
+  box-sizing: border-box;
+  background-color: white;
+  color: #0f3d30;
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.rep-buscador input:focus-visible {
+  outline: 2px solid #1d6f55;
+  outline-offset: 1px;
+}
+
+.rep-buscador-icono {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  width: 18px;
+  height: 18px;
+  color: #4e625b;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.rep-buscador-buscando {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  color: #4e625b;
+  font-size: 12px;
+  transform: translateY(-50%);
+}
+
+.rep-buscador-lista {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  max-height: 380px;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  border: 1px solid #dce6e1;
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0 10px 28px rgba(15, 61, 48, 0.14);
+  list-style: none;
+}
+
+.rep-buscador-grupo {
+  display: block;
+  padding: 8px 10px 4px;
+  color: #4e625b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rep-buscador-opcion {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.rep-buscador-opcion.is-activa {
+  background-color: #eef5f1;
+}
+
+.rep-buscador-opcion strong {
+  overflow: hidden;
+  color: #0f3d30;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rep-buscador-opcion span {
+  overflow: hidden;
+  color: #4e625b;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rep-buscador-vacio {
+  padding: 10px;
+  color: #4e625b;
+  font-size: 14px;
+}
+
+/* ---------- Paso 123d: ficha de un remate o de una persona ---------- */
+/* Mientras llegan los números del período nuevo se ven más claros */
+.rep-ficha-pagina.is-cargando {
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.rep-volver-boton {
+  margin-top: 14px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.rep-volver-boton:focus-visible {
+  outline: 2px solid #1d6f55;
+  outline-offset: 2px;
+}
+
+.rep-ficha-que {
+  color: #4e625b;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rep-tarjeta h2.rep-ficha-nombre {
+  margin: 4px 0 2px;
+  font-size: 22px;
+  overflow-wrap: anywhere;
+}
+
+.rep-ficha > .rep-gris {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.rep-ficha-etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.rep-etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background-color: #eef2f0;
+  color: #1f2a26;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rep-etiqueta.is-buena {
+  background-color: #dcfce7;
+  color: #14532d;
+}
+
+.rep-etiqueta.is-mala {
+  background-color: #fee2e2;
+  color: #7f1d1d;
+}
+
+.rep-etiqueta.is-premium {
+  background-color: #0f3d30;
+  color: white;
+}
+
+.rep-ficha-datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px 20px;
+  margin: 16px 0 0;
+}
+
+.rep-ficha-datos dt {
+  color: #4e625b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rep-ficha-datos dd {
+  margin: 2px 0 0;
+  color: #0f3d30;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+/* El nombre de la lista lleva a la otra ficha */
+.rep-enlace-nombre {
+  color: #0f3d30;
+  text-decoration: none;
+}
+
+.rep-enlace-nombre:hover {
+  color: #15803d;
+  text-decoration: underline;
+}
+
+.rep-enlace-nombre:focus-visible {
+  outline: 2px solid #1d6f55;
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .rep-buscador {
+    max-width: none;
+  }
+
+  .rep-ficha-datos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

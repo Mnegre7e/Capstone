@@ -122,7 +122,19 @@ export function BarraSemaforo({ semaforo }: { semaforo: Record<string, number> }
 
 // ---------- Gráfico de columnas: cuántos hubo cada hora, día o mes de una medida ----------
 // Paso 123a: "agrupado" dice si cada barra es una hora (Hoy), un día o un mes.
-export function Grafico({ serie, medida, agrupado }: { serie: PuntoDeLaSerie[]; medida: Medida; agrupado: Agrupado }) {
+// Paso 123d: "columnas" son las medidas de la tabla de abajo (las fichas solo tienen vistas y guardados).
+export function Grafico({
+  serie,
+  medida,
+  agrupado,
+  columnas,
+}: {
+  serie: PuntoDeLaSerie[];
+  medida: Medida;
+  agrupado: Agrupado;
+  columnas?: Medida[];
+}) {
+  const medidasDeLaTabla = columnas ? MEDIDAS.filter((m) => columnas.includes(m.valor)) : MEDIDAS;
   const [activa, setActiva] = useState<number | null>(null);
   const info = MEDIDAS.find((m) => m.valor === medida)!;
   const valores = serie.map((punto) => punto[medida]);
@@ -196,7 +208,7 @@ export function Grafico({ serie, medida, agrupado }: { serie: PuntoDeLaSerie[]; 
           <thead>
             <tr>
               <th scope="col">{CADA[agrupado].columna}</th>
-              {MEDIDAS.map((m) => (
+              {medidasDeLaTabla.map((m) => (
                 <th key={m.valor} scope="col">
                   {m.nombre}
                 </th>
@@ -207,7 +219,7 @@ export function Grafico({ serie, medida, agrupado }: { serie: PuntoDeLaSerie[]; 
             {serie.map((punto) => (
               <tr key={punto.fecha}>
                 <th scope="row">{nombreDeLaFecha(punto.fecha, true)}</th>
-                {MEDIDAS.map((m) => (
+                {medidasDeLaTabla.map((m) => (
                   <td key={m.valor}>{numero(punto[m.valor])}</td>
                 ))}
               </tr>

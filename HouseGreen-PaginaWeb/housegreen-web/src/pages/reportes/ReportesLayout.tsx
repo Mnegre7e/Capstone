@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { api } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import { useProperties } from "../../context/PropertiesContext";
 import { CATEGORIAS, type CategoriaTipo } from "../../components/tipoPropiedad";
-import { NIVELES, PERIODOS, fechaCorta, type ContextoReportes, type Periodo, type Reporte } from "./formato";
+import { NIVELES, PERIODOS, fechaCorta, textoDelPeriodo, type ContextoReportes, type Periodo, type Reporte } from "./formato";
+import { Buscador } from "./Buscador";
 import "./Reportes.css";
 
 // Paso 115: marco de Reportes con cuatro pantallas: Resumen · Subastas · Usuarios · Alcance.
@@ -12,6 +13,7 @@ import "./Reportes.css";
 // - El administrador lo abre desde su Panel (en /admin/reportes) y además ve quiénes son los más activos.
 // El reporte se pide una sola vez por período y lo comparten las cuatro pantallas.
 // Paso 123a: períodos Hoy · Esta semana · Este mes · Este año · Rango, y filtros de comuna, tipo y semáforo.
+// Paso 123d: buscador de remates (admin y analista) y personas (solo admin); sus fichas usan el mismo período.
 
 const PANTALLAS = [
   { ruta: "", texto: "Resumen" },
@@ -53,20 +55,29 @@ export function ReportesLayout({ base }: { base: string }) {
   const [reporte, setReporte] = useState<Reporte | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Paso 123d: en la ficha de un remate o de una persona los filtros no se usan (es una sola cosa)
+  const enUnaFicha = /\/(remate|persona)\//.test(useLocation().pathname);
 
-  // Lo que se le pide a la API (null mientras se elige un rango que todavía no se pidió)
-  const consulta = useMemo(() => {
+  // Paso 123d: solo el período (lo usan también las fichas del buscador)
+  const consultaDelPeriodo = useMemo(() => {
     const parametros = new URLSearchParams({ periodo });
     if (periodo === "rango") {
       if (!rangoPedido) return null;
       parametros.set("desde", rangoPedido.desde);
       parametros.set("hasta", rangoPedido.hasta);
     }
+    return parametros.toString();
+  }, [periodo, rangoPedido]);
+
+  // Lo que se le pide a la API (null mientras se elige un rango que todavía no se pidió)
+  const consulta = useMemo(() => {
+    if (consultaDelPeriodo === null) return null;
+    const parametros = new URLSearchParams(consultaDelPeriodo);
     if (filtros.comuna) parametros.set("comuna_id", filtros.comuna);
     if (filtros.tipo) parametros.set("tipo", filtros.tipo);
     if (filtros.semaforo) parametros.set("semaforo", filtros.semaforo);
     return parametros.toString();
-  }, [periodo, rangoPedido, filtros]);
+  }, [consultaDelPeriodo, filtros]);
 
   useEffect(() => {
     if (consulta === null) return;
@@ -120,12 +131,8 @@ export function ReportesLayout({ base }: { base: string }) {
 
   // El texto del período va después de "en" en las pantallas ("se registraron en este mes").
   // Sale del reporte que se está mostrando, para que siempre coincida con los números.
-  const textoPeriodo = !reporte
-    ? ""
-    : reporte.periodo === "rango"
-      ? `el período del ${fechaCorta(reporte.desde)} al ${fechaCorta(reporte.hasta)}`
-      : (PERIODOS.find((p) => p.valor === reporte.periodo)?.texto ?? "el período elegido");
-  const contexto: ContextoReportes | null = reporte ? { reporte, esAdmin, textoPeriodo } : null;
+  const textoPeriodo = reporte ? textoDelPeriodo(reporte) : "";
+  const contexto: ContextoReportes | null = reporte ? { reporte, esAdmin, textoPeriodo, base, consultaDelPeriodo } : null;
 
   // Los filtros con que se calculó el reporte que se muestra (para el aviso de "Filtrado por")
   const filtrosDelReporte = reporte
@@ -242,8 +249,8 @@ export function ReportesLayout({ base }: { base: string }) {
         </form>
       )}
 
-      {/* Paso 123a: los filtros de los remates */}
-      <div className="rep-filtros">
+      {/* Paso 123a: los filtros de los remates (paso 123d: no se muestran en una ficha) */}
+      <div className="rep-filtros" hidden={enUnaFicha}>
         <label>
           Comuna
           <select value={filtros.comuna} onChange={(e) => cambiarFiltro({ comuna: e.target.value })}>
@@ -285,13 +292,16 @@ export function ReportesLayout({ base }: { base: string }) {
       </div>
 
       {/* Qué cambia con los filtros (según el reporte que se está mostrando) */}
-      {filtrosDelReporte.length > 0 && (
+      {filtrosDelReporte.length > 0 && !enUnaFicha && (
         <p className="rep-filtrado">
           <strong>Filtrado por: {filtrosDelReporte.join(" · ")}.</strong> Los remates, las vistas, los guardados y los
           avisos son solo de esos remates. Los datos de usuarios, inicios de sesión y opiniones no dependen de un
           remate: se muestran completos.
         </p>
       )}
+
+      {/* Paso 123d: buscar un remate (o una persona, solo el admin) y abrir su ficha */}
+      <Buscador base={base} conPersonas={esAdmin} />
 
       {!esAnalista && menu}
 
