@@ -24,6 +24,18 @@ export function urlDeArchivo(url: string) {
   return url.startsWith("/") ? `${API_URL}${url}` : url;
 }
 
+// Paso 125b: el error trae también el código de la respuesta (401, 403, 404...).
+// Así se puede distinguir "la sesión ya no sirve" (401/403) de "la API no respondió" (no hay código).
+export class ErrorDeApi extends Error {
+  status: number;
+
+  constructor(mensaje: string, status: number) {
+    super(mensaje);
+    this.name = "ErrorDeApi";
+    this.status = status;
+  }
+}
+
 // Función central: todas las llamadas a la API pasan por acá.
 // Arma la URL completa, agrega el token si existe, y maneja errores de forma consistente.
 async function apiFetch(path: string, options: RequestInit = {}) {
@@ -50,7 +62,7 @@ async function apiFetch(path: string, options: RequestInit = {}) {
     // Intentamos leer el mensaje de error que manda FastAPI ({"detail": "..."})
     const cuerpoError = await respuesta.json().catch(() => null);
     const mensaje = cuerpoError?.detail || `Error ${respuesta.status}`;
-    throw new Error(mensaje);
+    throw new ErrorDeApi(mensaje, respuesta.status);
   }
 
   // 204 No Content (por ejemplo, en un DELETE exitoso) no trae cuerpo que parsear

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, guardarToken, borrarToken, obtenerToken } from "../api/client";
+import { api, guardarToken, borrarToken, obtenerToken, ErrorDeApi } from "../api/client";
 
 // id del rol administrador en la tabla roles (el mismo que revisa requerir_admin en la API)
 const ROL_ADMIN_ID = 3;
@@ -51,7 +51,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     api
       .get("/auth/me")
       .then((datos: UsuarioActual) => setUsuario(datos))
-      .catch(() => borrarToken())
+      // Paso 125b: el token se borra SOLO si la API dice que no sirve (401 = venció, 403 = cuenta deshabilitada).
+      // Si la API no respondió (apagada o sin internet), se conserva: al recargar con la API encendida, la sesión sigue.
+      .catch((error) => {
+        if (error instanceof ErrorDeApi && (error.status === 401 || error.status === 403)) borrarToken();
+      })
       .finally(() => setVerificandoSesion(false));
   }, []);
 

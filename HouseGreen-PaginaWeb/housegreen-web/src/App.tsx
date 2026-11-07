@@ -59,7 +59,8 @@ function App() {
   return (
     <div>
       {!enEntrada && (
-        <header className={`app-header ${!esAnalista ? "is-con-menu" : ""}`}>
+        <header className={`app-header ${!esAnalista ? "is-con-menu" : ""} ${!estaLogueado ? "is-invitado" : ""}`}>
+          {/* Paso 125b: "is-invitado" achica el encabezado en celular (Premium, Iniciar sesión y Crear cuenta no cabían) */}
           {/* Paso 115: al analista el logo lo lleva a sus reportes */}
           <Link to={esAnalista ? "/analista" : "/"} className="app-logo">
             {/* El mismo dibujo del ícono de la pestaña (public/favicon.svg) */}

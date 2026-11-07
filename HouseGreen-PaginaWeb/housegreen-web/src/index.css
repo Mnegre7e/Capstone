@@ -181,6 +181,24 @@ h1 {
   }
 }
 
+/* Paso 125b (DEF-07): sin cuenta, el menú (Premium, Iniciar sesión y Crear cuenta) es más ancho:
+   del logo queda solo el semáforo hasta 480 px, y en los celulares más angostos se achica el margen */
+@media (max-width: 480px) {
+  .app-header.is-invitado .app-logo-nombre {
+    display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .app-header {
+    padding: 0 8px;
+  }
+
+  .app-header.is-invitado .app-nav-link {
+    padding: 8px 5px;
+  }
+}
+
 /* ---------- Aviso a página completa ----------
    Lo usan dos pantallas: "Página no encontrada" y el aviso al administrador
    que todavía no activa la verificación en dos pasos. */

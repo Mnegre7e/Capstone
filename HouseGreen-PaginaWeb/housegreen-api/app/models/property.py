@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Numeric, Boolean, ForeignKey, TIMESTAMP, Text, Date, CheckConstraint, Computed
+from sqlalchemy import Column, String, Integer, Numeric, Boolean, ForeignKey, TIMESTAMP, Text, Date, Computed
 from sqlalchemy.dialects.postgresql import UUID, ENUM
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
