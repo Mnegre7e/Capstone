@@ -893,3 +893,67 @@
     min-width: 100%;
   }
 }
+
+/* ---------- Paso 123b: plan Premium ---------- */
+/* Cuatro datos con su número grande (4 en fila en PC, 2 en celular) */
+.rep-datos {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.rep-datos p {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 12px;
+  border-radius: 12px;
+  background-color: #f5f8f6;
+}
+
+.rep-datos strong {
+  color: #0f3d30;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.rep-datos span {
+  color: #4e625b;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Listas de personas sin número de puesto (no es un ranking: van de la más reciente a la más antigua) */
+.rep-ranking.is-sin-puesto li {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.rep-enlace {
+  color: #15803d;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.rep-enlace:hover {
+  text-decoration: underline;
+}
+
+.rep-enlace:focus-visible {
+  outline: 2px solid #1d6f55;
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .rep-datos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rep-ranking.is-sin-puesto li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rep-ranking.is-sin-puesto .rep-ranking-cifras {
+    grid-column: 1;
+  }
+}

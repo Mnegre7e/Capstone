@@ -8,11 +8,13 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.auth.dependencies import get_current_user, requerir_admin, ROL_ADMIN_ID
+from app.auth.premium import ambiente_de_pago  # paso 123b
 from app.models.alert import Alert, SavedFilter
 from app.models.announcement import Announcement, AnnouncementRecipient
 from app.models.audit import AuditLog
 from app.models.favorite import SavedProperty
 from app.models.feedback import Feedback
+from app.models.pago import Pago  # paso 123b
 from app.models.property import Property, Comuna, PropertyEvaluation, PropertyFinancialInfo, PropertyView
 from app.models.user import User
 from app.routers.admin_panel import _esta_vigente  # la misma regla de "vigente" que usa el Panel
@@ -21,6 +23,7 @@ from app.schemas.reportes import (
     ActividadReporte, PuntoDeLaSerie, PersonaActiva,
     Cantidad, SubastasReporte, EmbudoReporte, AvisoPorTipo, AvisosReporte, UltimoAnuncio,  # paso 115
     FiltrosReporte,  # paso 123a
+    PagoPremium, PremiumReporte, VencidoPremium,  # paso 123b
 )
 
 # Paso 109: reportes del producto. Los puede ver el administrador y el analista
@@ -35,6 +38,7 @@ CUANTAS_EN_EL_RANKING = 10
 CUANTAS_PERSONAS = 10
 CUANTAS_COMUNAS = 8  # paso 115: las demás se suman en "Otras comunas"
 DIAS_PARA_REMATAR_PRONTO = 7  # paso 115: "se rematan pronto" = en los próximos 7 días
+CUANTOS_EN_LISTAS_PREMIUM = 50  # paso 123b: las listas de quienes pagaron y de quienes dejaron de pagar
 DIAS_POR_DIA = 62  # paso 123a: un rango de hasta 62 días se ve día a día; uno más largo, mes a mes
 ANIOS_DEL_RANGO = 5  # paso 123a: el rango puede ser de hasta 5 años
 
@@ -334,8 +338,71 @@ def ver_reporte(
         anuncios_enviados=db.query(Announcement).filter(en_el_periodo(Announcement.created_at)).count(),
     )
 
+    # ---------- 5b) Paso 123b: plan Premium (no depende de los filtros de remates) ----------
+    # Como en el Panel: solo cuentan los pagos del ambiente actual de Webpay (integración o producción)
+    ambiente = ambiente_de_pago()
+    ahora_utc = datetime.now(timezone.utc)
+    pagos_aprobados = (
+        db.query(Pago.id, Pago.user_id, Pago.amount, Pago.finished_at, Pago.premium_until)
+        .filter(Pago.status == "aprobado", Pago.environment == ambiente, Pago.finished_at.isnot(None))
+        .order_by(Pago.finished_at, Pago.id)
+        .all()
+    )
+    primer_pago = {}  # el primer pago aprobado de cada persona (los demás son renovaciones)
+    for pago in pagos_aprobados:
+        primer_pago.setdefault(pago.user_id, pago.id)
+    pagos_por_persona = Counter(pago.user_id for pago in pagos_aprobados)
+    pagos_del_periodo = [pago for pago in pagos_aprobados if inicio <= pago.finished_at < fin]
+    suscripciones_nuevas = sum(1 for pago in pagos_del_periodo if primer_pago[pago.user_id] == pago.id)
+    # Dejaron de pagar: su plan venció dentro del período (y hasta hoy) sin que lo renovaran.
+    # Si hubieran renovado, premium_until sería una fecha posterior.
+    vencidos = (
+        inversionistas.filter(User.premium_until > inicio, User.premium_until <= min(fin, ahora_utc))
+        .order_by(User.premium_until.desc())
+        .all()
+    )
+    premium = PremiumReporte(
+        ambiente=ambiente,
+        con_premium=inversionistas.filter(User.premium_until > ahora_utc).count(),
+        suscripciones=len(pagos_del_periodo),
+        nuevas=suscripciones_nuevas,
+        renovaciones=len(pagos_del_periodo) - suscripciones_nuevas,
+        personas=len({pago.user_id for pago in pagos_del_periodo}),
+        ingresos=sum(pago.amount for pago in pagos_del_periodo),
+        dejaron_de_pagar=len(vencidos),
+    )
+    # Solo el administrador ve quiénes son (el analista ve los totales, sin datos personales)
+    if usuario.role_id == ROL_ADMIN_ID:
+        recientes = sorted(pagos_del_periodo, key=lambda pago: pago.finished_at, reverse=True)[:CUANTOS_EN_LISTAS_PREMIUM]
+        quienes = {u.id: u for u in db.query(User).filter(User.id.in_({pago.user_id for pago in recientes}))}
+        premium.pagos = [
+            PagoPremium(
+                pago_id=pago.id,
+                user_id=pago.user_id,
+                full_name=quienes[pago.user_id].full_name,
+                email=quienes[pago.user_id].email,
+                pagado_el=_en_chile(pago.finished_at),
+                monto=pago.amount,
+                nueva=primer_pago[pago.user_id] == pago.id,
+                hasta=_en_chile(pago.premium_until) if pago.premium_until else None,
+            )
+            for pago in recientes
+            if pago.user_id in quienes
+        ]
+        premium.vencidos = [
+            VencidoPremium(
+                user_id=persona.id,
+                full_name=persona.full_name,
+                email=persona.email,
+                vencio_el=_en_chile(persona.premium_until),
+                pagos=pagos_por_persona[persona.id],
+            )
+            for persona in vencidos[:CUANTOS_EN_LISTAS_PREMIUM]
+        ]
+
     # ---------- 6) Serie: cuántos hubo cada hora, día o mes ----------
     registros_por_casilla = Counter(casilla(f) for f in fechas_de_registro)
+    suscripciones_por_casilla = Counter(casilla(pago.finished_at) for pago in pagos_del_periodo)  # paso 123b
     publicaciones_por_casilla = Counter(casilla(f) for f in nuevas)
     vistas_por_casilla = Counter(casilla(v.viewed_at) for v in vistas)
     guardados_por_casilla = Counter(casilla(g.saved_at) for g in guardados)
@@ -346,6 +413,7 @@ def ver_reporte(
             publicaciones=publicaciones_por_casilla[c],
             vistas=vistas_por_casilla[c],
             guardados=guardados_por_casilla[c],
+            suscripciones=suscripciones_por_casilla[c],  # paso 123b
         )
         for c in _casillas_de_la_serie(inicio_chile, fin_chile, agrupado)
     ]
@@ -481,6 +549,7 @@ def ver_reporte(
         hasta=fin_chile if fin_chile >= ahora else fin_chile - timedelta(seconds=1),
         agrupado_por=agrupado,
         filtros=FiltrosReporte(comuna_id=comuna_id, comuna=comunas.get(comuna_id), tipo=tipo, semaforo=semaforo),
+        premium=premium,  # paso 123b
         usuarios=usuarios,
         publicaciones=publicaciones,
         alcance=alcance,

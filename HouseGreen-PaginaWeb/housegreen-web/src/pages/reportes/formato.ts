@@ -1,6 +1,7 @@
 // Paso 115: tipos y funciones que comparten las pantallas de Reportes
 // (las usan el analista y el administrador). Los datos vienen de GET /reportes.
 // Paso 123a: períodos nuevos (Hoy, Esta semana, Este mes, Este año, Rango), filtros y gráfico por hora.
+// Paso 123b: plan Premium (suscripciones, ingresos y quiénes dejaron de pagar).
 
 // Paso 123a: Hoy · Esta semana (desde el lunes) · Este mes · Este año · Rango (dos fechas)
 export type Periodo = "hoy" | "semana" | "mes" | "anio" | "rango";
@@ -22,6 +23,7 @@ export interface PuntoDeLaSerie {
   publicaciones: number;
   vistas: number;
   guardados: number;
+  suscripciones: number; // paso 123b: pagos de Premium aprobados
 }
 
 export interface Cantidad {
@@ -79,6 +81,21 @@ export interface Reporte {
   avisos: { enviados: number; leidos: number; por_tipo: { tipo: string; enviados: number; leidos: number }[] };
   ultimo_anuncio: { titulo: string; enviado_el: string; destinatarios: number; leidos: number } | null;
   inicios_por_plataforma: Record<string, number>; // web, app, sin_dato
+  // Paso 123b: plan Premium (las listas con nombre y correo solo llegan al administrador)
+  premium: {
+    ambiente: "integracion" | "produccion";
+    con_premium: number;
+    suscripciones: number;
+    nuevas: number;
+    renovaciones: number;
+    personas: number;
+    ingresos: number;
+    dejaron_de_pagar: number;
+    pagos:
+      | { pago_id: number; user_id: string; full_name: string; email: string; pagado_el: string; monto: number; nueva: boolean; hasta: string | null }[]
+      | null;
+    vencidos: { user_id: string; full_name: string; email: string; vencio_el: string; pagos: number }[] | null;
+  };
 }
 
 // Lo que el marco de Reportes le pasa a cada pantalla
@@ -117,6 +134,11 @@ export const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "s
 // 1234 -> "1.234"
 export function numero(valor: number) {
   return valor.toLocaleString("es-CL");
+}
+
+// Paso 123b: 9990 -> "$9.990"
+export function pesos(valor: number) {
+  return valor.toLocaleString("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
 }
 
 export function plural(cantidad: number, singular: string, varios: string) {
@@ -162,10 +184,11 @@ export const NOMBRE_DEL_AVISO: Record<string, string> = {
 };
 
 // Qué se puede ver en un gráfico de barras por día o por mes
-export type Medida = "vistas" | "guardados" | "registros" | "publicaciones";
+export type Medida = "vistas" | "guardados" | "registros" | "publicaciones" | "suscripciones";
 export const MEDIDAS: { valor: Medida; nombre: string; singular: string; plural: string }[] = [
   { valor: "vistas", nombre: "Vistas", singular: "vista", plural: "vistas" },
   { valor: "guardados", nombre: "Guardados", singular: "guardado", plural: "guardados" },
   { valor: "registros", nombre: "Registros", singular: "registro", plural: "registros" },
   { valor: "publicaciones", nombre: "Publicaciones", singular: "publicación", plural: "publicaciones" },
+  { valor: "suscripciones", nombre: "Suscripciones", singular: "suscripción", plural: "suscripciones" }, // paso 123b
 ];

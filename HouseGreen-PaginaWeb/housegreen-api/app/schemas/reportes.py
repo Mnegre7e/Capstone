@@ -54,6 +54,7 @@ class PuntoDeLaSerie(BaseModel):
     publicaciones: int
     vistas: int
     guardados: int
+    suscripciones: int = 0  # paso 123b: pagos de Premium aprobados
 
 
 # ---------- Paso 115: datos para las pantallas Subastas, Usuarios y Alcance ----------
@@ -108,6 +109,37 @@ class PersonaActiva(BaseModel):
     vistas: int
     guardados: int
 
+# Paso 123b: plan Premium en el período
+class PagoPremium(BaseModel):
+    pago_id: int
+    user_id: UUID
+    full_name: str
+    email: str
+    pagado_el: datetime
+    monto: int
+    nueva: bool  # True = su primer pago; False = renovó
+    hasta: datetime | None = None  # hasta cuándo le dio Premium ese pago
+
+
+class VencidoPremium(BaseModel):
+    user_id: UUID
+    full_name: str
+    email: str
+    vencio_el: datetime
+    pagos: int  # cuántos pagos aprobados tiene en total
+
+
+class PremiumReporte(BaseModel):
+    ambiente: str  # "integracion" (pagos de prueba de Webpay) o "produccion"
+    con_premium: int  # personas con el plan vigente hoy
+    suscripciones: int  # pagos aprobados en el período
+    nuevas: int  # de esos, los que eran el primer pago de la persona
+    renovaciones: int
+    personas: int  # personas distintas que pagaron en el período
+    ingresos: int  # pesos
+    dejaron_de_pagar: int  # su plan venció en el período y no lo renovaron
+    pagos: list[PagoPremium] | None = None  # solo el administrador (con nombre y correo)
+    vencidos: list[VencidoPremium] | None = None  # solo el administrador
 
 # Paso 123a: los filtros con que se calculó el reporte (vacío = sin ese filtro)
 class FiltrosReporte(BaseModel):
@@ -123,6 +155,7 @@ class Reporte(BaseModel):
     hasta: datetime
     agrupado_por: str  # "hora", "dia" o "mes" (cómo viene la serie)
     filtros: FiltrosReporte  # paso 123a
+    premium: PremiumReporte  # paso 123b
     usuarios: UsuariosReporte
     publicaciones: PublicacionesReporte
     alcance: AlcanceReporte
