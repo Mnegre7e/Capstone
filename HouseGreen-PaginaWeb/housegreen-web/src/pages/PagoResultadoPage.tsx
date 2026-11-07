@@ -149,9 +149,6 @@ export function PagoResultadoPage() {
           )}
         </dl>
 
-        {pago.environment === "integracion" && (
-          <p className="pago-prueba">Pago de prueba (ambiente de integración de Transbank): no se cobró dinero real.</p>
-        )}
 
         <div className="pago-botones">
           {aprobado ? (

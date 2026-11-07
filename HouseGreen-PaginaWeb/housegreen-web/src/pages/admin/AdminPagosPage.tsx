@@ -74,7 +74,6 @@ export function AdminPagosPage() {
   const aprobados = pagos.filter((p) => p.status === "aprobado");
   const totalAprobado = aprobados.reduce((suma, p) => suma + p.amount, 0);
   const personas = new Set(aprobados.map((p) => p.user_id)).size;
-  const hayPruebas = pagos.some((p) => p.environment === "integracion");
 
   function cambiarFiltro(cambio: () => void) {
     cambio();
@@ -90,12 +89,6 @@ export function AdminPagosPage() {
       <p className="admin-subtitulo">
         Cada vez que alguien intentó pagar con Webpay. Solo un pago aprobado activa el plan.
       </p>
-      {hayPruebas && (
-        <p className="pag-prueba">
-          Modo de prueba: estos pagos se hicieron en el ambiente de integración de Transbank, con tarjetas de prueba. No
-          hay dinero real.
-        </p>
-      )}
 
       {error && <p className="pag-error">No se pudieron cargar los pagos: {error}</p>}
       {cargando && <p className="pag-cuenta">Cargando...</p>}
@@ -187,7 +180,6 @@ export function AdminPagosPage() {
 
                   <p className="pag-meta">
                     {textoCuando(p.created_at)} · Orden {p.buy_order}
-                    {p.environment === "integracion" && " · Pago de prueba"}
                   </p>
                 </li>
               );

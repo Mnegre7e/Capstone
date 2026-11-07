@@ -60,9 +60,7 @@ export function UsuariosPage() {
             <span>dejaron de pagar: su plan venció en {textoPeriodo} y no lo renovaron</span>
           </p>
         </div>
-        {premium.ambiente === "integracion" && (
-          <p className="rep-nota">Son pagos de prueba: Webpay está en el ambiente de integración (sin dinero real).</p>
-        )}
+
       </Tarjeta>
 
       {/* Paso 123b: solo el administrador ve quiénes son (el analista ve los totales) */}

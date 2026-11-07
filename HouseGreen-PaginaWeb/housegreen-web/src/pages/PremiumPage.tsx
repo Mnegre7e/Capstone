@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
@@ -60,14 +60,7 @@ export function PremiumPage() {
   // Paso 122d: pago con Webpay
   const [pagando, setPagando] = useState(false);
   const [errorPago, setErrorPago] = useState<string | null>(null);
-  const [ambiente, setAmbiente] = useState<string | null>(null); // "integracion" = pagos de prueba
 
-  useEffect(() => {
-    api
-      .get("/pagos/plan")
-      .then((plan: { ambiente: string }) => setAmbiente(plan.ambiente))
-      .catch(() => setAmbiente(null));
-  }, []);
 
   async function pagar() {
     setPagando(true);
@@ -147,12 +140,6 @@ export function PremiumPage() {
             Pago único con Webpay de Transbank. No se renueva solo: cuando vence, puedes volver a pagar. HouseGreen no
             guarda los datos de tu tarjeta.
           </p>
-          {ambiente === "integracion" && (
-            <p className="premium-plan-prueba">
-              Modo de prueba: se usa el ambiente de integración de Transbank, con tarjetas de prueba. No se cobra dinero
-              real.
-            </p>
-          )}
         </section>
 
         <section className="premium-comparar" aria-labelledby="premium-comparar-titulo">

@@ -224,11 +224,6 @@ export function AdminPanelPage() {
               <dd className="panel-premium-nota">en los últimos {panel.dias} días</dd>
             </div>
           </dl>
-          {premium.ambiente === "integracion" && (
-            <p className="panel-premium-aviso">
-              Webpay está en modo de prueba (ambiente de integración de Transbank): estos montos no son dinero real.
-            </p>
-          )}
           <p className="panel-enlace-final panel-premium-enlaces">
             <Link to="/admin/pagos">Ver todos los pagos ›</Link>
             <Link to="/admin/usuarios?plan=vigente">Ver quiénes tienen Premium ›</Link>
