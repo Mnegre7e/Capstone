@@ -133,6 +133,15 @@ export function RegisterPage() {
           alCambiarVisible={() => setMostrar(!mostrar)}
         />
 
+        {/* Paso 125c: se abre en otra pestaña para no perder lo que ya se escribió */}
+        <p className="login-legal">
+          Al crear tu cuenta aceptas la{" "}
+          <Link to="/privacidad" target="_blank" rel="noopener noreferrer">
+            Política de privacidad
+          </Link>
+          .
+        </p>
+        
         <button type="submit" className="login-button" disabled={guardando}>
           {guardando ? "Creando cuenta..." : "Crear cuenta"}
         </button>

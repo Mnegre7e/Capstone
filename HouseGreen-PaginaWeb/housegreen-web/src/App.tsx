@@ -18,6 +18,7 @@ import { useAlerts } from "./context/AlertsContext";
 import { useAnuncios } from "./context/AnunciosContext";
 import { RegisterPage } from "./pages/RegisterPage";
 import { RecuperarPage } from "./pages/RecuperarPage";
+import { PrivacidadPage } from "./pages/PrivacidadPage"; // paso 125c
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PerfilPage } from "./pages/PerfilPage";
 import { OpinionesPage } from "./pages/OpinionesPage";
@@ -143,6 +144,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegisterPage />} />
         <Route path="/recuperar" element={<RecuperarPage />} /> {/* paso 117 */}
+        <Route path="/privacidad" element={<PrivacidadPage />} /> {/* paso 125c: con o sin cuenta */}
 
         {/* Paso 122c: el catálogo y el detalle (que sin Premium muestra el aviso del plan) se ven sin cuenta */}
         <Route

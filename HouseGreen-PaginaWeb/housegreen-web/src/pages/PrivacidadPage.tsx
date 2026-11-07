@@ -1,0 +1,201 @@
+import { Link } from "react-router-dom";
+import "./PrivacidadPage.css";
+
+// Paso 125c: política de privacidad (Ley 19.628, actualizada por la Ley 21.719).
+// Se ve con o sin cuenta. Si cambia algo de lo que hace HouseGreen con los datos, hay que cambiar este texto
+// y subir la versión.
+
+const CORREO = "housegreen.capstone@gmail.com";
+const VERSION = "Versión 1.0 · noviembre de 2026";
+
+function Correo() {
+  return <a href={`mailto:${CORREO}`}>{CORREO}</a>;
+}
+
+export function PrivacidadPage() {
+  return (
+    <article className="priv">
+      <h1>Política de privacidad</h1>
+      <p className="priv-version">{VERSION}</p>
+      <p>
+        En HouseGreen cuidamos tus datos personales. Aquí te contamos, en simple, qué datos guardamos, para qué, quién
+        los ve y cómo puedes pedir verlos, corregirlos o borrarlos. Seguimos la Ley 19.628 sobre protección de la vida
+        privada y su actualización, la Ley 21.719.
+      </p>
+
+      <div className="priv-corto">
+        <h2>En corto</h2>
+        <ul>
+          <li>No vendemos tus datos ni los usamos para publicidad.</li>
+          <li>El administrador de HouseGreen ve tu actividad (por ejemplo, qué remates viste); el analista solo ve totales.</li>
+          <li>HouseGreen nunca ve ni guarda el número de tu tarjeta: el pago lo hace Webpay.</li>
+          <li>
+            Puedes pedir ver, corregir o borrar tus datos escribiendo a <Correo />.
+          </li>
+        </ul>
+      </div>
+
+      <section>
+        <h2>1. Quién es responsable</h2>
+        <p>
+          HouseGreen es un proyecto de título de Ingeniería en Informática de Duoc UC. El equipo de HouseGreen es el
+          responsable de tus datos. Para cualquier consulta o solicitud, escríbenos a <Correo />.
+        </p>
+      </section>
+
+      <section>
+        <h2>2. Qué datos guardamos</h2>
+        <ul>
+          <li>
+            <strong>Tu cuenta:</strong> nombre, correo y teléfono (si lo escribes). Tu contraseña se guarda cifrada:
+            nadie puede leerla, ni siquiera el equipo.
+          </li>
+          <li>
+            <strong>Lo que haces en HouseGreen:</strong> los remates que abres y cuándo, los que guardas o quitas, tus
+            alertas, los avisos que te llegan, si leíste los anuncios y las opiniones que envías.
+          </li>
+          <li>
+            <strong>Seguridad:</strong> cada inicio de sesión y cada cambio importante en tu cuenta, con la fecha, la
+            dirección IP y si fue desde la página web o la app.
+          </li>
+          <li>
+            <strong>Plan Premium:</strong> monto, fecha y estado de cada pago, el código de autorización y los últimos 4
+            dígitos de la tarjeta. El número completo de la tarjeta lo recibe Webpay (Transbank): HouseGreen nunca lo
+            ve ni lo guarda.
+          </li>
+          <li>
+            <strong>En tu navegador:</strong> tu sesión, para que no tengas que entrar cada vez. No usamos cookies de
+            publicidad ni de seguimiento.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>3. Para qué los usamos</h2>
+        <ul>
+          <li>
+            Darte el servicio que pides al crear tu cuenta: ver los remates, guardarlos, crear alertas y recibir avisos.
+            <span className="priv-base"> Base: el servicio que aceptas al registrarte.</span>
+          </li>
+          <li>
+            Cobrar y activar el plan Premium.
+            <span className="priv-base"> Base: el pago que haces.</span>
+          </li>
+          <li>
+            Proteger las cuentas: frenar intentos repetidos de entrar y revisar la actividad si hay un problema.
+            <span className="priv-base"> Base: el interés legítimo de mantener HouseGreen seguro.</span>
+          </li>
+          <li>
+            Saber cómo se usa HouseGreen y mejorarlo, con reportes de cifras totales.
+            <span className="priv-base"> Base: interés legítimo.</span>
+          </li>
+          <li>Enviarte por correo los anuncios del equipo y, cuando lo pidas, el código para cambiar tu contraseña.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>4. Quién puede ver tus datos</h2>
+        <ul>
+          <li>
+            <strong>Tú</strong>, en tu <Link to="/perfil">Perfil</Link>.
+          </li>
+          <li>
+            <strong>El administrador de HouseGreen:</strong> ve tu nombre, correo, plan, pagos y actividad, incluidos
+            los remates que viste y guardaste. Lo usa solo para atender la plataforma, ayudarte y cuidar la seguridad.
+            Su cuenta exige verificación en dos pasos.
+          </li>
+          <li>
+            <strong>El analista:</strong> ve solo cifras totales (por ejemplo, cuántas personas vieron un remate), nunca
+            tu nombre ni tu correo.
+          </li>
+          <li>
+            <strong>Los servicios que HouseGreen usa para funcionar</strong>, cada uno solo para lo suyo:
+            <ul>
+              <li>Neon: guarda la base de datos.</li>
+              <li>Google (Gmail): envía los correos.</li>
+              <li>Transbank (Webpay): procesa los pagos.</li>
+              <li>
+                OpenStreetMap: entrega las imágenes del mapa. Tu navegador las descarga desde sus servidores, que ven tu
+                dirección IP.
+              </li>
+              <li>Cloudinary: guarda las fotos de los remates (no guarda datos tuyos).</li>
+            </ul>
+          </li>
+        </ul>
+        <p>
+          Algunos de estos servicios tienen sus servidores fuera de Chile, así que tus datos pueden guardarse o pasar por
+          otros países.
+        </p>
+      </section>
+
+      <section>
+        <h2>5. Cuánto tiempo los guardamos</h2>
+        <ul>
+          <li>Mientras tu cuenta exista.</li>
+          <li>
+            Si eliminas tu cuenta desde tu Perfil, se desactiva de inmediato: nadie puede entrar con ella y no recibes
+            más correos ni avisos. Tus datos quedan guardados y bloqueados, solo por seguridad y para poder reactivarla
+            si nos lo pides. Si quieres que se borren definitivamente, escríbenos.
+          </li>
+          <li>Los pagos se guardan el tiempo que exigen las leyes tributarias.</li>
+          <li>El registro de seguridad no se puede modificar y se guarda como respaldo.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>6. Tus derechos</h2>
+        <p>Puedes pedir en cualquier momento:</p>
+        <ul>
+          <li>
+            <strong>Acceso:</strong> saber qué datos tuyos tenemos.
+          </li>
+          <li>
+            <strong>Rectificación:</strong> corregir datos equivocados (tu nombre y teléfono los cambias tú en tu
+            Perfil).
+          </li>
+          <li>
+            <strong>Supresión:</strong> que borremos tus datos.
+          </li>
+          <li>
+            <strong>Oposición:</strong> que dejemos de usarlos para algo en particular.
+          </li>
+          <li>
+            <strong>Portabilidad:</strong> recibir una copia de tus datos en un archivo.
+          </li>
+          <li>
+            <strong>Bloqueo:</strong> que dejemos de usarlos mientras revisamos tu solicitud.
+          </li>
+        </ul>
+        <p>
+          Para pedirlo, escribe a <Correo /> desde el correo de tu cuenta y cuéntanos qué necesitas. Te responderemos
+          dentro de 30 días. Si no quedas conforme, puedes reclamar ante la Agencia de Protección de Datos Personales.
+        </p>
+      </section>
+
+      <section>
+        <h2>7. Cómo los protegemos</h2>
+        <ul>
+          <li>Las contraseñas se guardan cifradas, y después de 5 intentos fallidos en 15 minutos hay que esperar.</li>
+          <li>Verificación en dos pasos: obligatoria para el administrador y opcional para ti.</li>
+          <li>El código para cambiar la contraseña vence a los 15 minutos.</li>
+          <li>Solo el administrador ve datos personales, y cada acción importante queda registrada.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>8. Decisiones automáticas</h2>
+        <p>El semáforo de HouseGreen evalúa remates, no personas. No usamos tus datos para tomar decisiones automáticas sobre ti.</p>
+      </section>
+
+      <section>
+        <h2>9. Menores de edad</h2>
+        <p>HouseGreen está pensado para personas mayores de 18 años.</p>
+      </section>
+
+      <section>
+        <h2>10. Cambios a esta política</h2>
+        <p>Si la cambiamos, publicaremos la nueva versión en esta página y te avisaremos con un anuncio en HouseGreen.</p>
+      </section>
+    </article>
+  );
+}

@@ -138,7 +138,7 @@ export function PremiumPage() {
 
           <p className="premium-plan-nota">
             Pago único con Webpay de Transbank. No se renueva solo: cuando vence, puedes volver a pagar. HouseGreen no
-            guarda los datos de tu tarjeta.
+            guarda los datos de tu tarjeta. <Link to="/privacidad">Política de privacidad</Link>.
           </p>
         </section>
 

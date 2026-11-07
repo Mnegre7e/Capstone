@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { useAuth } from "../context/AuthContext";
 import type { UsuarioActual } from "../context/AuthContext";
@@ -443,7 +444,10 @@ export function PerfilPage() {
   return (
     <div className="perfil-page">
       <h1>Mi perfil</h1>
-      <p className="perfil-subtitulo">Tus datos en HouseGreen y la contraseña de tu cuenta.</p>
+      <p className="perfil-subtitulo">
+        Tus datos en HouseGreen y la contraseña de tu cuenta. Cómo los cuidamos:{" "}
+        <Link to="/privacidad">Política de privacidad</Link>.
+      </p>
 
       <MisDatos usuario={usuario} />
       <CambiarContrasena />

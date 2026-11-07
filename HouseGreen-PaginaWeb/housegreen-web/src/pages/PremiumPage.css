@@ -284,3 +284,9 @@
   font-size: 12px;
   line-height: 1.45;
 }
+
+/* Paso 125c: enlace a la política de privacidad (sobre el fondo verde oscuro de la tarjeta) */
+.premium-plan-nota a {
+  color: white;
+  font-weight: 600;
+}

@@ -321,3 +321,16 @@
 .login-switch-junto {
   margin-top: 6px;
 }
+
+/* Paso 125c: aviso de la política de privacidad en el registro */
+.login-legal {
+  margin: 14px 0 0;
+  color: #5f6b66;
+  font-size: 13px;
+  text-align: center;
+}
+
+.login-legal a {
+  color: #15803d;
+  font-weight: 600;
+}

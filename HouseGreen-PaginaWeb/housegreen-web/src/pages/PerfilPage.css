@@ -315,3 +315,10 @@
 .perfil-consecuencias {
   margin-bottom: 16px;
 }
+
+
+/* Paso 125c: enlace a la política de privacidad */
+.perfil-subtitulo a {
+  color: #15803d;
+  font-weight: 600;
+}
