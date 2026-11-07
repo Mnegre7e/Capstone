@@ -3,6 +3,7 @@ import L from "leaflet";
 import type { Feature, Polygon } from "geojson";
 import "leaflet/dist/leaflet.css";
 import "./MapaRemates.css";
+import { colorDeComuna } from "./coloresDelMapa";
 
 // Paso 124b: el mapa de los remates, con Leaflet y los mapas de OpenStreetMap.
 // Este componente solo dibuja: qué puntos se muestran y qué pasa al elegir uno lo decide MapaPage.
@@ -37,22 +38,7 @@ export type ModoDelMapa = "comunas" | "puntos";
 // Paso 124c: desde este acercamiento se ven los remates; más lejos, las comunas
 export const ZOOM_PARA_VER_REMATES = 13;
 
-// Paso 124c: colores de las comunas según cuántos remates tienen (un solo tono, de claro a oscuro).
-// Es azul para no confundirlo con los colores del semáforo.
-export const ESCALA_COMUNAS: { desde: number; texto: string; color: string }[] = [
-  { desde: 1, texto: "1 a 4", color: "#dbe9f2" },
-  { desde: 5, texto: "5 a 9", color: "#a9cbe1" },
-  { desde: 10, texto: "10 a 19", color: "#6fa6cb" },
-  { desde: 20, texto: "20 a 39", color: "#3b7cb0" },
-  { desde: 40, texto: "40 o más", color: "#1d4f7e" },
-];
-const SIN_REMATES = "#eef1f0";
 
-export function colorDeComuna(cantidad: number) {
-  let color = SIN_REMATES;
-  for (const paso of ESCALA_COMUNAS) if (cantidad >= paso.desde) color = paso.color;
-  return color;
-}
 
 interface MapaRematesProps {
   puntos: PuntoDelMapa[];

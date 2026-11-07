@@ -1,9 +1,9 @@
-import { createContext, useCallback, useContext, useState, useEffect } from "react";
-import type { ReactNode } from "react";
-import { api } from "../api/client";
-import { useAuth } from "./AuthContext";
+import { createContext, useContext } from "react";
 
-interface PropertyApiResponse {
+// Paso 125e: aquí quedan los tipos, el contexto y useProperties. El componente PropertiesProvider
+// está en PropertiesProvider.tsx (un archivo con componentes debe exportar solo componentes).
+
+export interface PropertyApiResponse {
   id: string;
   title: string;
   address: string | null;
@@ -34,12 +34,12 @@ interface PropertyApiResponse {
   created_at: string; // fecha de publicación (para ordenar por "Más recientes")
 }
 
-interface ComunaApiResponse {
+export interface ComunaApiResponse {
   id: number;
   name: string;
 }
 
-interface PropertiesContextType {
+export interface PropertiesContextType {
   properties: PropertyApiResponse[];
   comunasPorId: Record<number, string>;
   cargando: boolean;
@@ -47,55 +47,7 @@ interface PropertiesContextType {
   recargar: () => Promise<void>;
 }
 
-const PropertiesContext = createContext<PropertiesContextType | undefined>(undefined);
-
-export function PropertiesProvider({ children }: { children: ReactNode }) {
-  const { usuario, verificandoSesion } = useAuth();
-  const [properties, setProperties] = useState<PropertyApiResponse[]>([]);
-  const [comunasPorId, setComunasPorId] = useState<Record<number, string>>({});
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // useCallback hace que "recargar" sea siempre la misma función (no una nueva en cada render),
-  // así las páginas pueden usarla en un useEffect sin que se repita sin parar.
-  // Todos los setState van después del await: "Cargando..." solo se ve la primera vez
-  // (cargando empieza en true); las recargas siguientes actualizan la lista en silencio.
-  const recargar = useCallback(async () => {
-    try {
-      // Promise.all pide ambas cosas EN PARALELO (no una después de la otra),
-      // así la carga es más rápida que esperar una petición y luego la otra.
-      const [datosPropiedades, datosComunas]: [PropertyApiResponse[], ComunaApiResponse[]] =
-        await Promise.all([api.get("/propiedades"), api.get("/comunas")]);
-
-      setProperties(datosPropiedades);
-
-      const mapa: Record<number, string> = {};
-      datosComunas.forEach((c) => {
-        mapa[c.id] = c.name;
-      });
-      setComunasPorId(mapa);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al cargar propiedades");
-    } finally {
-      setCargando(false);
-    }
-  }, []);
-
-  // Paso 122c: el catálogo se ve también sin cuenta (como invitado). Se pide de nuevo cada vez que cambia
-  // quién está conectado o su plan, porque la API le entrega el semáforo y el detalle solo a quien tiene Premium.
-  const quien = usuario ? `${usuario.id}-${usuario.acceso_completo}` : "invitado";
-  useEffect(() => {
-    if (verificandoSesion) return; // primero se sabe si hay sesión, así el catálogo no se pide dos veces
-    recargar();
-  }, [verificandoSesion, quien, recargar]);
-
-  return (
-    <PropertiesContext.Provider value={{ properties, comunasPorId, cargando, error, recargar }}>
-      {children}
-    </PropertiesContext.Provider>
-  );
-}
+export const PropertiesContext = createContext<PropertiesContextType | undefined>(undefined);
 
 export function useProperties() {
   const context = useContext(PropertiesContext);

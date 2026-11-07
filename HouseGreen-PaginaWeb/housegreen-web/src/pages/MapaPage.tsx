@@ -5,13 +5,13 @@ import { useAuth } from "../context/AuthContext";
 import { useProperties } from "../context/PropertiesContext";
 import { AvisoPremium } from "../components/AvisoPremium";
 import {
-  ESCALA_COMUNAS,
   MapaRemates,
   type ColorDelPunto,
   type ComunaDelMapa,
   type ModoDelMapa,
   type PuntoDelMapa,
 } from "../components/MapaRemates";
+import { ESCALA_COMUNAS } from "../components/coloresDelMapa"; // paso 125e
 import { RiskBadge } from "../components/RiskBadge";
 import { remateFinalizado, remateRetirado } from "../components/estadoRemate";
 import { CATEGORIAS, categoriaDeTipo, type CategoriaTipo } from "../components/tipoPropiedad";
