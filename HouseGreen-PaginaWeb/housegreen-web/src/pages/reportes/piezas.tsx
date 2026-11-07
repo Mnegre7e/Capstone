@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import {
+  CADA,
   MEDIDAS,
   MESES,
   NIVELES,
@@ -9,6 +10,7 @@ import {
   plural,
   porcentaje,
   topeRedondo,
+  type Agrupado,
   type Medida,
   type PuntoDeLaSerie,
 } from "./formato";
@@ -118,8 +120,9 @@ export function BarraSemaforo({ semaforo }: { semaforo: Record<string, number> }
   );
 }
 
-// ---------- Gráfico de columnas: cuántos hubo cada día (o cada mes) de una medida ----------
-export function Grafico({ serie, medida, porMes }: { serie: PuntoDeLaSerie[]; medida: Medida; porMes: boolean }) {
+// ---------- Gráfico de columnas: cuántos hubo cada hora, día o mes de una medida ----------
+// Paso 123a: "agrupado" dice si cada barra es una hora (Hoy), un día o un mes.
+export function Grafico({ serie, medida, agrupado }: { serie: PuntoDeLaSerie[]; medida: Medida; agrupado: Agrupado }) {
   const [activa, setActiva] = useState<number | null>(null);
   const info = MEDIDAS.find((m) => m.valor === medida)!;
   const valores = serie.map((punto) => punto[medida]);
@@ -178,7 +181,7 @@ export function Grafico({ serie, medida, porMes }: { serie: PuntoDeLaSerie[]; me
         {serie.map((punto, i) => (
           <span key={punto.fecha} className={esClave(i) ? "" : "is-extra"}>
             {i % salto === 0 || i === ultima
-              ? porMes
+              ? agrupado === "mes"
                 ? MESES[Number(punto.fecha.split("-")[1]) - 1]
                 : nombreDeLaFecha(punto.fecha)
               : ""}
@@ -192,7 +195,7 @@ export function Grafico({ serie, medida, porMes }: { serie: PuntoDeLaSerie[]; me
         <table>
           <thead>
             <tr>
-              <th scope="col">{porMes ? "Mes" : "Día"}</th>
+              <th scope="col">{CADA[agrupado].columna}</th>
               {MEDIDAS.map((m) => (
                 <th key={m.valor} scope="col">
                   {m.nombre}

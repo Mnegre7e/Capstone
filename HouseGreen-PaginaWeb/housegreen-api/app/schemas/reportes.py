@@ -109,12 +109,20 @@ class PersonaActiva(BaseModel):
     guardados: int
 
 
+# Paso 123a: los filtros con que se calculó el reporte (vacío = sin ese filtro)
+class FiltrosReporte(BaseModel):
+    comuna_id: int | None = None
+    comuna: str | None = None  # el nombre de esa comuna
+    tipo: str | None = None  # departamento, casa, terreno, parcela, comercial, bodega, derechos u otro
+    semaforo: str | None = None  # verde, amarillo, rojo o sin_evaluar
+
+
 class Reporte(BaseModel):
-    periodo: str  # "7d", "30d" o "12m"
+    periodo: str  # paso 123a: "hoy", "semana", "mes", "anio" o "rango" (y los de antes: "7d", "30d", "12m")
     desde: datetime
     hasta: datetime
-    agrupado_por: str  # "dia" o "mes" (cómo viene la serie)
-
+    agrupado_por: str  # "hora", "dia" o "mes" (cómo viene la serie)
+    filtros: FiltrosReporte  # paso 123a
     usuarios: UsuariosReporte
     publicaciones: PublicacionesReporte
     alcance: AlcanceReporte

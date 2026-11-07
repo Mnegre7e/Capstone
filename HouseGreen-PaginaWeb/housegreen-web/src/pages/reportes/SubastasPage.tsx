@@ -1,6 +1,6 @@
 import { useOutletContext } from "react-router-dom";
 import { CATEGORIAS, categoriaDeTipo } from "../../components/tipoPropiedad";
-import { numero, porcentaje, type ContextoReportes } from "./formato";
+import { CADA, numero, porcentaje, type ContextoReportes } from "./formato";
 import { BarraSemaforo, Barras, Cifras, Grafico, Tarjeta } from "./piezas";
 
 // Paso 115: Subastas. Los remates que hay en HouseGreen: cuántos, dónde, de qué tipo y su semáforo.
@@ -41,8 +41,8 @@ export function SubastasPage() {
         ]}
       />
 
-      <Tarjeta titulo={reporte.agrupado_por === "mes" ? "Remates publicados por mes" : "Remates publicados por día"}>
-        <Grafico serie={reporte.serie} medida="publicaciones" porMes={reporte.agrupado_por === "mes"} />
+      <Tarjeta titulo={`Remates publicados ${CADA[reporte.agrupado_por].por}`}>
+        <Grafico serie={reporte.serie} medida="publicaciones" agrupado={reporte.agrupado_por} />
       </Tarjeta>
 
       <Tarjeta titulo="Por semáforo">

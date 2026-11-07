@@ -1,7 +1,11 @@
 // Paso 115: tipos y funciones que comparten las pantallas de Reportes
 // (las usan el analista y el administrador). Los datos vienen de GET /reportes.
+// Paso 123a: períodos nuevos (Hoy, Esta semana, Este mes, Este año, Rango), filtros y gráfico por hora.
 
-export type Periodo = "7d" | "30d" | "12m";
+// Paso 123a: Hoy · Esta semana (desde el lunes) · Este mes · Este año · Rango (dos fechas)
+export type Periodo = "hoy" | "semana" | "mes" | "anio" | "rango";
+// Cómo viene la serie del gráfico: una barra por hora (Hoy), por día o por mes
+export type Agrupado = "hora" | "dia" | "mes";
 
 export interface PublicacionReporte {
   id: string;
@@ -13,7 +17,7 @@ export interface PublicacionReporte {
 }
 
 export interface PuntoDeLaSerie {
-  fecha: string; // "2026-10-24" (por día) o "2026-10" (por mes)
+  fecha: string; // "2026-10-24" (por día), "2026-10" (por mes) o "2026-10-24T14" (por hora)
   registros: number;
   publicaciones: number;
   vistas: number;
@@ -30,7 +34,9 @@ export interface Reporte {
   periodo: Periodo;
   desde: string;
   hasta: string;
-  agrupado_por: "dia" | "mes";
+  agrupado_por: Agrupado;
+  // Paso 123a: los filtros con que se calculó (null = sin ese filtro)
+  filtros: { comuna_id: number | null; comuna: string | null; tipo: string | null; semaforo: string | null };
   usuarios: {
     total: number;
     activos: number;
@@ -79,14 +85,24 @@ export interface Reporte {
 export interface ContextoReportes {
   reporte: Reporte;
   esAdmin: boolean;
-  textoPeriodo: string; // "los últimos 30 días"
+  textoPeriodo: string; // "este mes" (se lee bien después de "en": "se registraron en este mes")
 }
 
+// Paso 123a: los botones de período. "texto" va después de "en" en las pantallas ("nuevas en esta semana").
 export const PERIODOS: { valor: Periodo; nombre: string; texto: string }[] = [
-  { valor: "7d", nombre: "7 días", texto: "los últimos 7 días" },
-  { valor: "30d", nombre: "30 días", texto: "los últimos 30 días" },
-  { valor: "12m", nombre: "12 meses", texto: "los últimos 12 meses" },
+  { valor: "hoy", nombre: "Hoy", texto: "el día de hoy" },
+  { valor: "semana", nombre: "Esta semana", texto: "esta semana" },
+  { valor: "mes", nombre: "Este mes", texto: "este mes" },
+  { valor: "anio", nombre: "Este año", texto: "este año" },
+  { valor: "rango", nombre: "Rango", texto: "el período elegido" },
 ];
+
+// Paso 123a: cómo se llama cada barra del gráfico
+export const CADA: Record<Agrupado, { titulo: string; por: string; columna: string }> = {
+  hora: { titulo: "Hora a hora", por: "por hora", columna: "Hora" },
+  dia: { titulo: "Día a día", por: "por día", columna: "Día" },
+  mes: { titulo: "Mes a mes", por: "por mes", columna: "Mes" },
+};
 
 // Las partes de la barra del semáforo, de menor a mayor riesgo (como en el Panel)
 export const NIVELES: { valor: string; nombre: string }[] = [
@@ -111,11 +127,13 @@ export function porcentaje(parte: number, total: number) {
   return total === 0 ? "0 %" : `${Math.round((parte / total) * 100)} %`;
 }
 
-// "2026-10-24" -> "24 oct" y "2026-10" -> "oct 2026".
+// "2026-10-24" -> "24 oct", "2026-10" -> "oct 2026" y "2026-10-24T14" -> "14:00" (paso 123a: por hora).
 // Se arma a mano: new Date("2026-10-24") se lee en UTC y en Chile mostraría el día anterior.
 export function nombreDeLaFecha(fecha: string, conAnio = false) {
-  const [anio, mes, dia] = fecha.split("-");
+  const [elDia, hora] = fecha.split("T");
+  const [anio, mes, dia] = elDia.split("-");
   const nombreMes = MESES[Number(mes) - 1];
+  if (hora !== undefined) return conAnio ? `${Number(dia)} ${nombreMes} ${anio}, ${hora}:00` : `${hora}:00`;
   if (!dia) return `${nombreMes} ${anio}`;
   return conAnio ? `${Number(dia)} ${nombreMes} ${anio}` : `${Number(dia)} ${nombreMes}`;
 }

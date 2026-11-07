@@ -765,3 +765,131 @@
     grid-column: 1 / -1;
   }
 }
+
+/* ---------- Paso 123a: rango de fechas y filtros ---------- */
+
+/* Con un rango corto (8 a 12 días) las fechas del gráfico no deben ensanchar la página en el celular */
+.rep-fechas span {
+  min-width: 0;
+}
+
+.rep-rango,
+.rep-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 12px;
+  margin-top: 14px;
+}
+
+.rep-rango label,
+.rep-filtros label {
+  color: #4e625b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rep-filtros label {
+  flex: 1;
+  min-width: 170px;
+}
+
+.rep-rango input,
+.rep-filtros select {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 10px;
+  border: 1px solid #c9d8d1;
+  border-radius: 10px;
+  box-sizing: border-box;
+  background-color: white;
+  color: #0f3d30;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.rep-ver,
+.rep-quitar {
+  padding: 9px 16px;
+  border: 1px solid #1d6f55;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rep-ver {
+  background-color: #1d6f55;
+  color: white;
+}
+
+.rep-ver:hover {
+  background-color: #0f3d30;
+}
+
+.rep-quitar {
+  background-color: white;
+  color: #1d6f55;
+}
+
+.rep-quitar:hover {
+  background-color: #f2f6f4;
+}
+
+.rep-rango-aviso {
+  flex-basis: 100%;
+  margin: 0;
+  color: #4e625b;
+  font-size: 13px;
+}
+
+.rep-rango-aviso.is-error {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+/* "Filtrado por: Providencia · Casas": qué datos cambian con los filtros */
+.rep-filtrado {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background-color: #eef6f2;
+  color: #1f2a26;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.rep-filtrado strong {
+  color: #0f3d30;
+}
+
+.rep-rango input:focus-visible,
+.rep-filtros select:focus-visible,
+.rep-ver:focus-visible,
+.rep-quitar:focus-visible {
+  outline: 2px solid #1d6f55;
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  /* En celular, las dos fechas lado a lado y "Ver" debajo a todo el ancho */
+  .rep-rango label {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .rep-rango .rep-ver {
+    flex-basis: 100%;
+  }
+
+  /* La comuna a todo el ancho; el tipo y el semáforo, uno al lado del otro */
+  .rep-filtros label {
+    min-width: calc(50% - 6px);
+  }
+
+  .rep-filtros label:first-child {
+    min-width: 100%;
+  }
+}

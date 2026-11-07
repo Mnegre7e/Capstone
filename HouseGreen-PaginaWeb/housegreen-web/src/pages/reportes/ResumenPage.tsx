@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { numero, plural, porcentaje, type ContextoReportes, type Medida } from "./formato";
+import { CADA, numero, plural, porcentaje, type ContextoReportes, type Medida } from "./formato";
 import { BarraSemaforo, Cifras, ElegirMedida, Grafico, Tarjeta } from "./piezas";
 
 // Paso 115: Resumen. Lo más importante de las otras tres pantallas, de un vistazo.
@@ -37,7 +37,7 @@ export function ResumenPage() {
       />
 
       <Tarjeta
-        titulo={reporte.agrupado_por === "mes" ? "Mes a mes" : "Día a día"}
+        titulo={CADA[reporte.agrupado_por].titulo}
         extra={
           <ElegirMedida
             opciones={["vistas", "guardados", "registros", "publicaciones"]}
@@ -46,7 +46,7 @@ export function ResumenPage() {
           />
         }
       >
-        <Grafico serie={reporte.serie} medida={medida} porMes={reporte.agrupado_por === "mes"} />
+        <Grafico serie={reporte.serie} medida={medida} agrupado={reporte.agrupado_por} />
       </Tarjeta>
 
       <Tarjeta titulo="Semáforo de los remates vigentes">

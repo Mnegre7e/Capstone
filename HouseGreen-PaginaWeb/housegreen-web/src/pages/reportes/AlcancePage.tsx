@@ -1,5 +1,5 @@
 import { Link, useOutletContext } from "react-router-dom";
-import { NOMBRE_DEL_AVISO, fechaCorta, numero, plural, porcentaje, type ContextoReportes } from "./formato";
+import { CADA, NOMBRE_DEL_AVISO, fechaCorta, numero, plural, porcentaje, type ContextoReportes } from "./formato";
 import { Barras, Cifras, Grafico, Tarjeta } from "./piezas";
 
 // Paso 115: Alcance. Cuánta gente ve los remates, cuáles interesan más y si se leen los avisos y anuncios.
@@ -34,8 +34,8 @@ export function AlcancePage() {
         ]}
       />
 
-      <Tarjeta titulo={reporte.agrupado_por === "mes" ? "Vistas por mes" : "Vistas por día"}>
-        <Grafico serie={reporte.serie} medida="vistas" porMes={reporte.agrupado_por === "mes"} />
+      <Tarjeta titulo={`Vistas ${CADA[reporte.agrupado_por].por}`}>
+        <Grafico serie={reporte.serie} medida="vistas" agrupado={reporte.agrupado_por} />
       </Tarjeta>
 
       {/* La favorita del público */}
@@ -144,7 +144,7 @@ export function AlcancePage() {
           total={Object.values(reporte.inicios_por_plataforma).reduce((suma, n) => suma + n, 0)}
           vacio={`Ningún inversionista inició sesión en ${textoPeriodo}.`}
         />
-        <p className="rep-nota">Inicios de sesión de {textoPeriodo}.</p>
+        <p className="rep-nota">Inicios de sesión en {textoPeriodo}.</p>
       </Tarjeta>
     </>
   );

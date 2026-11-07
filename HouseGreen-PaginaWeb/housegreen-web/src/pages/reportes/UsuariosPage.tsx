@@ -1,5 +1,5 @@
 import { useOutletContext } from "react-router-dom";
-import { numero, plural, type ContextoReportes } from "./formato";
+import { CADA, numero, plural, type ContextoReportes } from "./formato";
 import { Barras, Cifras, Grafico, Tarjeta } from "./piezas";
 
 // Paso 115: Usuarios. Quiénes se registran, cuánto usan HouseGreen y qué opinan.
@@ -26,9 +26,9 @@ export function UsuariosPage() {
           },
         ]}
       />
-
-      <Tarjeta titulo={reporte.agrupado_por === "mes" ? "Registros por mes" : "Registros por día"}>
-        <Grafico serie={reporte.serie} medida="registros" porMes={reporte.agrupado_por === "mes"} />
+      
+      <Tarjeta titulo={`Registros ${CADA[reporte.agrupado_por].por}`}>
+        <Grafico serie={reporte.serie} medida="registros" agrupado={reporte.agrupado_por} />
       </Tarjeta>
 
       <Tarjeta titulo="Embudo">
