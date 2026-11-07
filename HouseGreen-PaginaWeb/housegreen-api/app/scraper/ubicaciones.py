@@ -14,10 +14,14 @@
 # Paso 124e: el rectángulo sale del borde de la comuna (datos/comunas-rm.json), y un resultado que queda FUERA de la
 # comuna del remate se descarta (a veces OpenStreetMap encuentra una calle con el mismo nombre en la comuna vecina).
 # Los remates que ya estaban ubicados fuera de su comuna se buscan otra vez.
+# Paso 124f: "con su dirección" solo si se encontró la calle CON su número; si el nombre trae abreviaturas
+# ("Dir. Ena Silvia Delgado I. Poniente") se prueba también sin ellas; y si el lector de direcciones (direcciones.py)
+# ahora lee distinto una dirección, ese remate se busca otra vez solo.
 # Reglas del buscador: máximo 1 búsqueda por segundo, decir quién busca (User-Agent) y guardar los resultados
 # para no repetir búsquedas. Datos © colaboradores de OpenStreetMap (licencia ODbL).
 import json
 import math
+import re
 import sys
 import time
 from datetime import datetime, timezone
@@ -190,6 +194,26 @@ def _es_exacta(resultado: dict) -> bool:
     )
 
 
+# Paso 124f: abreviaturas y letras sueltas del nombre de una calle ("Dir.", "Gral.", "I.")
+ABREVIATURA = re.compile(r"(?<!\S)(?:[A-Za-zÁÉÍÓÚÑáéíóúñ]{1,5}\.|[A-Za-zÁÉÍÓÚÑáéíóúñ])(?!\S)")
+
+
+def textos_de_busqueda(direccion: str | None, nombre_comuna: str) -> list[tuple[str, bool]]:
+    """Lo que se busca en OpenStreetMap, en orden, y si lleva el número:
+    [("San Petersburgo 6351, San Miguel", True), ("San Petersburgo, San Miguel", False)].
+    Paso 124f: si el nombre trae abreviaturas, se prueba también sin ellas ("Ena Silvia Delgado Poniente")."""
+    partes = calle_y_numero(direccion)
+    if not partes:
+        return []
+    calle, numero = partes
+    nombres = [calle]
+    sin_abreviaturas = re.sub(r"\s+", " ", ABREVIATURA.sub(" ", calle)).strip()
+    if sin_abreviaturas != calle and len(sin_abreviaturas) >= 3:
+        nombres.append(sin_abreviaturas)
+    textos = [(f"{nombre} {numero}, {nombre_comuna}", True) for nombre in nombres] if numero else []
+    return textos + [(f"{nombre}, {nombre_comuna}", False) for nombre in nombres]  # si no está el número, la calle
+
+
 def ubicar_propiedad(
     propiedad: Property,
     comuna: Comuna | None,
@@ -200,33 +224,29 @@ def ubicar_propiedad(
     descartados: aquí se anotan los resultados que se descartaron por quedar en otra comuna."""
     nombre_comuna = comuna.name if comuna else ""
     acotado = {"viewbox": rectangulo_de(nombre_comuna, ubicacion_comuna), "bounded": 1}
-    partes = calle_y_numero(propiedad.address)
     buscado = None
 
-    if partes:
-        calle, numero = partes
-        busquedas = [f"{calle} {numero}, {nombre_comuna}"] if numero else []
-        busquedas.append(f"{calle}, {nombre_comuna}")  # si no encuentra el número, al menos la calle
-        for texto in busquedas:
-            buscado = texto
-            for resultado in buscar_varios(limite=RESULTADOS_POR_BUSQUEDA, q=f"{texto}, Chile", **acotado):
-                if _es_un_area(resultado):
-                    continue
-                latitud, longitud = float(resultado["lat"]), float(resultado["lon"])
-                # Paso 124e: si quedó en otra comuna, es otra calle con el mismo nombre: se prueba el siguiente
-                if dentro_de_la_comuna(latitud, longitud, nombre_comuna) is False:
-                    if descartados is not None:
-                        descartados.append(texto)
-                    continue
-                return PropiedadUbicacion(
-                    property_id=propiedad.id,
-                    latitude=latitud,
-                    longitude=longitud,
-                    accuracy="direccion" if numero and _es_exacta(resultado) else "calle",
-                    searched_text=texto[:300],
-                    address_used=propiedad.address or "",
-                    geocoded_at=datetime.now(timezone.utc),
-                )
+    for texto, con_numero in textos_de_busqueda(propiedad.address, nombre_comuna):
+        buscado = texto
+        for resultado in buscar_varios(limite=RESULTADOS_POR_BUSQUEDA, q=f"{texto}, Chile", **acotado):
+            if _es_un_area(resultado):
+                continue
+            latitud, longitud = float(resultado["lat"]), float(resultado["lon"])
+            # Paso 124e: si quedó en otra comuna, es otra calle con el mismo nombre: se prueba el siguiente
+            if dentro_de_la_comuna(latitud, longitud, nombre_comuna) is False:
+                if descartados is not None:
+                    descartados.append(texto)
+                continue
+            return PropiedadUbicacion(
+                property_id=propiedad.id,
+                latitude=latitud,
+                longitude=longitud,
+                # Paso 124f: "con su dirección" solo si se buscó con el número (si no, es la calle)
+                accuracy="direccion" if con_numero and _es_exacta(resultado) else "calle",
+                searched_text=texto[:300],
+                address_used=propiedad.address or "",
+                geocoded_at=datetime.now(timezone.utc),
+            )
 
     # No se encontró la calle: queda en el centro de la comuna (o sin ubicación, si tampoco se conoce la comuna)
     return PropiedadUbicacion(
@@ -249,6 +269,7 @@ def actualizar_ubicaciones(maximo: int | None = None, mostrar: bool = False, de_
         "comunas_nuevas": 0, "quedan": 0, "detenida": None, "con_error": [],
         "fuera_de_su_comuna": 0,  # paso 124e: ya estaban ubicados en otra comuna (se buscan otra vez)
         "descartados": 0,  # paso 124e: remates en que el buscador dio un resultado en otra comuna
+        "lectura_nueva": 0,  # paso 124f: el lector de direcciones ahora los lee distinto (se buscan otra vez)
     }
     db = SessionLocal()
     try:
@@ -268,14 +289,26 @@ def actualizar_ubicaciones(maximo: int | None = None, mostrar: bool = False, de_
             fila = ya_ubicadas.get(propiedad.id)
             if fila is None or fila.address_used != (propiedad.address or ""):
                 return True  # nunca se ubicó, o cambió de dirección desde la última vez
+            comuna = comunas.get(propiedad.comuna_id)
+            nombre_comuna = comuna.name if comuna else ""
+            # Paso 124f: lo que se buscaría hoy con esa dirección ({texto: si lleva el número})
+            textos = {texto[:300]: con_numero for texto, con_numero in textos_de_busqueda(propiedad.address, nombre_comuna)}
+            guardado = fila.searched_text or None
             if fila.accuracy in ("direccion", "calle") and fila.latitude is not None:
+                # Paso 124f: el lector ahora lee otra calle, o quedó "con su dirección" sin haber buscado el número
+                if guardado not in textos or (fila.accuracy == "direccion" and not textos[guardado]):
+                    resumen["lectura_nueva"] += 1
+                    return True
                 # Paso 124e: se ubicó antes de revisar la comuna y quedó en otra: se busca otra vez
-                comuna = comunas.get(propiedad.comuna_id)
-                if dentro_de_la_comuna(fila.latitude, fila.longitude, comuna.name if comuna else "") is False:
+                if dentro_de_la_comuna(fila.latitude, fila.longitude, nombre_comuna) is False:
                     resumen["fuera_de_su_comuna"] += 1
                     return True
                 return False
-            return de_nuevo  # en el centro de su comuna (o sin ubicación): solo con --de-nuevo
+            # En el centro de su comuna (o sin ubicación): se busca otra vez si hoy se probaría algo nuevo
+            if guardado != (list(textos)[-1] if textos else None):
+                resumen["lectura_nueva"] += 1
+                return True
+            return de_nuevo  # con --de-nuevo se buscan otra vez igual
 
         por_ubicar = [p for p in vigentes if hay_que_buscar(p)]
         resumen["quedan"] = len(por_ubicar)
@@ -283,6 +316,8 @@ def actualizar_ubicaciones(maximo: int | None = None, mostrar: bool = False, de_
             por_ubicar = por_ubicar[:maximo]
         if mostrar and resumen["fuera_de_su_comuna"]:
             print(f"   {resumen['fuera_de_su_comuna']} estaban ubicados fuera de su comuna: se buscan otra vez.")
+        if mostrar and resumen["lectura_nueva"]:
+            print(f"   {resumen['lectura_nueva']} se leen distinto que antes (o les faltaba el número): se buscan otra vez.")
 
         ubicaciones_comunas = {fila.comuna_id: fila for fila in db.query(ComunaUbicacion)}
         no_encontradas = set()  # comunas que el buscador no encontró (no se buscan otra vez en esta carga)

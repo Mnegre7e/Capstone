@@ -13,8 +13,9 @@ import unicodedata
 PARTES_QUE_NO_SON_CALLE = re.compile(
     r"^(?:(?:la|el|los|las|del|de la|de los|y|y el|y la)\s+)?"
     r"(?:departamentos?|deptos?\.?|dptos?\.?|dep\.|casa\s+\S{1,4}$|casa\s+n|lotes?|sitios?|manzanas?|bodegas?|"
-    r"estacionamientos?|pisos?|torres?|block|edificios?|condominios?|conjuntos?|etapas?|locales?|loc\.|oficinas?|"
-    r"parcelas?|hijuelas?|loteos?|poblacion|villa|sector|plano|comuna|region|provincia|localidad|escala|unidad|"
+    r"estacionamientos?|pisos?|torres?|block|edificios?|condominios?|conjuntos?|etapas?|local(?:es)?|loc\.|oficinas?|"
+    r"parcelas?|hijuelas?|loteos?|macrolotes?|viviendas?|parte\s+de|poblacion|villa|sector|plano|comuna|region|"
+    r"provincia|localidad|escala|unidad|"
     r"inmuebles?|propiedad|derechos?|cuota|acciones|uso y goce|el uso|primer|segund|tercer|cuart|quint|"
     r"metropolitana|rol|fojas|inscrit|subterraneo|nivel|subdivision|division|fusion|resto|predio|fundo|chacra|"
     r"reserva|proyecto|paño|triangulo)\b"
@@ -96,12 +97,27 @@ EDIFICIO_CON_NUMERO = re.compile(
 # Lo que viene después de estas frases es la dirección ("…con acceso principal por calle Concón 0165…").
 # Si aparecen varias, vale la última.
 ANTES_DE_LA_DIRECCION = re.compile(
-    r"(?:acceso\s+(?:[a-záéíóú]+\s+){0,2}?(?:por|en)|ubicad[oa]s?\s+en|inmueble\s+en|edificio\s+(?:de\s+)?en|"
+    r"(?:(?:acceso|ingreso)\s+(?:[a-záéíóú]+\s+){0,2}?(?:por|en)|ubicad[oa]s?\s+en|inmueble\s+en|edificio\s+(?:de\s+)?en|"
     r"edificio\s+de)\s+(?:el\s+|la\s+)?(?P<resto>.+)",
     re.IGNORECASE,
 )
 CON_TIPO = re.compile(rf"^(?P<tipo>{TIPOS_DE_CALLE})\s+", re.IGNORECASE)
 CON_NUMERO_EN_PALABRAS = re.compile(rf"^(?P<nombre>.+?)\s+{MARCA_DE_NUMERO}\s*(?P<palabras>[A-Za-zÁÉÍÓÚáéíóú ]+)$", re.IGNORECASE)
+
+
+# Paso 124f: "Números 1902 al 1912 de la calle Santa Rosa" (el número va antes de la calle)
+NUMEROS_DE_LA_CALLE = re.compile(
+    rf"\bn[uú]meros?\s+(?P<numero>\d[\d.]*)(?:\s*(?:al|a|y|-)\s*\d[\d.]*)?\s+de\s+(?:la\s+)?"
+    rf"(?P<tipo>{TIPOS_DE_CALLE})\s+(?P<nombre>[A-Za-zÁÉÍÓÚÑáéíóúñ'][^\d,;]*?)(?=\s+esquina\b|\s*[,;]|\s*$)",
+    re.IGNORECASE,
+)
+# Paso 124f: palabras que van antes del nombre pero no son parte de él ("Calle Interior Canal Baker 47",
+# "Caletera Américo Vespucio 1700"). Si después no queda nombre ("calle interior nº 982"), no es una calle.
+PREFIJOS_DEL_NOMBRE = re.compile(r"^(?:interior|caletera)\b\s*", re.IGNORECASE)
+
+
+def _sin_prefijos(nombre: str) -> str:
+    return PREFIJOS_DEL_NOMBRE.sub("", nombre.strip())
 
 
 def calle_y_numero(direccion: str | None) -> tuple[str, str | None] | None:
@@ -113,6 +129,10 @@ def calle_y_numero(direccion: str | None) -> tuple[str, str | None] | None:
     texto = re.sub(r"\s+(?:s/n|s/nº|sin\s+n[uú]mero)\b", "", texto, flags=re.IGNORECASE)
     if re.match(r"^(?:calle|pasaje)\s+sin\s+nombre\b", texto, re.IGNORECASE):
         texto = re.sub(r"^(?:calle|pasaje)\s+sin\s+nombre\s*(?:y\s*)?,?", "", texto, flags=re.IGNORECASE)
+    # Paso 124f: "Números 1902 al 1912 de la calle Santa Rosa esquina de Concepción"
+    numeros_de = NUMEROS_DE_LA_CALLE.search(texto)
+    if numeros_de:
+        return _nombre_de_la_calle(numeros_de.group("tipo"), numeros_de.group("nombre")), numeros_de.group("numero").replace(".", "")
     # "…, con acceso (principal) por calle Concón 0165, …": la dirección es lo que viene después
     while (antes := ANTES_DE_LA_DIRECCION.search(texto)) is not None:
         texto = antes.group("resto")
@@ -122,7 +142,12 @@ def calle_y_numero(direccion: str | None) -> tuple[str, str | None] | None:
         while (antes := ANTES_DE_LA_DIRECCION.search(parte)) is not None:
             parte = antes.group("resto").strip()
         # "acceso calle El Taihuén 12600", "de Avenida Raúl Labbé 14.190": se quita lo que va antes de la calle
-        parte = re.sub(rf"^(?:con\s+)?(?:acceso\s+)?(?:de\s+|por\s+)?(?={TIPOS_DE_CALLE}\s)", "", parte, flags=re.IGNORECASE)
+        parte = re.sub(
+            rf"^(?:con\s+)?(?:(?:acceso|ingreso)\s+(?:general\s+|principal\s+)?)?(?:de\s+|por\s+)?(?={TIPOS_DE_CALLE}\s)",
+            "",
+            parte,
+            flags=re.IGNORECASE,
+        )
         if not parte or PARTES_QUE_NO_SON_CALLE.match(sin_tildes(parte)):
             continue
         tipo = CON_TIPO.match(parte)
@@ -130,7 +155,7 @@ def calle_y_numero(direccion: str | None) -> tuple[str, str | None] | None:
 
         con_numero = CON_NUMERO.match(parte)
         if con_numero:
-            nombre = con_numero.group("nombre")
+            nombre = _sin_prefijos(con_numero.group("nombre"))  # paso 124f
             numero = con_numero.group("numero").replace(".", "")
             # Un nombre muy corto ("N", "Nº") no es una calle; "la bodega nº 206" tampoco
             # (pero si empieza con "Pasaje", "Avenida"... sí es calle: "Pasaje La Parcela número 40")
@@ -141,20 +166,22 @@ def calle_y_numero(direccion: str | None) -> tuple[str, str | None] | None:
         en_palabras = CON_NUMERO_EN_PALABRAS.match(parte)
         if en_palabras:
             numero = numero_en_palabras(en_palabras.group("palabras").split())
-            nombre = CON_TIPO.sub("", en_palabras.group("nombre"))
-            if numero is not None:
+            nombre = _sin_prefijos(CON_TIPO.sub("", en_palabras.group("nombre")))
+            if numero is not None and len(nombre) >= 3:
                 return _nombre_de_la_calle(tipo_texto, nombre), str(numero)
 
         # Calle sin número, pero que se ve como calle ("Pasaje Los Aromos")
         if tipo_texto:
             nombre = re.split(rf"\s+(?:{MARCA_DE_NUMERO}|n)(?:\s|$)", CON_TIPO.sub("", parte), flags=re.IGNORECASE)[0]
+            nombre = _sin_prefijos(nombre)  # paso 124f: "calle interior nº 982" no dice qué calle es
             if len(nombre) >= 3:
                 return _nombre_de_la_calle(tipo_texto, nombre), None
 
     # Último intento: una calle con número en cualquier parte del texto
-    en_medio = CALLE_EN_MEDIO.search(direccion or "")
-    if en_medio:
-        return _nombre_de_la_calle(en_medio.group("tipo"), en_medio.group("nombre")), en_medio.group("numero").replace(".", "")
+    for en_medio in CALLE_EN_MEDIO.finditer(direccion or ""):
+        nombre = _sin_prefijos(en_medio.group("nombre"))
+        if nombre:  # "Calle A nº 2.508" sí es una calle; "calle interior nº 982" no
+            return _nombre_de_la_calle(en_medio.group("tipo"), nombre), en_medio.group("numero").replace(".", "")
     # Muchas veces el edificio o condominio se llama como su dirección: "edificio San Nicolás 1331"
     edificio = EDIFICIO_CON_NUMERO.search(direccion or "")
     if edificio:
