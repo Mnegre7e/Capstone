@@ -1,242 +1,322 @@
-// Variables de color HouseGreen
-$gh-dark-green: #175339;
-$gh-primary-green: #1f6243;
-$gh-light-green: #e2f1e8;
-$gh-bg-light: #f2f7f4;
-$gh-card-bg: #ffffff;
-$gh-text-title: #0f172a;
-$gh-text-body: #475569;
-$gh-border-color: #f1f5f9;
-$gh-red-danger: #c53030;
-$gh-red-light-border: #fecaca;
-
-.perfil-configuracion-content {
-  --background: #{$gh-bg-light};
+// Paso A6: los mismos estilos del Perfil de la web (PerfilPage.css)
+.perfil-page {
+  max-width: 560px;
 }
 
-.page-wrapper {
-  padding: 24px 20px 40px;
-  max-width: 500px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.perfil-subtitulo {
+  margin: 4px 0 0;
+  color: #737373;
 }
 
-/* -------------------------------------------------------------
-   TÍTULO Y CABECERA DE USUARIO
-------------------------------------------------------------- */
-.page-title {
-  font-size: 28px;
-  font-weight: 800;
-  color: $gh-dark-green;
-  margin: 0 0 4px 0;
-  letter-spacing: -0.4px;
+.perfil-tarjeta {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #e5e5e4;
+  border-radius: 12px;
+  background-color: white;
 }
 
-.user-card {
-  background: $gh-card-bg;
-  border-radius: 24px;
-  padding: 16px 20px;
+.perfil-tarjeta h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+.perfil-campo {
+  display: block;
+  margin-bottom: 14px;
+  color: #404040;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.perfil-campo input {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  box-sizing: border-box;
+  background-color: #ffffff; // Paso A6b: fondo blanco y letra oscura siempre (legibles en modo oscuro)
+  color: #171717;
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.perfil-campo input:focus-visible,
+.perfil-boton:focus-visible {
+  outline: 2px solid #15803d;
+  outline-offset: 2px;
+}
+
+.perfil-ayuda {
+  display: block;
+  margin-top: 6px;
+  color: #737373;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+/* Datos que se muestran pero no se editan: correo y tipo de cuenta */
+.perfil-fijos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 4px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f5f5f4;
+}
+
+.perfil-fijos div {
+  min-width: 0;
+}
+
+.perfil-fijos dt {
+  color: #737373;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.perfil-fijos dd {
+  margin: 2px 0 0;
+  color: #171717;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.perfil-nota {
+  margin: 8px 0 0;
+  color: #737373;
+  font-size: 13px;
+}
+
+.perfil-mostrar {
   display: flex;
   align-items: center;
-  gap: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(0, 0, 0, 0.03);
-
-  .avatar-circle {
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    background-color: $gh-light-green;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    span {
-      font-size: 20px;
-      font-weight: 800;
-      color: $gh-dark-green;
-    }
-  }
-
-  .user-info {
-    flex-grow: 1;
-
-    .user-name {
-      font-size: 18px;
-      font-weight: 800;
-      color: $gh-dark-green;
-      margin: 0 0 2px 0;
-    }
-
-    .user-email {
-      font-size: 14px;
-      color: $gh-text-body;
-      margin: 0;
-      word-break: break-all;
-    }
-  }
-
-  .edit-btn {
-    background: transparent;
-    border: none;
-    font-size: 15px;
-    font-weight: 800;
-    color: $gh-primary-green;
-    cursor: pointer;
-    padding: 4px 0;
-
-    &:active {
-      opacity: 0.6;
-    }
-  }
-}
-
-/* -------------------------------------------------------------
-   SECCIONES Y TARJETAS
-------------------------------------------------------------- */
-.section-container {
-  display: flex;
-  flex-direction: column;
   gap: 8px;
+  color: #404040;
+  font-size: 14px;
+  cursor: pointer;
+}
 
-  .section-label {
-    font-size: 12px;
-    font-weight: 800;
-    color: $gh-dark-green;
-    letter-spacing: 0.6px;
-    margin: 0 0 2px 4px;
-    text-transform: uppercase;
+.perfil-aviso {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.perfil-aviso.is-ok {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.perfil-aviso.is-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.perfil-boton {
+  margin-top: 16px;
+  padding: 11px 18px;
+  border: none;
+  border-radius: 8px;
+  background-color: #15803d;
+  color: white;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.perfil-boton:hover {
+  background-color: #166534;
+}
+
+.perfil-boton:disabled {
+  background-color: #e5e5e4;
+  color: #737373;
+  cursor: not-allowed;
+}
+
+/* Cerrar sesión, al final de la página */
+.perfil-salir {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.perfil-salir button {
+  padding: 10px 18px;
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  background-color: white;
+  color: #404040;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.perfil-salir button:hover {
+  background-color: #f5f5f4;
+}
+
+@media (max-width: 480px) {
+  .perfil-salir button {
+    width: 100%;
+  }
+
+  .perfil-fijos {
+    grid-template-columns: 1fr;
+  }
+
+  .perfil-boton {
+    width: 100%;
   }
 }
-
-.info-card,
-.menu-card {
-  background: $gh-card-bg;
-  border-radius: 24px;
-  padding: 4px 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(0, 0, 0, 0.03);
-}
-
-/* -------------------------------------------------------------
-   FILAS DE DATOS PERSONALES
-------------------------------------------------------------- */
-.data-row {
+/* Paso 79: verificación en dos pasos */
+.perfil-titulo-estado {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0;
-
-  &.border-bottom {
-    border-bottom: 1px solid $gh-border-color;
-  }
-
-  .data-label {
-    font-size: 14px;
-    color: $gh-text-body;
-    font-weight: 500;
-  }
-
-  .data-value {
-    font-size: 15px;
-    font-weight: 700;
-    color: $gh-text-title;
-
-    &.text-bold {
-      font-weight: 800;
-    }
-  }
-}
-
-/* -------------------------------------------------------------
-   ITEMS DE MENÚ
-------------------------------------------------------------- */
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 0;
-  cursor: pointer;
-  user-select: none;
-
-  &.border-bottom {
-    border-bottom: 1px solid $gh-border-color;
-  }
-
-  &:active {
-    opacity: 0.7;
-  }
-
-  .icon-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: $gh-light-green;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    ion-icon {
-      font-size: 20px;
-      color: $gh-primary-green;
-    }
-  }
-
-  .item-text {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-
-    .item-title {
-      font-size: 15px;
-      font-weight: 800;
-      color: $gh-text-title;
-    }
-
-    .item-subtitle {
-      font-size: 13px;
-      color: $gh-text-body;
-      margin-top: 2px;
-    }
-  }
-
-  .chevron-icon {
-    font-size: 18px;
-    color: #94a3b8;
-  }
-}
-
-/* -------------------------------------------------------------
-   BOTÓN CERRAR SESIÓN
-------------------------------------------------------------- */
-.logout-btn {
-  width: 100%;
-  height: 52px;
-  background: transparent;
-  border: 1.5px solid $gh-red-light-border;
-  border-radius: 26px;
-  color: $gh-red-danger;
-  font-size: 16px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-wrap: wrap;
   gap: 8px;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: background-color 0.15s ease, transform 0.15s ease;
+  margin-bottom: 12px;
+}
 
-  ion-icon {
-    font-size: 20px;
-    transform: rotate(180deg);
-  }
+.perfil-titulo-estado h2 {
+  margin: 0;
+}
 
-  &:active {
-    background-color: rgba(239, 68, 68, 0.05);
-    transform: scale(0.98);
-  }
+.perfil-estado {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background-color: #e5e5e4;
+  color: #525252;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.perfil-estado.is-activa {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.perfil-texto {
+  margin: 0 0 14px;
+  color: #404040;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.perfil-pasos {
+  margin: 0;
+  padding-left: 20px;
+  color: #404040;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.perfil-pasos li + li {
+  margin-top: 14px;
+}
+
+/* El código QR va sobre blanco y con margen, para que el teléfono lo lea bien */
+.perfil-qr {
+  width: fit-content;
+  margin: 10px 0;
+  padding: 12px;
+  border: 1px solid #e5e5e4;
+  border-radius: 8px;
+  background-color: white;
+  line-height: 0;
+}
+
+.perfil-clave {
+  display: block;
+  margin-top: 4px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background-color: #f5f5f4;
+  color: #171717;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.perfil-codigo {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  color: #171717;
+  font-family: inherit;
+  font-size: 18px;
+  letter-spacing: 0.15em;
+}
+
+.perfil-codigo:focus-visible {
+  outline: 2px solid #15803d;
+  outline-offset: 2px;
+}
+
+.perfil-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.perfil-boton.is-secundario {
+  border: 1px solid #d4d4d4;
+  background-color: white;
+  color: #404040;
+}
+
+.perfil-boton.is-secundario:hover {
+  background-color: #f5f5f4;
+}
+
+.perfil-boton.is-peligro {
+  background-color: #b91c1c;
+}
+
+.perfil-boton.is-peligro:hover {
+  background-color: #991b1b;
+}
+
+.perfil-boton.is-peligro:disabled {
+  background-color: #e5e5e4;
+}
+/* Paso 80: aviso de que la verificación en dos pasos es obligatoria (administrador) */
+.perfil-obligatoria {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background-color: #fefce8;
+  color: #713f12;
+  font-size: 14px;
+  line-height: 1.4;
+}
+/* Paso 105: la tarjeta para eliminar la cuenta, con borde rojo suave */
+.perfil-tarjeta.is-peligro {
+  border-color: #fecaca;
+}
+
+.perfil-consecuencias {
+  margin-bottom: 16px;
+}
+
+
+/* Paso 125c: enlace a la política de privacidad */
+.perfil-subtitulo a {
+  color: #15803d;
+  font-weight: 600;
 }

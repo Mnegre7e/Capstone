@@ -38,6 +38,11 @@
                 <ion-icon aria-hidden="true" name="people-outline" slot="start"></ion-icon>
                 <ion-label>Usuarios</ion-label>
               </ion-item>
+              <!-- Paso A6: el administrador también tiene Perfil (ahí activa la verificación en dos pasos) -->
+              <ion-item button [routerLink]="['/perfil-configuracion']">
+                <ion-icon aria-hidden="true" name="person-outline" slot="start"></ion-icon>
+                <ion-label>Perfil</ion-label>
+              </ion-item>
             } @else if (persona.role_id === ROL_ANALISTA) {
               <ion-item button [routerLink]="['/analista/resumen']">
                 <ion-icon aria-hidden="true" name="stats-chart-outline" slot="start"></ion-icon>

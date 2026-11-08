@@ -68,6 +68,11 @@ export class SesionService {
     }
   }
 
+  /** Paso A6: guarda los datos que devolvió la API (por ejemplo, al editar el Perfil). */
+  guardarUsuario(usuario: Usuario): void {
+    this.usuario.set(usuario);
+  }
+
   cerrarSesion(): void {
     this.borrar();
   }

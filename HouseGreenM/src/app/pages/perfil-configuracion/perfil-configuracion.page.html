@@ -1,147 +1,309 @@
+<app-encabezado></app-encabezado>
 
-<ion-content class="perfil-configuracion-content" [fullscreen]="true">
+<ion-content>
+  <div class="hg-pagina perfil-page">
+    <h1>Mi perfil</h1>
+    <p class="perfil-subtitulo">
+      Tus datos en HouseGreen y la contraseña de tu cuenta. Cómo los cuidamos:
+      <a [routerLink]="['/privacidad']">Política de privacidad</a>.
+    </p>
 
-  <div class="page-wrapper">
+    @if (usuario(); as yo) {
+      <!-- ---------- Mis datos ---------- -->
+      <form class="perfil-tarjeta" (ngSubmit)="guardarDatos()">
+        <h2>Mis datos</h2>
 
-    <!-- CABECERA CON BOTÓN VOLVER (Alineación opcional dentro del contenido) -->
-    <div class="top-header-row">
-      <button class="back-btn" (click)="regresar()" aria-label="Volver">
-        <ion-icon name="arrow-back-outline"></ion-icon>
-      </button>
-      <h1 class="page-title">Perfil</h1>
-    </div>
+        <label class="perfil-campo">
+          Nombre completo
+          <input
+            type="text"
+            name="nombre"
+            maxlength="150"
+            autocomplete="name"
+            [ngModel]="nombre()"
+            (ngModelChange)="escribirNombre($event)" />
+        </label>
 
-    <!-- TARJETA CABECERA DE USUARIO -->
-    <div class="user-card">
-      <div class="avatar-circle">
-        <span>{{ usuario.iniciales }}</span>
+        <label class="perfil-campo">
+          Teléfono (opcional)
+          <input
+            type="tel"
+            name="telefono"
+            maxlength="30"
+            autocomplete="tel"
+            placeholder="+56 9 1234 5678"
+            [ngModel]="telefono()"
+            (ngModelChange)="escribirTelefono($event)" />
+        </label>
+
+        <dl class="perfil-fijos">
+          <div>
+            <dt>Correo</dt>
+            <dd>{{ yo.email }}</dd>
+          </div>
+          <div>
+            <dt>Tipo de cuenta</dt>
+            <dd>{{ rol() }}</dd>
+          </div>
+        </dl>
+        <p class="perfil-nota">El correo es con el que inicias sesión y no se puede cambiar desde aquí.</p>
+
+        @if (avisoDatos(); as aviso) {
+          <p class="perfil-aviso" [ngClass]="'is-' + aviso.tipo" [attr.role]="aviso.tipo === 'error' ? 'alert' : 'status'">
+            {{ aviso.texto }}
+          </p>
+        }
+
+        <button type="submit" class="perfil-boton" [disabled]="!hayCambios() || guardandoDatos()">
+          {{ guardandoDatos() ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      </form>
+
+      <!-- ---------- Cambiar contraseña ---------- -->
+      <form class="perfil-tarjeta" (ngSubmit)="cambiarContrasena()">
+        <h2>Cambiar contraseña</h2>
+
+        <label class="perfil-campo">
+          Contraseña actual
+          <input
+            name="actual"
+            autocomplete="current-password"
+            [type]="mostrarClaves() ? 'text' : 'password'"
+            [(ngModel)]="actual" />
+        </label>
+
+        <label class="perfil-campo">
+          Contraseña nueva
+          <input
+            name="nueva"
+            autocomplete="new-password"
+            [type]="mostrarClaves() ? 'text' : 'password'"
+            [(ngModel)]="nueva" />
+          <span class="perfil-ayuda">{{ REGLA_CONTRASENA }}</span>
+        </label>
+
+        <label class="perfil-campo">
+          Repite la contraseña nueva
+          <input
+            name="repetida"
+            autocomplete="new-password"
+            [type]="mostrarClaves() ? 'text' : 'password'"
+            [(ngModel)]="repetida" />
+        </label>
+
+        <label class="perfil-mostrar">
+          <input type="checkbox" name="mostrar" [(ngModel)]="mostrarClaves" />
+          Mostrar las contraseñas
+        </label>
+
+        @if (avisoClave(); as aviso) {
+          <p class="perfil-aviso" [ngClass]="'is-' + aviso.tipo" [attr.role]="aviso.tipo === 'error' ? 'alert' : 'status'">
+            {{ aviso.texto }}
+          </p>
+        }
+
+        <button type="submit" class="perfil-boton" [disabled]="guardandoClave()">
+          {{ guardandoClave() ? 'Cambiando...' : 'Cambiar contraseña' }}
+        </button>
+      </form>
+
+      <!-- ---------- Verificación en dos pasos ---------- -->
+      <ng-template #tituloDosPasos>
+        <div class="perfil-titulo-estado">
+          <h2>Verificación en dos pasos</h2>
+          <span class="perfil-estado" [class.is-activa]="yo.two_fa_enabled">
+            {{ yo.two_fa_enabled ? 'Activada' : 'Desactivada' }}
+          </span>
+        </div>
+      </ng-template>
+      <ng-template #avisoDosPasos>
+        @if (aviso2fa(); as aviso) {
+          <p class="perfil-aviso" [ngClass]="'is-' + aviso.tipo" [attr.role]="aviso.tipo === 'error' ? 'alert' : 'status'">
+            {{ aviso.texto }}
+          </p>
+        }
+      </ng-template>
+
+      @if (yo.two_fa_enabled && yo.two_fa_required) {
+        <!-- Activada y obligatoria para su tipo de cuenta (administrador): no se puede desactivar -->
+        <div class="perfil-tarjeta">
+          <ng-container [ngTemplateOutlet]="tituloDosPasos"></ng-container>
+          <p class="perfil-texto">
+            Al iniciar sesión te pedimos tu contraseña y un código de tu aplicación de autenticación. Tu tipo de cuenta
+            la exige, así que no se puede desactivar.
+          </p>
+          <ng-container [ngTemplateOutlet]="avisoDosPasos"></ng-container>
+        </div>
+      } @else if (yo.two_fa_enabled) {
+        <!-- Ya está activada: se puede desactivar -->
+        <form class="perfil-tarjeta" (ngSubmit)="desactivar2fa()">
+          <ng-container [ngTemplateOutlet]="tituloDosPasos"></ng-container>
+          <p class="perfil-texto">
+            Al iniciar sesión te pedimos tu contraseña y un código de tu aplicación de autenticación. Para desactivarla,
+            escribe los dos.
+          </p>
+
+          <label class="perfil-campo">
+            Contraseña
+            <input type="password" name="contrasena2fa" autocomplete="current-password" [(ngModel)]="contrasena2fa" />
+          </label>
+
+          <label class="perfil-campo">
+            Código de la aplicación
+            <input
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="7"
+              placeholder="123 456"
+              [value]="codigo2fa()"
+              (input)="escribirCodigo($event, 'dos-pasos')" />
+          </label>
+
+          <ng-container [ngTemplateOutlet]="avisoDosPasos"></ng-container>
+
+          <button type="submit" class="perfil-boton is-peligro" [disabled]="trabajando2fa()">
+            {{ trabajando2fa() ? 'Desactivando...' : 'Desactivar' }}
+          </button>
+        </form>
+      } @else if (clave2fa()) {
+        <!-- Se está activando: código QR y confirmación -->
+        <form class="perfil-tarjeta" (ngSubmit)="confirmar2fa()">
+          <ng-container [ngTemplateOutlet]="tituloDosPasos"></ng-container>
+          <ol class="perfil-pasos">
+            <li>Instala Google Authenticator o Microsoft Authenticator en tu teléfono.</li>
+            <li>
+              En la aplicación, agrega una cuenta y escanea este código:
+              @if (qr(); as codigoQr) {
+                <div class="perfil-qr">
+                  <svg
+                    width="176"
+                    height="176"
+                    shape-rendering="crispEdges"
+                    role="img"
+                    aria-label="Código QR para la aplicación de autenticación"
+                    [attr.viewBox]="'0 0 ' + codigoQr.tamano + ' ' + codigoQr.tamano">
+                    <svg:rect width="100%" height="100%" fill="#ffffff" />
+                    <svg:path fill="#000000" [attr.d]="codigoQr.camino" />
+                  </svg>
+                </div>
+              }
+              <span class="perfil-ayuda">¿No puedes escanearlo? Elige "ingresar clave" en la aplicación y escribe:</span>
+              <code class="perfil-clave">{{ claveEnGrupos() }}</code>
+            </li>
+            <li>
+              Escribe el código de 6 dígitos que muestra la aplicación:
+              <input
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="7"
+                placeholder="123 456"
+                class="perfil-codigo"
+                aria-label="Código de la aplicación"
+                [value]="codigo2fa()"
+                (input)="escribirCodigo($event, 'dos-pasos')" />
+            </li>
+          </ol>
+
+          <ng-container [ngTemplateOutlet]="avisoDosPasos"></ng-container>
+
+          <div class="perfil-botones">
+            <button type="submit" class="perfil-boton" [disabled]="trabajando2fa()">
+              {{ trabajando2fa() ? 'Confirmando...' : 'Confirmar y activar' }}
+            </button>
+            <button type="button" class="perfil-boton is-secundario" (click)="cancelar2fa()">Cancelar</button>
+          </div>
+        </form>
+      } @else {
+        <!-- Desactivada -->
+        <div class="perfil-tarjeta">
+          <ng-container [ngTemplateOutlet]="tituloDosPasos"></ng-container>
+          <p class="perfil-texto">
+            Protege tu cuenta: además de la contraseña, al iniciar sesión te pediremos un código de 6 dígitos que genera
+            una aplicación en tu teléfono.
+          </p>
+          <!-- Al administrador se le avisa que para él es obligatoria -->
+          @if (yo.two_fa_required) {
+            <p class="perfil-obligatoria">
+              Tu cuenta de administrador la exige: actívala para poder usar el panel de administración.
+            </p>
+          }
+          <ng-container [ngTemplateOutlet]="avisoDosPasos"></ng-container>
+          <button type="button" class="perfil-boton" [disabled]="trabajando2fa()" (click)="empezar2fa()">
+            {{ trabajando2fa() ? 'Preparando...' : 'Activar' }}
+          </button>
+        </div>
+      }
+
+      <!-- ---------- Eliminar mi cuenta (el administrador no la ve) ---------- -->
+      @if (!esAdmin()) {
+        @if (!eliminarAbierto()) {
+          <div class="perfil-tarjeta is-peligro">
+            <h2>Eliminar mi cuenta</h2>
+            <p class="perfil-texto">
+              Si eliminas tu cuenta ya no podrás entrar con ella y dejarás de recibir anuncios y avisos de remates.
+            </p>
+            <button type="button" class="perfil-boton is-peligro" (click)="eliminarAbierto.set(true)">
+              Eliminar mi cuenta
+            </button>
+          </div>
+        } @else {
+          <form class="perfil-tarjeta is-peligro" (ngSubmit)="eliminarCuenta()">
+            <h2>Eliminar mi cuenta</h2>
+            <p class="perfil-texto">¿Seguro? Esto es lo que pasará:</p>
+            <ul class="perfil-pasos perfil-consecuencias">
+              <li>Ya no podrás iniciar sesión con <strong>{{ yo.email }}</strong>.</li>
+              <li>Dejarás de recibir anuncios y avisos de remates.</li>
+              <li>
+                Tus datos se conservan en nuestro registro. Si cambias de opinión, escríbenos a
+                housegreen.capstone&#64;gmail.com.
+              </li>
+            </ul>
+
+            <label class="perfil-campo">
+              Contraseña
+              <input
+                type="password"
+                name="contrasenaEliminar"
+                autocomplete="current-password"
+                [(ngModel)]="contrasenaEliminar" />
+            </label>
+
+            @if (yo.two_fa_enabled) {
+              <label class="perfil-campo">
+                Código de la aplicación
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  maxlength="7"
+                  placeholder="123 456"
+                  [value]="codigoEliminar()"
+                  (input)="escribirCodigo($event, 'eliminar')" />
+              </label>
+            }
+
+            @if (errorEliminar()) {
+              <p class="perfil-aviso is-error" role="alert">{{ errorEliminar() }}</p>
+            }
+
+            <div class="perfil-botones">
+              <button type="submit" class="perfil-boton is-peligro" [disabled]="eliminando()">
+                {{ eliminando() ? 'Eliminando...' : 'Sí, eliminar mi cuenta' }}
+              </button>
+              <button type="button" class="perfil-boton is-secundario" [disabled]="eliminando()" (click)="cancelarEliminar()">
+                Cancelar
+              </button>
+            </div>
+          </form>
+        }
+      }
+
+      <!-- Cerrar sesión, al final (como en la web en el celular) -->
+      <div class="perfil-salir">
+        <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
       </div>
-
-      <div class="user-info">
-        <h2 class="user-name">{{ usuario.nombre }}</h2>
-        <p class="user-email">{{ usuario.email }}</p>
-      </div>
-
-      <button class="edit-btn" (click)="editarPerfil()">
-        Editar
-      </button>
-    </div>
-
-    <!-- SECCIÓN 1: DATOS PERSONALES -->
-    <div class="section-container">
-      <h2 class="section-label">DATOS PERSONALES</h2>
-
-      <div class="info-card">
-        <div class="data-row border-bottom">
-          <span class="data-label">RUT</span>
-          <span class="data-value">{{ usuario.rut }}</span>
-        </div>
-
-        <div class="data-row border-bottom">
-          <span class="data-label">Correo</span>
-          <span class="data-value text-bold">{{ usuario.email }}</span>
-        </div>
-
-        <div class="data-row">
-          <span class="data-label">Teléfono</span>
-          <span class="data-value">{{ usuario.telefono }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECCIÓN 2: SEGURIDAD -->
-    <div class="section-container">
-      <h2 class="section-label">SEGURIDAD</h2>
-
-      <div class="menu-card">
-        <div class="menu-item" (click)="cambiarContrasena()">
-          <div class="icon-avatar">
-            <ion-icon name="lock-closed-outline"></ion-icon>
-          </div>
-
-          <div class="item-text">
-            <span class="item-title">Cambiar contraseña</span>
-            <span class="item-subtitle">Última actualización: {{ usuario.ultimaContrasena }}</span>
-          </div>
-
-          <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECCIÓN 3: PREFERENCIAS -->
-    <div class="section-container">
-      <h2 class="section-label">PREFERENCIAS</h2>
-
-      <div class="menu-card">
-        <!-- Notificaciones -> Redirige a /alertas -->
-        <div class="menu-item border-bottom" (click)="irAAlertas()">
-          <div class="icon-avatar">
-            <ion-icon name="notifications-outline"></ion-icon>
-          </div>
-
-          <div class="item-text">
-            <span class="item-title">Notificaciones</span>
-          </div>
-
-          <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
-        </div>
-
-        <!-- Comunas que sigo -->
-        <div class="menu-item" (click)="irAComunas()">
-          <div class="icon-avatar">
-            <ion-icon name="location-outline"></ion-icon>
-          </div>
-
-          <div class="item-text">
-            <span class="item-title">Comunas que sigo</span>
-            <span class="item-subtitle">{{ usuario.comunasSiguiendo }}</span>
-          </div>
-
-          <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECCIÓN 4: AYUDA -->
-    <div class="section-container">
-      <h2 class="section-label">AYUDA</h2>
-
-      <div class="menu-card">
-        <!-- Sugerencias y calificación -->
-        <div class="menu-item border-bottom" (click)="irASugerencias()">
-          <div class="icon-avatar">
-            <ion-icon name="star-outline"></ion-icon>
-          </div>
-
-          <div class="item-text">
-            <span class="item-title">Sugerencias y calificación</span>
-          </div>
-
-          <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
-        </div>
-
-        <!-- Sobre HouseGreen -->
-        <div class="menu-item" (click)="irASobreNosotros()">
-          <div class="icon-avatar">
-            <ion-icon name="information-circle-outline"></ion-icon>
-          </div>
-
-          <div class="item-text">
-            <span class="item-title">Sobre HouseGreen</span>
-          </div>
-
-          <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
-        </div>
-      </div>
-    </div>
-
-    <!-- BOTÓN CERRAR SESIÓN -->
-    <button class="logout-btn" (click)="cerrarSesion()">
-      <ion-icon name="log-out-outline"></ion-icon>
-      <span>Cerrar sesión</span>
-    </button>
-
+    }
   </div>
-
 </ion-content>

@@ -8,6 +8,8 @@
 
 // Paso A2: los colores y la letra de la página web de HouseGreen (index.css de la web)
 :root {
+  // Paso A6b: la app usa siempre los colores claros de la web, aunque el teléfono o el Mac estén en modo oscuro
+  color-scheme: light;
   --ion-font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --ion-background-color: #f5f5f4;
   --ion-background-color-rgb: 245, 245, 244;

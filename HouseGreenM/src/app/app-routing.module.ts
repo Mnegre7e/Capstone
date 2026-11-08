@@ -99,12 +99,8 @@ const routes: Routes = [
     loadChildren: () =>
       import('./pages/perfil-configuracion/perfil-configuracion.module').then((m) => m.PerfilConfiguracionPageModule),
   },
-  {
-    path: 'cambiar-contrasena',
-    canActivate: inversionista,
-    loadChildren: () =>
-      import('./pages/cambiar-contrasena/cambiar-contrasena.module').then((m) => m.CambiarContrasenaPageModule),
-  },
+  // Paso A6: como en la web, la contraseña se cambia dentro del Perfil
+  { path: 'cambiar-contrasena', redirectTo: 'perfil-configuracion', pathMatch: 'full' },
   {
     path: 'contacto',
     canActivate: inversionista,
