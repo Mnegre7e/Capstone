@@ -1,19 +1,23 @@
 """Paso 126: pruebas de la API de verdad (inicio de sesión, permisos, Premium y reportes).
-Usan la rama 'pruebas' de Neon (ver conftest.py). Cada prueba crea sus propias cuentas."""
+Usan la rama 'pruebas' de Neon (ver conftest.py). Cada prueba crea sus propias cuentas.
+Paso 127: cada prueba dice si es funcional o no funcional (pytest -m funcional / pytest -m no_funcional)."""
 import uuid
 
 import pyotp
+import pytest
 
 from conftest import CLAVE, ROL_ADMIN, ROL_ANALISTA
 
 
 # ---------- Cuentas e inicio de sesión ----------
 
+@pytest.mark.no_funcional
 def test_sin_sesion_no_hay_perfil(cliente):
     assert cliente.get("/auth/me").status_code == 401
     assert cliente.get("/auth/me", headers={"Authorization": "Bearer token-falso"}).status_code == 401
 
 
+@pytest.mark.funcional
 def test_registro_e_inicio_de_sesion(cliente):
     correo = f"pytest-{uuid.uuid4().hex[:10]}@example.com"
     registro = cliente.post("/auth/registro", json={"email": correo, "password": CLAVE, "full_name": "Persona de Prueba"})
@@ -27,6 +31,7 @@ def test_registro_e_inicio_de_sesion(cliente):
     assert perfil["acceso_completo"] is False  # y no tiene Premium
 
 
+@pytest.mark.funcional
 def test_registro_rechaza_datos_malos(cliente, crear_cuenta):
     debil = cliente.post("/auth/registro", json={"email": "pytest-debil@example.com", "password": "abc", "full_name": "Prueba"})
     assert debil.status_code == 400
@@ -35,6 +40,7 @@ def test_registro_rechaza_datos_malos(cliente, crear_cuenta):
     assert "ya está registrado" in repetido.json()["detail"]
 
 
+@pytest.mark.no_funcional
 def test_bloqueo_tras_5_intentos_fallidos(cliente, crear_cuenta):
     cuenta = crear_cuenta()
     for _ in range(5):
@@ -46,8 +52,51 @@ def test_bloqueo_tras_5_intentos_fallidos(cliente, crear_cuenta):
     assert bloqueado.status_code == 429
 
 
+@pytest.mark.funcional
+def test_cambiar_la_contrasena(cliente, crear_cuenta, entrar):
+    cuenta = crear_cuenta()
+    encabezado = entrar(cuenta)
+    nueva = "OtraClave2026"
+    mala = cliente.post("/auth/me/contrasena", json={"current_password": "NoEsLaMia1", "new_password": nueva}, headers=encabezado)
+    assert mala.status_code == 400  # hay que saber la contraseña actual
+    cambio = cliente.post("/auth/me/contrasena", json={"current_password": CLAVE, "new_password": nueva}, headers=encabezado)
+    assert cambio.status_code == 200, cambio.text
+    # La de antes ya no sirve y la nueva sí
+    assert cliente.post("/auth/login", json={"email": cuenta.email, "password": CLAVE}).status_code == 401
+    assert cliente.post("/auth/login", json={"email": cuenta.email, "password": nueva}).status_code == 200
+
+
+@pytest.mark.funcional
+def test_eliminar_mi_cuenta(cliente, crear_cuenta, entrar):
+    cuenta = crear_cuenta()
+    encabezado = entrar(cuenta)
+    assert cliente.post("/auth/me/eliminar", json={"password": "NoEsLaMia1"}, headers=encabezado).status_code == 400
+    assert cliente.post("/auth/me/eliminar", json={"password": CLAVE}, headers=encabezado).status_code == 200
+
+    entrada = cliente.post("/auth/login", json={"email": cuenta.email, "password": CLAVE})
+    assert entrada.status_code == 403
+    assert "fue eliminada" in entrada.json()["detail"]  # y explica cómo recuperarla
+    assert cliente.get("/auth/me", headers=encabezado).status_code == 403  # la sesión abierta también se corta
+    registro = cliente.post("/auth/registro", json={"email": cuenta.email, "password": CLAVE, "full_name": "Prueba"})
+    assert registro.status_code == 400  # el correo no se puede volver a usar sin pedirlo
+
+
+@pytest.mark.funcional
+def test_enviar_una_opinion(cliente, crear_cuenta, entrar):
+    encabezado = entrar(crear_cuenta())
+    mala = cliente.post("/opiniones", json={"rating": 9, "topic": "catalogo"}, headers=encabezado)
+    assert mala.status_code == 400  # la nota va de 1 a 5
+    buena = cliente.post(
+        "/opiniones", json={"rating": 5, "topic": "catalogo", "message": "Prueba automática"}, headers=encabezado
+    )
+    assert buena.status_code == 200, buena.text
+    mias = cliente.get("/opiniones/mias", headers=encabezado).json()
+    assert buena.json()["id"] in [opinion["id"] for opinion in mias]
+
+
 # ---------- Plan Premium ----------
 
+@pytest.mark.funcional
 def test_catalogo_sin_premium_no_muestra_el_semaforo(cliente, crear_cuenta, entrar):
     for encabezado in ({}, entrar(crear_cuenta())):  # sin cuenta y con cuenta sin Premium
         remates = cliente.get("/propiedades", headers=encabezado)
@@ -55,6 +104,7 @@ def test_catalogo_sin_premium_no_muestra_el_semaforo(cliente, crear_cuenta, entr
         assert all(remate["evaluation"] is None and remate["description"] is None for remate in remates.json())
 
 
+@pytest.mark.funcional
 def test_sin_premium_no_hay_detalle_mapa_ni_favoritos(cliente, crear_cuenta, entrar, un_remate):
     encabezado = entrar(crear_cuenta())
     assert cliente.get(f"/propiedades/{un_remate}", headers=encabezado).status_code == 402
@@ -62,6 +112,7 @@ def test_sin_premium_no_hay_detalle_mapa_ni_favoritos(cliente, crear_cuenta, ent
     assert cliente.post(f"/favoritos/{un_remate}", json={}, headers=encabezado).status_code == 402
 
 
+@pytest.mark.funcional
 def test_con_premium_ve_el_detalle_y_guarda_favoritos(cliente, crear_cuenta, entrar, un_remate):
     encabezado = entrar(crear_cuenta(premium=True))
     detalle = cliente.get(f"/propiedades/{un_remate}", headers=encabezado)
@@ -76,6 +127,7 @@ def test_con_premium_ve_el_detalle_y_guarda_favoritos(cliente, crear_cuenta, ent
     assert cliente.get("/favoritos", headers=encabezado).json() == []
 
 
+@pytest.mark.funcional
 def test_precio_del_plan(cliente):
     plan = cliente.get("/pagos/plan").json()
     assert (plan["precio"], plan["dias"]) == (9990, 30)
@@ -83,12 +135,14 @@ def test_precio_del_plan(cliente):
 
 # ---------- Reportes: quién ve qué ----------
 
+@pytest.mark.no_funcional
 def test_el_inversionista_no_ve_reportes(cliente, crear_cuenta, entrar):
     encabezado = entrar(crear_cuenta(premium=True))
     assert cliente.get("/reportes", headers=encabezado).status_code == 403
     assert cliente.get("/reportes/buscar?q=casa", headers=encabezado).status_code == 403
 
 
+@pytest.mark.no_funcional
 def test_el_analista_ve_solo_totales(cliente, crear_cuenta, entrar):
     persona = crear_cuenta()
     encabezado = entrar(crear_cuenta(rol=ROL_ANALISTA))
@@ -102,6 +156,7 @@ def test_el_analista_ve_solo_totales(cliente, crear_cuenta, entrar):
     assert cliente.get(f"/reportes/personas/{persona.id}", headers=encabezado).status_code == 403
 
 
+@pytest.mark.no_funcional
 def test_el_administrador_necesita_dos_pasos(cliente, crear_cuenta, entrar):
     sin_dos_pasos = entrar(crear_cuenta(rol=ROL_ADMIN))
     assert cliente.get("/reportes", headers=sin_dos_pasos).status_code == 403
@@ -116,6 +171,7 @@ def test_el_administrador_necesita_dos_pasos(cliente, crear_cuenta, entrar):
     assert malo.status_code == 401
 
 
+@pytest.mark.funcional
 def test_el_administrador_ve_a_las_personas(cliente, crear_cuenta, entrar):
     persona = crear_cuenta()
     encabezado = entrar(crear_cuenta(rol=ROL_ADMIN, dos_pasos=True))

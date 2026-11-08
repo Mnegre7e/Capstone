@@ -1,4 +1,5 @@
-"""Paso 126: pruebas de las reglas de la API que NO necesitan la base de datos."""
+"""Paso 126: pruebas de las reglas de la API que NO necesitan la base de datos.
+Paso 127: cada prueba dice si es funcional o no funcional (pytest -m funcional / pytest -m no_funcional)."""
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 from types import SimpleNamespace
@@ -22,6 +23,7 @@ CHILE = ZoneInfo("America/Santiago")
 
 # ---------- Cuentas y contraseñas ----------
 
+@pytest.mark.no_funcional
 @pytest.mark.parametrize(
     "contrasena, sirve",
     [
@@ -37,6 +39,7 @@ def test_reglas_de_la_contrasena(contrasena, sirve):
     assert (problema_de_contrasena(contrasena) is None) == sirve
 
 
+@pytest.mark.no_funcional
 def test_la_contrasena_se_guarda_cifrada():
     guardada = hash_password("Remate2026")
     assert guardada != "Remate2026"
@@ -44,6 +47,7 @@ def test_la_contrasena_se_guarda_cifrada():
     assert not verify_password("remate2026", guardada)
 
 
+@pytest.mark.no_funcional
 def test_token_de_sesion():
     token = create_access_token({"sub": "123", "email": "persona@example.com"})
     assert decode_access_token(token)["sub"] == "123"
@@ -51,6 +55,7 @@ def test_token_de_sesion():
     assert decode_access_token("cualquier cosa") is None
 
 
+@pytest.mark.no_funcional
 def test_codigo_de_dos_pasos():
     clave = pyotp.random_base32()
     assert two_factor.descifrar(two_factor.cifrar(clave)) == clave  # se guarda cifrada y se recupera igual
@@ -63,6 +68,7 @@ def test_codigo_de_dos_pasos():
 
 # ---------- Reportes ----------
 
+@pytest.mark.funcional
 def test_periodos_de_los_reportes():
     jueves = datetime(2026, 11, 12, 15, 30, tzinfo=CHILE)
     inicio, fin, agrupado = _limites_del_periodo("hoy", jueves)
@@ -75,6 +81,7 @@ def test_periodos_de_los_reportes():
     assert (fin.date(), agrupado) == (date(2026, 11, 1), "dia")  # el día de término se incluye entero
 
 
+@pytest.mark.funcional
 @pytest.mark.parametrize(
     "desde, hasta",
     [
@@ -91,6 +98,7 @@ def test_rango_de_fechas_no_valido(desde, hasta):
     assert error.value.status_code == 422
 
 
+@pytest.mark.funcional
 def test_categoria_del_tipo_de_propiedad():
     assert categoria_de_tipo("Parcela con casa") == "parcela"  # no "casa"
     assert categoria_de_tipo("Derechos sobre casa") == "derechos"
@@ -99,6 +107,7 @@ def test_categoria_del_tipo_de_propiedad():
     assert categoria_de_tipo(None) == "otro"
 
 
+@pytest.mark.funcional
 def test_buscador_sin_tildes_ni_mayusculas():
     assert _sin_tildes("Ñuñoa") == "nunoa"
     assert _calza(_sin_tildes("casa ÑUÑOA").split(), "Casa en Ñuñoa", "Av. Grecia 1234")
@@ -107,6 +116,7 @@ def test_buscador_sin_tildes_ni_mayusculas():
 
 # ---------- Semáforo del precio y carga de remates ----------
 
+@pytest.mark.funcional
 def test_zona_del_precio_frente_a_la_comuna():
     assert zona_del_descuento(Decimal("0.40")) == "verde"  # 40 % o más bajo el precio típico
     assert zona_del_descuento(Decimal("0.15")) == "amarillo"
@@ -116,12 +126,14 @@ def test_zona_del_precio_frente_a_la_comuna():
     assert not comparar("Casa", 50_000_000, "Paine", pocos_avisos)["disponible"]  # se piden al menos 20 avisos
 
 
+@pytest.mark.funcional
 def test_calle_y_numero_de_la_direccion():
     assert calle_y_numero("Avenida Grecia 1234, depto 501, Ñuñoa") == ("Avenida Grecia", "1234")
     assert calle_y_numero("Calle Los Diecisiete sin número") == ("Los Diecisiete", None)
     assert calle_y_numero("") is None
 
 
+@pytest.mark.funcional
 def test_remates_repetidos():
     dia = datetime(2026, 11, 20, 12, 0, tzinfo=CHILE)
 
