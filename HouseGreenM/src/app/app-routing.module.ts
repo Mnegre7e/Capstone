@@ -34,6 +34,11 @@ const routes: Routes = [
     canActivate: [sinSesion],
     loadChildren: () => import('./pages/verificar/verificar.module').then((m) => m.VerificarPageModule),
   },
+  // Paso A5: la política de privacidad se ve con o sin cuenta (la enlaza el registro)
+  {
+    path: 'privacidad',
+    loadChildren: () => import('./pages/privacidad/privacidad.module').then((m) => m.PrivacidadPageModule),
+  },
   {
     path: 'nosotros',
     loadChildren: () => import('./pages/nosotros/nosotros.module').then((m) => m.NosotrosPageModule),

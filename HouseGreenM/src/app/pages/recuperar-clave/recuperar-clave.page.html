@@ -1,47 +1,104 @@
-<ion-header [translucent]="true">
-  <ion-toolbar class="fondo">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/login"></ion-back-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="entrada-fondo">
+  <app-marco-entrada>
+    @if (paso() === 'codigo') {
+      <!-- Paso 2: el código y la contraseña nueva -->
+      <form class="login-form" (ngSubmit)="cambiarContrasena()">
+        <h1>Escribe el código</h1>
+        <p class="login-subtitle">
+          Te enviamos un código de 6 dígitos a <strong class="login-correo">{{ correo().trim() }}</strong>. Vence en 15
+          minutos. Si no lo ves, revisa la carpeta de spam.
+        </p>
 
-<ion-content [fullscreen]="true" class="fondo">
-  <div>
-        <div class="img-logo">
-      <img src="assets/icon/logo-housegreen.svg" alt="HouseGreen Logo" class="logo-app" />
-    </div>
-    <ion-text class="ion-text-center">
-      <h3 class="color-texto">Ingresa tu Correo Electrónico</h3>
-    </ion-text>
-  </div>
+        @if (aviso() && !error()) {
+          <p class="login-aviso" role="status">{{ aviso() }}</p>
+        }
+        @if (error()) {
+          <p class="login-error" role="alert">{{ error() }}</p>
+        }
 
-  <div class="seccion-form">
-    <form class="recuperar" #form="ngForm">
-      <ion-item class="ion-margin-horizontal ion-color">
-        <ion-icon aria-hidden="true" name="mail-outline" slot="start"></ion-icon>
-        <ion-input 
-          type="email" 
-          placeholder="Ingresa un correo válido" 
-          label="Correo Electrónico" 
-          label-placement="floating" 
-          class="quitar-linea" 
-          errorText="Email inválido" 
-          name="correo" 
-          [(ngModel)]="correo" 
-          email>
-        </ion-input>
-      </ion-item>
-  
-      <div class="ion-text-center">
-        <ion-button 
-          class="ion-margin-top ion-margin-bottom boton-inicio txt-marcado" 
-          shape="round" 
-          [attr.disabled]="form.invalid ? true : null" 
-          (click)="enviarCorreo()">
-          Enviar
-        </ion-button>
-      </div>
-    </form>
-  </div>
+        <div class="login-grupo">
+          <label class="login-label" for="codigo-de-recuperacion">Código</label>
+          <div class="login-campo">
+            <input
+              id="codigo-de-recuperacion"
+              class="login-input login-codigo"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="7"
+              placeholder="123 456"
+              [value]="codigo()"
+              (input)="escribirCodigo($event)" />
+          </div>
+        </div>
+
+        <app-campo-entrada
+          etiqueta="Contraseña nueva"
+          icono="candado"
+          autocompletar="new-password"
+          marcador="Mínimo 8 caracteres"
+          [ayuda]="REGLA_CONTRASENA"
+          [tipo]="mostrar() ? 'text' : 'password'"
+          [conOjo]="true"
+          [visible]="mostrar()"
+          (alternarVisible)="mostrar.set(!mostrar())"
+          [(valor)]="clave">
+        </app-campo-entrada>
+
+        <app-campo-entrada
+          etiqueta="Repite la contraseña nueva"
+          icono="candado"
+          autocompletar="new-password"
+          marcador="Escríbela otra vez"
+          [tipo]="mostrar() ? 'text' : 'password'"
+          [conOjo]="true"
+          [visible]="mostrar()"
+          (alternarVisible)="mostrar.set(!mostrar())"
+          [(valor)]="repetida">
+        </app-campo-entrada>
+
+        <button type="submit" class="login-button" [disabled]="enviando()">
+          {{ enviando() ? 'Guardando...' : 'Cambiar contraseña' }}
+        </button>
+
+        <div class="login-recuperar-otras">
+          <button type="button" class="login-volver" [disabled]="enviando()" (click)="pedirCodigo(true)">
+            No me llegó: enviar otro código
+          </button>
+          <button type="button" class="login-volver" [disabled]="enviando()" (click)="usarOtroCorreo()">
+            Usar otro correo
+          </button>
+        </div>
+
+        <p class="login-switch"><a [routerLink]="['/login']">Volver a iniciar sesión</a></p>
+      </form>
+    } @else {
+      <!-- Paso 1: el correo -->
+      <form class="login-form" (ngSubmit)="pedirCodigo(false)">
+        <h1>Recuperar contraseña</h1>
+        <p class="login-subtitle">
+          Escribe el correo de tu cuenta y te enviaremos un código para crear una contraseña nueva.
+        </p>
+
+        @if (error()) {
+          <p class="login-error" role="alert">{{ error() }}</p>
+        }
+
+        <app-campo-entrada
+          etiqueta="Correo electrónico"
+          icono="correo"
+          tipo="email"
+          autocompletar="email"
+          marcador="tucorreo@ejemplo.com"
+          [(valor)]="correo">
+        </app-campo-entrada>
+
+        <button type="submit" class="login-button" [disabled]="enviando()">
+          {{ enviando() ? 'Enviando...' : 'Enviar código' }}
+        </button>
+
+        <p class="login-switch login-switch-junto">¿No tienes cuenta? <a [routerLink]="['/registro']">Regístrate</a></p>
+      </form>
+    }
+  </app-marco-entrada>
 </ion-content>

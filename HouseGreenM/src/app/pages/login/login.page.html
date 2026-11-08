@@ -1,99 +1,92 @@
-<ion-content [fullscreen]="true" class="fondo">
-  <div>
-    <div class="img-logo">
-      <img src="assets/icon/logo-housegreen.svg" alt="HouseGreen Logo" class="logo-app" />
-    </div>
-    <ion-text>
-      <h2 class="color titulo">HouseGreen</h2>
-    </ion-text>
-    <ion-text class="ion-margin-top">
-      <p class="ion-text-center ion-padding color">
-        Análisis inteligente y evaluación de oportunidades de inversión inmobiliaria en remates.
-      </p>
-    </ion-text>
-  </div>
+<ion-content class="entrada-fondo">
+  <app-marco-entrada>
+    @if (pideCodigo()) {
+      <!-- Segundo paso: el código de la aplicación de autenticación -->
+      <form class="login-form" (ngSubmit)="entrar()">
+        <h1>Verificación en dos pasos</h1>
+        <p class="login-subtitle">
+          Abre tu aplicación de autenticación y escribe el código de 6 dígitos de HouseGreen.
+        </p>
 
-  <div class="seccion-form">
-    <form class="inicio-sesion" (ngSubmit)="entrar()">
-      <div>
-        @if (!pideCodigo) {
-          <ion-item class="ion-margin-end ion-margin-top ion-color">
-            <ion-icon aria-hidden="true" name="mail-outline" slot="start"></ion-icon>
-            <ion-input
-              type="email"
-              inputmode="email"
-              autocomplete="email"
-              label="Correo"
-              label-placement="floating"
-              color="dark"
-              name="correo"
-              [(ngModel)]="correo">
-            </ion-input>
-          </ion-item>
+        @if (error()) {
+          <p class="login-error" role="alert">{{ error() }}</p>
+        }
 
-          <ion-item class="ion-margin-end ion-margin-top ion-color">
-            <ion-icon aria-hidden="true" name="lock-closed-outline" slot="start"></ion-icon>
-            <ion-input
-              type="password"
-              autocomplete="current-password"
-              label="Contraseña"
-              label-placement="floating"
-              color="dark"
-              name="contrasenia"
-              [(ngModel)]="contrasenia"
-              class="color-negro">
-              <ion-input-password-toggle slot="end"></ion-input-password-toggle>
-            </ion-input>
-          </ion-item>
-        } @else {
-          <!-- Paso A1: segundo paso -->
-          <p class="login-codigo-texto">
-            Abre tu aplicación de autenticación y escribe el código de 6 dígitos de HouseGreen.
-          </p>
-          <ion-item class="ion-margin-end ion-margin-top ion-color">
-            <ion-icon aria-hidden="true" name="key-outline" slot="start"></ion-icon>
-            <ion-input
+        <div class="login-grupo">
+          <label class="login-label" for="codigo-de-dos-pasos">Código</label>
+          <div class="login-campo">
+            <input
+              id="codigo-de-dos-pasos"
+              class="login-input login-codigo"
               type="text"
               inputmode="numeric"
               autocomplete="one-time-code"
               maxlength="7"
-              label="Código de verificación"
-              label-placement="floating"
-              color="dark"
-              name="codigo"
-              [(ngModel)]="codigo">
-            </ion-input>
-          </ion-item>
-        }
-
-        @if (error) {
-          <p class="login-error" role="alert">{{ error }}</p>
-        }
-
-        <div class="ion-text-center">
-          <ion-button
-            type="submit"
-            class="ion-margin-top ion-margin-bottom boton-inicio txt-marcado"
-            shape="round"
-            [disabled]="enviando">
-            {{ enviando ? 'Entrando...' : pideCodigo ? 'Verificar código' : 'Iniciar Sesión' }}
-          </ion-button>
+              placeholder="123 456"
+              [value]="codigo()"
+              (input)="escribirCodigo($event)" />
+          </div>
         </div>
-      </div>
 
-      @if (pideCodigo) {
-        <ion-text class="ion-text-center">
-          <p class="txt-marcado login-volver" (click)="volver()">Entrar con otra cuenta</p>
-        </ion-text>
-      } @else {
-        <ion-text class="ion-text-end ion-margin-bottom">
-          <p class="ion-margin-end txt-marcado" [routerLink]="['/recuperar-clave']">¿Olvidaste tu contraseña?</p>
-        </ion-text>
+        <button type="submit" class="login-button" [disabled]="enviando()">
+          {{ enviando() ? 'Verificando...' : 'Verificar' }}
+        </button>
 
-        <ion-text class="ion-text-center">
-          <p class="ion-padding-top">¿No tienes una cuenta? <span [routerLink]="['/registro']"><b>Regístrate</b></span></p>
-        </ion-text>
-      }
-    </form>
-  </div>
+        <p class="login-switch">
+          <button type="button" class="login-volver" (click)="volver()">Volver a escribir mi correo y contraseña</button>
+        </p>
+      </form>
+    } @else {
+      <form class="login-form" (ngSubmit)="entrar()">
+        <h1>Iniciar sesión</h1>
+        <p class="login-subtitle">Entra para ver los remates y su semáforo.</p>
+
+        @if (aviso() && !error()) {
+          <p class="login-aviso" role="status">{{ aviso() }}</p>
+        }
+        @if (error()) {
+          <p class="login-error" role="alert">{{ error() }}</p>
+        }
+
+        <app-campo-entrada
+          etiqueta="Correo electrónico"
+          icono="correo"
+          tipo="email"
+          autocompletar="email"
+          marcador="tucorreo@ejemplo.com"
+          [(valor)]="correo">
+        </app-campo-entrada>
+
+        <app-campo-entrada
+          etiqueta="Contraseña"
+          icono="candado"
+          autocompletar="current-password"
+          marcador="••••••••"
+          [tipo]="mostrar() ? 'text' : 'password'"
+          [conOjo]="true"
+          [visible]="mostrar()"
+          (alternarVisible)="mostrar.set(!mostrar())"
+          [(valor)]="contrasenia">
+        </app-campo-entrada>
+
+        <p class="login-olvido">
+          <a [routerLink]="['/recuperar-clave']">¿Olvidaste tu contraseña?</a>
+        </p>
+
+        <button type="submit" class="login-button" [disabled]="enviando()">
+          {{ enviando() ? 'Ingresando...' : 'Ingresar' }}
+        </button>
+
+        <p class="login-switch">¿No tienes cuenta? <a [routerLink]="['/registro']">Regístrate</a></p>
+
+        <p class="login-nota">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3 5 6v5.5c0 4.2 2.9 7.6 7 9 4.1-1.4 7-4.8 7-9V6l-7-3Z" />
+            <path d="m9 12 2.2 2.2L15 10.5" />
+          </svg>
+          Puedes proteger tu cuenta con verificación en dos pasos desde tu Perfil.
+        </p>
+      </form>
+    }
+  </app-marco-entrada>
 </ion-content>

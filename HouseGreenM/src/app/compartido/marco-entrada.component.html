@@ -1,0 +1,38 @@
+<div class="entrada">
+  <aside class="entrada-panel">
+    <div class="entrada-contenido">
+      <p class="entrada-titulo">HouseGreen</p>
+      <p class="entrada-bajada">Remates de propiedades, con el riesgo a la vista.</p>
+
+      <ul class="entrada-semaforo">
+        @for (nivel of NIVELES; track nivel.color) {
+          <li>
+            <span class="entrada-luz" [ngClass]="'is-' + nivel.color" aria-hidden="true"></span>
+            <span class="entrada-nivel">
+              <strong>{{ nivel.nombre }}</strong>
+              {{ nivel.detalle }}
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <!-- Cordillera, cerros y edificios (se esconde en el celular) -->
+    <svg class="entrada-paisaje" viewBox="0 0 960 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <path
+        fill="#14503f"
+        d="M0 300V206l66-40 58 26 84-66 62 46 68-28 82-50 78 66 62-24 78 40 82-62 70 50 72-20 98 48v114Z" />
+      <path fill="#124838" d="M0 300v-82c120-36 220 14 340-12s220-34 360 6 180-20 260 8v80Z" />
+      @for (edificio of DIBUJO; track edificio.x) {
+        <svg:rect [attr.x]="edificio.x" [attr.y]="edificio.y" [attr.width]="edificio.ancho" [attr.height]="edificio.alto" fill="#0a2e24" />
+        @for (ventana of edificio.ventanas; track $index) {
+          <svg:rect [attr.x]="ventana.x" [attr.y]="ventana.y" width="8" height="10" rx="1" [attr.fill]="ventana.color" />
+        }
+      }
+    </svg>
+  </aside>
+
+  <main class="entrada-formulario">
+    <ng-content></ng-content>
+  </main>
+</div>

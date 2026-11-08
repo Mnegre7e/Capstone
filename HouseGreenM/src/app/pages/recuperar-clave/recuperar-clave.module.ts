@@ -1,21 +1,15 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
+import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular/lazy';
 
+import { CompartidoModule } from '../../compartido/compartido.module';
 import { RecuperarClavePageRoutingModule } from './recuperar-clave-routing.module';
-
 import { RecuperarClavePage } from './recuperar-clave.page';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    RecuperarClavePageRoutingModule
-  ],
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule, CompartidoModule, RecuperarClavePageRoutingModule],
   declarations: [RecuperarClavePage],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class RecuperarClavePageModule {}

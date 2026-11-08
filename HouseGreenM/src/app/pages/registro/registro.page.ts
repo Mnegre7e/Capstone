@@ -1,94 +1,72 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { AlertController, MenuController } from '@ionic/angular/lazy';
+import { Component, inject, signal } from '@angular/core';
+import { NavController } from '@ionic/angular/lazy';
 
+import { ApiService, mensajeDeError } from '../../core/api.service';
+import { REGLA_CONTRASENA, problemaDeContrasena } from '../../core/contrasena';
+import { SesionService } from '../../core/sesion.service';
+
+// Paso A5: crear cuenta de verdad (antes esta pantalla decía "Registrado" sin crear nada), igual que la web
+// (RegisterPage): POST /auth/registro y, apenas se crea, entra sola para no volver a escribir los datos.
+// La API anota el registro como hecho desde la app (encabezado X-Plataforma: app).
 @Component({
   selector: 'app-registro',
   templateUrl: './registro.page.html',
   styleUrls: ['./registro.page.scss'],
-  standalone: false
+  standalone: false,
 })
-export class RegistroPage implements OnInit {
-  nombreyApellido: string = '';
-  rut: string = '';
-  usuario: string = '';
-  contrasenia: string = '';
-  nuevaContrasenia: string = '';
-  telefono: string = '';
-  correo: string = '';
+export class RegistroPage {
+  private api = inject(ApiService);
+  private sesion = inject(SesionService);
+  private navegacion = inject(NavController);
 
-  private menu = inject(MenuController);
-  private alertController = inject(AlertController);
-  private router = inject(Router);
+  readonly REGLA_CONTRASENA = REGLA_CONTRASENA;
 
-  constructor() {}
+  readonly nombre = signal('');
+  readonly correo = signal('');
+  readonly telefono = signal('');
+  readonly contrasenia = signal('');
+  readonly repetida = signal('');
+  readonly mostrar = signal(false); // los dos ojos muestran u ocultan las dos contraseñas a la vez
+  readonly guardando = signal(false);
+  readonly error = signal('');
 
-  ngOnInit() {
-    this.menu.enable(false);
-  }
-
-  async IrLogin() {
-    const validaMayuscula = /[A-Z]/;
-
-    if (
-      !this.nombreyApellido.trim() ||
-      !this.rut.trim() ||
-      !this.usuario.trim() ||
-      !this.contrasenia.trim() ||
-      !this.telefono.trim() ||
-      !this.correo.trim()
-    ) {
-      const alert = await this.alertController.create({
-        header: 'Campos Vacíos',
-        message: 'Por favor complete todos los campos',
-        buttons: ['OK'],
-        cssClass: 'estilo-alertas',
-      });
-      await alert.present();
+  async crearCuenta() {
+    this.error.set('');
+    const nombre = this.nombre().trim();
+    const correo = this.correo().trim();
+    if (!nombre || !correo || !this.contrasenia()) {
+      this.error.set('Nombre, correo y contraseña son obligatorios.');
+      return;
+    }
+    // Las mismas reglas de contraseña que la web y la API
+    const problema = problemaDeContrasena(this.contrasenia());
+    if (problema) {
+      this.error.set(problema);
+      return;
+    }
+    if (this.contrasenia() !== this.repetida()) {
+      this.error.set('Las contraseñas no coinciden.');
       return;
     }
 
-    if (!validaMayuscula.test(this.contrasenia)) {
-      const alert = await this.alertController.create({
-        header: 'Error en contraseña',
-        message: 'La contraseña debe tener al menos una mayúscula',
-        buttons: ['OK'],
-        cssClass: 'estilo-alertas',
+    this.guardando.set(true);
+    try {
+      // 1. Crea la cuenta en la API
+      await this.api.post('/auth/registro', {
+        full_name: nombre,
+        email: correo,
+        phone: this.telefono().trim() || null,
+        password: this.contrasenia(),
       });
-      await alert.present();
-      return;
+      // 2. Entra de inmediato con la cuenta nueva
+      await this.sesion.iniciarSesion(correo, this.contrasenia());
+      this.contrasenia.set('');
+      this.repetida.set('');
+      await this.navegacion.navigateRoot(this.sesion.rutaDeInicio());
+    } catch (error) {
+      this.error.set(mensajeDeError(error));
+    } finally {
+      this.guardando.set(false);
     }
-
-    if (this.contrasenia !== this.nuevaContrasenia) {
-      const alert = await this.alertController.create({
-        header: 'Error en contraseña',
-        message: 'Las contraseñas no coinciden',
-        buttons: ['OK'],
-        cssClass: 'estilo-alertas',
-      });
-      await alert.present();
-      return;
-    }
-
-    if (this.contrasenia.length < 6) {
-      const alert = await this.alertController.create({
-        header: 'Error en contraseña',
-        message: 'La contraseña debe tener al menos 6 caracteres',
-        buttons: ['OK'],
-        cssClass: 'estilo-alertas',
-      });
-      await alert.present();
-      return;
-    }
-
-    const alert = await this.alertController.create({
-      header: 'Registrado',
-      message: 'Registrado correctamente',
-      buttons: ['OK'],
-      cssClass: 'estilo-alertas',
-    });
-    await alert.present();
-
-    this.router.navigate(['/login']);
   }
 }

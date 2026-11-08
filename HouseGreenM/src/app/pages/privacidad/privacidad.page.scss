@@ -1,0 +1,99 @@
+// Paso A5: los mismos estilos de la política de privacidad de la web (PrivacidadPage.css)
+.priv {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 20px 56px;
+  color: #1f2a26;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.priv h1 {
+  margin: 0;
+  color: #0f3d30;
+  font-size: 30px;
+}
+
+.priv-version {
+  margin: 4px 0 16px;
+  color: #5f6b66;
+  font-size: 14px;
+}
+
+.priv h2 {
+  margin: 28px 0 8px;
+  color: #0f3d30;
+  font-size: 19px;
+}
+
+.priv p {
+  margin: 8px 0;
+}
+
+.priv ul {
+  margin: 8px 0;
+  padding-left: 22px;
+}
+
+.priv li {
+  margin: 6px 0;
+}
+
+.priv li ul {
+  margin: 4px 0;
+}
+
+.priv a {
+  color: #15803d;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.priv a:focus-visible {
+  outline: 2px solid #1d6f55;
+  outline-offset: 2px;
+}
+
+/* El resumen de arriba */
+.priv-corto {
+  margin-top: 20px;
+  padding: 4px 20px 12px;
+  border: 1px solid #cfe3d7;
+  border-radius: 16px;
+  background-color: #f1f8f4;
+}
+
+.priv-corto h2 {
+  margin-top: 14px;
+}
+
+/* La base legal de cada uso, más suave */
+.priv-base {
+  color: #5f6b66;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .priv {
+    padding: 24px 16px 48px;
+    font-size: 15px;
+  }
+
+  .priv h1 {
+    font-size: 26px;
+  }
+
+  .priv-corto {
+    padding: 2px 16px 10px;
+  }
+}
+/* Enlace para volver a la pantalla anterior (por ejemplo, al registro) */
+.priv-volver {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: #15803d;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}

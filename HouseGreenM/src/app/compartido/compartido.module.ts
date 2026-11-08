@@ -4,22 +4,26 @@ import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular/lazy';
 
 import { AvisoPremiumComponent } from './aviso-premium.component';
+import { CampoEntradaComponent } from './campo-entrada.component';
 import { DatosRemateComponent } from './datos-remate.component';
 import { EncabezadoComponent } from './encabezado.component';
 import { EtiquetaRiesgoComponent } from './etiqueta-riesgo.component';
 import { GaleriaFotosComponent } from './galeria-fotos.component';
+import { MarcoEntradaComponent } from './marco-entrada.component';
 import { PrecioComunaComponent } from './precio-comuna.component';
 import { SinFotoComponent } from './sin-foto.component';
 import { TarjetaRemateComponent } from './tarjeta-remate.component';
 import { TarjetaSemaforoComponent } from './tarjeta-semaforo.component';
 
-// Pasos A2 y A3: piezas que usan varias pantallas (se importa en el módulo de cada pantalla)
+// Pasos A2, A3 y A5: piezas que usan varias pantallas (se importa en el módulo de cada pantalla)
 const PIEZAS = [
   AvisoPremiumComponent,
+  CampoEntradaComponent,
   DatosRemateComponent,
   EncabezadoComponent,
   EtiquetaRiesgoComponent,
   GaleriaFotosComponent,
+  MarcoEntradaComponent,
   PrecioComunaComponent,
   SinFotoComponent,
   TarjetaRemateComponent,

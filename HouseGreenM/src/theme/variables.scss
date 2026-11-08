@@ -3,6 +3,8 @@
 
 // Paso A4: las piezas que comparten todas las pantallas (con @use: @import ya está en desuso y daba un aviso)
 @use './housegreen';
+// Paso A5: las pantallas de entrada (login, registro y recuperar la contraseña)
+@use './entrada';
 
 // Paso A2: los colores y la letra de la página web de HouseGreen (index.css de la web)
 :root {
