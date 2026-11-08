@@ -1,0 +1,38 @@
+@if (datos(); as d) {
+  <div class="detalle-seccion">
+    <h2>Precio frente a la comuna</h2>
+
+    @if (comparable()) {
+      <div class="precio-cifras">
+        <div class="precio-cifra">
+          <p class="precio-cifra-etiqueta">Precio mínimo de este remate</p>
+          <p class="precio-cifra-valor">{{ pesos(d.precio_minimo_clp) }}</p>
+        </div>
+        <div class="precio-cifra">
+          <p class="precio-cifra-etiqueta">Precio típico de {{ tipo() }} en {{ d.comuna }}</p>
+          <p class="precio-cifra-valor">{{ pesos(d.precio_tipico_clp) }}</p>
+          <p class="precio-cifra-nota">UF {{ numero(d.precio_tipico_uf) }} · mediana de {{ numero(d.avisos) }} avisos en venta</p>
+        </div>
+      </div>
+
+      <p [class]="'precio-resultado is-' + d.zona">
+        <span class="precio-resultado-punto" aria-hidden="true"></span>
+        <span><strong>{{ resultado() }}</strong> · {{ puntos() }} en el semáforo</span>
+      </p>
+
+      <p class="precio-regla">2 puntos: 40 % o más bajo · 1 punto: entre 15 % y 39,9 % bajo · 0 puntos: menos de 15 % bajo</p>
+
+      <p class="precio-nota">
+        El precio típico es la mediana de los {{ tipo() }} en venta en {{ d.comuna }}{{
+          d.superficie_tipica_m2 ? ', que miden en general ' + numero(d.superficie_tipica_m2) + ' m²' : ''
+        }}, según {{ d.fuente }}{{ d.fecha ? ' (actualizado el ' + fechaCorta(d.fecha) + ')' : '' }}. Son precios de oferta y
+        no consideran el tamaño de esta propiedad, así que úsalo como referencia.
+        @if (d.fuente_url) {
+          <a [href]="d.fuente_url" target="_blank" rel="noopener noreferrer">Ver la fuente ↗</a>
+        }
+      </p>
+    } @else {
+      <p class="precio-sin">{{ d.motivo }} Por eso el precio todavía no suma puntos en el semáforo.</p>
+    }
+  </div>
+}

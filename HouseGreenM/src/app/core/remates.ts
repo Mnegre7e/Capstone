@@ -9,13 +9,27 @@ export interface Remate {
   address: string | null;
   comuna_id: number;
   property_type: string;
+  auction_type: string; // judicial, extrajudicial, contribuciones, banco
   opening_price: string; // la API lo manda como texto ("84940066.00")
   auction_date: string | null;
   status: string;
   image_url: string | null;
+  description: string | null; // null sin Premium
   created_at: string;
   physical_info: { bedrooms: number | null; bathrooms: number | null; surface_m2: string | null } | null;
-  evaluation: { result_level: Riesgo } | null; // null sin Premium
+  evaluation: Evaluacion | null; // null sin Premium
+}
+
+// Paso A3: la evaluación del semáforo (4 factores de 0 a 2 puntos, máximo 8)
+export interface Evaluacion {
+  result_level: Riesgo;
+  total_points: number | null;
+  veto_applied: boolean;
+  veto_reason: string | null;
+  is_complete: boolean;
+  missing_data: string | null;
+  evaluated_at: string;
+  details?: { criteria_name: string; points: number; has_data: boolean }[];
 }
 
 export interface Comuna {
@@ -109,3 +123,20 @@ export const NOMBRE_RIESGO: Record<Riesgo, string> = { verde: 'Riesgo bajo', ama
 
 export const PRECIO_PREMIUM_TEXTO = '$9.990';
 export const DIAS_PREMIUM = 30;
+
+// Paso A3: lo que incluye el plan, en el mismo orden que la web
+export const BENEFICIOS_PREMIUM = [
+  'El semáforo de riesgo de cada remate, con su puntaje y por qué lo tiene',
+  'El precio del remate frente al precio típico de su comuna',
+  'Los datos del remate: tribunal, garantía, condiciones y anuncio',
+  'Las fotos y el detalle completo de cada propiedad',
+  'El mapa de los remates, con el color de su semáforo',
+  'Guardar favoritos y recibir alertas de remates nuevos',
+];
+
+/** "jue 22 oct" o, con el año, "jue 22 oct 2026" */
+export function fechaCorta(fecha: Date, conAnio = false): string {
+  const dia = fecha.toLocaleDateString('es-CL', { weekday: 'short' });
+  const resto = fecha.toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: conAnio ? 'numeric' : undefined });
+  return `${dia} ${resto}`;
+}

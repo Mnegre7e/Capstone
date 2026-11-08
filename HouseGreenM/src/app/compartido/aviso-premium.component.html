@@ -1,0 +1,27 @@
+<section [class]="'premium-aviso is-' + variante()">
+  <span class="premium-aviso-sello">
+    <!-- Candado -->
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor" />
+      <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.2" />
+    </svg>
+    Plan Premium
+  </span>
+
+  <h2 class="premium-aviso-titulo">{{ titulo() }}</h2>
+  <p class="premium-aviso-texto"><ng-content></ng-content></p>
+
+  @if (variante() === 'pagina') {
+    <ul class="premium-aviso-lista">
+      @for (beneficio of BENEFICIOS_PREMIUM; track beneficio) {
+        <li>{{ beneficio }}</li>
+      }
+    </ul>
+  }
+
+  <p class="premium-aviso-precio">
+    <strong>{{ PRECIO_PREMIUM_TEXTO }}</strong> por {{ DIAS_PREMIUM }} días · pago único, sin renovación automática
+  </p>
+
+  <a class="premium-aviso-boton" [routerLink]="['/premium']">Hazte Premium</a>
+</section>

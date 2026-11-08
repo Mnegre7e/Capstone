@@ -1,153 +1,113 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar class="greenhouse-toolbar">
-    <ion-buttons slot="start">
-      <!-- Botón Volver al catálogo -->
-      <ion-back-button defaultHref="/catalogo-propiedades" text="Volver" icon="chevron-back-outline"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Detalle de Propiedad</ion-title>
-    <ion-buttons slot="end">
-      @if (propiedad) {
-        <ion-button (click)="toggleGuardar()">
-          <ion-icon slot="icon-only" [name]="propiedad.guardado ? 'bookmark' : 'bookmark-outline'"></ion-icon>
-        </ion-button>
-      }
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<app-encabezado></app-encabezado>
 
-<ion-content class="ion-padding greenhouse-content">
-  @if (propiedad) {
-
-    <!-- Banner / Header de Riesgo Greenhouse Style -->
-    <div class="hero-card" [ngClass]="'hero-' + propiedad.riesgoGlobal">
-      <div class="risk-badge" [ngClass]="'badge-' + propiedad.riesgoGlobal">
-        <span class="dot">●</span> Riesgo {{ propiedad.riesgoGlobal | titlecase }} ({{ propiedad.puntajeRiesgo }}/10)
-      </div>
-      <span class="type-badge">{{ propiedad.tipo }}</span>
-    </div>
-
-    <!-- Encabezado Principal -->
-    <div class="main-info">
-      <span class="comuna-tag">{{ propiedad.comuna | uppercase }}</span>
-      <h1 class="prop-title">{{ propiedad.titulo }}</h1>
-      <p class="prop-address">
-        <ion-icon name="location-outline"></ion-icon>
-        {{ propiedad.direccion }}
-      </p>
-    </div>
-
-    <!-- Precios y Descuento -->
-    <div class="price-card">
-      <div class="price-row">
-        <div>
-          <span class="price-label">Precio Mínimo Remate</span>
-          <h2 class="price-main">{{ formatearMoneda(propiedad.precioMinimo) }}</h2>
-        </div>
-        <div class="discount-box">
-          <span class="discount-percent">-{{ propiedad.descuentoEstimado }}%</span>
-          <span class="discount-text">vs Mercado</span>
-        </div>
-      </div>
-      <div class="market-subtext">
-        <span>Valor Mercado: <strong>{{ formatearMoneda(propiedad.precioMercado) }}</strong></span>
-        <span>M² Mínimo: <strong>{{ formatearMoneda(propiedad.precioM2Minimo) }}</strong></span>
-      </div>
-    </div>
-
-    <!-- Ficha Técnica -->
-    <div class="section-card">
-      <h3 class="section-title">Ficha Técnica</h3>
-      <div class="specs-grid">
-        <div class="spec-item">
-          <ion-icon name="square-outline"></ion-icon>
-          <span>{{ propiedad.superficie }} m² Sup.</span>
-        </div>
-        @if (propiedad.dormitorios !== undefined) {
-          <div class="spec-item">
-            <ion-icon name="bed-outline"></ion-icon>
-            <span>{{ propiedad.dormitorios }} Dorm.</span>
-          </div>
+<ion-content>
+  <div class="hg-pagina detalle">
+    @if (remate(); as r) {
+      <div class="detalle-arriba">
+        <a class="detalle-volver" [routerLink]="['/catalogo-propiedades']">‹ Volver al catálogo</a>
+        @if (conPremium()) {
+          <button type="button" class="detalle-guardar" [class.is-guardada]="favorito()" (click)="alternarFavorito()">
+            {{ favorito() ? '♥ Guardada' : '♡ Guardar' }}
+          </button>
         }
-        @if (propiedad.banos !== undefined) {
-          <div class="spec-item">
-            <ion-icon name="water-outline"></ion-icon>
-            <span>{{ propiedad.banos }} Baño(s)</span>
-          </div>
+      </div>
+
+      @if (!conPremium()) {
+        <!-- Sin Premium, en vez del detalle se muestra qué incluye el plan -->
+        <app-aviso-premium titulo="Para ver este remate necesitas el plan Premium">
+          Estás por abrir <strong>{{ r.title }}</strong>, en {{ comuna() }}. Con Premium ves su semáforo de riesgo y todo el
+          detalle del remate.
+        </app-aviso-premium>
+      } @else {
+        @if (retirado()) {
+          <p class="detalle-finalizado" role="status">
+            <strong>El sitio de origen retiró este remate.</strong> Puede haberse suspendido o cancelado. Se mantiene aquí
+            solo como referencia.
+          </p>
+        } @else if (finalizado()) {
+          <p class="detalle-finalizado" role="status">
+            <strong>Este remate ya se realizó</strong> el {{ fechaLarga() }}. Se mantiene aquí solo como referencia.
+          </p>
         }
-        <div class="spec-item">
-          <ion-icon name="car-outline"></ion-icon>
-          <span>{{ propiedad.estacionamiento ? 'Con Estac.' : 'Sin Estac.' }}</span>
-        </div>
-        <div class="spec-item">
-          <ion-icon name="archive-outline"></ion-icon>
-          <span>{{ propiedad.bodega ? 'Con Bodega' : 'Sin Bodega' }}</span>
-        </div>
-      </div>
-    </div>
 
-    <!-- Información del Remate Judicial -->
-    <div class="section-card">
-      <h3 class="section-title">Información del Remate</h3>
-      <div class="info-list">
-        <div class="info-item">
-          <span class="info-label">Tribunal:</span>
-          <span class="info-value">{{ propiedad.tribunal }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Causa:</span>
-          <span class="info-value">{{ propiedad.causa }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Fecha y Hora:</span>
-          <span class="info-value highlight">{{ propiedad.fechaRemate }} a las {{ propiedad.horaRemate }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Modalidad:</span>
-          <span class="info-value">{{ propiedad.modalidad }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Garantía Exigida:</span>
-          <span class="info-value">{{ propiedad.porcentajeGarantia }}% ({{ formatearMoneda(propiedad.montoGarantia) }})</span>
-        </div>
-      </div>
-    </div>
+        <app-galeria-fotos
+          [remateId]="r.id"
+          [imagenRespaldo]="r.image_url"
+          [titulo]="r.title"
+          [tipo]="r.property_type">
+        </app-galeria-fotos>
 
-    <!-- Descripción -->
-    <div class="section-card">
-      <h3 class="section-title">Descripción</h3>
-      <p class="prop-description">{{ propiedad.descripcion }}</p>
-    </div>
+        <div class="detalle-cabecera">
+          <p class="detalle-comuna">{{ comuna() }}</p>
+          @if (r.evaluation; as evaluacion) {
+            <app-etiqueta-riesgo [riesgo]="evaluacion.result_level"></app-etiqueta-riesgo>
+          } @else {
+            <span class="hg-riesgo">Sin evaluar</span>
+          }
+        </div>
+        <h1 class="detalle-titulo">{{ r.title }}</h1>
+        <p class="detalle-direccion">{{ r.address || 'Sin dirección informada' }}</p>
+        @if (urlMapa(); as mapa) {
+          <a class="detalle-enlace" [href]="mapa" target="_blank" rel="noopener noreferrer">Ver en Google Maps ↗</a>
+        }
 
-    <!-- Evaluación de Riesgo Greenhouse -->
-    <div class="section-card">
-      <h3 class="section-title">Análisis de Riesgo Greenhouse</h3>
-      <div class="risk-factors">
-        @for (factor of propiedad.factoresRiesgo; track factor.nombre) {
-          <div class="factor-card" [ngClass]="'factor-' + factor.nivel">
-            <div class="factor-header">
-              <span class="factor-name">{{ factor.nombre }}</span>
-              <span class="factor-score" [ngClass]="'score-' + factor.nivel">
-                Score: {{ factor.score }}/10
-              </span>
+        <div class="detalle-precio">
+          <p class="detalle-precio-etiqueta">Precio mínimo</p>
+          <p class="detalle-precio-valor">{{ precio() }}</p>
+          @if (precioM2(); as m2) {
+            <p class="detalle-precio-m2">{{ m2 }} por m²</p>
+          }
+        </div>
+
+        <div class="detalle-datos">
+          @for (dato of datos(); track dato.etiqueta) {
+            <div class="detalle-dato">
+              <p class="detalle-dato-etiqueta">{{ dato.etiqueta }}</p>
+              <p class="detalle-dato-valor">{{ dato.valor }}</p>
+              @if (dato.aviso) {
+                <span class="detalle-dato-aviso" [class.is-finalizado]="dato.avisoGris">{{ dato.aviso }}</span>
+              }
             </div>
-            <p class="factor-desc">{{ factor.descripcion }}</p>
+          }
+        </div>
+
+        @if (r.description) {
+          <div class="detalle-seccion">
+            <h2>Descripción</h2>
+            <p class="detalle-descripcion">{{ r.description }}</p>
           </div>
         }
+
+        <app-tarjeta-semaforo [evaluacion]="r.evaluation"></app-tarjeta-semaforo>
+        <app-precio-comuna [remateId]="r.id"></app-precio-comuna>
+        <app-datos-remate [remateId]="r.id"></app-datos-remate>
+
+        <div class="detalle-seccion">
+          <h2>Verifica antes de ofertar</h2>
+          <p class="detalle-verifica-intro">
+            HouseGreen no reemplaza la revisión de los documentos. Antes del remate, sigue estos pasos en los sitios oficiales:
+          </p>
+          <ol class="detalle-verifica">
+            @for (paso of VERIFICACIONES; track paso.titulo; let i = $index) {
+              <li>
+                <span class="detalle-verifica-numero">{{ i + 1 }}</span>
+                <div class="detalle-verifica-info">
+                  <p class="detalle-verifica-titulo">{{ paso.titulo }}</p>
+                  <p class="detalle-verifica-texto">{{ paso.texto }}</p>
+                  <a [href]="paso.url" target="_blank" rel="noopener noreferrer">Ir a {{ paso.sitio }} ↗</a>
+                </div>
+              </li>
+            }
+          </ol>
+        </div>
+      }
+    } @else if (cargando()) {
+      <p class="hg-mensaje">Cargando propiedad...</p>
+    } @else {
+      <div class="hg-mensaje">
+        <p>No se encontró esta propiedad.</p>
+        <a class="detalle-volver" [routerLink]="['/catalogo-propiedades']">‹ Volver al catálogo</a>
       </div>
-    </div>
-
-    <!-- Botón de Acción Principal -->
-    <div class="action-footer">
-      <ion-button expand="block" class="greenhouse-btn-submit" size="large">
-        <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
-        Participar en Remate
-      </ion-button>
-    </div>
-
-  } @else {
-    <div class="empty-state">
-      <p>No se encontró la propiedad solicitada.</p>
-      <ion-button fill="clear" (click)="volver()">Volver al Catálogo</ion-button>
-    </div>
-  }
+    }
+  </div>
 </ion-content>

@@ -1,0 +1,100 @@
+// Paso A3: los mismos estilos de la galería de la web (GaleriaFotos.css)
+:host {
+  display: block;
+  margin-top: 16px;
+}
+
+.galeria-imagen {
+  display: block;
+  width: 100%;
+  height: 260px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.galeria-sin-foto {
+  height: 200px;
+  overflow: hidden;
+}
+
+.galeria-principal {
+  position: relative;
+}
+
+.galeria-etiqueta {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.92);
+  color: #171717;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.galeria-contador {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background-color: rgba(0, 0, 0, 0.55);
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.galeria-flecha {
+  position: absolute;
+  top: 50%;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  color: #171717;
+  font-size: 24px;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+.galeria-flecha-izq {
+  left: 12px;
+}
+
+.galeria-flecha-der {
+  right: 12px;
+}
+
+.galeria-miniaturas {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  padding-bottom: 4px;
+  overflow-x: auto;
+}
+
+.galeria-miniatura {
+  flex-shrink: 0;
+  width: 84px;
+  height: 60px;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: none;
+  opacity: 0.7;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &.is-activa {
+    border-color: #15803d;
+    opacity: 1;
+  }
+}

@@ -149,3 +149,15 @@ app-encabezado {
 .hg-sin-foto-bodega { background-color: #ebe8f4; color: #6d62a3; }
 .hg-sin-foto-derechos { background-color: #f8e9e4; color: #b2604a; }
 .hg-sin-foto-otro { background-color: #eceeed; color: #7b8480; }
+
+// ---------- Secciones del detalle (Paso A3) ----------
+.detalle-seccion {
+  margin-top: 28px;
+
+  h2 {
+    margin: 0 0 8px;
+    color: #1c1c1c;
+    font-size: 18px;
+    font-weight: 700;
+  }
+}

@@ -1,0 +1,69 @@
+@if (evaluacion(); as e) {
+  <section [class]="'semaforo semaforo-' + nivel()">
+    <div class="semaforo-arriba">
+      <div class="semaforo-luces" aria-hidden="true">
+        <span [class.is-encendida]="nivel() === 'rojo'"></span>
+        <span [class.is-encendida]="nivel() === 'amarillo'"></span>
+        <span [class.is-encendida]="nivel() === 'verde'"></span>
+      </div>
+      <div class="semaforo-texto">
+        <p class="semaforo-rotulo">Semáforo HouseGreen</p>
+        <p class="semaforo-titulo">{{ textos().titulo }}</p>
+        <!-- El consejo solo se da cuando se revisaron los 4 factores -->
+        <p class="semaforo-consejo">{{ pendientes().length === 0 ? textos().consejo : 'Evaluación parcial' }}</p>
+      </div>
+      <p class="semaforo-puntos">
+        <span class="semaforo-puntos-valor"><strong>{{ puntos() }}</strong>/{{ PUNTAJE_MAXIMO }}</span>
+        <span class="semaforo-puntos-texto">puntos</span>
+      </p>
+    </div>
+
+    <!-- Barra de 8 casillas: se pintan tantas como puntos tiene -->
+    <div class="semaforo-barra" role="img" [attr.aria-label]="puntos() + ' de ' + PUNTAJE_MAXIMO + ' puntos'">
+      @for (i of casillas; track i) {
+        <span [class.is-llena]="i < puntos()"></span>
+      }
+    </div>
+
+    @if (tieneVeto()) {
+      <p class="semaforo-veto">
+        <strong>Veto:</strong> {{ e.veto_reason }} Por eso queda en riesgo alto aunque sume {{ puntos() }} puntos.
+      </p>
+    }
+
+    @if (factores().length > 0) {
+      <div class="semaforo-factores">
+        <p class="semaforo-subtitulo">Por qué tiene este puntaje</p>
+        <ul>
+          @for (factor of factores(); track factor.clave) {
+            <li [class]="'semaforo-factor ' + factor.clase">
+              <span class="semaforo-factor-punto" aria-hidden="true"></span>
+              <span class="semaforo-factor-nombre">{{ factor.nombre }}</span>
+              <span class="semaforo-factor-texto">{{ factor.texto }}</span>
+            </li>
+          }
+        </ul>
+        @if (explicacion()) {
+          <p class="semaforo-explica">{{ explicacion() }}</p>
+        }
+      </div>
+    } @else if (pendientes().length > 0) {
+      <div class="semaforo-pendiente">
+        <p><strong>Datos pendientes.</strong> Estos factores todavía no tienen dato y por ahora valen 0 puntos:</p>
+        <ul>
+          @for (dato of pendientes(); track dato) {
+            <li>{{ dato }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <p class="semaforo-pie">6 a 8 puntos: riesgo bajo · 3 a 5: riesgo medio · 0 a 2: riesgo alto. Evaluada el {{ fecha() }}.</p>
+  </section>
+} @else {
+  <section class="semaforo">
+    <p class="semaforo-rotulo">Semáforo HouseGreen</p>
+    <p class="semaforo-titulo">Sin evaluar</p>
+    <p class="semaforo-nota">Esta propiedad todavía no tiene una evaluación de riesgo.</p>
+  </section>
+}

@@ -1,0 +1,38 @@
+@if (datos(); as r) {
+  <div class="detalle-seccion">
+    <h2>Datos del remate</h2>
+
+    @if (casillas().length > 0) {
+      <div class="remate-datos">
+        @for (casilla of casillas(); track casilla.etiqueta) {
+          <div class="remate-dato">
+            <p class="remate-dato-etiqueta">{{ casilla.etiqueta }}</p>
+            <p class="remate-dato-valor">{{ casilla.valor }}</p>
+          </div>
+        }
+      </div>
+    }
+
+    @for (bloque of textos(); track bloque.titulo) {
+      <div class="remate-texto">
+        <h3>{{ bloque.titulo }}</h3>
+        <p>{{ bloque.texto }}</p>
+      </div>
+    }
+
+    <!-- El anuncio es largo: queda cerrado y se abre al tocarlo -->
+    @if (r.announcement) {
+      <details class="remate-anuncio">
+        <summary>Ver el anuncio completo</summary>
+        <p>{{ r.announcement }}</p>
+      </details>
+    }
+
+    <p class="remate-fuente">
+      Fuente: Remates Inmobiliarios.
+      @if (r.source_url) {
+        <a [href]="r.source_url" target="_blank" rel="noopener noreferrer">Ver la publicación original ↗</a>
+      }
+    </p>
+  </div>
+}

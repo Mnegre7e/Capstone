@@ -1,0 +1,34 @@
+@if (fotos().length === 0) {
+  @if (imagenRespaldo(); as respaldo) {
+    <img class="galeria-imagen" [src]="url(respaldo)" [alt]="titulo()" />
+  } @else {
+    <app-sin-foto class="galeria-imagen galeria-sin-foto" [tipo]="tipo()"></app-sin-foto>
+  }
+} @else {
+  <div class="galeria-principal">
+    <img class="galeria-imagen" [src]="url(fotos()[actual()].url)" [alt]="fotos()[actual()].label ?? titulo()" />
+    @if (fotos()[actual()].label; as etiqueta) {
+      <span class="galeria-etiqueta">{{ etiqueta }}</span>
+    }
+    @if (fotos().length > 1) {
+      <button type="button" class="galeria-flecha galeria-flecha-izq" aria-label="Foto anterior" (click)="anterior()">‹</button>
+      <button type="button" class="galeria-flecha galeria-flecha-der" aria-label="Foto siguiente" (click)="siguiente()">›</button>
+      <span class="galeria-contador">{{ actual() + 1 }} / {{ fotos().length }}</span>
+    }
+  </div>
+
+  @if (fotos().length > 1) {
+    <div class="galeria-miniaturas">
+      @for (foto of fotos(); track foto.id; let i = $index) {
+        <button
+          type="button"
+          class="galeria-miniatura"
+          [class.is-activa]="i === actual()"
+          [attr.aria-label]="'Ver foto ' + (i + 1)"
+          (click)="actual.set(i)">
+          <img [src]="url(foto.url)" alt="" />
+        </button>
+      }
+    </div>
+  }
+}
