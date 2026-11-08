@@ -1,6 +1,7 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 
 import { ApiService, mensajeDeError } from './api.service';
+import { ROL_ANALISTA } from './modelos';
 import { Comuna, Remate } from './remates';
 import { SesionService } from './sesion.service';
 
@@ -25,7 +26,34 @@ export class CatalogoService {
     return datos && datos.de === this.sesion.usuario()?.id ? datos.ids : new Set<string>();
   });
 
+  // Paso A9f: para los clics seguidos sobre el mismo corazón (igual que la web, FavoritesProvider):
+  private enCurso = new Set<string>(); // remates con un pedido a la API sin responder
+  private deseado = new Map<string, boolean>(); // cómo quiere la persona que quede cada uno (true = guardado)
+
+  constructor() {
+    // Paso A9f: como en la web, los favoritos se piden apenas alguien entra, sin esperar al catálogo
+    // (antes llegaban después de todos los remates, unos segundos más tarde, y parecía que no se habían guardado)
+    let anterior: string | null = null;
+    effect(() => {
+      const id = this.sesion.usuario()?.id ?? null;
+      if (id === anterior) {
+        return;
+      }
+      anterior = id;
+      this.enCurso.clear();
+      this.deseado.clear();
+      if (id !== null) {
+        untracked(() => void this.recargarFavoritos());
+      }
+    });
+  }
+
+  /** Pide los remates, las comunas y los favoritos (los favoritos van en paralelo, no al final). */
   async recargar(): Promise<void> {
+    await Promise.all([this.recargarCatalogo(), this.recargarFavoritos()]);
+  }
+
+  private async recargarCatalogo(): Promise<void> {
     try {
       const [remates, comunas] = await Promise.all([
         this.api.get<Remate[]>('/propiedades'),
@@ -43,53 +71,108 @@ export class CatalogoService {
     } finally {
       this.cargando.set(false);
     }
-    await this.recargarFavoritos();
   }
 
-  /** Guardar favoritos es parte del plan Premium: sin el plan no se piden. */
-  private async recargarFavoritos(): Promise<void> {
+  /**
+   * Pide la lista real de favoritos a la API. Como en la web, se piden aunque el plan Premium haya vencido
+   * (la persona sigue viendo su lista). Devuelve false si no se pudo.
+   */
+  private async recargarFavoritos(): Promise<boolean> {
     const usuario = this.sesion.usuario();
-    if (!usuario?.acceso_completo) {
-      return;
+    if (!usuario || usuario.role_id === ROL_ANALISTA) {
+      return true;
     }
     try {
       const lista = await this.api.get<{ property_id: string }[]>('/favoritos');
-      this.favoritosDe.set({ de: usuario.id, ids: new Set(lista.map((f) => f.property_id)) });
+      if (this.sesion.usuario()?.id !== usuario.id) {
+        return true; // cambió de cuenta mientras llegaba la lista
+      }
+      const ids = new Set(lista.map((f) => f.property_id));
+      // Los clics que todavía se están guardando mandan sobre la lista que llegó
+      for (const [id, quiere] of this.deseado) {
+        if (quiere) {
+          ids.add(id);
+        } else {
+          ids.delete(id);
+        }
+      }
+      this.favoritosDe.set({ de: usuario.id, ids });
+      return true;
     } catch {
-      // si falla, se queda con los que tenía
+      return false; // si falla, se queda con los que tenía
     }
+  }
+
+  /** Cambia la lista de favoritos de la cuenta conectada. */
+  private cambiarFavoritos(usuarioId: string, cambio: (ids: Set<string>) => void): void {
+    const datos = this.favoritosDe();
+    const ids = new Set(datos && datos.de === usuarioId ? datos.ids : []);
+    cambio(ids);
+    this.favoritosDe.set({ de: usuarioId, ids });
   }
 
   esFavorito(id: string): boolean {
     return this.favoritos().has(id);
   }
 
-  /** Guarda o quita un favorito. El corazón cambia al tiro y, si la API falla, vuelve atrás. */
+  /**
+   * Guarda o quita un favorito, igual que la web: el corazón cambia al tiro; si se toca varias veces seguidas,
+   * los pedidos a la API van de a uno y en orden (antes podían llegar desordenados y la base quedaba distinta
+   * de la pantalla). Si la API falla, se vuelve a pedir la lista real.
+   */
   async alternarFavorito(id: string): Promise<void> {
     const usuario = this.sesion.usuario();
     if (!usuario) {
       return;
     }
-    const guardar = !this.esFavorito(id);
-    const cambiar = (agregar: boolean) => {
-      const ids = new Set(this.favoritos());
-      if (agregar) {
+    // 1. Cómo debe quedar después de este clic: lo contrario de como estaba
+    const guardar = !(this.deseado.get(id) ?? this.favoritos().has(id));
+    this.deseado.set(id, guardar);
+    this.cambiarFavoritos(usuario.id, (ids) => {
+      if (guardar) {
         ids.add(id);
       } else {
         ids.delete(id);
       }
-      this.favoritosDe.set({ de: usuario.id, ids });
-    };
-    cambiar(guardar);
+    });
+
+    // 2. Si la API todavía no responde un clic anterior sobre este remate, no se manda otro pedido:
+    //    el que está en curso revisa al terminar si la persona cambió de idea
+    if (this.enCurso.has(id)) {
+      return;
+    }
+    this.enCurso.add(id);
+
+    // 3. Se le avisa a la API, y se repite solo si mientras tanto hubo más clics
+    let enLaBase = !guardar; // lo que tenía la base antes de este clic
     try {
-      if (guardar) {
-        await this.api.post(`/favoritos/${id}`, {});
-      } else {
-        await this.api.delete(`/favoritos/${id}`);
+      while (this.deseado.get(id) !== enLaBase) {
+        const objetivo = this.deseado.get(id) === true;
+        if (objetivo) {
+          await this.api.post(`/favoritos/${id}`, {});
+        } else {
+          await this.api.delete(`/favoritos/${id}`);
+        }
+        enLaBase = objetivo;
       }
     } catch (error) {
-      cambiar(!guardar);
+      // 4. La pantalla no debe mostrar algo falso: se vuelve a pedir la lista real
+      this.deseado.delete(id);
+      const pudo = await this.recargarFavoritos();
+      if (!pudo) {
+        // Sin conexión: se deja como estaba en la base
+        this.cambiarFavoritos(usuario.id, (ids) => {
+          if (enLaBase) {
+            ids.add(id);
+          } else {
+            ids.delete(id);
+          }
+        });
+      }
       throw error;
+    } finally {
+      this.enCurso.delete(id);
+      this.deseado.delete(id);
     }
   }
 }
