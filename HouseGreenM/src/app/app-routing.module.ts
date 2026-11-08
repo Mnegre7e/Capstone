@@ -181,6 +181,12 @@ const routes: Routes = [
     canActivate: analista,
     loadChildren: () => import('./analista/alcance/alcance.module').then((m) => m.AlcancePageModule),
   },
+  // Paso A10: la ficha de un remate, desde el buscador del analista (como /analista/remate/:id en la web)
+  {
+    path: 'analista/remate/:id',
+    canActivate: analista,
+    loadChildren: () => import('./analista/remate/remate.module').then((m) => m.RematePageModule),
+  },
 
   // Cualquier otra dirección: al inicio
   { path: '**', redirectTo: 'login' },

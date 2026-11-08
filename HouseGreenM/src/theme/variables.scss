@@ -7,6 +7,8 @@
 @use './entrada';
 // Paso A9: el marco de las pantallas del administrador
 @use './admin';
+// Paso A10: las pantallas del analista (Reportes)
+@use './reportes';
 
 // Paso A2: los colores y la letra de la página web de HouseGreen (index.css de la web)
 :root {

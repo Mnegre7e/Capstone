@@ -1,0 +1,59 @@
+<app-encabezado></app-encabezado>
+
+<ion-content>
+  <app-marco-reportes pantalla="remate">
+    @if (rep.reporte()) {
+      @if (ficha(); as ficha) {
+        <div class="rep-ficha-pagina" [class.is-cargando]="!alDia()">
+          <button type="button" class="rep-volver rep-volver-boton" (click)="volver()">‹ Volver</button>
+          @if (error(); as mensaje) {
+            <p class="rep-error">No se pudo actualizar: {{ mensaje }}</p>
+          }
+
+          <div class="rep-tarjeta rep-ficha">
+            <span class="rep-ficha-que">Remate</span>
+            <h2 class="rep-ficha-nombre">{{ ficha.title }}</h2>
+            <p class="rep-gris">{{ detalle() }}</p>
+            <div class="rep-ficha-etiquetas">
+              <span class="rep-etiqueta" [class.is-buena]="ficha.estado === 'Vigente'">{{ ficha.estado }}</span>
+              <span class="rep-etiqueta">
+                <span [class]="'rep-leyenda-color is-' + ficha.semaforo" aria-hidden="true"></span>
+                {{ nivel() }}
+              </span>
+            </div>
+            <dl class="rep-ficha-datos">
+              <div>
+                <dt>Precio mínimo</dt>
+                <dd>{{ precio() }}</dd>
+              </div>
+              <div>
+                <dt>Fecha del remate</dt>
+                <dd>{{ fecha() }}</dd>
+              </div>
+              <div>
+                <dt>Dirección</dt>
+                <dd>{{ ficha.direccion || 'Sin dirección' }}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <app-rep-cifras [cifras]="cifras()"></app-rep-cifras>
+
+          <app-rep-tarjeta [titulo]="tituloGrafico()">
+            <app-rep-medidas [opciones]="OPCIONES" [(medida)]="medida"></app-rep-medidas>
+            <app-rep-grafico
+              [serie]="ficha.serie"
+              [medida]="medida()"
+              [agrupado]="ficha.agrupado_por"
+              [columnas]="COLUMNAS"></app-rep-grafico>
+          </app-rep-tarjeta>
+        </div>
+      } @else {
+        <button type="button" class="rep-volver rep-volver-boton" (click)="volver()">‹ Volver</button>
+        <p [class]="error() ? 'rep-error' : 'rep-subtitulo'">
+          {{ error() ? 'No se pudo cargar el remate: ' + error() : 'Cargando...' }}
+        </p>
+      }
+    }
+  </app-marco-reportes>
+</ion-content>

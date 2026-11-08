@@ -1,0 +1,118 @@
+<section class="rep is-suelta">
+  <span class="rep-chip">Analista · Solo lectura</span>
+  <!-- El menú de las cuatro pantallas (en el celular queda fijo abajo, como en la web) -->
+  <nav class="rep-menu" aria-label="Pantallas de Reportes">
+    @for (p of PANTALLAS; track p.valor) {
+      <a
+        class="rep-pantalla"
+        routerDirection="root"
+        [class.is-activa]="pantalla() === p.valor"
+        [attr.aria-current]="pantalla() === p.valor ? 'page' : null"
+        [routerLink]="[p.ruta]">
+        {{ p.texto }}
+      </a>
+    }
+  </nav>
+
+  <h1 class="rep-titulo">Reportes</h1>
+  <p class="rep-subtitulo">{{ subtitulo() }}</p>
+
+  <!-- El período -->
+  <div class="rep-periodos" role="group" aria-label="Período del reporte">
+    @for (p of PERIODOS; track p.valor) {
+      <button
+        type="button"
+        class="rep-periodo"
+        [class.is-elegido]="rep.periodo() === p.valor"
+        [attr.aria-pressed]="rep.periodo() === p.valor"
+        (click)="rep.cambiarPeriodo(p.valor)">
+        {{ p.nombre }}
+      </button>
+    }
+    @if (rep.cargando() && rep.reporte()) {
+      <span class="rep-actualizando">Actualizando...</span>
+    }
+  </div>
+
+  <!-- El rango (dos fechas y "Ver") -->
+  @if (rep.periodo() === 'rango') {
+    <form class="rep-rango" (submit)="enviarRango($event)">
+      <label>
+        Desde
+        <input type="date" [value]="rep.rango().desde" [max]="hoy" (input)="cambiarDesde($event)" (change)="cambiarDesde($event)" />
+      </label>
+      <label>
+        Hasta
+        <input type="date" [value]="rep.rango().hasta" [max]="hoy" (input)="cambiarHasta($event)" (change)="cambiarHasta($event)" />
+      </label>
+      <button type="submit" class="rep-ver">Ver</button>
+      @if (rep.errorDelRango(); as aviso) {
+        <p class="rep-rango-aviso is-error" role="alert">{{ aviso }}</p>
+      } @else if (!rep.rangoPedido()) {
+        <p class="rep-rango-aviso">Elige las fechas y toca «Ver». Mientras tanto se muestra el reporte anterior.</p>
+      }
+      @if (rep.rangoPedido() && !rep.errorDelRango()) {
+        <p class="rep-rango-aviso">{{ rangoMostrado() }}</p>
+      }
+    </form>
+  }
+
+  <!-- Los filtros de los remates (no se muestran en la ficha de un remate) -->
+  <div class="rep-filtros" [hidden]="enUnaFicha()">
+    <label>
+      Comuna
+      <select (change)="elegirComuna($event)">
+        <option value="" [selected]="rep.filtros().comuna === ''">Todas</option>
+        @for (c of rep.comunas(); track c.id) {
+          <option [value]="c.id" [selected]="rep.filtros().comuna === c.id">{{ c.nombre }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Tipo
+      <select (change)="elegirTipo($event)">
+        <option value="" [selected]="rep.filtros().tipo === ''">Todos</option>
+        @for (c of CATEGORIAS; track c.valor) {
+          <option [value]="c.valor" [selected]="rep.filtros().tipo === c.valor">{{ c.nombre }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Semáforo
+      <select (change)="elegirSemaforo($event)">
+        <option value="" [selected]="rep.filtros().semaforo === ''">Todos</option>
+        @for (n of NIVELES; track n.valor) {
+          <option [value]="n.valor" [selected]="rep.filtros().semaforo === n.valor">{{ n.nombre }}</option>
+        }
+      </select>
+    </label>
+    @if (rep.hayFiltros()) {
+      <button type="button" class="rep-quitar" (click)="quitarFiltros()">Quitar filtros</button>
+    }
+  </div>
+
+  <!-- Qué cambia con los filtros (según el reporte que se está mostrando) -->
+  @if (rep.filtrosDelReporte().length > 0 && !enUnaFicha()) {
+    <p class="rep-filtrado">
+      <strong>Filtrado por: {{ rep.filtrosDelReporte().join(' · ') }}.</strong> Los remates, las vistas, los guardados y los
+      avisos son solo de esos remates. Los datos de usuarios, inicios de sesión y opiniones no dependen de un remate: se
+      muestran completos.
+    </p>
+  }
+
+  <!-- Buscar un remate y abrir su ficha -->
+  <app-buscador-reportes></app-buscador-reportes>
+
+  @if (rep.error(); as mensaje) {
+    <p class="rep-error">{{ rep.reporte() ? 'No se pudo actualizar' : 'No se pudo cargar el reporte' }}: {{ mensaje }}</p>
+  }
+
+  @if (!rep.reporte() && !rep.error()) {
+    <p class="rep-subtitulo">Cargando...</p>
+  }
+
+  <!-- La pantalla elegida (Resumen, Subastas, Usuarios, Alcance o la ficha de un remate) -->
+  <div class="rep-contenido" [class.is-cargando]="rep.cargando()" [hidden]="!rep.reporte()">
+    <ng-content></ng-content>
+  </div>
+</section>
