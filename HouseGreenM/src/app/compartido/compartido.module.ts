@@ -9,13 +9,14 @@ import { DatosRemateComponent } from './datos-remate.component';
 import { EncabezadoComponent } from './encabezado.component';
 import { EtiquetaRiesgoComponent } from './etiqueta-riesgo.component';
 import { GaleriaFotosComponent } from './galeria-fotos.component';
+import { MarcoAdminComponent } from './marco-admin.component';
 import { MarcoEntradaComponent } from './marco-entrada.component';
 import { PrecioComunaComponent } from './precio-comuna.component';
 import { SinFotoComponent } from './sin-foto.component';
 import { TarjetaRemateComponent } from './tarjeta-remate.component';
 import { TarjetaSemaforoComponent } from './tarjeta-semaforo.component';
 
-// Pasos A2, A3 y A5: piezas que usan varias pantallas (se importa en el módulo de cada pantalla)
+// Pasos A2, A3, A5 y A9: piezas que usan varias pantallas (se importa en el módulo de cada pantalla)
 const PIEZAS = [
   AvisoPremiumComponent,
   CampoEntradaComponent,
@@ -23,6 +24,7 @@ const PIEZAS = [
   EncabezadoComponent,
   EtiquetaRiesgoComponent,
   GaleriaFotosComponent,
+  MarcoAdminComponent,
   MarcoEntradaComponent,
   PrecioComunaComponent,
   SinFotoComponent,

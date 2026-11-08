@@ -1,147 +1,172 @@
-<ion-content class="cuerpo-panel" [fullscreen]="true">
-  <div class="contenedor-principal">
-    
-    <!-- Header Superior -->
-    <div class="top-header">
-      <div class="header-left">
-        <span class="badge-admin">Administrador</span>
-        <h1>Panel</h1>
-        <p class="subtitulo">Últimos 7 días · 19 al 25 sep 2026</p>
-      </div>
-      <button type="button" class="btn-logout" aria-label="Cerrar sesión" (click)="salir()">
-        <ion-icon name="log-out-outline"></ion-icon>
-      </button>
-    </div>
+<app-encabezado></app-encabezado>
 
-    <!-- KPIs Principales -->
-    <div class="grid-kpi">
-      <div class="card-kpi">
-        <div class="kpi-encabezado">
-          <ion-icon name="people-outline"></ion-icon>
-          <span>Usuarios nuevos</span>
-        </div>
-        <span class="kpi-valor">23</span>
-      </div>
+<ion-content>
+  <app-marco-admin seccion="panel">
+    <section>
+      <h1 class="admin-titulo">Panel</h1>
 
-      <div class="card-kpi">
-        <div class="kpi-encabezado">
-          <ion-icon name="newspaper-outline"></ion-icon>
-          <span>Publicaciones</span>
-        </div>
-        <span class="kpi-valor">36</span>
-      </div>
-    </div>
+      @if (error(); as mensaje) {
+        <p class="panel-error">No se pudo cargar el panel: {{ mensaje }}</p>
+      } @else if (panel(); as datos) {
+        <p class="admin-subtitulo">Resumen de los últimos {{ datos.dias }} días.</p>
 
-    <!-- Sección: Más vistas esta semana -->
-    <div class="seccion-bloque">
-      <div class="encabezado-seccion">
-        <h2>Más vistas esta semana</h2>
-        <a class="link-ver-todas" (click)="irAPublicaciones()">Ver todas</a>
-      </div>
-
-      <div class="card-lista-vistas">
-        <div class="item-vista" (click)="verDetallePublicacion(1)">
-          <div class="thumb-edificio verde">
-            <ion-icon name="business-outline"></ion-icon>
-          </div>
-          <div class="info-item">
-            <h3>Departamento 2D 1B</h3>
-            <div class="meta-item">
-              <span><ion-icon name="eye-outline"></ion-icon> 312</span>
-              <span><ion-icon name="bookmark-outline"></ion-icon> 28</span>
-              <span class="comuna">Santiago Centro</span>
+        <!-- Las cuatro cifras de la semana -->
+        <div class="panel-cifras">
+          @for (cifra of cifras(); track cifra.titulo) {
+            <div class="panel-cifra">
+              <p class="panel-cifra-titulo">{{ cifra.titulo }}</p>
+              <p class="panel-cifra-valor">{{ numero(cifra.valor) }}</p>
+              <p class="panel-cifra-nota">{{ cifra.nota }}</p>
             </div>
-          </div>
-          <ion-icon name="chevron-forward-outline" class="flecha"></ion-icon>
+          }
         </div>
 
-        <div class="item-vista" (click)="verDetallePublicacion(2)">
-          <div class="thumb-edificio beige">
-            <ion-icon name="home-outline"></ion-icon>
+        <!-- Usuarios no está en las pestañas: se entra desde aquí (Reportes, Auditoría y Cargas están en la web) -->
+        <p class="panel-accesos">
+          <a [routerLink]="['/usuarios']">Ver los usuarios registrados ›</a>
+        </p>
+
+        <!-- Lo que el administrador tiene pendiente -->
+        <div class="panel-tarjeta">
+          <h2>Pendientes</h2>
+          @if (pendientes().length === 0) {
+            <p class="panel-vacio">No tienes nada pendiente.</p>
+          } @else {
+            <ul class="panel-pendientes">
+              @for (pendiente of pendientes(); track pendiente.clave) {
+                <li>
+                  <span>
+                    @if (pendiente.cantidad !== undefined) {
+                      <strong>{{ numero(pendiente.cantidad) }} </strong>
+                    }
+                    {{ pendiente.texto }}
+                  </span>
+                  @if (pendiente.enlace) {
+                    <a [routerLink]="[pendiente.enlace]">{{ pendiente.accion }} ›</a>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
+        <!-- El plan Premium -->
+        @if (datos.premium; as premium) {
+          <div class="panel-tarjeta">
+            <h2>Plan Premium</h2>
+            <dl class="panel-premium">
+              <div>
+                <dt>Con Premium hoy</dt>
+                <dd class="panel-premium-valor">{{ numero(premium.activos) }}</dd>
+                <dd class="panel-premium-nota">inversionistas con el plan vigente</dd>
+              </div>
+              <div>
+                <dt>Pagos aprobados</dt>
+                <dd class="panel-premium-valor">{{ numero(premium.pagos) }}</dd>
+                <dd class="panel-premium-nota">{{ pesos(premium.ingresos_periodo) }} en los últimos {{ datos.dias }} días</dd>
+              </div>
+              <div>
+                <dt>Ingresos del mes</dt>
+                <dd class="panel-premium-valor">{{ pesos(premium.ingresos_mes) }}</dd>
+                <dd class="panel-premium-nota">desde el 1 de {{ mesActual }}</dd>
+              </div>
+              <div>
+                <dt>Vencieron sin renovar</dt>
+                <dd class="panel-premium-valor">{{ numero(premium.vencidos) }}</dd>
+                <dd class="panel-premium-nota">en los últimos {{ datos.dias }} días</dd>
+              </div>
+            </dl>
           </div>
-          <div class="info-item">
-            <h3>Casa 3D 2B</h3>
-            <div class="meta-item">
-              <span><ion-icon name="eye-outline"></ion-icon> 241</span>
-              <span><ion-icon name="bookmark-outline"></ion-icon> 19</span>
-              <span class="comuna">Maipú</span>
+        }
+
+        <!-- La última carga de remates (el historial completo está en la web) -->
+        <div class="panel-tarjeta">
+          <div class="panel-carga-cabecera">
+            <h2>Carga diaria de remates</h2>
+            @if (carga(); as ultima) {
+              <span class="car-estado" [ngClass]="'is-' + ultima.estado">
+                <span class="car-estado-punto" aria-hidden="true"></span>
+                {{ NOMBRE_ESTADO_CARGA[ultima.estado] }}
+              </span>
+            }
+          </div>
+          @if (carga(); as ultima) {
+            <p class="panel-carga-cuando">{{ ultima.cuando }}</p>
+            @if (ultima.cifras) {
+              <p class="panel-carga-cifras">{{ ultima.cifras }}</p>
+            }
+            @if (ultima.motivo) {
+              <p class="car-motivo">Motivo: {{ ultima.motivo }}</p>
+            }
+          } @else {
+            <p class="panel-vacio">Todavía no hay cargas registradas.</p>
+          }
+        </div>
+
+        <!-- Cómo están repartidas las publicaciones vigentes según su semáforo -->
+        <div class="panel-tarjeta">
+          <h2>Semáforo de las publicaciones vigentes</h2>
+          @if (niveles().total === 0) {
+            <p class="panel-vacio">No hay publicaciones vigentes.</p>
+          } @else {
+            <div class="panel-barra" role="img" [attr.aria-label]="niveles().descripcion">
+              @for (nivel of niveles().lista; track nivel.valor) {
+                @if (nivel.cantidad > 0) {
+                  <span
+                    class="panel-barra-parte"
+                    [ngClass]="'is-' + nivel.valor"
+                    [style.flex-grow]="nivel.cantidad"
+                    [attr.title]="nivel.titulo"></span>
+                }
+              }
             </div>
-          </div>
-          <ion-icon name="chevron-forward-outline" class="flecha"></ion-icon>
+            <!-- La leyenda lleva el nombre y la cantidad: el color nunca va solo -->
+            <ul class="panel-leyenda">
+              @for (nivel of niveles().lista; track nivel.valor) {
+                <li>
+                  <span class="panel-leyenda-color" [ngClass]="'is-' + nivel.valor" aria-hidden="true"></span>
+                  <span class="panel-leyenda-nombre">{{ nivel.nombre }}</span>
+                  <strong>{{ numero(nivel.cantidad) }}</strong>
+                  <span class="panel-leyenda-porcentaje">{{ nivel.porcentaje }}</span>
+                </li>
+              }
+            </ul>
+          }
         </div>
 
-        <div class="item-vista" (click)="verDetallePublicacion(3)">
-          <div class="thumb-edificio azul">
-            <ion-icon name="business-outline"></ion-icon>
-          </div>
-          <div class="info-item">
-            <h3>Oficina</h3>
-            <div class="meta-item">
-              <span><ion-icon name="eye-outline"></ion-icon> 188</span>
-              <span><ion-icon name="bookmark-outline"></ion-icon> 12</span>
-              <span class="comuna">Providencia</span>
-            </div>
-          </div>
-          <ion-icon name="chevron-forward-outline" class="flecha"></ion-icon>
+        <!-- Las publicaciones más vistas del período -->
+        <div class="panel-tarjeta">
+          <h2>Más vistas de la semana</h2>
+          @if (datos.mas_vistas.length === 0) {
+            <p class="panel-vacio">Todavía nadie ha abierto una propiedad esta semana.</p>
+          } @else {
+            <ol class="panel-mas-vistas">
+              @for (publicacion of datos.mas_vistas; track publicacion.id; let i = $index) {
+                <li>
+                  <span class="panel-puesto">{{ i + 1 }}</span>
+                  <span class="panel-mas-vistas-info">
+                    <a [routerLink]="['/publicacion-detalle', publicacion.id]">{{ publicacion.title }}</a>
+                    <span class="panel-mas-vistas-comuna">{{ publicacion.comuna ?? 'Sin comuna' }}</span>
+                  </span>
+                  <span class="panel-mas-vistas-cifras">
+                    <span>
+                      <strong>{{ numero(publicacion.vistas) }}</strong> {{ publicacion.vistas === 1 ? 'vista' : 'vistas' }}
+                    </span>
+                    <span class="panel-mas-vistas-guardados">
+                      {{ numero(publicacion.guardados) }} {{ publicacion.guardados === 1 ? 'guardado' : 'guardados' }}
+                    </span>
+                  </span>
+                </li>
+              }
+            </ol>
+          }
+          <p class="panel-enlace-final">
+            <a [routerLink]="['/publicaciones']">Ver todas las publicaciones ›</a>
+          </p>
         </div>
-      </div>
-    </div>
-
-    <!-- Accesos Rápidos Inferiores -->
-    <div class="grid-accesos">
-      <div class="card-acceso" (click)="irA('anuncios')">
-        <div class="icono-box">
-          <ion-icon name="volume-high-outline"></ion-icon>
-        </div>
-        <strong>Anunciar</strong>
-        <span>Todos o grupo</span>
-      </div>
-
-      <div class="card-acceso" (click)="irA('opiniones')">
-        <div class="icono-box">
-          <ion-icon name="chatbox-outline"></ion-icon>
-        </div>
-        <strong>Opiniones</strong>
-        <span>2 pendientes</span>
-      </div>
-
-      <div class="card-acceso" (click)="irA('usuarios')">
-        <div class="icono-box">
-          <ion-icon name="people-outline"></ion-icon>
-        </div>
-        <strong>Usuarios</strong>
-        <span>248 en total</span>
-      </div>
-    </div>
-
-  </div>
+      } @else {
+        <p class="admin-subtitulo">Cargando...</p>
+      }
+    </section>
+  </app-marco-admin>
 </ion-content>
-
-<!-- MENÚ INFERIOR / FOOTER -->
-<ion-footer class="ion-no-border">
-  <div class="custom-tab-bar">
-    <!-- Panel / Admin Home (Pestaña Activa) -->
-    <div class="tab-item active">
-      <ion-icon name="stats-chart-outline"></ion-icon>
-      <span>Panel</span>
-    </div>
-
-    <!-- Publicaciones -->
-    <div class="tab-item" (click)="irA('publicaciones')">
-      <ion-icon name="document-text-outline"></ion-icon>
-      <span>Publicaciones</span>
-    </div>
-
-    <!-- Opiniones -->
-    <div class="tab-item" (click)="irA('opiniones')">
-      <ion-icon name="chatbox-outline"></ion-icon>
-      <span>Opiniones</span>
-    </div>
-
-    <!-- Anuncios -->
-    <div class="tab-item" (click)="irA('anuncios')">
-      <ion-icon name="megaphone-outline"></ion-icon>
-      <span>Anuncios</span>
-    </div>
-  </div>
-</ion-footer>

@@ -1,303 +1,415 @@
-$green-primary: #175339;
-$green-bg: #f3f7f4;
-$green-soft: #e2f1e8;
-$text-dark: #0f172a;
-$text-muted: #64748b;
+// Paso A9: los mismos estilos del Panel de la web (AdminPanelPage.css y el distintivo .car-estado de AdminCargasPage.css)
 
-.cuerpo-panel {
-  --background: #{$green-bg};
+.panel-error {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
-.contenedor-principal {
-  padding: 24px 20px 100px;
-  max-width: 480px;
-  margin: 0 auto;
+/* Las cuatro cifras: 4 columnas en PC, 2 en celular */
+.panel-cifras {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.panel-cifra,
+.panel-tarjeta {
+  border: 1px solid #dce6e1;
+  border-radius: 16px;
+  background-color: white;
+}
+
+.panel-cifra {
+  padding: 14px 16px;
+}
+
+.panel-cifra-titulo {
+  margin: 0;
+  color: #4e625b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.panel-cifra-valor {
+  margin: 4px 0 0;
+  color: #0f3d30;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.panel-cifra-nota {
+  margin: 4px 0 0;
+  color: #4e625b;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.panel-tarjeta {
+  margin-top: 12px;
+  padding: 16px 20px;
+}
+
+.panel-tarjeta h2 {
+  margin: 0 0 12px;
+  color: #0f3d30;
+  font-size: 17px;
+}
+
+.panel-vacio {
+  margin: 0;
+  color: #4e625b;
+  font-size: 14px;
+}
+
+.panel-tarjeta a {
+  color: #1d6f55;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.panel-tarjeta a:hover {
+  text-decoration: underline;
+}
+
+.panel-tarjeta a:focus-visible {
+  outline: 2px solid #1d6f55;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Pendientes */
+.panel-pendientes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.panel-pendientes li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  padding: 10px 0;
+  color: #1f2a26;
+  font-size: 15px;
+}
+
+.panel-pendientes li + li {
+  border-top: 1px solid #e4ece8;
+}
+
+.panel-pendientes a {
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* Barra del semáforo: cada parte crece según su cantidad; 2 px de separación entre partes */
+.panel-barra {
+  display: flex;
+  gap: 2px;
+  height: 16px;
+}
+
+.panel-barra-parte {
+  min-width: 6px; /* para que una parte muy chica igual se vea */
+}
+
+.panel-barra-parte:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.panel-barra-parte:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.panel-barra-parte:only-child {
+  border-radius: 4px;
+}
+
+/* Los mismos colores del semáforo que ve el inversionista */
+.panel-barra-parte.is-verde,
+.panel-leyenda-color.is-verde {
+  background-color: #16a34a;
+}
+
+.panel-barra-parte.is-amarillo,
+.panel-leyenda-color.is-amarillo {
+  background-color: #facc15;
+}
+
+.panel-barra-parte.is-rojo,
+.panel-leyenda-color.is-rojo {
+  background-color: #dc2626;
+}
+
+.panel-barra-parte.is-sin_evaluar,
+.panel-leyenda-color.is-sin_evaluar {
+  background-color: #a3a3a3;
+}
+
+.panel-leyenda {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 6px 16px;
+}
+
+.panel-leyenda li {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  color: #1f2a26;
+  font-size: 14px;
+}
+
+.panel-leyenda-color {
+  flex-shrink: 0;
+  align-self: center;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.panel-leyenda-nombre {
+  color: #4e625b;
+}
+
+.panel-leyenda-porcentaje {
+  color: #4e625b;
+  font-size: 13px;
+}
+
+/* Más vistas */
+.panel-mas-vistas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.panel-mas-vistas li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.panel-mas-vistas li + li {
+  border-top: 1px solid #e4ece8;
+}
+
+.panel-puesto {
+  color: #4e625b;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.panel-mas-vistas-info {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 20px;
 }
 
-/* Header */
-.top-header {
+.panel-mas-vistas-info a {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-mas-vistas-comuna,
+.panel-mas-vistas-guardados {
+  color: #4e625b;
+  font-size: 13px;
+}
+
+.panel-mas-vistas-cifras {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: #1f2a26;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.panel-enlace-final {
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+
+@media (max-width: 720px) {
+  .panel-cifras {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .panel-cifra-valor {
+    font-size: 28px;
+  }
+}
+/* Paso 85: enlace a Usuarios, debajo de las cifras */
+.panel-accesos {
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+
+.panel-accesos a {
+  color: #1d6f55;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.panel-accesos a:hover {
+  text-decoration: underline;
+}
+
+.panel-accesos a:focus-visible {
+  outline: 2px solid #1d6f55;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Paso 110: dos accesos en la misma línea (Reportes y Usuarios) */
+.panel-accesos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+/* Paso 121: tarjeta "Carga diaria de remates" */
+.panel-carga-cabecera {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-
-  .badge-admin {
-    background-color: $green-primary;
-    color: #ffffff;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 20px;
-    display: inline-block;
-    margin-bottom: 8px;
-  }
-
-  h1 {
-    font-size: 32px;
-    font-weight: 800;
-    color: $green-primary;
-    margin: 0;
-    letter-spacing: -0.5px;
-  }
-
-  .subtitulo {
-    font-size: 13px;
-    color: $text-muted;
-    margin: 4px 0 0 0;
-  }
-
-  .btn-logout {
-    width: 44px;
-    height: 44px;
-    border-radius: 16px;
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: $text-dark;
-    font-size: 20px;
-    cursor: pointer;
-  }
-}
-
-/* KPIs */
-.grid-kpi {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-
-  .card-kpi {
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.03);
-
-    .kpi-encabezado {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: $text-muted;
-      font-size: 13px;
-      font-weight: 600;
-
-      ion-icon {
-        font-size: 16px;
-      }
-    }
-
-    .kpi-valor {
-      font-size: 30px;
-      font-weight: 800;
-      color: $green-primary;
-      line-height: 1;
-    }
-  }
-}
-
-/* Sección Lista */
-.seccion-bloque {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  .encabezado-seccion {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    h2 {
-      font-size: 18px;
-      font-weight: 800;
-      color: $green-primary;
-      margin: 0;
-    }
-
-    .link-ver-todas {
-      font-size: 13px;
-      font-weight: 700;
-      color: $green-primary;
-      cursor: pointer;
-    }
-  }
-
-  .card-lista-vistas {
-    background: #ffffff;
-    border-radius: 24px;
-    padding: 8px 16px;
-    border: 1px solid rgba(0, 0, 0, 0.03);
-
-    .item-vista {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 0;
-      border-bottom: 1px solid #f1f5f9;
-      cursor: pointer;
-
-      &:last-child {
-        border-bottom: none;
-      }
-
-      .thumb-edificio {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-        flex-shrink: 0;
-
-        &.verde { background: #dcfce7; color: #166534; }
-        &.beige { background: #fef3c7; color: #92400e; }
-        &.azul { background: #e0f2fe; color: #075985; }
-      }
-
-      .info-item {
-        flex: 1;
-
-        h3 {
-          font-size: 15px;
-          font-weight: 800;
-          color: $text-dark;
-          margin: 0 0 4px 0;
-        }
-
-        .meta-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-size: 12px;
-          color: $text-muted;
-          font-weight: 600;
-
-          span {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-          }
-
-          .comuna {
-            color: #94a3b8;
-          }
-        }
-      }
-
-      .flecha {
-        color: #cbd5e1;
-        font-size: 18px;
-      }
-    }
-  }
-}
-
-/* Accesos Rápidos */
-.grid-accesos {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-
-  .card-acceso {
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 14px 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    border: 1px solid rgba(0, 0, 0, 0.03);
-    cursor: pointer;
-    transition: transform 0.15s ease, background-color 0.15s ease;
-
-    &:active {
-      transform: scale(0.97);
-      background-color: #f8faf9;
-    }
-
-    .icono-box {
-      width: 32px;
-      height: 32px;
-      border-radius: 10px;
-      background: $green-soft;
-      color: $green-primary;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      margin-bottom: 2px;
-    }
-
-    strong {
-      font-size: 13px;
-      font-weight: 800;
-      color: $text-dark;
-    }
-
-    span {
-      font-size: 11px;
-      color: $text-muted;
-    }
-  }
-}
-
-/* Footer / Menú inferior */
-ion-footer {
-  --background: #ffffff;
-  background: #ffffff;
-  border-top: 1px solid #eef2f0;
-}
-
-.custom-tab-bar {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
   align-items: center;
-  width: 100%;
-  padding: 8px 12px 12px 12px;
-  background: #ffffff;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-bottom: 8px;
+}
 
-  .tab-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 600;
-    color: #5a6e65;
-    cursor: pointer;
-    padding: 8px 16px;
-    border-radius: 18px;
-    transition: all 0.2s ease;
+.panel-carga-cabecera h2 {
+  margin: 0;
+}
 
-    ion-icon {
-      font-size: 22px;
-      color: #5a6e65;
-      margin-bottom: 3px;
-    }
+.panel-carga-cuando {
+  margin: 0;
+  color: #4e625b;
+  font-size: 14px;
+}
 
-    span {
-      color: #5a6e65;
-    }
+.panel-carga-cifras {
+  margin: 6px 0 0;
+  color: #1f2a26;
+  font-size: 15px;
+}
 
-    &.active {
-      background: #eaf4ef;
-      color: #175339;
-      font-weight: 800;
+/* Paso 122e: tarjeta "Plan Premium": 4 cifras en PC, 2 en celular */
+.panel-premium {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
 
-      ion-icon {
-        color: #175339;
-      }
+.panel-premium div {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background-color: #f2f6f4;
+}
 
-      span {
-        color: #175339;
-        font-weight: 800;
-      }
-    }
+.panel-premium dt {
+  color: #4e625b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.panel-premium-valor {
+  margin: 2px 0 0;
+  color: #0f3d30;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.panel-premium-nota {
+  margin: 2px 0 0;
+  color: #4e625b;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.panel-premium-aviso {
+  margin: 10px 0 0;
+  color: #6b5200;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.panel-premium-enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+@media (max-width: 720px) {
+  .panel-premium {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* Distintivo del estado de la carga (AdminCargasPage.css de la web) */
+.car-estado {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.car-estado-punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.car-estado.is-completa {
+  background-color: #e3f1df;
+  color: #2b6630;
+}
+
+.car-estado.is-con_errores {
+  background-color: #fbefd4;
+  color: #855400;
+}
+
+.car-estado.is-fallida {
+  background-color: #fae3e0;
+  color: #a2322a;
+}
+
+.car-estado.is-en_curso {
+  background-color: #e4ece8;
+  color: #1d6f55;
+}
+
+.car-motivo {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background-color: #fae3e0;
+  color: #a2322a;
+  font-size: 13px;
+  overflow-wrap: anywhere;
 }

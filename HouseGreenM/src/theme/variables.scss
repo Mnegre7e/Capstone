@@ -5,6 +5,8 @@
 @use './housegreen';
 // Paso A5: las pantallas de entrada (login, registro y recuperar la contraseña)
 @use './entrada';
+// Paso A9: el marco de las pantallas del administrador
+@use './admin';
 
 // Paso A2: los colores y la letra de la página web de HouseGreen (index.css de la web)
 :root {

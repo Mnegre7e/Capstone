@@ -96,6 +96,8 @@ export function AdminPublicacionesPage() {
     quitada: 0,
     todas: publicaciones.length,
   };
+  // Paso A9: esta línea se había perdido en el paso 114 (por eso los botones decían 0 y el subtítulo "0 vigentes")
+  for (const p of publicaciones) porEstado[estadoPublicacion(p)]++;
 
   // filter() crea una lista nueva, así sort() no desordena el estado original
   const resultado = publicaciones
