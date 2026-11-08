@@ -1,7 +1,7 @@
 
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { NavController } from '@ionic/angular/lazy';
 
 @Component({
   selector: 'app-perfil-configuracion',

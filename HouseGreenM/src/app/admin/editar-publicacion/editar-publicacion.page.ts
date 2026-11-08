@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { NavController } from '@ionic/angular/lazy';
 
 // 1. Interfaces locales para estructurar los datos
 export interface Foto {

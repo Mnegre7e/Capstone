@@ -14,53 +14,86 @@
   </div>
 
   <div class="seccion-form">
-    <form class="inicio-sesion">
-      <div> 
-        <ion-item class="ion-margin-end ion-margin-top ion-color">
-          <ion-icon aria-hidden="true" name="people-outline" slot="start"></ion-icon>
-          <ion-input 
-            type="text" 
-            placeholder="Ingresa tu correo o usuario" 
-            label="Usuario" 
-            label-placement="floating" 
-            color="dark" 
-            name="usuario" 
-            [(ngModel)]="usuario">
-          </ion-input>
-        </ion-item>
+    <form class="inicio-sesion" (ngSubmit)="entrar()">
+      <div>
+        @if (!pideCodigo) {
+          <ion-item class="ion-margin-end ion-margin-top ion-color">
+            <ion-icon aria-hidden="true" name="mail-outline" slot="start"></ion-icon>
+            <ion-input
+              type="email"
+              inputmode="email"
+              autocomplete="email"
+              label="Correo"
+              label-placement="floating"
+              color="dark"
+              name="correo"
+              [(ngModel)]="correo">
+            </ion-input>
+          </ion-item>
 
-        <ion-item class="ion-margin-end ion-margin-top ion-color">
-          <ion-icon aria-hidden="true" name="lock-closed-outline" slot="start"></ion-icon>
-          <ion-input 
-            type="password" 
-            placeholder="Contraseña" 
-            label="Contraseña"
-            label-placement="floating"
-            color="dark" 
-            name="contrasenia" 
-            [(ngModel)]="contrasenia" 
-            class="color-negro">
-            <ion-input-password-toggle slot="end"></ion-input-password-toggle>
-          </ion-input>
-        </ion-item>
+          <ion-item class="ion-margin-end ion-margin-top ion-color">
+            <ion-icon aria-hidden="true" name="lock-closed-outline" slot="start"></ion-icon>
+            <ion-input
+              type="password"
+              autocomplete="current-password"
+              label="Contraseña"
+              label-placement="floating"
+              color="dark"
+              name="contrasenia"
+              [(ngModel)]="contrasenia"
+              class="color-negro">
+              <ion-input-password-toggle slot="end"></ion-input-password-toggle>
+            </ion-input>
+          </ion-item>
+        } @else {
+          <!-- Paso A1: segundo paso -->
+          <p class="login-codigo-texto">
+            Abre tu aplicación de autenticación y escribe el código de 6 dígitos de HouseGreen.
+          </p>
+          <ion-item class="ion-margin-end ion-margin-top ion-color">
+            <ion-icon aria-hidden="true" name="key-outline" slot="start"></ion-icon>
+            <ion-input
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="7"
+              label="Código de verificación"
+              label-placement="floating"
+              color="dark"
+              name="codigo"
+              [(ngModel)]="codigo">
+            </ion-input>
+          </ion-item>
+        }
+
+        @if (error) {
+          <p class="login-error" role="alert">{{ error }}</p>
+        }
 
         <div class="ion-text-center">
-          <ion-button 
-            class="ion-margin-top ion-margin-bottom boton-inicio txt-marcado" 
-            shape="round" 
-            (click)="irPagina()">
-            Iniciar Sesión
+          <ion-button
+            type="submit"
+            class="ion-margin-top ion-margin-bottom boton-inicio txt-marcado"
+            shape="round"
+            [disabled]="enviando">
+            {{ enviando ? 'Entrando...' : pideCodigo ? 'Verificar código' : 'Iniciar Sesión' }}
           </ion-button>
         </div>
       </div>
 
-      <ion-text class="ion-text-end ion-margin-bottom">
-        <p class="ion-margin-end txt-marcado" [routerLink]="['/recuperar-clave']">¿Olvidaste tu contraseña?</p>
-      </ion-text>
-    
-      <ion-text class="ion-text-center">
-        <p class="ion-padding-top">¿No tienes una cuenta? <span [routerLink]="['/registro']"><b>Regístrate</b></span></p>
-      </ion-text>
+      @if (pideCodigo) {
+        <ion-text class="ion-text-center">
+          <p class="txt-marcado login-volver" (click)="volver()">Entrar con otra cuenta</p>
+        </ion-text>
+      } @else {
+        <ion-text class="ion-text-end ion-margin-bottom">
+          <p class="ion-margin-end txt-marcado" [routerLink]="['/recuperar-clave']">¿Olvidaste tu contraseña?</p>
+        </ion-text>
+
+        <ion-text class="ion-text-center">
+          <p class="ion-padding-top">¿No tienes una cuenta? <span [routerLink]="['/registro']"><b>Regístrate</b></span></p>
+        </ion-text>
+      }
     </form>
   </div>
 </ion-content>

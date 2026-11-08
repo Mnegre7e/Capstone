@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { SesionService } from '../core/sesion.service';
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
@@ -9,8 +11,12 @@ import { Router } from '@angular/router';
 })
 export class HomePage {
   private router = inject(Router);
+  private sesion = inject(SesionService);
 
-  usuarioNombre: string = 'Camila';
+  // Paso A1: el nombre de quien inició sesión (solo el primero)
+  get usuarioNombre(): string {
+    return this.sesion.usuario()?.full_name.split(' ')[0] ?? '';
+  }
   rematesActivos: number = 36;
   notificacionesCount: number = 3;
   busqueda: string = '';

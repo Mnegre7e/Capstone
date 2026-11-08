@@ -75,3 +75,20 @@ $gh-text-title: #0f172a;
 .txt-marcado {
   font-weight: bold;
 }
+// Paso A1: mensajes del inicio de sesión
+.login-error {
+  margin: 12px 16px 0;
+  color: #b42318;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.login-codigo-texto {
+  margin: 8px 16px 0;
+  color: #{$gh-dark-green};
+  font-size: 0.95rem;
+}
+
+.login-volver {
+  cursor: pointer;
+}

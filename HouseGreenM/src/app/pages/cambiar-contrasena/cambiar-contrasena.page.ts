@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { NavController, ToastController } from '@ionic/angular';
+import { NavController, ToastController } from '@ionic/angular/lazy';
 
 @Component({
   selector: 'app-cambiar-contrasena',

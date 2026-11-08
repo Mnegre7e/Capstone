@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  // Paso A1: dirección de la API de HouseGreen (la misma que usa la web)
+  apiUrl: 'http://localhost:8000',
 };
 
 /*

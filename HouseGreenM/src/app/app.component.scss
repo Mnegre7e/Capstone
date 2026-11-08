@@ -46,6 +46,26 @@ ion-menu {
     }
   }
 
+  // Paso A1: nombre y rol de quien inició sesión
+  .menu-persona {
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid #{$gh-light-green};
+
+    .menu-persona-nombre {
+      margin: 0;
+      color: #{$gh-text-title};
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .menu-persona-rol {
+      margin: 2px 0 0;
+      color: #{$gh-primary-green};
+      font-size: 0.85rem;
+      text-transform: capitalize;
+    }
+  }
+
   // Pie de menú (Cerrar Sesión)
   .menu-footer {
     --background: #ffffff;
