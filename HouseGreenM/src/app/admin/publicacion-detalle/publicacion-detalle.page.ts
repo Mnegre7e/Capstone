@@ -1,79 +1,172 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { Location } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+
+import { PublicacionAdmin, estadoPublicacion, fechaDelRemate, nombreComuna, plural, textoZona } from '../../core/admin';
+import { ApiService, mensajeDeError } from '../../core/api.service';
+
+// Paso A9: el detalle de una publicación para el administrador, igual que AdminPublicacionDetallePage de la web
+// (antes tenía datos de ejemplo): quiénes la vieron y la guardaron, la descripción, y quitarla del catálogo
+// o volver a publicarla. Todo se guarda en la API: si se quita aquí, desaparece también del catálogo de la web.
+
+interface PersonaQueLaVio {
+  user_id: string;
+  full_name: string;
+  email: string;
+  visitas: number;
+  ultima_visita: string;
+  la_guardo: boolean;
+}
+
+interface PersonaQueLaGuardo {
+  user_id: string;
+  full_name: string;
+  email: string;
+  guardada_el: string;
+  visitas: number;
+}
+
+interface PublicacionDetalle extends PublicacionAdmin {
+  description: string | null;
+  la_vieron: PersonaQueLaVio[];
+  la_guardaron: PersonaQueLaGuardo[];
+}
+
+type Pestana = 'vieron' | 'guardaron';
+
+const LARGO_MAXIMO_DEL_MOTIVO = 300;
+
+/** "Ana Pérez" -> "AP" */
+function iniciales(nombre: string): string {
+  return nombre
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((palabra) => palabra[0].toUpperCase())
+    .join('');
+}
+
+/** "hoy 14:05", "ayer 09:30" o "lun 2 nov". */
+function formatearFecha(iso: string): string {
+  const fecha = new Date(iso);
+  const hora = fecha.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const hoy = new Date();
+  const soloDia = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const diasAtras = Math.round((soloDia(hoy) - soloDia(fecha)) / 86_400_000);
+  if (diasAtras === 0) return `hoy ${hora}`;
+  if (diasAtras === 1) return `ayer ${hora}`;
+  return fecha.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' });
+}
 
 @Component({
   selector: 'app-publicacion-detalle',
   templateUrl: './publicacion-detalle.page.html',
   styleUrls: ['./publicacion-detalle.page.scss'],
-  standalone: false
+  standalone: false,
 })
-export class PublicacionDetallePage implements OnInit {
-  private location = inject(Location);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
+export class PublicacionDetallePage {
+  private ruta = inject(ActivatedRoute);
+  private api = inject(ApiService);
 
-  tabActiva: 'vieron' | 'guardaron' = 'vieron';
+  readonly LARGO_MAXIMO_DEL_MOTIVO = LARGO_MAXIMO_DEL_MOTIVO;
+  readonly plural = plural;
+  readonly iniciales = iniciales;
+  readonly formatearFecha = formatearFecha;
 
-  // Base de datos de prueba compartida para el detalle
-  private publicacionesMock = [
-    { id: 1, titulo: 'Departamento 2D 1B', comuna: 'Santiago Centro', fechaRemate: 'vie 2 oct', vistasUnicas: 187, vistasTotales: 312, guardadosTotales: 28, riesgo: 'Bajo' },
-    { id: 2, titulo: 'Casa 3D 2B', comuna: 'Maipú', fechaRemate: 'lun 5 oct', vistasUnicas: 140, vistasTotales: 241, guardadosTotales: 19, riesgo: 'Medio' },
-    { id: 3, titulo: 'Oficina', comuna: 'Providencia', fechaRemate: 'mié 7 oct', vistasUnicas: 110, vistasTotales: 188, guardadosTotales: 12, riesgo: 'Bajo' },
-    { id: 4, titulo: 'Departamento 1D 1B', comuna: 'Estación Central', fechaRemate: 'jue 8 oct', vistasUnicas: 95, vistasTotales: 164, guardadosTotales: 7, riesgo: 'Alto' }
-  ];
+  readonly id = signal('');
+  readonly detalle = signal<PublicacionDetalle | null>(null);
+  readonly error = signal<string | null>(null);
+  readonly pestana = signal<Pestana>('vieron');
+  private fotoFallo = signal(false);
 
-  // Objeto de la propiedad que se mostrará en pantalla
-  propiedad = this.publicacionesMock[0];
+  readonly quitando = signal(false); // se está mostrando el formulario para quitarla
+  readonly motivo = signal('');
+  readonly guardando = signal(false);
+  readonly errorAccion = signal<string | null>(null);
 
-  // Datos para la pestaña "La vieron"
-  usuariosVieron = [
-    { id: 1, nombre: 'Camila Rojas', iniciales: 'CR', tiempo: 'hoy 09:42', visitas: 3, guardo: true },
-    { id: 2, nombre: 'Diego Fuentes', iniciales: 'DF', tiempo: 'hoy 08:10', visitas: 2, guardo: true },
-    { id: 3, nombre: 'Ignacio Paredes', iniciales: 'IP', tiempo: 'ayer 22:05', visitas: 1, guardo: false },
-    { id: 4, nombre: 'Valentina Soto', iniciales: 'VS', tiempo: 'ayer 19:30', visitas: 4, guardo: true },
-    { id: 5, nombre: 'Tomás Herrera', iniciales: 'TH', tiempo: 'mié 23 sep', visitas: 1, guardo: false }
-  ];
+  readonly estado = computed(() => {
+    const detalle = this.detalle();
+    return detalle ? estadoPublicacion(detalle) : 'vigente';
+  });
+  readonly foto = computed(() => {
+    const url = this.detalle()?.image_url;
+    return url && !this.fotoFallo() ? this.api.urlDeArchivo(url) : null;
+  });
+  readonly zona = computed(() => {
+    const detalle = this.detalle();
+    return detalle ? textoZona(detalle) : '';
+  });
+  readonly comunaYTipo = computed(() => {
+    const detalle = this.detalle();
+    return detalle ? `${nombreComuna(detalle)} · ${detalle.property_type}` : '';
+  });
+  readonly datosDelRemate = computed(() => {
+    const detalle = this.detalle();
+    if (!detalle) return '';
+    return (
+      `${detalle.address ?? 'Sin dirección informada'} · ` +
+      (detalle.auction_date ? `Remate: ${fechaDelRemate(detalle.auction_date)}` : 'Sin fecha de remate')
+    );
+  });
+  readonly avisoTerminado = computed(() => {
+    const detalle = this.detalle();
+    if (!detalle) return '';
+    if (this.estado() === 'retirada') return 'El sitio de origen retiró este remate.';
+    return `Este remate ya se realizó${detalle.auction_date ? ` el ${fechaDelRemate(detalle.auction_date)}` : ''}.`;
+  });
+  readonly quitadaEl = computed(() => {
+    const removida = this.detalle()?.removed_at;
+    return removida ? fechaDelRemate(removida) : '';
+  });
 
-  // Datos para la pestaña "La guardaron"
-  usuariosGuardaron = [
-    { id: 1, nombre: 'Camila Rojas', iniciales: 'CR', fechaGuardado: '19 sep', visitas: 3 },
-    { id: 2, nombre: 'Diego Fuentes', iniciales: 'DF', fechaGuardado: '22 sep', visitas: 2 },
-    { id: 3, nombre: 'Valentina Soto', iniciales: 'VS', fechaGuardado: '23 sep', visitas: 4 },
-    { id: 4, nombre: 'Martina Vega', iniciales: 'MV', fechaGuardado: '24 sep', visitas: 1 },
-    { id: 5, nombre: 'Joaquín Díaz', iniciales: 'JD', fechaGuardado: '25 sep', visitas: 2 }
-  ];
-
-  ngOnInit() {
-    this.cargarPropiedad();
-  }
-
-  // Se ejecuta cada vez que Ionic entra a la pantalla
-  ionViewWillEnter() {
-    this.cargarPropiedad();
-  }
-
-  private cargarPropiedad() {
-    const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam) {
-      const idBuscado = Number(idParam);
-      const encontrada = this.publicacionesMock.find(p => p.id === idBuscado);
-      if (encontrada) {
-        this.propiedad = encontrada;
-      }
+  async ionViewWillEnter() {
+    // Se pide cada vez que se entra: así se ve la descripción o las fotos recién editadas
+    this.id.set(this.ruta.snapshot.paramMap.get('id') ?? '');
+    try {
+      this.detalle.set(await this.api.get<PublicacionDetalle>(`/admin/publicaciones/${this.id()}`));
+      this.fotoFallo.set(false);
+      this.error.set(null);
+    } catch (error) {
+      this.error.set(mensajeDeError(error));
     }
   }
 
-  volver() {
-    this.location.back();
+  marcarFotoFallida() {
+    this.fotoFallo.set(true);
   }
 
-  // Redirección dinámica hacia editar-publicacion pasando la ID correspondiente
-  editarPublicacion() {
-    this.router.navigate(['/editar-publicacion', this.propiedad.id]);
+  /** Sacarla del catálogo (por ejemplo, una propiedad de prueba). No se borra. */
+  async quitar() {
+    this.guardando.set(true);
+    this.errorAccion.set(null);
+    try {
+      const nuevo = await this.api.post<{ removed_at: string | null }>(`/admin/publicaciones/${this.id()}/quitar`, {
+        motivo: this.motivo().trim(),
+      });
+      this.detalle.update((actual) => (actual ? { ...actual, removed_at: nuevo.removed_at } : actual));
+      this.quitando.set(false);
+      this.motivo.set('');
+    } catch (error) {
+      this.errorAccion.set(mensajeDeError(error));
+    } finally {
+      this.guardando.set(false);
+    }
   }
 
-  enviarAnuncio() {
-    console.log(`Enviar anuncio a quienes la ${this.tabActiva}`);
+  async volverAPublicar() {
+    this.guardando.set(true);
+    this.errorAccion.set(null);
+    try {
+      await this.api.post(`/admin/publicaciones/${this.id()}/volver-a-publicar`);
+      this.detalle.update((actual) => (actual ? { ...actual, removed_at: null } : actual));
+    } catch (error) {
+      this.errorAccion.set(mensajeDeError(error));
+    } finally {
+      this.guardando.set(false);
+    }
+  }
+
+  cancelarQuitar() {
+    this.quitando.set(false);
+    this.errorAccion.set(null);
   }
 }

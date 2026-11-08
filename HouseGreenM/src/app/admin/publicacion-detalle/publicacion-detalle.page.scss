@@ -1,294 +1,423 @@
-$green-primary: #175339;
-$green-bg: #f3f7f4;
-$green-soft: #e2f1e8;
-$text-dark: #0f172a;
-$text-muted: #64748b;
-
-.cuerpo-detalle {
-  --background: #{$green-bg};
+// Paso A9: los mismos estilos del detalle de publicación de la web (AdminPublicacionDetallePage.css)
+/* Foto, zona del semáforo y error (los mismos de AdminPublicacionesPage.css de la web) */
+.pub-foto {
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  object-fit: cover;
 }
 
-.contenedor-principal {
-  padding: 16px 20px 110px;
-  max-width: 480px;
-  margin: 0 auto;
+.pub-foto-vacia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e4f3ec;
+  color: #1d6f55;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Distintivo de zona */
+.pub-zona {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pub-zona-punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.pub-zona-verde {
+  background-color: #e3f1df;
+  color: #2b6630;
+}
+
+.pub-zona-amarillo {
+  background-color: #fbefd4;
+  color: #855400;
+}
+
+.pub-zona-rojo {
+  background-color: #fae3e0;
+  color: #a2322a;
+}
+
+.pub-zona-sin {
+  background-color: #f2f6f4;
+  color: #4e625b;
+  border: 1px solid #dce6e1;
+}
+
+.pub-error {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background-color: #fae3e0;
+  color: #a2322a;
+}
+
+/* Detalle de una publicación del admin (paleta "Menta sereno") */
+.det-volver {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: #1d6f55;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.det-volver:hover {
+  text-decoration: underline;
+}
+
+/* Foto grande con la zona encima */
+.det-foto-caja {
+  position: relative;
+}
+
+.det-foto {
+  display: block;
+  width: 100%;
+  height: 260px;
+  border-radius: 20px;
+  object-fit: cover;
+}
+
+.det-zona {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  box-shadow: 0 1px 4px rgba(15, 61, 48, 0.2);
+}
+
+.det-titulo {
+  margin-top: 16px;
+}
+
+/* Las dos cifras del resumen */
+.det-cifras {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.det-cifra {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  padding: 16px;
+  background-color: white;
+  border: 1px solid #dce6e1;
+  border-radius: 16px;
+  color: #4e625b;
 }
 
-/* Header Navegación */
-.header-nav {
+.det-cifra strong {
+  color: #0f3d30;
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.det-cifra-extra {
+  margin-top: 2px;
+  font-size: 14px;
+}
+
+/* Pestañas "La vieron" / "La guardaron" */
+.det-pestanas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: 18px;
+  padding: 4px;
+  border-radius: 14px;
+  background-color: #e4ece8;
+}
+
+.det-pestana {
+  padding: 10px;
+  border: none;
+  border-radius: 11px;
+  background-color: transparent;
+  color: #4e625b;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.det-pestana.is-activa {
+  background-color: white;
+  color: #0f3d30;
+  box-shadow: 0 1px 3px rgba(15, 61, 48, 0.15);
+}
+
+/* Lista de personas */
+.det-personas {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 4px 16px;
+  background-color: white;
+  border: 1px solid #dce6e1;
+  border-radius: 16px;
+}
+
+.det-persona {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.det-persona + .det-persona {
+  border-top: 1px solid #dce6e1;
+}
+
+.det-avatar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #e4f3ec;
+  color: #0f3d30;
+  font-weight: 700;
+}
+
+.det-persona-datos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  color: #4e625b;
+  font-size: 14px;
+}
+
+.det-persona-datos strong {
+  color: #0f3d30;
+  font-size: 16px;
+}
+
+.det-correo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.det-etiqueta {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background-color: #e4f3ec;
+  color: #1d6f55;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.det-vacio {
+  padding: 16px 0;
+  color: #4e625b;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .det-foto {
+    height: 190px;
+  }
+
+  .det-cifra strong {
+    font-size: 26px;
+  }
+}
+/* Paso 21: fila de arriba con "‹ Publicaciones" y "✎ Editar" */
+.det-arriba {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  h2 {
-    font-size: 20px;
-    font-weight: 800;
-    color: $green-primary;
-    margin: 0;
-  }
-
-  .btn-circular {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: $text-dark;
-    font-size: 18px;
-    cursor: pointer;
-  }
+  margin-bottom: 14px;
 }
 
-/* Hero Banner */
-.hero-banner {
-  height: 150px;
-  background: #d1e7dd;
-  border-radius: 24px;
-  position: relative;
-  overflow: hidden;
+.det-arriba .det-volver {
+  margin-bottom: 0;
+}
+
+.det-editar {
+  padding: 8px 14px;
+  border: 1px solid #dce6e1;
+  border-radius: 12px;
+  background-color: white;
+  color: #0f3d30;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.det-editar:hover {
+  border-color: #9ad3bb;
+}
+
+/* --- Paso 32: columnas parejas aunque las fotos sean grandes --- */
+/* minmax(0, 1fr) = cada columna mide lo mismo, sin importar el tamaño original de la foto */
+.edi-agregar {
+  align-self: start; /* el recuadro "Agregar" no se estira ni se sale de la tarjeta */
+}
+
+@media (max-width: 640px) {
+  .edi-fotos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* Paso 112: descripción de la publicación */
+.det-descripcion {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid #dce6e1;
+  border-radius: 16px;
+  background-color: white;
+}
+
+.det-descripcion-titulo {
+  margin: 0 0 6px;
+  color: #4e625b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.det-descripcion-texto {
+  margin: 0;
+  color: #1f2a26;
+  line-height: 1.5;
+  white-space: pre-line; /* respeta los saltos de línea que escribió el admin */
+  overflow-wrap: anywhere;
+}
+
+.det-descripcion-vacia {
+  margin: 0;
+  color: #4e625b;
+  font-size: 14px;
+}
+/* Paso 113: aviso de remate que ya se realizó o se retiró */
+.det-aviso-estado {
+  margin: 0 0 14px;
+  padding: 12px 16px;
+  border-left: 4px solid #a3a3a3;
+  border-radius: 12px;
+  background-color: #f1f1f1;
+  color: #404040;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ---------- Paso 114 ---------- */
+.det-datos-remate {
+  margin: 4px 0 0;
+  color: #4e625b;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+/* Aviso de publicación quitada del catálogo: rojo suave y con botón */
+.det-aviso-estado.is-quitada {
+  border-left-color: #dc2626;
+  background-color: #fef2f2;
+}
+
+.det-aviso-estado p {
+  margin: 0;
+}
+
+.det-aviso-estado .det-boton {
+  margin-top: 10px;
+}
+
+.det-boton {
+  padding: 8px 14px;
+  border: 1px solid #c9d8d1;
+  border-radius: 10px;
+  background-color: white;
+  color: #0f3d30;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.det-boton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.det-boton.is-peligro {
+  border-color: #b91c1c;
+  background-color: #b91c1c;
+  color: white;
+}
+
+.det-boton.is-peligro-suave {
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.det-boton:focus-visible,
+.det-quitar textarea:focus-visible {
+  outline: 2px solid #1d6f55;
+  outline-offset: 2px;
+}
+
+/* "Quitar del catálogo": al final de la página, separado del resto */
+.det-quitar {
+  margin-top: 28px;
+  padding: 16px;
+  border: 1px dashed #e5c4c4;
+  border-radius: 16px;
+  background-color: white;
+}
+
+.det-quitar p {
+  margin: 0 0 10px;
+  color: #4e625b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.det-quitar label {
+  display: block;
+  margin-bottom: 6px;
+  color: #0f3d30;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.det-quitar textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 10px;
+  border: 1px solid #c9d8d1;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.det-quitar-botones {
   display: flex;
-  align-items: center;
-  justify-content: center;
-
-  .badge-riesgo {
-    position: absolute;
-    top: 14px;
-    left: 14px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 800;
-    background: #ffffff;
-    z-index: 2;
-
-    .punto {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-
-    &.bajo { color: #15803d; .punto { background-color: #16a34a; } }
-    &.medio { color: #b45309; .punto { background-color: #d97706; } }
-    &.alto { color: #b91c1c; .punto { background-color: #dc2626; } }
-  }
-
-  .ilustracion-edificio {
-    font-size: 80px;
-    color: rgba(23, 83, 57, 0.25);
-  }
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
 }
 
-/* Encabezado Propiedad */
-.encabezado-propiedad {
-  h1 {
-    font-size: 22px;
-    font-weight: 800;
-    color: $green-primary;
-    margin: 0 0 4px 0;
-  }
-
-  .meta-subtitulo {
-    font-size: 13px;
-    color: $text-muted;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-
-    ion-icon {
-      font-size: 14px;
-    }
-  }
-}
-
-/* Métricas Grid */
-.grid-metricas {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-
-  .card-stat {
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid rgba(0, 0, 0, 0.03);
-
-    .stat-numero {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 22px;
-      font-weight: 800;
-      color: $text-dark;
-
-      ion-icon {
-        font-size: 18px;
-        color: $text-dark;
-      }
-    }
-
-    .stat-label {
-      font-size: 12px;
-      color: $text-muted;
-      margin: 2px 0 0 0;
-      font-weight: 500;
-    }
-
-    .stat-subtext {
-      font-size: 11px;
-      color: #94a3b8;
-      margin: 2px 0 0 0;
-    }
-  }
-}
-
-/* Segmento Tabs */
-.segmento-tabs {
-  background: #e6eee9;
-  border-radius: 18px;
-  padding: 4px;
-  display: flex;
-  gap: 4px;
-
-  .tab-btn {
-    flex: 1;
-    height: 42px;
-    border-radius: 14px;
-    border: none;
-    background: transparent;
-    font-size: 13px;
-    font-weight: 700;
-    color: $text-muted;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &.active {
-      background: #ffffff;
-      color: $green-primary;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-    }
-  }
-}
-
-/* Lista Usuarios */
-.card-lista-usuarios {
-  background: #ffffff;
-  border-radius: 24px;
-  padding: 8px 16px;
-  border: 1px solid rgba(0, 0, 0, 0.03);
-
-  .item-usuario {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 0;
-    border-bottom: 1px solid #f1f5f9;
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    .avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: $green-soft;
-      color: $green-primary;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 800;
-      flex-shrink: 0;
-    }
-
-    .info-user {
-      flex: 1;
-
-      .row-nombre {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        h3 {
-          font-size: 15px;
-          font-weight: 800;
-          color: $text-dark;
-          margin: 0;
-        }
-
-        .badge-guardo {
-          font-size: 11px;
-          font-weight: 700;
-          color: $green-primary;
-          background-color: $green-soft;
-          padding: 3px 8px;
-          border-radius: 12px;
-        }
-      }
-
-      h3 {
-        font-size: 15px;
-        font-weight: 800;
-        color: $text-dark;
-        margin: 0;
-      }
-
-      .sub-info {
-        font-size: 12px;
-        color: $text-muted;
-        margin: 2px 0 0 0;
-      }
-    }
-
-    .flecha {
-      color: #cbd5e1;
-      font-size: 16px;
-    }
-  }
-}
-
-/* Botón Flotante Acción */
-.wrapper-boton-accion {
-  position: fixed;
-  bottom: 20px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  padding: 0 20px;
-  z-index: 90;
-
-  .btn-enviar-anuncio {
-    width: 100%;
-    max-width: 440px;
-    height: 52px;
-    background-color: $green-primary;
-    color: #ffffff;
-    border: none;
-    border-radius: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-weight: 800;
-    font-size: 14px;
-    box-shadow: 0 4px 16px rgba(23, 83, 57, 0.25);
-    cursor: pointer;
-
-    ion-icon {
-      font-size: 18px;
-    }
-  }
+.det-error-accion {
+  margin: 10px 0 0;
+  color: #991b1b;
+  font-size: 14px;
 }

@@ -1,101 +1,156 @@
-<ion-header class="ion-no-border bg-white">
-  <ion-toolbar class="px-2">
-    <ion-buttons slot="start">
-      <button class="btn-back" (click)="volver()">
-        <ion-icon name="chevron-back-outline"></ion-icon>
-      </button>
-    </ion-buttons>
+<app-encabezado></app-encabezado>
 
-    <ion-title class="header-title">Editar publicación</ion-title>
+<ion-content>
+  <app-marco-admin seccion="publicaciones">
+    <section>
+      <a class="det-volver" routerDirection="back" [routerLink]="['/publicacion-detalle', id()]">‹ Volver a la publicación</a>
 
-    <ion-buttons slot="end">
-      <button class="btn-top-guardar" (click)="guardarCambios()">
-        Guardar
-      </button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+      @if (errorCarga(); as mensaje) {
+        <p class="pub-error">No se pudo cargar la publicación: {{ mensaje }}</p>
+      } @else if (publicacion(); as p) {
+        <h1 class="admin-titulo">Editar publicación</h1>
 
-<ion-content class="ion-padding">
-  <!-- Banner Informativo -->
-  <div class="info-alert-banner">
-    <ion-icon name="lock-closed-outline" class="alert-icon"></ion-icon>
-    <p>
-      Solo puedes cambiar las <strong>fotos</strong> y la <strong>descripción</strong>. Los datos del remate no se editan.
-    </p>
-  </div>
+        <p class="edi-aviso">
+          🔒 Solo puedes cambiar las <strong>fotos</strong> y la <strong>descripción</strong>. Los datos del remate no se
+          editan.
+        </p>
 
-  <!-- Tarjeta Propiedad (Solo lectura) -->
-  <div class="property-summary-card">
-    <div class="property-icon-box">
-      <ion-icon name="business-outline"></ion-icon>
-    </div>
-    <div class="property-details">
-      <h3>{{ propiedad.titulo }}</h3>
-      <p>{{ propiedad.ubicacion }} · mínimo {{ propiedad.minimo }}</p>
-    </div>
-    <ion-icon name="lock-closed-outline" class="lock-icon-end"></ion-icon>
-  </div>
+        <!-- Datos del remate: solo se muestran, no se pueden cambiar -->
+        <div class="edi-bloqueada">
+          @if (portada(); as url) {
+            <img class="pub-foto" [src]="url" [alt]="p.title" (error)="marcarPortadaFallida()" />
+          } @else {
+            <div class="pub-foto pub-foto-vacia">Sin foto</div>
+          }
+          <div class="edi-bloqueada-datos">
+            <strong>{{ p.title }}</strong>
+            <span>{{ comuna() }} · mínimo</span>
+            <span>{{ precio() }}</span>
+          </div>
+          <span class="edi-candado" aria-label="No editable">🔒</span>
+        </div>
 
-  <!-- Bloque de Fotos -->
-  <div class="section-card">
-    <div class="section-header">
-      <h2>Fotos</h2>
-      <span class="counter-label">{{ fotos.length }} de {{ maxFotos }}</span>
-    </div>
-    <p class="section-sub">Arrastra para ordenar. La primera es la portada.</p>
+        <!-- Fotos: subir, borrar, portada, orden y etiquetas -->
+        <div class="edi-tarjeta">
+          <div class="edi-tarjeta-cabecera">
+            <h2>Fotos</h2>
+            <span class="edi-contador">{{ fotos().length }} de {{ MAX_FOTOS }}</span>
+          </div>
+          <p class="edi-ayuda">
+            La primera es la portada: usa ‹ › para ordenar y ★ para elegir la portada. JPG, PNG o WEBP, hasta 5 MB.
+          </p>
 
-    <div class="fotos-grid">
-      @for (foto of fotos; track foto.id; let i = $index) {
-        <div class="foto-item">
-          <!-- Botón Eliminar X -->
-          <button class="btn-remove-foto" (click)="eliminarFoto(i)">
-            <ion-icon name="close-outline"></ion-icon>
-          </button>
+          <div class="edi-fotos">
+            @for (item of fotosConUrl(); track item.foto.id; let i = $index; let ultima = $last) {
+              <div class="edi-foto-caja">
+                <figure class="edi-foto">
+                  <img [src]="item.url" [alt]="item.foto.label || 'Foto ' + (i + 1)" />
+                  @if (i === 0) {
+                    <span class="edi-foto-chip edi-foto-portada">Portada</span>
+                  }
+                  <button
+                    type="button"
+                    class="edi-foto-borrar"
+                    aria-label="Borrar foto"
+                    title="Borrar foto"
+                    [disabled]="ocupado()"
+                    (click)="borrarFoto(item.foto)">
+                    ✕
+                  </button>
+                </figure>
 
-          <!-- Imagen / Placeholder -->
-          <div class="foto-placeholder" [class.is-portada]="foto.esPortada">
-            <ion-icon name="image-outline" class="placeholder-icon"></ion-icon>
+                <div class="edi-foto-botones">
+                  <button
+                    type="button"
+                    aria-label="Mover a la izquierda"
+                    title="Mover a la izquierda"
+                    [disabled]="i === 0 || ocupado()"
+                    (click)="moverFoto(i, i - 1)">
+                    ‹
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Usar como portada"
+                    title="Usar como portada"
+                    [disabled]="i === 0 || ocupado()"
+                    (click)="moverFoto(i, 0)">
+                    ★
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Mover a la derecha"
+                    title="Mover a la derecha"
+                    [disabled]="ultima || ocupado()"
+                    (click)="moverFoto(i, i + 1)">
+                    ›
+                  </button>
+                </div>
+
+                <input
+                  class="edi-foto-etiqueta"
+                  type="text"
+                  placeholder="Etiqueta (ej. Living)"
+                  [attr.maxlength]="MAX_ETIQUETA"
+                  [attr.aria-label]="'Etiqueta de la foto ' + (i + 1)"
+                  [value]="item.foto.label ?? ''"
+                  (input)="cambiarEtiqueta(item.foto.id, $event)" />
+              </div>
+            }
+
+            @if (fotos().length < MAX_FOTOS) {
+              <label class="edi-agregar" [class.is-subiendo]="subiendo()">
+                <input type="file" accept="image/jpeg,image/png,image/webp" multiple [disabled]="ocupado()" (change)="elegirArchivos($event)" />
+                <span class="edi-agregar-mas">+</span>
+                <span>{{ subiendo() ?? 'Agregar' }}</span>
+              </label>
+            }
           </div>
 
-          <!-- Etiqueta (Portada / Living / etc.) -->
-          <span class="foto-badge" [class.badge-portada]="foto.esPortada">
-            {{ foto.etiqueta }}
-          </span>
+          @if (cambioFotos()) {
+            <p class="edi-pendiente">Cambiaste el orden o las etiquetas: falta guardar.</p>
+          }
+
+          @if (erroresFotos().length > 0) {
+            <ul class="pub-error edi-errores">
+              @for (error of erroresFotos(); track error) {
+                <li>{{ error }}</li>
+              }
+            </ul>
+          }
         </div>
-      }
 
-      <!-- Botón Agregar Foto -->
-      @if (fotos.length < maxFotos) {
-        <div class="foto-item add-foto-btn" (click)="agregarFoto()">
-          <ion-icon name="add-outline"></ion-icon>
-          <span>Agregar</span>
+        <div class="edi-tarjeta">
+          <div class="edi-tarjeta-cabecera">
+            <label for="descripcion">Descripción</label>
+            <span class="edi-contador" [class.is-cerca]="texto().length >= MAX_DESCRIPCION * 0.9">
+              {{ texto().length.toLocaleString('es-CL') }} / {{ MAX_DESCRIPCION.toLocaleString('es-CL') }}
+            </span>
+          </div>
+          <textarea
+            id="descripcion"
+            name="descripcion"
+            class="edi-textarea"
+            rows="8"
+            placeholder="Describe la propiedad: superficie, piso, orientación, estado, cercanía a servicios..."
+            [maxlength]="MAX_DESCRIPCION"
+            [ngModel]="texto()"
+            (ngModelChange)="escribirDescripcion($event)"></textarea>
         </div>
+
+        @if (mensaje(); as aviso) {
+          <p [ngClass]="aviso.tipo === 'ok' ? 'edi-ok' : 'pub-error'">{{ aviso.texto }}</p>
+        }
+
+        <button
+          type="button"
+          class="edi-guardar"
+          [disabled]="!(cambioDescripcion() || cambioFotos()) || ocupado()"
+          (click)="guardar()">
+          {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      } @else {
+        <p class="admin-subtitulo">Cargando publicación...</p>
       }
-    </div>
-  </div>
-
-  <!-- Bloque de Descripción -->
-  <div class="section-card">
-    <div class="section-header">
-      <h2>Descripción</h2>
-      <span class="counter-label">{{ descripcion.length }} / {{ maxCaracteres }}</span>
-    </div>
-
-    <div class="textarea-wrapper">
-      <textarea
-        [(ngModel)]="descripcion"
-        [maxLength]="maxCaracteres"
-        rows="7"
-        placeholder="Escribe la descripción de la propiedad...">
-      </textarea>
-    </div>
-  </div>
-
-  <!-- Botón Guardar Cambios Principal -->
-  <div class="main-action-container">
-    <button class="btn-guardar-main" (click)="guardarCambios()">
-      Guardar cambios
-    </button>
-  </div>
+    </section>
+  </app-marco-admin>
 </ion-content>

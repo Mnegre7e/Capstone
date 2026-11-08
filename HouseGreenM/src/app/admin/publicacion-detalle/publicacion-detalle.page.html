@@ -1,117 +1,182 @@
-<ion-content class="cuerpo-detalle" [fullscreen]="true">
-  <div class="contenedor-principal">
+<app-encabezado></app-encabezado>
 
-    <!-- Header con botón Volver y Editar -->
-    <div class="header-nav">
-      <button class="btn-circular" (click)="volver()" aria-label="Volver">
-        <ion-icon name="chevron-back-outline"></ion-icon>
-      </button>
-      <h2>Publicación</h2>
-      <button class="btn-circular" (click)="editarPublicacion()" aria-label="Editar">
-        <ion-icon name="pencil-outline"></ion-icon>
-      </button>
-    </div>
-
-    <!-- Banner / Ilustración con Badge de Riesgo Dinámico -->
-    <div class="hero-banner">
-      <div class="badge-riesgo" [ngClass]="propiedad.riesgo.toLowerCase()">
-        <span class="punto"></span>
-        <span>Riesgo {{ propiedad.riesgo.toLowerCase() }}</span>
+<ion-content>
+  <app-marco-admin seccion="publicaciones">
+    <section>
+      <div class="det-arriba">
+        <a class="det-volver" routerDirection="back" [routerLink]="['/publicaciones']">‹ Publicaciones</a>
+        @if (detalle() && estado() === 'vigente') {
+          <a class="det-editar" [routerLink]="['/editar-publicacion', id()]">✎ Editar</a>
+        }
       </div>
-      <div class="ilustracion-edificio">
-        <ion-icon name="business-outline"></ion-icon>
-      </div>
-    </div>
 
-    <!-- Título y Subtítulo de la Propiedad -->
-    <div class="encabezado-propiedad">
-      <h1>{{ propiedad.titulo }}</h1>
-      <p class="meta-subtitulo">
-        <ion-icon name="location-outline"></ion-icon>
-        {{ propiedad.comuna }} · remate {{ propiedad.fechaRemate }}
-      </p>
-    </div>
+      @if (error(); as mensaje) {
+        <p class="pub-error">No se pudo cargar la publicación: {{ mensaje }}</p>
+      } @else if (detalle(); as p) {
+        <!-- La quitó el admin: se puede volver a publicar -->
+        @if (estado() === 'quitada') {
+          <div class="det-aviso-estado is-quitada" role="status">
+            <p>
+              <strong>Quitaste esta publicación del catálogo el {{ quitadaEl() }}.</strong> Los inversionistas ya no la
+              ven, pero se guarda con todo su historial. El motivo quedó en el Registro de actividad.
+            </p>
+            <button type="button" class="det-boton" [disabled]="guardando()" (click)="volverAPublicar()">
+              {{ guardando() ? 'Publicando...' : 'Volver a publicar' }}
+            </button>
+            @if (errorAccion(); as mensaje) {
+              <p class="det-error-accion">{{ mensaje }}</p>
+            }
+          </div>
+        }
 
-    <!-- Tarjetas Métricas (Vistas y Guardados) -->
-    <div class="grid-metricas">
-      <div class="card-stat">
-        <div class="stat-numero">
-          <ion-icon name="eye-outline"></ion-icon>
-          <span>{{ propiedad.vistasUnicas }}</span>
+        @if (estado() === 'finalizada' || estado() === 'retirada') {
+          <p class="det-aviso-estado" role="status">
+            <strong>{{ avisoTerminado() }}</strong>
+            Ya no aparece en el catálogo y se guarda solo como registro, por eso no se puede editar.
+          </p>
+        }
+
+        <div class="det-foto-caja">
+          @if (foto(); as url) {
+            <img class="det-foto" [src]="url" [alt]="p.title" (error)="marcarFotoFallida()" />
+          } @else {
+            <div class="det-foto pub-foto-vacia">Sin foto</div>
+          }
+          <span class="pub-zona det-zona" [ngClass]="'pub-zona-' + (p.result_level ?? 'sin')">
+            <span class="pub-zona-punto"></span>
+            {{ zona() }}
+          </span>
         </div>
-        <p class="stat-label">personas la vieron</p>
-        <p class="stat-subtext">{{ propiedad.vistasTotales }} vistas en total</p>
-      </div>
 
-      <div class="card-stat">
-        <div class="stat-numero">
-          <ion-icon name="bookmark-outline"></ion-icon>
-          <span>{{ propiedad.guardadosTotales }}</span>
+        <h1 class="admin-titulo det-titulo">{{ p.title }}</h1>
+        <p class="admin-subtitulo">{{ comunaYTipo() }}</p>
+        <!-- Dirección y fecha del remate, para distinguirla de otras con el mismo título -->
+        <p class="det-datos-remate">{{ datosDelRemate() }}</p>
+
+        <!-- La descripción que ven los inversionistas (se cambia con ✎ Editar) -->
+        <div class="det-descripcion">
+          <p class="det-descripcion-titulo">Descripción</p>
+          @if (p.description) {
+            <p class="det-descripcion-texto">{{ p.description }}</p>
+          } @else {
+            <p class="det-descripcion-vacia">
+              {{ estado() === 'vigente' ? 'Sin descripción. Puedes agregar una con ✎ Editar.' : 'Sin descripción.' }}
+            </p>
+          }
         </div>
-        <p class="stat-label">personas la guardaron</p>
-      </div>
-    </div>
 
-    <!-- Selector de Pestañas (La vieron / La guardaron) -->
-    <div class="segmento-tabs">
-      <button 
-        class="tab-btn" 
-        [class.active]="tabActiva === 'vieron'" 
-        (click)="tabActiva = 'vieron'">
-        La vieron · {{ usuariosVieron.length }}
-      </button>
-      <button 
-        class="tab-btn" 
-        [class.active]="tabActiva === 'guardaron'" 
-        (click)="tabActiva = 'guardaron'">
-        La guardaron · {{ usuariosGuardaron.length }}
-      </button>
-    </div>
+        <!-- Resumen: personas que la vieron (con vistas totales) y personas que la guardaron -->
+        <div class="det-cifras">
+          <div class="det-cifra">
+            <strong>{{ p.personas }}</strong>
+            <span>{{ p.personas === 1 ? 'persona la vio' : 'personas la vieron' }}</span>
+            <span class="det-cifra-extra">{{ plural(p.vistas, 'vista', 'vistas') }} en total</span>
+          </div>
+          <div class="det-cifra">
+            <strong>{{ p.guardados }}</strong>
+            <span>{{ p.guardados === 1 ? 'persona la guardó' : 'personas la guardaron' }}</span>
+          </div>
+        </div>
 
-    <!-- Lista según pestaña activa -->
-    <div class="card-lista-usuarios">
-      @if (tabActiva === 'vieron') {
-        @for (user of usuariosVieron; track user.id) {
-          <div class="item-usuario">
-            <div class="avatar">{{ user.iniciales }}</div>
-            <div class="info-user">
-              <div class="row-nombre">
-                <h3>{{ user.nombre }}</h3>
-                @if (user.guardo) {
-                  <span class="badge-guardo">La guardó</span>
+        <!-- Pestañas -->
+        <div class="det-pestanas" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            class="det-pestana"
+            [class.is-activa]="pestana() === 'vieron'"
+            [attr.aria-selected]="pestana() === 'vieron'"
+            (click)="pestana.set('vieron')">
+            La vieron · {{ p.la_vieron.length }}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="det-pestana"
+            [class.is-activa]="pestana() === 'guardaron'"
+            [attr.aria-selected]="pestana() === 'guardaron'"
+            (click)="pestana.set('guardaron')">
+            La guardaron · {{ p.la_guardaron.length }}
+          </button>
+        </div>
+
+        @if (pestana() === 'vieron') {
+          <ul class="det-personas">
+            @for (persona of p.la_vieron; track persona.user_id) {
+              <li class="det-persona">
+                <span class="det-avatar">{{ iniciales(persona.full_name) }}</span>
+                <div class="det-persona-datos">
+                  <strong>{{ persona.full_name }}</strong>
+                  <span class="det-correo">{{ persona.email }}</span>
+                  <span>{{ formatearFecha(persona.ultima_visita) }} · {{ plural(persona.visitas, 'visita', 'visitas') }}</span>
+                </div>
+                @if (persona.la_guardo) {
+                  <span class="det-etiqueta">La guardó</span>
                 }
+              </li>
+            } @empty {
+              <li class="det-vacio">Todavía nadie la ha visto.</li>
+            }
+          </ul>
+        } @else {
+          <ul class="det-personas">
+            @for (persona of p.la_guardaron; track persona.user_id) {
+              <li class="det-persona">
+                <span class="det-avatar">{{ iniciales(persona.full_name) }}</span>
+                <div class="det-persona-datos">
+                  <strong>{{ persona.full_name }}</strong>
+                  <span class="det-correo">{{ persona.email }}</span>
+                  <span>
+                    La guardó {{ formatearFecha(persona.guardada_el) }} · {{ plural(persona.visitas, 'visita', 'visitas') }}
+                  </span>
+                </div>
+              </li>
+            } @empty {
+              <li class="det-vacio">Nadie la ha guardado todavía.</li>
+            }
+          </ul>
+        }
+
+        <!-- Sacarla del catálogo (por ejemplo, una propiedad de prueba). No se borra. -->
+        @if (estado() !== 'quitada') {
+          <div class="det-quitar">
+            @if (!quitando()) {
+              <p>
+                ¿Esta publicación no debería estar en HouseGreen (por ejemplo, es de prueba)? Puedes quitarla del
+                catálogo. No se borra: queda guardada con su historial y se puede volver a publicar.
+              </p>
+              <button type="button" class="det-boton is-peligro-suave" (click)="quitando.set(true)">
+                Quitar del catálogo
+              </button>
+            } @else {
+              <label for="det-motivo">¿Por qué la quitas?</label>
+              <textarea
+                id="det-motivo"
+                name="motivo"
+                rows="2"
+                placeholder="Por ejemplo: propiedad de prueba"
+                [maxlength]="LARGO_MAXIMO_DEL_MOTIVO"
+                [ngModel]="motivo()"
+                (ngModelChange)="motivo.set($event)"></textarea>
+              <div class="det-quitar-botones">
+                <button
+                  type="button"
+                  class="det-boton is-peligro"
+                  [disabled]="guardando() || motivo().trim().length < 3"
+                  (click)="quitar()">
+                  {{ guardando() ? 'Quitando...' : 'Sí, quitar del catálogo' }}
+                </button>
+                <button type="button" class="det-boton" [disabled]="guardando()" (click)="cancelarQuitar()">Cancelar</button>
               </div>
-              <p class="sub-info">{{ user.tiempo }} · {{ user.visitas }} {{ user.visitas === 1 ? 'visita' : 'visitas' }}</p>
-            </div>
+            }
+            @if (errorAccion(); as mensaje) {
+              <p class="det-error-accion">{{ mensaje }}</p>
+            }
           </div>
         }
       } @else {
-        @for (user of usuariosGuardaron; track user.id) {
-          <div class="item-usuario clickable">
-            <div class="avatar">{{ user.iniciales }}</div>
-            <div class="info-user">
-              <h3>{{ user.nombre }}</h3>
-              <p class="sub-info">La guardó el {{ user.fechaGuardado }} · {{ user.visitas }} {{ user.visitas === 1 ? 'visita' : 'visitas' }}</p>
-            </div>
-            <ion-icon name="chevron-forward-outline" class="flecha"></ion-icon>
-          </div>
-        }
+        <p class="admin-subtitulo">Cargando publicación...</p>
       }
-    </div>
-
-    <!-- Botón Flotante de Acción Inferior -->
-    <div class="wrapper-boton-accion">
-      <button class="btn-enviar-anuncio" (click)="enviarAnuncio()">
-        <ion-icon name="paper-plane-outline"></ion-icon>
-        <span>
-          @if (tabActiva === 'vieron') {
-            Enviar anuncio a quienes la vieron
-          } @else {
-            Enviar anuncio a quienes la guardaron
-          }
-        </span>
-      </button>
-    </div>
-
-  </div>
+    </section>
+  </app-marco-admin>
 </ion-content>

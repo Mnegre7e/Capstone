@@ -1,162 +1,207 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { NavController } from '@ionic/angular/lazy';
+import { AlertController } from '@ionic/angular/lazy';
 
-// 1. Interfaces locales para estructurar los datos
-export interface Foto {
-  id: number;
-  url: string;
-  etiqueta: string;
-  esPortada: boolean;
+import { FotoPublicacion, PublicacionAdmin, nombreComuna } from '../../core/admin';
+import { ApiService, mensajeDeError } from '../../core/api.service';
+import { pesos } from '../../core/remates';
+
+// Paso A9: editar una publicación, igual que AdminEditarPublicacionPage de la web (antes era de ejemplo).
+// Solo se cambian las fotos (subir, borrar, ordenar, portada y etiquetas) y la descripción: los datos del remate
+// no se editan. Los cambios se guardan en la API y se ven también en la web.
+
+interface PublicacionEditable extends PublicacionAdmin {
+  description: string | null;
+  fotos: FotoPublicacion[];
 }
 
-export interface Publicacion {
-  id: number;
-  titulo: string;
-  ubicacion: string;
-  minimo: string;
-  riesgo: 'Bajo' | 'Medio' | 'Alto';
-  vistas: number;
-  guardados: number;
-  descripcion: string;
-  fotos: Foto[];
-}
+const MAX_DESCRIPCION = 1000;
+const MAX_FOTOS = 15; // los mismos límites que revisa la API
+const MAX_BYTES_FOTO = 5 * 1024 * 1024;
+const MAX_ETIQUETA = 40;
 
-// 2. Lista de las 4 publicaciones locales (Mock Data)
-const LISTA_PUBLICACIONES: Publicacion[] = [
-  {
-    id: 1,
-    titulo: 'Departamento 2D 1B',
-    ubicacion: 'Santiago Centro',
-    minimo: '$42.000.000',
-    riesgo: 'Bajo',
-    vistas: 312,
-    guardados: 28,
-    descripcion: 'Departamento de 48 m² útiles en piso 8, con 2 dormitorios, 1 baño, cocina cerrada y logia. Edificio de 2012 con conserjería y ascensores, cerca de comercio y transporte público. Para participar se exige una garantía de $4.200.000 (10 % del mínimo).',
-    fotos: [
-      { id: 1, url: 'assets/icon/favicon.png', etiqueta: 'Portada', esPortada: true },
-      { id: 2, url: 'assets/icon/favicon.png', etiqueta: 'Living', esPortada: false },
-      { id: 3, url: 'assets/icon/favicon.png', etiqueta: 'Cocina', esPortada: false },
-      { id: 4, url: 'assets/icon/favicon.png', etiqueta: 'Dormitorio', esPortada: false },
-      { id: 5, url: 'assets/icon/favicon.png', etiqueta: 'Baño', esPortada: false },
-      { id: 6, url: 'assets/icon/favicon.png', etiqueta: 'Vista', esPortada: false }
-    ]
-  },
-  {
-    id: 2,
-    titulo: 'Casa 3D 2B',
-    ubicacion: 'Maipú',
-    minimo: '$65.000.000',
-    riesgo: 'Medio',
-    vistas: 241,
-    guardados: 19,
-    descripcion: 'Casa de 2 pisos con antejardín y patio trasero. 3 dormitorios amoblados, 2 baños completos y estacionamiento para 2 vehículos.',
-    fotos: [
-      { id: 1, url: 'assets/icon/favicon.png', etiqueta: 'Portada', esPortada: true },
-      { id: 2, url: 'assets/icon/favicon.png', etiqueta: 'Fachada', esPortada: false },
-      { id: 3, url: 'assets/icon/favicon.png', etiqueta: 'Patio', esPortada: false }
-    ]
-  },
-  {
-    id: 3,
-    titulo: 'Oficina',
-    ubicacion: 'Providencia',
-    minimo: '$35.000.000',
-    riesgo: 'Bajo',
-    vistas: 188,
-    guardados: 12,
-    descripcion: 'Oficina comercial adaptada para servicios profesionales. Planta libre de 35 m² con 1 privado y 1 baño.',
-    fotos: [
-      { id: 1, url: 'assets/icon/favicon.png', etiqueta: 'Portada', esPortada: true },
-      { id: 2, url: 'assets/icon/favicon.png', etiqueta: 'Planta libre', esPortada: false }
-    ]
-  },
-  {
-    id: 4,
-    titulo: 'Departamento 1D 1B',
-    ubicacion: 'Estación Central',
-    minimo: '$28.000.000',
-    riesgo: 'Alto',
-    vistas: 164,
-    guardados: 7,
-    descripcion: 'Departamento ideal para inversión. 1 dormitorio en suite, cocina americana equipada y terraza con vista despejada.',
-    fotos: [
-      { id: 1, url: 'assets/icon/favicon.png', etiqueta: 'Portada', esPortada: true },
-      { id: 2, url: 'assets/icon/favicon.png', etiqueta: 'Dormitorio', esPortada: false }
-    ]
-  }
-];
+/** Para saber si cambió el orden o alguna etiqueta. */
+function resumenFotos(fotos: FotoPublicacion[]): string {
+  return JSON.stringify(fotos.map((f) => [f.id, f.label ?? '']));
+}
 
 @Component({
   selector: 'app-editar-publicacion',
   templateUrl: './editar-publicacion.page.html',
   styleUrls: ['./editar-publicacion.page.scss'],
-  standalone: false
+  standalone: false,
 })
-export class EditarPublicacionPage implements OnInit {
-  private route = inject(ActivatedRoute);
-  private navCtrl = inject(NavController);
+export class EditarPublicacionPage {
+  private ruta = inject(ActivatedRoute);
+  private api = inject(ApiService);
+  private alertas = inject(AlertController);
 
-  publicacionId: number = 1;
-  propiedad: Publicacion = LISTA_PUBLICACIONES[0];
+  readonly MAX_DESCRIPCION = MAX_DESCRIPCION;
+  readonly MAX_FOTOS = MAX_FOTOS;
+  readonly MAX_ETIQUETA = MAX_ETIQUETA;
 
-  fotos: Foto[] = [];
-  descripcion: string = '';
-  maxFotos: number = 15;
-  maxCaracteres: number = 1000;
+  readonly id = signal('');
+  readonly publicacion = signal<PublicacionEditable | null>(null);
+  readonly errorCarga = signal<string | null>(null);
 
-  ngOnInit() {
-    // Lee el ID desde la ruta si existe (por ejemplo /editar-publicacion/2)
-    const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam) {
-      this.publicacionId = Number(idParam);
-    }
+  readonly texto = signal(''); // lo que está escrito en el cuadro
+  private original = signal(''); // lo que está guardado en la base
+  readonly guardando = signal(false);
+  readonly mensaje = signal<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
 
-    // Busca la publicación en el array local
-    const encontrada = LISTA_PUBLICACIONES.find(p => p.id === this.publicacionId);
-    if (encontrada) {
-      this.propiedad = { ...encontrada };
-      this.fotos = [...encontrada.fotos];
-      this.descripcion = encontrada.descripcion;
+  readonly fotos = signal<FotoPublicacion[]>([]);
+  private fotosGuardadas = signal<FotoPublicacion[]>([]);
+  readonly subiendo = signal<string | null>(null); // "Subiendo 1 de 3..."
+  readonly erroresFotos = signal<string[]>([]);
+  private portadaFallo = signal(false);
+
+  readonly cambioDescripcion = computed(() => this.texto() !== this.original());
+  readonly cambioFotos = computed(() => resumenFotos(this.fotos()) !== resumenFotos(this.fotosGuardadas()));
+  readonly ocupado = computed(() => this.guardando() || this.subiendo() !== null);
+  readonly comuna = computed(() => {
+    const publicacion = this.publicacion();
+    return publicacion ? nombreComuna(publicacion) : '';
+  });
+  readonly precio = computed(() => {
+    const valor = this.publicacion()?.opening_price;
+    return valor === null || valor === undefined ? 'Sin precio' : pesos(Number(valor));
+  });
+  // Si ya subieron fotos se muestra la portada; si no, la imagen que traía la publicación
+  readonly portada = computed(() => {
+    const url = this.fotos()[0]?.url ?? this.publicacion()?.image_url ?? null;
+    return url && !this.portadaFallo() ? this.api.urlDeArchivo(url) : null;
+  });
+  readonly fotosConUrl = computed(() => this.fotos().map((foto) => ({ foto, url: this.api.urlDeArchivo(foto.url) })));
+
+  async ionViewWillEnter() {
+    this.id.set(this.ruta.snapshot.paramMap.get('id') ?? '');
+    try {
+      const datos = await this.api.get<PublicacionEditable>(`/admin/publicaciones/${this.id()}`);
+      this.publicacion.set(datos);
+      this.texto.set(datos.description ?? '');
+      this.original.set(datos.description ?? '');
+      this.fotos.set(datos.fotos);
+      this.fotosGuardadas.set(datos.fotos);
+      this.errorCarga.set(null);
+    } catch (error) {
+      this.errorCarga.set(mensajeDeError(error));
     }
   }
 
-  volver() {
-    this.navCtrl.back();
+  escribirDescripcion(valor: string) {
+    this.texto.set(valor);
+    this.mensaje.set(null);
   }
 
-  eliminarFoto(index: number) {
-    this.fotos.splice(index, 1);
-    if (this.fotos.length > 0 && !this.fotos.some(f => f.esPortada)) {
-      this.fotos[0].esPortada = true;
-      this.fotos[0].etiqueta = 'Portada';
+  async guardar() {
+    this.guardando.set(true);
+    this.mensaje.set(null);
+    try {
+      if (this.cambioDescripcion()) {
+        const respuesta = await this.api.patch<{ description: string | null }>(
+          `/admin/publicaciones/${this.id()}/descripcion`,
+          { description: this.texto() },
+        );
+        const guardada = respuesta.description ?? '';
+        this.texto.set(guardada);
+        this.original.set(guardada);
+      }
+      if (this.cambioFotos()) {
+        const orden = this.fotos().map((f) => ({ id: f.id, label: f.label }));
+        const respuesta = await this.api.put<FotoPublicacion[]>(`/admin/publicaciones/${this.id()}/fotos`, orden);
+        this.fotos.set(respuesta);
+        this.fotosGuardadas.set(respuesta);
+      }
+      this.mensaje.set({ tipo: 'ok', texto: 'Cambios guardados.' });
+    } catch (error) {
+      this.mensaje.set({ tipo: 'error', texto: `No se pudo guardar: ${mensajeDeError(error)}` });
+    } finally {
+      this.guardando.set(false);
     }
   }
 
-  agregarFoto() {
-    if (this.fotos.length < this.maxFotos) {
-      const nuevaFoto: Foto = {
-        id: Date.now(),
-        url: 'assets/icon/favicon.png',
-        etiqueta: `Foto ${this.fotos.length + 1}`,
-        esPortada: this.fotos.length === 0
-      };
-      this.fotos.push(nuevaFoto);
+  elegirArchivos(evento: Event) {
+    const campo = evento.target as HTMLInputElement;
+    const archivos = Array.from(campo.files ?? []);
+    campo.value = ''; // permite volver a elegir el mismo archivo
+    if (archivos.length > 0) {
+      void this.subirFotos(archivos);
     }
   }
 
-  guardarCambios() {
-    // Actualiza el objeto simulado en memoria
-    if (this.propiedad) {
-      this.propiedad.fotos = this.fotos;
-      this.propiedad.descripcion = this.descripcion;
+  private async subirFotos(archivos: File[]) {
+    const errores: string[] = [];
+    let cantidad = this.fotos().length;
+    for (let i = 0; i < archivos.length; i++) {
+      const archivo = archivos[i];
+      if (cantidad >= MAX_FOTOS) {
+        errores.push(`${archivo.name}: ya hay ${MAX_FOTOS} fotos, que es el máximo`);
+        continue;
+      }
+      if (archivo.size > MAX_BYTES_FOTO) {
+        errores.push(`${archivo.name}: pesa más de 5 MB`);
+        continue;
+      }
+      this.subiendo.set(`Subiendo ${i + 1} de ${archivos.length}...`);
+      const datos = new FormData();
+      datos.append('archivo', archivo); // "archivo" es el nombre del campo que espera la API
+      try {
+        const nueva = await this.api.subir<FotoPublicacion>(`/admin/publicaciones/${this.id()}/fotos`, datos);
+        this.fotos.update((anteriores) => [...anteriores, nueva]);
+        this.fotosGuardadas.update((anteriores) => [...anteriores, nueva]);
+        this.portadaFallo.set(false);
+        cantidad++;
+      } catch (error) {
+        errores.push(`${archivo.name}: ${mensajeDeError(error)}`);
+      }
     }
+    this.subiendo.set(null);
+    this.erroresFotos.set(errores);
+  }
 
-    console.log('Cambios guardados localmente para ID:', this.publicacionId, {
-      fotos: this.fotos,
-      descripcion: this.descripcion
+  async borrarFoto(foto: FotoPublicacion) {
+    // Se pregunta antes (igual que la web), con la ventana de la app
+    const pregunta = await this.alertas.create({
+      header: '¿Quitar esta foto de la publicación?',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Quitar', role: 'destructive' },
+      ],
     });
+    await pregunta.present();
+    const { role } = await pregunta.onDidDismiss();
+    if (role !== 'destructive') {
+      return;
+    }
+    this.mensaje.set(null);
+    try {
+      const quedan = await this.api.delete<FotoPublicacion[]>(`/admin/publicaciones/${this.id()}/fotos/${foto.id}`);
+      this.fotosGuardadas.set(quedan);
+      this.fotos.update((anteriores) => anteriores.filter((f) => f.id !== foto.id));
+      this.portadaFallo.set(false);
+    } catch (error) {
+      this.mensaje.set({ tipo: 'error', texto: `No se pudo borrar la foto: ${mensajeDeError(error)}` });
+    }
+  }
 
-    this.volver();
+  moverFoto(desde: number, hasta: number) {
+    this.fotos.update((anteriores) => {
+      const copia = [...anteriores];
+      const [foto] = copia.splice(desde, 1);
+      copia.splice(hasta, 0, foto);
+      return copia;
+    });
+    this.portadaFallo.set(false);
+    this.mensaje.set(null);
+  }
+
+  cambiarEtiqueta(fotoId: string, evento: Event) {
+    const etiqueta = (evento.target as HTMLInputElement).value;
+    this.fotos.update((anteriores) => anteriores.map((f) => (f.id === fotoId ? { ...f, label: etiqueta } : f)));
+    this.mensaje.set(null);
+  }
+
+  marcarPortadaFallida() {
+    this.portadaFallo.set(true);
   }
 }

@@ -70,6 +70,16 @@ export class ApiService {
     return this.pedir(this.http.delete<T>(this.url + ruta));
   }
 
+  /** Paso A9: reemplaza algo completo (por ejemplo, el orden de las fotos de una publicación). */
+  put<T>(ruta: string, cuerpo: unknown = {}): Promise<T> {
+    return this.pedir(this.http.put<T>(this.url + ruta, cuerpo));
+  }
+
+  /** Paso A9: sube un archivo (por ejemplo, una foto). Se espera hasta 2 minutos, porque una foto puede pesar 5 MB. */
+  subir<T>(ruta: string, datos: FormData): Promise<T> {
+    return this.pedir(this.http.post<T>(this.url + ruta, datos), 120);
+  }
+
   /** Las fotos subidas a la API llegan como "/uploads/...": les falta la dirección de la API. */
   urlDeArchivo(url: string): string {
     return url.startsWith('/') ? this.url + url : url;

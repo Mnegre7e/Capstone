@@ -137,3 +137,19 @@ export function textoCifras(carga: CargaResumen): string {
 export function numero(valor: number): string {
   return valor.toLocaleString('es-CL');
 }
+
+/** Una foto de una publicación (la 0 es la portada). */
+export interface FotoPublicacion {
+  id: string;
+  url: string;
+  label: string | null;
+  position: number;
+}
+
+/** "5 de noviembre de 2026" o "5 de noviembre de 2026, 12:00" (las 00:00 = hora no informada). */
+export function fechaDelRemate(iso: string): string {
+  const fecha = new Date(iso);
+  const dia = fecha.toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' });
+  if (fecha.getHours() === 0 && fecha.getMinutes() === 0) return dia;
+  return `${dia}, ${fecha.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false })}`;
+}
