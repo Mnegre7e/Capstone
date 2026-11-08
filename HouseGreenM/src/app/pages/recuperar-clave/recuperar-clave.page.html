@@ -3,6 +3,7 @@
     @if (paso() === 'codigo') {
       <!-- Paso 2: el código y la contraseña nueva -->
       <form class="login-form" (ngSubmit)="cambiarContrasena()">
+        <ion-back-button class="login-atras" text="Volver" icon="chevron-back" defaultHref="/login"></ion-back-button>
         <h1>Escribe el código</h1>
         <p class="login-subtitle">
           Te enviamos un código de 6 dígitos a <strong class="login-correo">{{ correo().trim() }}</strong>. Vence en 15
@@ -75,6 +76,7 @@
     } @else {
       <!-- Paso 1: el correo -->
       <form class="login-form" (ngSubmit)="pedirCodigo(false)">
+        <ion-back-button class="login-atras" text="Volver" icon="chevron-back" defaultHref="/login"></ion-back-button>
         <h1>Recuperar contraseña</h1>
         <p class="login-subtitle">
           Escribe el correo de tu cuenta y te enviaremos un código para crear una contraseña nueva.

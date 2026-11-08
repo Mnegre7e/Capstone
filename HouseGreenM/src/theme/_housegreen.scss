@@ -20,6 +20,8 @@ app-encabezado {
   align-items: center;
   gap: 10px;
   color: #0f3d30;
+  text-decoration: none;
+  cursor: pointer; // Paso A8b: al tocarlo se vuelve al catálogo
   font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -33,6 +35,32 @@ app-encabezado {
 
 .hg-encabezado ion-menu-button {
   --color: #0f3d30;
+}
+
+// Paso A8b: botón "Volver" a la izquierda del logo
+.hg-encabezado ion-back-button.hg-volver {
+  --color: #0f3d30;
+  --icon-font-size: 22px;
+  --padding-start: 0;
+  --padding-end: 8px;
+  margin-right: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+// "Volver" con mayúscula inicial (sin todo en mayúsculas)
+.hg-encabezado ion-back-button.hg-volver::part(text),
+ion-back-button.login-atras::part(text) {
+  text-transform: none;
+}
+
+// En el celular angosto se ve solo la flecha (así cabe el nombre HouseGreen)
+@media (max-width: 380px) {
+  .hg-encabezado ion-back-button.hg-volver::part(text) {
+    display: none;
+  }
 }
 
 // ---------- Página: el contenido centrado, como en la web ----------

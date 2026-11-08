@@ -590,3 +590,18 @@ app-marco-entrada {
   color: #15803d;
   font-weight: 600;
 }
+
+/* Paso A8b: "‹ Volver" arriba de la tarjeta (crear cuenta y recuperar la contraseña) */
+ion-back-button.login-atras {
+  display: inline-block;
+  margin: -12px 0 8px -10px;
+  --color: #15803d;
+  --icon-font-size: 20px;
+  --padding-start: 4px;
+  --padding-end: 6px;
+  --min-height: 36px;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}

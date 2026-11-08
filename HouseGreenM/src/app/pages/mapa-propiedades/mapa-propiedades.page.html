@@ -1,113 +1,161 @@
-<ion-content [fullscreen]="true" class="map-content">
+<app-encabezado></app-encabezado>
 
-  
-  <div class="top-controls-wrapper">
-    
-    <!--Botón Volver, Dropdown de Comuna y Filtros -->
-    <div class="header-row">
-      <button class="back-btn" (click)="goBack()" aria-label="Volver">
-        <ion-icon name="arrow-back-outline"></ion-icon>
-      </button>
+<ion-content>
+  <div class="mapa-pagina">
+    @if (!conAcceso()) {
+      <!-- Sin Premium: el aviso del plan, igual que en el detalle de un remate -->
+      <app-aviso-premium titulo="El mapa de los remates es parte del plan Premium">
+        Con Premium ves dónde está cada remate de la Región Metropolitana, con el color de su semáforo.
+      </app-aviso-premium>
+    } @else {
+      <h1>Mapa de remates</h1>
+      <p class="mapa-subtitulo">Los remates vigentes de la Región Metropolitana, con el color de su semáforo.</p>
 
-      <div class="comuna-select-pill">
-        <ion-icon name="location-outline" class="pin-icon"></ion-icon>
-        <span class="label">Comuna: <strong>{{ comunaSeleccionada }}</strong></span>
-        <ion-icon name="chevron-down-outline" class="arrow-icon"></ion-icon>
+      <div class="mapa-filtros">
+        <label>
+          Comuna
+          <select name="comuna" [ngModel]="comuna()" (ngModelChange)="filtrarComuna($event)">
+            <option value="">Todas</option>
+            @for (c of comunas(); track c.id) {
+              <option [value]="'' + c.id">{{ c.nombre }} ({{ c.cantidad }})</option>
+            }
+          </select>
+        </label>
+        <label>
+          Tipo
+          <select name="tipo" [ngModel]="tipo()" (ngModelChange)="filtrarTipo($event)">
+            <option value="">Todos</option>
+            @for (c of CATEGORIAS; track c.valor) {
+              <option [value]="c.valor">{{ c.nombre }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Riesgo
+          <select name="nivel" [ngModel]="nivel()" (ngModelChange)="filtrarNivel($event)">
+            <option value="">Todos</option>
+            @for (n of NIVELES; track n.valor) {
+              <option [value]="n.valor">{{ n.nombre }}</option>
+            }
+          </select>
+        </label>
+        <label class="mapa-casilla">
+          <input
+            type="checkbox"
+            name="aproximados"
+            [ngModel]="conAproximados()"
+            (ngModelChange)="filtrarAproximados($event)" />
+          Mostrar los del centro de su comuna
+        </label>
       </div>
 
-      <button class="filter-btn" aria-label="Abrir filtros">
-        <ion-icon name="options-outline"></ion-icon>
-      </button>
-    </div>
+      <p class="mapa-cuenta" aria-live="polite">{{ cuenta() }}</p>
 
-    <!-- Selección de Comuna -->
-    <div class="chips-row">
-      @for (c of comunas; track c) {
-        <button 
-          class="chip-item" 
-          [class.active]="comunaSeleccionada === c"
-          (click)="seleccionarComuna(c)">
-          {{ c }}
-        </button>
-      }
-    </div>
+      <div class="mapa-columnas">
+        <app-mapa-remates
+          [puntos]="puntos()"
+          [comunas]="comunasDelMapa()"
+          [soloUnaComuna]="comuna() !== ''"
+          [elegido]="elegido()"
+          [irA]="irA()"
+          (elegir)="elegido.set($event)"
+          (cambiarModo)="modo.set($event)">
+        </app-mapa-remates>
 
-    <!-- Fila 3: Contador y Riesgo -->
-    <div class="info-row">
-      <div class="count-chip">
-        {{ propiedadesFiltradas.length }} remates en {{ comunaSeleccionada }}
-      </div>
-
-      <div class="legend-chip">
-        <span class="dot dot-bajo">●</span> Bajo
-        <span class="dot dot-medio">●</span> Medio
-        <span class="dot dot-alto">●</span> Alto
-      </div>
-    </div>
-
-  </div>
-
-  <!-- mapa interactivo (placeholder) -->
-  <div class="map-viewport">
-    <svg class="map-svg-layer" viewBox="0 0 100 100" preserveAspectRatio="none">
-      <line x1="0" y1="20" x2="100" y2="20" stroke="#e0ece0" stroke-width="0.8" />
-      <line x1="0" y1="40" x2="100" y2="40" stroke="#e0ece0" stroke-width="0.8" />
-      <line x1="0" y1="60" x2="100" y2="60" stroke="#e0ece0" stroke-width="0.8" />
-      <line x1="0" y1="80" x2="100" y2="80" stroke="#e0ece0" stroke-width="0.8" />
-
-      <line x1="20" y1="0" x2="20" y2="100" stroke="#e0ece0" stroke-width="0.8" />
-      <line x1="45" y1="0" x2="45" y2="100" stroke="#e0ece0" stroke-width="0.8" />
-      <line x1="68" y1="0" x2="68" y2="100" stroke="#e0ece0" stroke-width="0.8" />
-      <line x1="88" y1="0" x2="88" y2="100" stroke="#e0ece0" stroke-width="0.8" />
-
-      <polygon 
-        points="10,28 90,24 95,74 15,74" 
-        fill="rgba(45, 106, 79, 0.03)" 
-        stroke="#1b4332" 
-        stroke-width="0.6" 
-        stroke-dasharray="2,2" />
-    </svg>
-
-    <span class="map-label label-providencia">Providencia</span>
-    <span class="map-label label-alameda">Alameda</span>
-    <span class="map-label label-santiago">SANTIAGO</span>
-
-    @for (p of propiedadesFiltradas; track p.id) {
-      <div 
-        class="map-pin" 
-        [style.top]="p.top" 
-        [style.left]="p.left"
-        [class.selected]="propiedadSeleccionada?.id === p.id"
-        (click)="seleccionarPropiedad(p)">
-        
-        <span class="pin-dot" [ngClass]="'dot-' + p.riesgoGlobal">●</span>
-        <span class="pin-price">{{ p.precioTexto }}</span>
+        <aside class="mapa-panel" aria-live="polite">
+          @if (grupoElegido(); as grupo) {
+            <div class="mapa-panel-cabecera">
+              <h2>{{ grupo.titulo }}</h2>
+              <button type="button" class="mapa-cerrar" (click)="elegido.set(null)">Cerrar</button>
+            </div>
+            @if (grupo.notaAproximado) {
+              <p class="mapa-nota">
+                Estos remates no tienen una dirección que OpenStreetMap encuentre, así que se muestran en el centro de su
+                comuna.
+              </p>
+            }
+            @if (grupo.notaCalle) {
+              <p class="mapa-nota">
+                OpenStreetMap no tiene los números de estas direcciones: el punto marca la calle, no cada remate. Con «Ver
+                en Google Maps» ves dónde está cada uno.
+              </p>
+            }
+            <ul class="mapa-remates">
+              @for (remate of grupo.remates; track remate.id) {
+                <li class="mapa-remate">
+                  <app-etiqueta-riesgo [riesgo]="remate.riesgo"></app-etiqueta-riesgo>
+                  <h3>
+                    <a [routerLink]="['/detalle-propiedad', remate.id]">{{ remate.titulo }}</a>
+                  </h3>
+                  <p class="mapa-remate-direccion">{{ remate.direccion }}</p>
+                  <p class="mapa-remate-datos">
+                    <strong>{{ remate.precio }}</strong> · Remate {{ remate.fecha }}
+                  </p>
+                  @if (remate.nota) {
+                    <p class="mapa-nota">{{ remate.nota }}</p>
+                  }
+                  <div class="mapa-enlaces">
+                    <a class="mapa-ver" [routerLink]="['/detalle-propiedad', remate.id]">Ver detalle ›</a>
+                    @if (remate.google) {
+                      <a class="mapa-google" target="_blank" rel="noopener noreferrer" [href]="remate.google">
+                        Ver en Google Maps ↗
+                      </a>
+                    }
+                  </div>
+                </li>
+              }
+            </ul>
+          } @else if (modo() === 'comunas') {
+            <!-- Con el mapa alejado, las comunas -->
+            <h2>Remates por comuna</h2>
+            <p class="mapa-nota">Toca una comuna (o acércate) para ver cada remate con el color de su semáforo.</p>
+            <ul class="mapa-escala" aria-label="Cantidad de remates por comuna">
+              @for (paso of ESCALA_COMUNAS; track paso.desde) {
+                <li>
+                  <span aria-hidden="true" [style.background-color]="paso.color"></span>
+                  {{ paso.texto }}
+                </li>
+              }
+            </ul>
+            <ul class="mapa-lista-comunas">
+              @for (c of comunasConRemates(); track c.nombre) {
+                <li>
+                  <button type="button" (click)="irAComuna(c.nombre)">
+                    <span>{{ c.nombre }}</span>
+                    <strong>{{ c.cantidad }}</strong>
+                  </button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <h2>Toca un punto del mapa</h2>
+            <p class="mapa-nota">
+              Verás el remate con su precio, la fecha, el enlace a su detalle y su dirección en Google Maps.
+            </p>
+            <!-- La leyenda: el color nunca va solo, siempre con su nombre -->
+            <ul class="mapa-leyenda">
+              @for (n of NIVELES; track n.valor) {
+                <li>
+                  <span class="mapa-leyenda-punto" [ngClass]="'is-' + n.valor" aria-hidden="true"></span>
+                  {{ n.nombre }}
+                </li>
+              }
+              <li>
+                <span class="mapa-leyenda-punto is-varios is-grupo" aria-hidden="true">3</span>
+                Varios remates en el mismo lugar
+              </li>
+              <li>
+                <span class="mapa-leyenda-punto is-verde is-calle" aria-hidden="true"></span>
+                Solo en su calle (puede estar a unas cuadras)
+              </li>
+              <li>
+                <span class="mapa-leyenda-punto is-aproximado" aria-hidden="true"></span>
+                Sin dirección: en el centro de su comuna
+              </li>
+            </ul>
+          }
+        </aside>
       </div>
     }
   </div>
-
-  <!-- tarjeta inferior -->
-  @if (propiedadSeleccionada; as prop) {
-    <div class="bottom-card-wrapper">
-      <div class="preview-card" (click)="verDetalle(prop)">
-        <div class="icon-box">
-          <ion-icon name="business-outline"></ion-icon>
-        </div>
-
-        <div class="card-details">
-          <div class="risk-label" [ngClass]="'risk-' + prop.riesgoGlobal">
-            <span class="dot">●</span> Riesgo {{ prop.riesgoGlobal }}
-          </div>
-          <h2 class="prop-title">{{ prop.titulo }}</h2>
-          <p class="prop-subtext">{{ formatearMoneda(prop.precioCompleto) }} · {{ prop.superficie }} m²</p>
-          <p class="prop-date">Remate {{ prop.fechaRemate }} · {{ prop.horaRemate }}</p>
-        </div>
-
-        <div class="card-arrow">
-          <ion-icon name="chevron-forward-outline"></ion-icon>
-        </div>
-      </div>
-    </div>
-  }
-
 </ion-content>

@@ -25,6 +25,9 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
+/* Paso A8: los estilos de la librería de mapas Leaflet (el mapa de remates) */
+@import "leaflet/dist/leaflet.css";
+
 /**
  * Ionic Dark Mode
  * -----------------------------------------------------
