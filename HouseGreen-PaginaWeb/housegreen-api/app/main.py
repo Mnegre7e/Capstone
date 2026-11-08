@@ -19,9 +19,17 @@ from app.routers import mapa  # paso 124a: ubicación de los remates en el mapa
 
 app = FastAPI(title="HouseGreen API")
 
+# Paso A0: desde qué páginas el navegador puede llamar a la API (CORS). Cualquier otro sitio queda fuera.
+ORIGENES_PERMITIDOS = [
+    "http://localhost:5173",  # la web (npm run dev)
+    "http://localhost:4200",  # la app en el navegador (npm start en HouseGreenM)
+    "http://localhost:8100",  # la app con "ionic serve", por si se usa
+    "https://localhost",  # la app instalada en Android (Capacitor)
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=ORIGENES_PERMITIDOS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
