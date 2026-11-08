@@ -29,7 +29,9 @@ export class SesionService {
       return;
     }
     try {
-      this.usuario.set(await this.api.get<Usuario>('/auth/me'));
+      // Paso A4: al abrir se espera a lo más 10 segundos; si la API no contesta, se muestra el login
+      // (antes la app quedaba en blanco esperando)
+      this.usuario.set(await this.api.get<Usuario>('/auth/me', 10));
     } catch (error) {
       // Solo se borra si la API dice que el token ya no sirve; si la API no respondió, se conserva
       if (error instanceof ErrorDeApi && (error.status === 401 || error.status === 403)) {
@@ -52,6 +54,18 @@ export class SesionService {
       throw error;
     }
     return 'listo';
+  }
+
+  /** Paso A4: vuelve a preguntar quién es (por ejemplo, después de pagar el plan Premium). */
+  async actualizarUsuario(): Promise<void> {
+    if (!this.token()) {
+      return;
+    }
+    try {
+      this.usuario.set(await this.api.get<Usuario>('/auth/me'));
+    } catch {
+      // si falla, se queda con los datos que tenía
+    }
   }
 
   cerrarSesion(): void {

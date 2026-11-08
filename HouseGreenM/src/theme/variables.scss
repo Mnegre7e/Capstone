@@ -1,6 +1,9 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
 
+// Paso A4: las piezas que comparten todas las pantallas (con @use: @import ya está en desuso y daba un aviso)
+@use './housegreen';
+
 // Paso A2: los colores y la letra de la página web de HouseGreen (index.css de la web)
 :root {
   --ion-font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -29,5 +32,3 @@
   --ion-color-secondary-tint: #275045;
 }
 
-// Las piezas que comparten todas las pantallas
-@import './housegreen';

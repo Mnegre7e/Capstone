@@ -60,6 +60,17 @@ const routes: Routes = [
     loadChildren: () =>
       import('./pages/detalle-propiedad/detalle-propiedad.module').then((m) => m.DetallePropiedadPageModule),
   },
+  // Paso A4: el plan Premium y el resultado del pago (Webpay devuelve a /premium/resultado?pago=...)
+  {
+    path: 'premium/resultado',
+    canActivate: inversionista,
+    loadChildren: () => import('./pages/pago-resultado/pago-resultado.module').then((m) => m.PagoResultadoPageModule),
+  },
+  {
+    path: 'premium',
+    canActivate: inversionista,
+    loadChildren: () => import('./pages/premium/premium.module').then((m) => m.PremiumPageModule),
+  },
   {
     path: 'mapa-propiedades',
     canActivate: inversionista,

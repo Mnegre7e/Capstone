@@ -1,0 +1,78 @@
+<app-encabezado></app-encabezado>
+
+<ion-content>
+  <div class="hg-pagina premium-pagina">
+    <h1>Plan Premium</h1>
+    <p class="premium-subtitulo">Todo el detalle de cada remate, para decidir con datos y no a ciegas.</p>
+
+    <section class="premium-plan" aria-labelledby="premium-precio">
+      <span class="premium-plan-sello">Plan Premium</span>
+      <p class="premium-plan-precio" id="premium-precio">
+        <strong>{{ PRECIO_PREMIUM_TEXTO }}</strong>
+        <span>por {{ DIAS_PREMIUM }} días</span>
+      </p>
+
+      <ul class="premium-plan-lista">
+        @for (beneficio of BENEFICIOS_PREMIUM; track beneficio) {
+          <li>{{ beneficio }}</li>
+        }
+      </ul>
+
+      <!-- Lo que puede hacer según su cuenta -->
+      @if (cuentaSinPago(); as cuenta) {
+        <p class="premium-plan-estado">Tu cuenta de {{ cuenta }} ya ve todo sin necesidad del plan.</p>
+      } @else if (activoHasta(); as hasta) {
+        <p class="premium-plan-estado is-activo">
+          Tu plan Premium está activo hasta el <strong>{{ hasta }}</strong>.
+        </p>
+        <a class="premium-plan-boton" [routerLink]="['/catalogo-propiedades']">Ir a los remates</a>
+      } @else {
+        @if (vencioEl(); as vencio) {
+          <p class="premium-plan-estado">Tu plan Premium venció el {{ vencio }}.</p>
+        }
+        <button type="button" class="premium-plan-boton" [disabled]="pagando()" (click)="pagar()">
+          {{ pagando() ? 'Conectando con Webpay...' : 'Pagar ' + PRECIO_PREMIUM_TEXTO + ' con Webpay' }}
+        </button>
+        @if (errorPago(); as error) {
+          <p class="premium-plan-error" role="alert">{{ error }}</p>
+        }
+        <p class="premium-plan-pronto">Te llevaremos a la página segura de Webpay para pagar.</p>
+      }
+
+      <p class="premium-plan-nota">
+        Pago único con Webpay de Transbank. No se renueva solo: cuando vence, puedes volver a pagar. HouseGreen no
+        guarda los datos de tu tarjeta.
+      </p>
+    </section>
+
+    <section class="premium-comparar" aria-labelledby="premium-comparar-titulo">
+      <h2 id="premium-comparar-titulo">Qué ves con cada opción</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col"><span class="premium-oculto">Lo que se ve</span></th>
+            <th scope="col">Sin plan</th>
+            <th scope="col">Premium</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (fila of COMPARACION; track fila[0]) {
+            <tr>
+              <th scope="row">{{ fila[0] }}</th>
+              @for (incluido of [fila[1], fila[2]]; track $index) {
+                <td>
+                  @if (incluido) {
+                    <span class="premium-marca is-si" aria-label="Sí">✓</span>
+                  } @else {
+                    <span class="premium-marca is-no" aria-label="No">—</span>
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+      <a class="premium-volver" [routerLink]="['/catalogo-propiedades']">‹ Volver al catálogo</a>
+    </section>
+  </div>
+</ion-content>

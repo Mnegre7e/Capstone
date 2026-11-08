@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
+import { Observable, TimeoutError, firstValueFrom, timeout } from 'rxjs';
 
 import { environment } from '../../environments/environment';
 
@@ -19,12 +19,18 @@ export class ErrorDeApi extends Error {
 
 const ERROR_INESPERADO = 'Ocurrió un error inesperado. Inténtalo de nuevo.';
 
+// Paso A4: si la API no contesta en este tiempo, se deja de esperar (así la app nunca queda colgada)
+const SEGUNDOS_DE_ESPERA = 30;
+
 /** El mensaje que se le muestra a la persona cuando algo falla. */
 export function mensajeDeError(error: unknown): string {
   return error instanceof ErrorDeApi ? error.message : ERROR_INESPERADO;
 }
 
 function comoErrorDeApi(error: unknown): ErrorDeApi {
+  if (error instanceof TimeoutError) {
+    return new ErrorDeApi('HouseGreen no respondió a tiempo. Inténtalo de nuevo en unos minutos.', 0);
+  }
   if (error instanceof HttpErrorResponse) {
     if (error.status === 0) {
       return new ErrorDeApi('No se pudo conectar con HouseGreen. Revisa tu conexión e inténtalo de nuevo.', 0);
@@ -47,8 +53,9 @@ export class ApiService {
   private http = inject(HttpClient);
   readonly url = environment.apiUrl;
 
-  get<T>(ruta: string): Promise<T> {
-    return this.pedir(this.http.get<T>(this.url + ruta));
+  /** segundos: cuánto esperar la respuesta (por defecto 30). */
+  get<T>(ruta: string, segundos = SEGUNDOS_DE_ESPERA): Promise<T> {
+    return this.pedir(this.http.get<T>(this.url + ruta), segundos);
   }
 
   post<T>(ruta: string, cuerpo: unknown = {}): Promise<T> {
@@ -68,9 +75,9 @@ export class ApiService {
     return url.startsWith('/') ? this.url + url : url;
   }
 
-  private async pedir<T>(peticion: Observable<T>): Promise<T> {
+  private async pedir<T>(peticion: Observable<T>, segundos = SEGUNDOS_DE_ESPERA): Promise<T> {
     try {
-      return await firstValueFrom(peticion);
+      return await firstValueFrom(peticion.pipe(timeout(segundos * 1000)));
     } catch (error) {
       throw comoErrorDeApi(error);
     }

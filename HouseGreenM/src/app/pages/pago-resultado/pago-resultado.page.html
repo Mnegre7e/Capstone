@@ -1,0 +1,66 @@
+<app-encabezado></app-encabezado>
+
+<ion-content>
+  <div class="pago-resultado">
+    @if (noEncontrado()) {
+      <section class="pago-tarjeta is-error">
+        <h1>No encontramos ese pago</h1>
+        <p>Si acabas de pagar y no ves tu plan activo, revisa tu Perfil o vuelve a intentarlo.</p>
+        <div class="pago-botones">
+          <a class="pago-boton" [routerLink]="['/premium']" routerDirection="root">Volver al plan Premium</a>
+        </div>
+      </section>
+    } @else if (pago(); as pago) {
+      <section class="pago-tarjeta" [ngClass]="'is-' + pago.status">
+        <span class="pago-icono" aria-hidden="true">{{ icono() }}</span>
+        <h1>{{ textos()?.titulo }}</h1>
+        <p>{{ textos()?.texto }}</p>
+        @if (hasta(); as fecha) {
+          <p class="pago-hasta">
+            Tu plan Premium está activo hasta el <strong>{{ fecha }}</strong>.
+          </p>
+        }
+
+        <!-- El comprobante: lo que informó Webpay (nunca el número completo de la tarjeta) -->
+        <dl class="pago-datos">
+          <div>
+            <dt>Monto</dt>
+            <dd>{{ monto() }}</dd>
+          </div>
+          <div>
+            <dt>Plan</dt>
+            <dd>Premium, {{ pago.days }} días</dd>
+          </div>
+          <div>
+            <dt>Orden de compra</dt>
+            <dd>{{ pago.buy_order }}</dd>
+          </div>
+          @if (tarjeta(); as datosTarjeta) {
+            <div>
+              <dt>Tarjeta</dt>
+              <dd>{{ datosTarjeta }}</dd>
+            </div>
+          }
+          @if (aprobado() && pago.authorization_code) {
+            <div>
+              <dt>Código de autorización</dt>
+              <dd>{{ pago.authorization_code }}</dd>
+            </div>
+          }
+        </dl>
+
+        <div class="pago-botones">
+          @if (aprobado()) {
+            <a class="pago-boton" [routerLink]="['/catalogo-propiedades']" routerDirection="root">Ver los remates</a>
+          } @else {
+            <a class="pago-boton" [routerLink]="['/premium']" routerDirection="root">
+              {{ pago.status === 'error' ? 'Volver al plan' : 'Intentar de nuevo' }}
+            </a>
+          }
+        </div>
+      </section>
+    } @else {
+      <p class="pago-cargando">Confirmando el pago...</p>
+    }
+  </div>
+</ion-content>

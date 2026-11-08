@@ -8,6 +8,8 @@
 #   3) Al terminar, Transbank devuelve a la persona a /pagos/webpay/retorno (esta API), con el token.
 #   4) La API confirma la transacción con Transbank. Si quedó AUTORIZADA por el monto correcto, suma los días
 #      de Premium. Después manda a la persona a la web: /premium/resultado?pago=<número del pago>.
+#   Paso A4: si el pago se inició desde la app (encabezado X-Plataforma: app), Transbank vuelve a
+#      /pagos/webpay/retorno-app y la persona termina en la app (APP_URL) en vez de la web.
 #
 # Ambiente: por defecto el de INTEGRACIÓN de Transbank (pruebas con tarjetas de prueba, sin dinero real),
 # con las credenciales públicas de prueba que trae el SDK. Para cobrar de verdad hace falta contrato con
@@ -17,7 +19,7 @@ import os
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Query
+from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from transbank.common.integration_api_keys import IntegrationApiKeys
@@ -47,6 +49,16 @@ def _web_url() -> str:
     return (os.getenv("WEB_URL") or "http://localhost:5173").rstrip("/")
 
 
+def _app_url() -> str:
+    # Paso A4: dirección de la app HouseGreenM (npm start la abre en el puerto 4200)
+    return (os.getenv("APP_URL") or "http://localhost:4200").rstrip("/")
+
+
+def _desde_la_app(request: Request) -> bool:
+    # La app manda "X-Plataforma: app" en todas sus peticiones (la web manda "web")
+    return (request.headers.get("X-Plataforma") or "").strip().lower() == "app"
+
+
 def _transbank() -> Transaction:
     if _ambiente() == "produccion":
         codigo = os.getenv("WEBPAY_CODIGO_COMERCIO")
@@ -63,9 +75,10 @@ def _orden_de_compra() -> str:
     return "HG" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S") + secrets.token_hex(3)
 
 
-def _ir_al_resultado(pago: Pago | None) -> RedirectResponse:
-    # 303: el navegador vuelve a la web con GET aunque Transbank haya llegado con POST
-    destino = f"{_web_url()}/premium/resultado"
+def _ir_al_resultado(pago: Pago | None, inicio: str) -> RedirectResponse:
+    # 303: el navegador vuelve con GET aunque Transbank haya llegado con POST.
+    # inicio = la dirección de la web o de la app (las dos tienen la página /premium/resultado)
+    destino = f"{inicio}/premium/resultado"
     if pago is not None:
         destino += f"?pago={pago.id}"
     return RedirectResponse(destino, status_code=303)
@@ -78,7 +91,7 @@ def ver_plan():
 
 
 @router.post("/webpay", response_model=PagoInicioOut)
-def iniciar_pago(db: Session = Depends(get_db), usuario: User = Depends(get_current_user)):
+def iniciar_pago(request: Request, db: Session = Depends(get_db), usuario: User = Depends(get_current_user)):
     if usuario.role_id in ROLES_SIN_PAGO:
         raise HTTPException(status_code=400, detail="Tu cuenta ya ve todo sin necesidad del plan.")
 
@@ -96,7 +109,9 @@ def iniciar_pago(db: Session = Depends(get_db), usuario: User = Depends(get_curr
     db.commit()
 
     try:
-        respuesta = _transbank().create(pago.buy_order, pago.session_id, pago.amount, f"{_api_url()}/pagos/webpay/retorno")
+        # Paso A4: Transbank devuelve a la persona a la API por un camino distinto según dónde empezó el pago
+        retorno = "/pagos/webpay/retorno-app" if _desde_la_app(request) else "/pagos/webpay/retorno"
+        respuesta = _transbank().create(pago.buy_order, pago.session_id, pago.amount, f"{_api_url()}{retorno}")
         pago.token = respuesta["token"]
         db.commit()
     except Exception as error:  # sin internet, Transbank caído, credenciales malas...
@@ -111,8 +126,11 @@ def iniciar_pago(db: Session = Depends(get_db), usuario: User = Depends(get_curr
     return PagoInicioOut(pago_id=pago.id, url=respuesta["url"], token=respuesta["token"])
 
 
-def _procesar_retorno(db: Session, token_ws: str | None, tbk_token: str | None, tbk_orden: str | None):
+def _procesar_retorno(
+    db: Session, token_ws: str | None, tbk_token: str | None, tbk_orden: str | None, inicio: str | None = None
+):
     ahora = datetime.now(timezone.utc)
+    inicio = inicio or _web_url()
 
     # a) La persona apretó "Anular" en Webpay, o hubo un error en el formulario: llega TBK_TOKEN.
     # b) Se le acabó el tiempo para pagar: llega solo TBK_ORDEN_COMPRA.
@@ -128,16 +146,16 @@ def _procesar_retorno(db: Session, token_ws: str | None, tbk_token: str | None, 
             pago.error_message = "Se anuló en Webpay." if tbk_token else "Se acabó el tiempo para pagar en Webpay."
             pago.finished_at = ahora
             db.commit()
-        return _ir_al_resultado(pago)
+        return _ir_al_resultado(pago, inicio)
 
     if not token_ws:
-        return _ir_al_resultado(None)
+        return _ir_al_resultado(None, inicio)
 
     pago = db.query(Pago).filter(Pago.token == token_ws).first()
     if pago is None:
-        return _ir_al_resultado(None)
+        return _ir_al_resultado(None, inicio)
     if pago.status != "pendiente":
-        return _ir_al_resultado(pago)  # ya se confirmó antes (por ejemplo, si recargó la página)
+        return _ir_al_resultado(pago, inicio)  # ya se confirmó antes (por ejemplo, si recargó la página)
 
     try:
         respuesta = _transbank().commit(token_ws)
@@ -146,7 +164,7 @@ def _procesar_retorno(db: Session, token_ws: str | None, tbk_token: str | None, 
         pago.error_message = f"Al confirmar la transacción: {getattr(error, 'message', error)}"[:500]
         pago.finished_at = ahora
         db.commit()
-        return _ir_al_resultado(pago)
+        return _ir_al_resultado(pago, inicio)
 
     tarjeta = (respuesta.get("card_detail") or {}).get("card_number") or ""
     pago.response_code = respuesta.get("response_code")
@@ -175,7 +193,7 @@ def _procesar_retorno(db: Session, token_ws: str | None, tbk_token: str | None, 
         pago.status = "rechazado"
         pago.error_message = f"Webpay respondió {respuesta.get('status')} (código {respuesta.get('response_code')})."
     db.commit()
-    return _ir_al_resultado(pago)
+    return _ir_al_resultado(pago, inicio)
 
 
 # Transbank devuelve a la persona por GET o por POST (según el caso); se aceptan las dos formas.
@@ -197,6 +215,27 @@ def retorno_post(
     tbk_orden: str | None = Form(None, alias="TBK_ORDEN_COMPRA"),
 ):
     return _procesar_retorno(db, token_ws, tbk_token, tbk_orden)
+
+
+# Paso A4: lo mismo, para los pagos que empezaron en la app: al terminar, la persona vuelve a la app
+@router.get("/webpay/retorno-app", include_in_schema=False)
+def retorno_app_get(
+    db: Session = Depends(get_db),
+    token_ws: str | None = Query(None),
+    tbk_token: str | None = Query(None, alias="TBK_TOKEN"),
+    tbk_orden: str | None = Query(None, alias="TBK_ORDEN_COMPRA"),
+):
+    return _procesar_retorno(db, token_ws, tbk_token, tbk_orden, _app_url())
+
+
+@router.post("/webpay/retorno-app", include_in_schema=False)
+def retorno_app_post(
+    db: Session = Depends(get_db),
+    token_ws: str | None = Form(None),
+    tbk_token: str | None = Form(None, alias="TBK_TOKEN"),
+    tbk_orden: str | None = Form(None, alias="TBK_ORDEN_COMPRA"),
+):
+    return _procesar_retorno(db, token_ws, tbk_token, tbk_orden, _app_url())
 
 
 @router.get("/mios", response_model=list[PagoOut])

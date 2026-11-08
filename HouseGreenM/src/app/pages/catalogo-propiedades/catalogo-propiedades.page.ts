@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { ToastController } from '@ionic/angular/lazy';
+import { NavController, ToastController } from '@ionic/angular/lazy';
 
 import { mensajeDeError } from '../../core/api.service';
 import { CatalogoService } from '../../core/catalogo.service';
@@ -56,6 +56,7 @@ export class CatalogoPropiedadesPage {
   private catalogo = inject(CatalogoService);
   private sesion = inject(SesionService);
   private avisos = inject(ToastController);
+  private navegacion = inject(NavController);
 
   readonly OPCIONES_ORDEN = OPCIONES_ORDEN;
   readonly RANGOS_PRECIO = RANGOS_PRECIO;
@@ -188,8 +189,9 @@ export class CatalogoPropiedadesPage {
   }
 
   async alternarFavorito(remate: Remate) {
+    // Paso A4: como en la web, sin el plan el corazón lleva a la página del plan Premium
     if (!this.conPremium()) {
-      await this.mostrarAviso(`Guardar favoritos es parte del plan Premium: ${PRECIO_PREMIUM_TEXTO} por ${DIAS_PREMIUM} días.`);
+      await this.navegacion.navigateForward('/premium');
       return;
     }
     try {
