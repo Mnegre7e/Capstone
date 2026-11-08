@@ -1,5 +1,5 @@
 import { Component, effect, inject } from '@angular/core';
-import { MenuController, NavController } from '@ionic/angular/lazy';
+import { MenuController } from '@ionic/angular/lazy';
 import { register } from 'swiper/element/bundle';
 
 import { SesionService } from './core/sesion.service';
@@ -16,7 +16,6 @@ register();
 export class AppComponent {
   private sesion = inject(SesionService);
   private menu = inject(MenuController);
-  private navegacion = inject(NavController);
 
   // Paso A1: el menú lateral cambia según quién inició sesión
   readonly usuario = this.sesion.usuario;
@@ -30,9 +29,7 @@ export class AppComponent {
     });
   }
 
-  async cerrarSesion(): Promise<void> {
-    this.sesion.cerrarSesion();
-    void this.menu.close();
-    await this.navegacion.navigateRoot('/login');
+  cerrarSesion(): Promise<void> {
+    return this.sesion.salir();
   }
 }

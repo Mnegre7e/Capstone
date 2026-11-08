@@ -1,5 +1,6 @@
 <ion-app>
-  <ion-menu contentId="main-content" side="start" type="overlay">
+  <!-- Paso A2: el menú sale por la derecha, donde está el botón ☰ (como el menú de la web) -->
+  <ion-menu contentId="main-content" side="end" type="overlay">
     <ion-header class="ion-no-border">
       <ion-toolbar class="menu-toolbar">
         <ion-title>HouseGreen</ion-title>
@@ -55,13 +56,10 @@
                 <ion-label>Alcance</ion-label>
               </ion-item>
             } @else {
-              <ion-item button [routerLink]="['/home']">
-                <ion-icon aria-hidden="true" name="home-outline" slot="start"></ion-icon>
-                <ion-label>Inicio</ion-label>
-              </ion-item>
+              <!-- Paso A2: las mismas secciones y nombres que el menú de la web -->
               <ion-item button [routerLink]="['/catalogo-propiedades']">
                 <ion-icon aria-hidden="true" name="business-outline" slot="start"></ion-icon>
-                <ion-label>Catálogo de Remates</ion-label>
+                <ion-label>Remates</ion-label>
               </ion-item>
               <ion-item button [routerLink]="['/mapa-propiedades']">
                 <ion-icon aria-hidden="true" name="map-outline" slot="start"></ion-icon>
@@ -75,13 +73,13 @@
                 <ion-icon aria-hidden="true" name="notifications-outline" slot="start"></ion-icon>
                 <ion-label>Alertas</ion-label>
               </ion-item>
-              <ion-item button [routerLink]="['/perfil-configuracion']">
-                <ion-icon aria-hidden="true" name="person-outline" slot="start"></ion-icon>
-                <ion-label>Mi Perfil</ion-label>
-              </ion-item>
               <ion-item button [routerLink]="['/contacto']">
                 <ion-icon aria-hidden="true" name="chatbox-ellipses-outline" slot="start"></ion-icon>
-                <ion-label>Sugerencias</ion-label>
+                <ion-label>Opinar</ion-label>
+              </ion-item>
+              <ion-item button [routerLink]="['/perfil-configuracion']">
+                <ion-icon aria-hidden="true" name="person-outline" slot="start"></ion-icon>
+                <ion-label>Perfil</ion-label>
               </ion-item>
             }
             <ion-item button [routerLink]="['/nosotros']">

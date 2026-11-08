@@ -1,4 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { MenuController, NavController } from '@ionic/angular/lazy';
 
 import { ApiService, ErrorDeApi } from './api.service';
 import { ROL_ADMIN, ROL_ANALISTA, Token, Usuario } from './modelos';
@@ -10,6 +11,8 @@ const CLAVE_DEL_TOKEN = 'housegreen-token';
 @Injectable({ providedIn: 'root' })
 export class SesionService {
   private api = inject(ApiService);
+  private menu = inject(MenuController);
+  private navegacion = inject(NavController);
   private token = signal<string | null>(leerToken());
 
   /** La persona que inició sesión (null = nadie). */
@@ -55,6 +58,13 @@ export class SesionService {
     this.borrar();
   }
 
+  /** Paso A1c: lo que hace cualquier botón "Cerrar sesión": borra la sesión y vuelve al login. */
+  async salir(): Promise<void> {
+    this.borrar();
+    void this.menu.close();
+    await this.navegacion.navigateRoot('/login');
+  }
+
   /** La pantalla con que parte cada rol. */
   rutaDeInicio(): string {
     const rol = this.usuario()?.role_id;
@@ -64,7 +74,7 @@ export class SesionService {
     if (rol === ROL_ANALISTA) {
       return '/analista/resumen';
     }
-    return '/home';
+    return '/catalogo-propiedades'; // Paso A2: como en la web, el inversionista parte en Remates
   }
 
   private guardarToken(token: string): void {

@@ -1,110 +1,192 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar class="greenhouse-toolbar">
-    <ion-buttons slot="start">
-      <!-- Botón de retorno (Back Button) -->
-      <ion-back-button defaultHref="/home" text="Volver" icon="chevron-back-outline"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Catálogo</ion-title>
-    <ion-buttons slot="end">
-      <ion-button routerLink="/propiedades-guardadas">
-        <ion-icon slot="icon-only" name="bookmark-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<app-encabezado></app-encabezado>
 
-<ion-content class="ion-padding greenhouse-content">
+<ion-content>
+  <!-- Paso A2: tirar hacia abajo vuelve a pedir los remates -->
+  <ion-refresher slot="fixed" (ionRefresh)="refrescar($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-  <!-- Buscador Estilo Greenhouse -->
-  <div class="search-container">
-    <ion-searchbar 
-      [(ngModel)]="textoBusqueda" 
-      (ionInput)="aplicarFiltrosYOrden()"
-      placeholder="Buscar por comuna, título o calle..."
-      debounce="300"
-      class="greenhouse-searchbar">
-    </ion-searchbar>
-  </div>
+  <div class="hg-pagina">
+    <h1>Propiedades en remate</h1>
 
-  <!-- Filtros Rápidos de Riesgo -->
-  <div class="filter-chips">
-    <ion-chip [ngClass]="{'active-chip': riesgoSeleccionado === 'bajo'}" (click)="setRiesgo('bajo')">
-      <ion-label>Riesgo Bajo</ion-label>
-    </ion-chip>
-    <ion-chip [ngClass]="{'active-chip': riesgoSeleccionado === 'medio'}" (click)="setRiesgo('medio')">
-      <ion-label>Riesgo Medio</ion-label>
-    </ion-chip>
-    <ion-chip [ngClass]="{'active-chip': riesgoSeleccionado === 'alto'}" (click)="setRiesgo('alto')">
-      <ion-label>Riesgo Alto</ion-label>
-    </ion-chip>
+    @if (cargando()) {
+      <p class="hg-mensaje">Cargando propiedades...</p>
+    } @else if (error()) {
+      <p class="hg-mensaje">Ocurrió un error: {{ error() }}</p>
+    } @else {
+      <p class="hg-subtitulo">{{ filtrados().length }} propiedades encontradas</p>
 
-    @if (riesgoSeleccionado || comunaSeleccionada || tipoSeleccionado || precioMaximo) {
-      <ion-chip class="clear-chip" (click)="limpiarFiltros()">
-        <ion-icon name="close-circle-outline"></ion-icon>
-        <ion-label>Limpiar</ion-label>
-      </ion-chip>
-    }
-  </div>
+      <!-- Sin Premium se ve el catálogo; el detalle de cada remate es parte del plan -->
+      @if (!conPremium()) {
+        <div class="cat-premium">
+          <p>
+            <strong>Estás viendo el catálogo.</strong> Para ver el semáforo de riesgo de cada remate, el precio frente a la
+            comuna y los datos del remate, hazte Premium: {{ PRECIO_PREMIUM_TEXTO }} por {{ DIAS_PREMIUM }} días.
+          </p>
+        </div>
+      }
 
-  <!-- Conteo de resultados -->
-  <div class="results-header">
-    <p class="results-count">{{ propiedadesFiltradas.length }} propiedades encontradas</p>
-  </div>
-
-  <!-- Lista de Tarjetas del Catálogo -->
-  <div class="catalog-grid">
-    @for (p of propiedadesFiltradas; track p.id) {
-      <div class="house-card" (click)="verDetallePropiedad(p)">
-        
-        <!-- Banner Greenhouse con indicador de riesgo -->
-        <div class="card-banner" [ngClass]="'banner-' + p.riesgoGlobal">
-          <div class="badge-riesgo" [ngClass]="'badge-' + p.riesgoGlobal">
-            <span class="dot">●</span> Riesgo {{ p.riesgoGlobal | titlecase }}
-          </div>
-
-          <button class="btn-bookmark" (click)="toggleGuardar(p, $event)" [attr.aria-label]="'Guardar ' + p.titulo">
-            <ion-icon [name]="p.guardado ? 'bookmark' : 'bookmark-outline'"></ion-icon>
+      <div class="cat-busqueda">
+        <input
+          type="search"
+          class="cat-buscador"
+          placeholder="Buscar por título, comuna o dirección..."
+          aria-label="Buscar remates"
+          [ngModel]="busqueda()"
+          (ngModelChange)="busqueda.set($event)" />
+        <div class="cat-busqueda-fila">
+          <button
+            type="button"
+            class="hg-boton"
+            [attr.aria-expanded]="panelAbierto()"
+            (click)="panelAbierto.set(!panelAbierto())">
+            Filtros y orden{{ filtrosActivos() > 0 ? ' · ' + filtrosActivos() : '' }}
           </button>
+          <label class="cat-favoritos">
+            <input type="checkbox" [ngModel]="soloFavoritos()" (ngModelChange)="soloFavoritos.set($event)" />
+            Solo favoritos
+          </label>
+        </div>
+      </div>
 
-          <div class="type-icon">
-            <ion-icon [name]="p.tipo === 'Casa' ? 'home-outline' : (p.tipo === 'Oficina' ? 'briefcase-outline' : 'business-outline')"></ion-icon>
+      <p class="cat-orden-actual">Ordenado por: <strong>{{ textoOrden() }}</strong></p>
+
+      @if (panelAbierto()) {
+        <div class="cat-panel">
+          <fieldset class="cat-grupo">
+            <legend>Ordenar por</legend>
+            @for (opcion of OPCIONES_ORDEN; track opcion.valor) {
+              <label class="cat-opcion">
+                <input type="radio" name="orden" [checked]="orden() === opcion.valor" (change)="orden.set(opcion.valor)" />
+                {{ opcion.texto }}
+              </label>
+            }
+          </fieldset>
+
+          <fieldset class="cat-grupo">
+            <legend>Rango de precio mínimo</legend>
+            <div class="cat-chips">
+              @for (rango of RANGOS_PRECIO; track rango.texto) {
+                <button
+                  type="button"
+                  class="cat-chip"
+                  [class.is-activo]="rangoActivo(rango)"
+                  [attr.aria-pressed]="rangoActivo(rango)"
+                  (click)="elegirRango(rango)">
+                  {{ rangoActivo(rango) ? '✓ ' : '' }}{{ rango.texto }}
+                </button>
+              }
+            </div>
+            <div class="cat-precios">
+              <label>
+                Desde
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="Sin mínimo"
+                  [value]="mostrarPesos(precioDesde())"
+                  (input)="precioDesde.set(leerPesos($any($event.target).value))" />
+              </label>
+              <label>
+                Hasta
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="Sin máximo"
+                  [value]="mostrarPesos(precioHasta())"
+                  (input)="precioHasta.set(leerPesos($any($event.target).value))" />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="cat-grupo">
+            <legend>Comuna</legend>
+            <div class="cat-chips">
+              @for (comuna of comunas(); track comuna) {
+                <button
+                  type="button"
+                  class="cat-chip"
+                  [class.is-activo]="comunasElegidas().includes(comuna)"
+                  [attr.aria-pressed]="comunasElegidas().includes(comuna)"
+                  (click)="alternarComuna(comuna)">
+                  {{ comunasElegidas().includes(comuna) ? '✓ ' : '' }}{{ comuna }}
+                </button>
+              }
+            </div>
+          </fieldset>
+
+          <fieldset class="cat-grupo">
+            <legend>Tipo de propiedad</legend>
+            <div class="cat-chips">
+              @for (categoria of categorias(); track categoria.valor) {
+                <button
+                  type="button"
+                  class="cat-chip"
+                  [class.is-activo]="tiposElegidos().includes(categoria.valor)"
+                  [attr.aria-pressed]="tiposElegidos().includes(categoria.valor)"
+                  (click)="alternarTipo(categoria.valor)">
+                  {{ tiposElegidos().includes(categoria.valor) ? '✓ ' : '' }}{{ categoria.nombre }}
+                  <span class="cat-chip-cantidad">{{ cantidadPorCategoria()[categoria.valor] ?? 0 }}</span>
+                </button>
+              }
+            </div>
+          </fieldset>
+
+          <!-- Filtrar por semáforo es de Premium (sin el plan no se ve el semáforo) -->
+          @if (conPremium()) {
+            <fieldset class="cat-grupo">
+              <legend>Riesgo según semáforo</legend>
+              <div class="cat-chips">
+                @for (riesgo of RIESGOS; track riesgo) {
+                  <button
+                    type="button"
+                    class="cat-chip"
+                    [class.is-activo]="riesgosElegidos().includes(riesgo)"
+                    [attr.aria-pressed]="riesgosElegidos().includes(riesgo)"
+                    (click)="alternarRiesgo(riesgo)">
+                    <span [class]="'cat-punto cat-punto-' + riesgo"></span>
+                    {{ NOMBRE_RIESGO[riesgo] }}
+                  </button>
+                }
+              </div>
+            </fieldset>
+          }
+
+          <div class="cat-panel-botones">
+            <button type="button" class="hg-boton-borde" (click)="limpiar()">Limpiar</button>
+            <button type="button" class="hg-boton cat-boton-ver" (click)="panelAbierto.set(false)">
+              Ver {{ filtrados().length }} {{ filtrados().length === 1 ? 'remate' : 'remates' }}
+            </button>
           </div>
         </div>
+      }
 
-        <!-- Contenido principal de la tarjeta -->
-        <div class="card-body">
-          <span class="comuna-tag">{{ p.comuna | uppercase }}</span>
-          <h2 class="prop-title">{{ p.titulo }}</h2>
-          <p class="prop-address">{{ p.direccion }}</p>
+      <div class="cat-lista">
+        @for (remate of visibles(); track remate.id) {
+          <app-tarjeta-remate
+            [remate]="remate"
+            [comuna]="nombreComuna(remate)"
+            [conPremium]="conPremium()"
+            [favorito]="esFavorito(remate)"
+            (alternarFavorito)="alternarFavorito(remate)">
+          </app-tarjeta-remate>
+        }
+      </div>
 
-          <div class="price-box">
-            <div class="price-main">
-              <span class="price-label">Precio Mínimo:</span>
-              <span class="price-value">{{ formatearMoneda(p.precioMinimo) }}</span>
-            </div>
-            <div class="price-market">
-              <span class="market-label">Mercado: {{ formatearMoneda(p.precioMercado) }}</span>
-              <span class="discount-badge">-{{ p.descuentoEstimado }}%</span>
-            </div>
-          </div>
-
-          <div class="card-specs">
-            <span><ion-icon name="square-outline"></ion-icon> {{ p.superficie }} m²</span>
-            <span><ion-icon name="calendar-outline"></ion-icon> {{ p.fechaRemate }}</span>
-          </div>
-
-          <div class="card-action">
-            <span class="lote-text">Lote #{{ p.lote }}</span>
-            <button class="btn-detail">Ver Detalle →</button>
-          </div>
+      @if (filtrados().length > 24) {
+        <div class="cat-mas">
+          <p>Mostrando {{ visibles().length }} de {{ filtrados().length }} remates</p>
+          @if (faltan() > 0) {
+            <button type="button" class="cat-boton-mas" (click)="mostrarMas()">
+              Mostrar {{ faltan() < 24 ? faltan() : 24 }} más
+            </button>
+          }
         </div>
+      }
 
-      </div>
-    } @empty {
-      <div class="no-results">
-        <p>No se encontraron propiedades con esos criterios.</p>
-      </div>
+      @if (filtrados().length === 0) {
+        <p class="hg-mensaje">No se encontraron propiedades con esos filtros.</p>
+      }
     }
   </div>
-
 </ion-content>

@@ -3,6 +3,8 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular/lazy';
 
+import { SesionService } from '../../core/sesion.service';
+
 @Component({
   selector: 'app-perfil-configuracion',
   templateUrl: './perfil-configuracion.page.html',
@@ -13,6 +15,7 @@ export class PerfilConfiguracionPage {
 
   private router = inject(Router);
   private navCtrl = inject(NavController);
+  private sesion = inject(SesionService);
 
   usuario = {
     nombre: 'Camila Rojas',
@@ -53,7 +56,8 @@ export class PerfilConfiguracionPage {
   irASobreNosotros() {
     this.router.navigate(['/nosotros']);
   }
+  // Paso A1c: borra la sesión (antes solo cambiaba de pantalla y la sesión seguía abierta)
   cerrarSesion() {
-    this.router.navigate(['/login']);
+    return this.sesion.salir();
   }
 }

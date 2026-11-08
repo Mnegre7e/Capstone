@@ -39,12 +39,9 @@ const routes: Routes = [
     loadChildren: () => import('./pages/nosotros/nosotros.module').then((m) => m.NosotrosPageModule),
   },
 
-  // Inversionista (el administrador también puede verlas)
-  {
-    path: 'home',
-    canActivate: inversionista,
-    loadChildren: () => import('./home/home.module').then((m) => m.HomePageModule),
-  },
+  // Inversionista (el administrador también puede verlas).
+  // Paso A2: como en la web, se parte en el catálogo (ya no hay pantalla de Inicio)
+  { path: 'home', redirectTo: 'catalogo-propiedades', pathMatch: 'full' },
   {
     path: 'catalogo-propiedades',
     canActivate: inversionista,

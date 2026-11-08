@@ -1,0 +1,155 @@
+// Paso A2: los mismos colores y medidas que la tarjeta de la web (PropertyCard.css)
+:host {
+  display: block;
+}
+
+.hg-tarjeta {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e5e5e4;
+  border-radius: 12px;
+  background-color: #ffffff;
+  overflow: hidden;
+  color: #1c1c1c;
+  text-decoration: none;
+}
+
+.hg-tarjeta-imagen {
+  position: relative;
+  height: 180px;
+  background-color: #f0f0ef;
+
+  img,
+  app-sin-foto {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.hg-tarjeta-riesgo {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+
+.hg-tarjeta-corazon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background-color: #ffffff;
+  color: #a3a3a3;
+  font-size: 19px;
+  cursor: pointer;
+
+  &.is-favorito {
+    color: #dc2626;
+  }
+}
+
+.hg-tarjeta-cuerpo {
+  padding: 16px;
+}
+
+.hg-tarjeta-info {
+  padding-bottom: 14px;
+}
+
+.hg-tarjeta-comuna {
+  margin: 0;
+  color: #737373;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hg-tarjeta-titulo {
+  margin: 4px 0 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.hg-tarjeta-direccion {
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: #737373;
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.hg-tarjeta-etiqueta {
+  margin: 12px 0 0;
+  color: #737373;
+  font-size: 12px;
+}
+
+.hg-tarjeta-precios {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.hg-tarjeta-precio {
+  color: #15803d;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.hg-tarjeta-m2 {
+  color: #525252;
+  font-size: 13px;
+}
+
+.hg-tarjeta-datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+
+  span {
+    padding: 4px 10px;
+    border-radius: 8px;
+    background-color: #f5f5f4;
+    color: #404040;
+    font-size: 13px;
+  }
+
+  .hg-tarjeta-remate {
+    color: #14532d;
+    font-weight: 700;
+  }
+
+  .hg-tarjeta-finalizado {
+    background-color: #e5e5e4;
+    color: #525252;
+    font-weight: 700;
+  }
+}
+
+.hg-tarjeta-pie {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0ef;
+  color: #737373;
+  font-size: 13px;
+}
+
+.hg-tarjeta-ver {
+  color: #15803d;
+  font-weight: 700;
+  white-space: nowrap;
+}

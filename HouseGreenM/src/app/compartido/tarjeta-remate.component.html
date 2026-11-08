@@ -1,0 +1,58 @@
+<a class="hg-tarjeta" [routerLink]="['/detalle-propiedad', remate().id]">
+  <div class="hg-tarjeta-imagen">
+    @if (foto(); as url) {
+      <img [src]="url" [alt]="remate().title" (error)="fotoNoCargo()" />
+    } @else {
+      <app-sin-foto [tipo]="remate().property_type"></app-sin-foto>
+    }
+    @if (conPremium()) {
+      <div class="hg-tarjeta-riesgo">
+        <app-etiqueta-riesgo [riesgo]="riesgo()"></app-etiqueta-riesgo>
+      </div>
+    }
+    <button
+      type="button"
+      class="hg-tarjeta-corazon"
+      [class.is-favorito]="favorito()"
+      [attr.aria-label]="favorito() ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+      (click)="clicCorazon($event)">
+      {{ favorito() ? '♥' : '♡' }}
+    </button>
+  </div>
+
+  <div class="hg-tarjeta-cuerpo">
+    <div class="hg-tarjeta-info">
+      <p class="hg-tarjeta-comuna">{{ comuna() || 'Comuna desconocida' }}</p>
+      <h3 class="hg-tarjeta-titulo">{{ remate().title }}</h3>
+      <p class="hg-tarjeta-direccion">{{ remate().address || 'Sin dirección informada' }}</p>
+
+      <p class="hg-tarjeta-etiqueta">Precio mínimo</p>
+      <div class="hg-tarjeta-precios">
+        <span class="hg-tarjeta-precio">{{ precio() }}</span>
+        @if (precioM2(); as m2) {
+          <span class="hg-tarjeta-m2">{{ m2 }}</span>
+        }
+      </div>
+
+      @if (datos().length > 0 || fechaRemate() || retirado()) {
+        <div class="hg-tarjeta-datos">
+          @for (dato of datos(); track dato) {
+            <span>{{ dato }}</span>
+          }
+          @if (retirado()) {
+            <span class="hg-tarjeta-finalizado">Remate retirado</span>
+          } @else if (finalizado()) {
+            <span class="hg-tarjeta-finalizado">Remate finalizado</span>
+          } @else if (fechaRemate(); as fecha) {
+            <span class="hg-tarjeta-remate">{{ fecha }}</span>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="hg-tarjeta-pie">
+      <span>{{ publicado() }}</span>
+      <span class="hg-tarjeta-ver">Ver detalle ›</span>
+    </div>
+  </div>
+</a>
