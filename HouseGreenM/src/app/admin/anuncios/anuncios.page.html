@@ -1,63 +1,176 @@
-<ion-header class="ion-no-border bg-white">
-  <ion-toolbar class="px-2">
-    <ion-title>
-      <h1 class="main-title">Anuncios</h1>
-      <p class="subtitle">Para todos o para un grupo</p>
-    </ion-title>
+<app-encabezado></app-encabezado>
 
-    <ion-buttons slot="end">
-      <ion-button class="btn-nuevo" fill="solid" (click)="crearNuevoAnuncio()">
-        <ion-icon name="add-outline" slot="start"></ion-icon>
-        Nuevo
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
+  <app-marco-admin seccion="anuncios">
+    <section>
+      <h1 class="admin-titulo">Anuncios</h1>
+      <p class="admin-subtitulo">
+        Mensajes para los inversionistas. Les llegan dentro de HouseGreen y, si quieres, también por correo.
+      </p>
 
-<ion-content class="ion-padding-horizontal">
-  <div class="section-label">ENVIADOS</div>
+      <form class="anu-formulario" (ngSubmit)="revisar()" novalidate>
+        <h2 class="anu-seccion">Nuevo anuncio</h2>
 
-  <div class="anuncios-list">
-    @for (item of anuncios; track item.id) {
-      <div class="anuncio-card">
-        <div class="card-header">
-          <h3 class="anuncio-title">{{ item.titulo }}</h3>
-          <span class="anuncio-fecha">{{ item.fecha }}</span>
-        </div>
+        <fieldset class="anu-campos" [disabled]="confirmando() || enviando()">
+          <p class="anu-etiqueta" id="anu-para">Para</p>
+          <div class="anu-para" role="radiogroup" aria-labelledby="anu-para">
+            @for (a of AUDIENCIAS; track a.valor) {
+              <label class="anu-para-opcion" [class.is-activa]="para() === a.valor">
+                <input type="radio" name="para" [value]="a.valor" [checked]="para() === a.valor" (change)="elegirPara(a.valor)" />
+                {{ a.nombre }}
+              </label>
+            }
+          </div>
 
-        <!-- Badge de Audiencia -->
-        <div class="audiencia-badge">
-          <ion-icon [name]="item.tipoAudiencia === 'vieron' ? 'eye-outline' : (item.tipoAudiencia === 'guardaron' ? 'bookmark-outline' : (item.tipoAudiencia === 'persona' ? 'person-outline' : 'people-outline'))"></ion-icon>
-          <span>{{ item.labelAudiencia }}</span>
-          @if (item.conteoAudiencia) {
-            <strong>{{ item.conteoAudiencia }}</strong>
+          @if (errorDeListas() && para() !== 'todos') {
+            <p class="anu-error-chico">No se pudo cargar la lista: {{ errorDeListas() }}</p>
           }
+
+          @switch (para()) {
+            @case ('todos') {
+              @if (textoTodos()) {
+                <p class="anu-nota">{{ textoTodos() }}</p>
+              }
+            }
+            @case ('persona') {
+              @if (!errorDeListas()) {
+                <app-elegir-opcion
+                  etiqueta="Buscar a la persona"
+                  textoDeAyuda="Nombre o correo"
+                  sinOpciones="Todavía no hay inversionistas registrados."
+                  [opciones]="opcionesDePersonas()"
+                  [elegida]="persona()"
+                  (elegir)="elegirPersona($event)">
+                </app-elegir-opcion>
+              }
+            }
+            @case ('vieron') {
+              @if (!errorDeListas()) {
+                <app-elegir-opcion
+                  etiqueta="Buscar la publicación"
+                  textoDeAyuda="Título o comuna"
+                  sinOpciones="Todavía nadie ha visto una publicación."
+                  [opciones]="opcionesDePublicaciones()"
+                  [elegida]="publicacion()"
+                  (elegir)="elegirPublicacion($event)">
+                </app-elegir-opcion>
+              }
+            }
+            @case ('guardaron') {
+              @if (!errorDeListas()) {
+                <app-elegir-opcion
+                  etiqueta="Buscar la publicación"
+                  textoDeAyuda="Título o comuna"
+                  sinOpciones="Todavía nadie ha guardado una publicación."
+                  [opciones]="opcionesDePublicaciones()"
+                  [elegida]="publicacion()"
+                  (elegir)="elegirPublicacion($event)">
+                </app-elegir-opcion>
+              }
+            }
+          }
+
+          <label class="anu-campo">
+            <span class="anu-campo-arriba">
+              Título
+              <span class="anu-contador">{{ titulo().length }}/{{ LARGO_MAXIMO_DEL_TITULO }}</span>
+            </span>
+            <input
+              type="text"
+              name="titulo"
+              [maxlength]="LARGO_MAXIMO_DEL_TITULO"
+              [ngModel]="titulo()"
+              (ngModelChange)="escribirTitulo($event)" />
+          </label>
+
+          <label class="anu-campo">
+            <span class="anu-campo-arriba">
+              Mensaje
+              <span class="anu-contador">{{ mensaje().length }}/{{ LARGO_MAXIMO_DEL_MENSAJE }}</span>
+            </span>
+            <textarea
+              name="mensaje"
+              rows="4"
+              [maxlength]="LARGO_MAXIMO_DEL_MENSAJE"
+              [ngModel]="mensaje()"
+              (ngModelChange)="escribirMensaje($event)"></textarea>
+          </label>
+
+          <label class="anu-correo">
+            <input type="checkbox" name="porCorreo" [ngModel]="porCorreo()" (ngModelChange)="cambiarCorreo($event)" />
+            <span>
+              <strong>Enviar también por correo</strong>
+              <span class="anu-correo-ayuda">
+                Además de llegar a HouseGreen, le llega al correo de cada persona. Los correos salen en unos segundos.
+              </span>
+            </span>
+          </label>
+        </fieldset>
+
+        @if (errorDeEnvio()) {
+          <p class="anu-error-chico" role="alert">{{ errorDeEnvio() }}</p>
+        }
+        @if (aviso()) {
+          <p class="anu-aviso" role="status">{{ aviso() }}</p>
+        }
+
+        @if (!confirmando() && !enviando()) {
+          <button type="submit" class="anu-boton-enviar">Enviar anuncio</button>
+        } @else {
+          <div class="anu-confirmar">
+            <p>
+              ¿Enviar este anuncio a {{ destinoEnPalabras() }}{{ porCorreo() ? ', también por correo' : '' }}? Después no
+              se puede retirar.
+            </p>
+            <div class="anu-confirmar-botones">
+              <button type="button" class="anu-boton-enviar" [disabled]="enviando()" (click)="enviar()">
+                {{ enviando() ? 'Enviando...' : 'Sí, enviar' }}
+              </button>
+              <button type="button" class="anu-boton-claro" [disabled]="enviando()" (click)="confirmando.set(false)">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        }
+      </form>
+
+      <h2 class="anu-seccion anu-seccion-enviados">
+        Enviados{{ !cargando() && !error() ? ' · ' + anuncios().length : '' }}
+      </h2>
+
+      @if (cargando()) {
+        <p class="anu-nota">Cargando...</p>
+      }
+      @if (error(); as mensajeError) {
+        <p class="anu-error">No se pudieron cargar los anuncios: {{ mensajeError }}</p>
+      }
+      @if (!cargando() && !error() && anuncios().length === 0) {
+        <div class="anu-vacio">Todavía no has enviado anuncios. Aparecerán aquí después del primero.</div>
+      }
+
+      <ul class="anu-lista">
+        @for (item of visibles(); track item.anuncio.id) {
+          <li class="anu-item">
+            <div class="anu-item-arriba">
+              <h3>{{ item.anuncio.title }}</h3>
+              <span class="anu-item-fecha">{{ item.fecha }}</span>
+            </div>
+            <p class="anu-item-para">Para: {{ item.para }}</p>
+            <p class="anu-item-mensaje">{{ item.anuncio.message }}</p>
+            <p class="anu-item-lectura">{{ item.lectura }}</p>
+            @if (item.correo) {
+              <p class="anu-item-correo">{{ item.correo }}</p>
+            }
+          </li>
+        }
+      </ul>
+
+      @if (anuncios().length > visibles().length) {
+        <div class="anu-mas">
+          <p>Mostrando {{ visibles().length }} de {{ anuncios().length }}</p>
+          <button type="button" class="anu-boton-claro" (click)="mostrarMas()">Mostrar más</button>
         </div>
-
-        <p class="leido-status">{{ item.leidoTexto }}</p>
-      </div>
-    }
-  </div>
+      }
+    </section>
+  </app-marco-admin>
 </ion-content>
-
-<!-- MENÚ INFERIOR / FOOTER -->
-<ion-footer class="ion-no-border">
-  <div class="custom-tab-bar">
-    <div class="tab-item" (click)="irA('admin-home')">
-      <ion-icon name="stats-chart-outline"></ion-icon>
-      <span>Panel</span>
-    </div>
-    <div class="tab-item" (click)="irA('publicaciones')">
-      <ion-icon name="document-text-outline"></ion-icon>
-      <span>Publicaciones</span>
-    </div>
-    <div class="tab-item" (click)="irA('opiniones')">
-      <ion-icon name="chatbox-outline"></ion-icon>
-      <span>Opiniones</span>
-    </div>
-    <div class="tab-item active">
-      <ion-icon name="megaphone-outline"></ion-icon>
-      <span>Anuncios</span>
-    </div>
-  </div>
-</ion-footer>

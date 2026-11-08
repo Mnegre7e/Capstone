@@ -76,6 +76,9 @@
                 <dd class="panel-premium-nota">en los últimos {{ datos.dias }} días</dd>
               </div>
             </dl>
+            <p class="panel-enlace-final panel-premium-enlaces">
+              <a [routerLink]="['/usuarios']" [queryParams]="{ plan: 'vigente' }">Ver quiénes tienen Premium ›</a>
+            </p>
           </div>
         }
 

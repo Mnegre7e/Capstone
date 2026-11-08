@@ -143,51 +143,22 @@ const routes: Routes = [
     canActivate: administrador,
     loadChildren: () => import('./admin/anuncios/anuncios.module').then((m) => m.AnunciosPageModule),
   },
-  {
-    path: 'nuevo-anuncio',
-    canActivate: administrador,
-    loadChildren: () => import('./admin/nuevo-anuncio/nuevo-anuncio.module').then((m) => m.NuevoAnuncioPageModule),
-  },
-  {
-    path: 'anuncio-destinatario',
-    canActivate: administrador,
-    loadChildren: () =>
-      import('./admin/anuncio-destinatario/anuncio-destinatario.module').then((m) => m.AnuncioDestinatarioPageModule),
-  },
+  { path: 'nuevo-anuncio', redirectTo: 'anuncios', pathMatch: 'full' }, // Paso A9: como en la web, se hace en anuncios
+  { path: 'anuncio-destinatario', redirectTo: 'anuncios', pathMatch: 'full' }, // Paso A9: como en la web, se hace en anuncios
   {
     path: 'opiniones',
     canActivate: administrador,
     loadChildren: () => import('./admin/opiniones/opiniones.module').then((m) => m.OpinionesPageModule),
   },
-  {
-    path: 'responder-opinion',
-    canActivate: administrador,
-    loadChildren: () =>
-      import('./admin/responder-opinion/responder-opinion.module').then((m) => m.ResponderOpinionPageModule),
-  },
-  {
-    path: 'responder-opinion/:id',
-    canActivate: administrador,
-    loadChildren: () =>
-      import('./admin/responder-opinion/responder-opinion.module').then((m) => m.ResponderOpinionPageModule),
-  },
+  { path: 'responder-opinion', redirectTo: 'opiniones', pathMatch: 'full' }, // Paso A9: como en la web, se hace en opiniones
+  { path: 'responder-opinion/:id', redirectTo: 'opiniones', pathMatch: 'full' }, // Paso A9: como en la web, se hace en opiniones
   {
     path: 'usuarios',
     canActivate: administrador,
     loadChildren: () => import('./admin/usuarios/usuarios.module').then((m) => m.UsuariosPageModule),
   },
-  {
-    path: 'actividad-usuario',
-    canActivate: administrador,
-    loadChildren: () =>
-      import('./admin/actividad-usuario/actividad-usuario.module').then((m) => m.ActividadUsuarioPageModule),
-  },
-  {
-    path: 'actividad-usuario/:id',
-    canActivate: administrador,
-    loadChildren: () =>
-      import('./admin/actividad-usuario/actividad-usuario.module').then((m) => m.ActividadUsuarioPageModule),
-  },
+  { path: 'actividad-usuario', redirectTo: 'usuarios', pathMatch: 'full' }, // Paso A9: como en la web, se hace en usuarios
+  { path: 'actividad-usuario/:id', redirectTo: 'usuarios', pathMatch: 'full' }, // Paso A9: como en la web, se hace en usuarios
 
   // Analista: sus cuatro pantallas
   {

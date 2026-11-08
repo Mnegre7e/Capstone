@@ -1,62 +1,154 @@
-<ion-header class="ion-no-border bg-white">
-  <ion-toolbar class="px-2">
-    <!-- Botón para volver al Panel / Admin Home -->
-    <ion-buttons slot="start">
-      <ion-back-button 
-        defaultHref="/admin-home" 
-        text="" 
-        icon="chevron-back-outline"
-        class="custom-back-btn"
-      ></ion-back-button>
-    </ion-buttons>
-    
-    <ion-title class="main-title">Usuarios</ion-title>
-  </ion-toolbar>
+<app-encabezado></app-encabezado>
 
-  <div class="header-subtitle-box">
-    <p class="subtitle">{{ totalUsuarios }} registrados · {{ nuevosEstaSemana }} nuevos esta semana</p>
-  </div>
-</ion-header>
+<ion-content>
+  <app-marco-admin seccion="usuarios">
+    <section>
+      <a class="usu-volver" routerDirection="back" [routerLink]="['/admin-home']">‹ Volver al Panel</a>
+      <h1 class="admin-titulo">Usuarios</h1>
+      <p class="admin-subtitulo">
+        {{ cargando() ? 'Cargando...' : usuarios().length === 1 ? '1 persona registrada' : usuarios().length + ' personas registradas' }}
+      </p>
 
-<ion-content class="ion-padding-horizontal">
-  <!-- Buscador -->
-  <div class="search-box">
-    <ion-icon name="search-outline" class="search-icon"></ion-icon>
-    <input 
-      type="text" 
-      placeholder="Busca por nombre, correo o RUT" 
-      [(ngModel)]="busqueda"
-    />
-  </div>
+      @if (error(); as mensaje) {
+        <p class="usu-error">No se pudieron cargar los usuarios: {{ mensaje }}</p>
+      }
 
-  <!-- Chips de Filtro -->
-  <div class="chips-container">
-    <div class="chip-item" [class.active]="filtroActivo === 'todos'" (click)="setFiltro('todos')">
-      Todos
-    </div>
-    <div class="chip-item" [class.active]="filtroActivo === 'activos'" (click)="setFiltro('activos')">
-      Activos esta semana
-    </div>
-    <div class="chip-item" [class.active]="filtroActivo === 'nuevos'" (click)="setFiltro('nuevos')">
-      Nuevos
-    </div>
-  </div>
-
-  <!-- Tarjeta con Lista de Usuarios -->
-  <div class="users-card">
-    @for (user of usuariosFiltrados; track user.id; let last = $last) {
-      <div class="user-item" [class.border-bottom]="!last" (click)="verActividad(user.id)">
-        <div class="avatar-circle">
-          <span>{{ user.iniciales }}</span>
+      @if (!cargando() && !error()) {
+        <div class="usu-filtros">
+          <label class="usu-buscar">
+            Buscar
+            <input type="search" name="busqueda" placeholder="Nombre o correo" [ngModel]="busqueda()" (ngModelChange)="buscar($event)" />
+          </label>
+          <label>
+            Tipo de cuenta
+            <select name="rol" [ngModel]="rol()" (ngModelChange)="elegirRol($event)">
+              <option value="">Todos</option>
+              @for (r of ROLES; track r.valor) {
+                <option [value]="r.valor">{{ r.plural }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            Estado
+            <select name="estado" [ngModel]="estado()" (ngModelChange)="elegirEstado($event)">
+              <option value="">Todas</option>
+              <option value="activa">Activas</option>
+              <option value="suspendida">Suspendidas</option>
+              <option value="eliminada">Eliminadas por la persona</option>
+            </select>
+          </label>
+          <label>
+            Plan
+            <select name="plan" [ngModel]="plan()" (ngModelChange)="elegirPlan($event)">
+              <option value="">Todos</option>
+              @for (p of PLANES; track p.valor) {
+                <option [value]="p.valor">{{ p.nombre }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            Ordenar por
+            <select name="orden" [ngModel]="orden()" (ngModelChange)="elegirOrden($event)">
+              <option value="recientes">Registro más reciente</option>
+              <option value="actividad">Última actividad</option>
+              <option value="vistas">Más vistas</option>
+              <option value="nombre">Nombre (A–Z)</option>
+            </select>
+          </label>
         </div>
-        <div class="user-details">
-          <h4 class="user-name">{{ user.nombre }}</h4>
-          <p class="user-meta">
-            {{ user.vistas }} vistas · {{ user.guardados }} {{ user.guardados === 1 ? 'guardado' : 'guardados' }} · {{ user.ultimaActividad }}
-          </p>
-        </div>
-        <ion-icon name="chevron-forward-outline" class="arrow-icon"></ion-icon>
-      </div>
-    }
-  </div>
+
+        <p class="usu-cuenta">{{ textoCuenta() }}</p>
+
+        @if (cantidadFiltrados() === 0) {
+          <div class="usu-vacio">Nadie coincide con esos filtros.</div>
+        }
+
+        <ul class="usu-lista">
+          @for (item of visibles(); track item.u.id) {
+            <li class="usu-item">
+              <div class="usu-cabecera">
+                <div class="usu-persona">
+                  <h2>{{ item.u.full_name }}</h2>
+                  <p>{{ item.u.email }}{{ item.u.phone ? ' · ' + item.u.phone : '' }}</p>
+                </div>
+                <div class="usu-etiquetas">
+                  <span class="usu-etiqueta">{{ item.tipo }}</span>
+                  @if (item.premium; as premium) {
+                    <span class="usu-etiqueta" [ngClass]="premium.clase">{{ premium.texto }}</span>
+                  }
+                  @if (item.u.two_fa_enabled) {
+                    <span class="usu-etiqueta is-dos-pasos">Dos pasos</span>
+                  }
+                  @if (item.estado === 'suspendida') {
+                    <span class="usu-etiqueta is-deshabilitada">Suspendida</span>
+                  }
+                  @if (item.estado === 'eliminada') {
+                    <span class="usu-etiqueta is-deshabilitada">Eliminada por la persona</span>
+                  }
+                </div>
+              </div>
+
+              <dl class="usu-cifras">
+                <div>
+                  <dt>Vistas</dt>
+                  <dd>{{ item.u.vistas.toLocaleString('es-CL') }}</dd>
+                </div>
+                <div>
+                  <dt>Guardados</dt>
+                  <dd>{{ item.u.guardados.toLocaleString('es-CL') }}</dd>
+                </div>
+                <div>
+                  <dt>Opiniones</dt>
+                  <dd>{{ item.u.opiniones.toLocaleString('es-CL') }}</dd>
+                </div>
+              </dl>
+
+              <p class="usu-fechas">{{ item.fechas }}</p>
+
+              @if (confirmando()?.id === item.u.id && confirmando(); as pide) {
+                <div class="usu-confirmar">
+                  <p>{{ textoConfirmacion(item.u, pide.accion) }}</p>
+                  <div class="usu-acciones">
+                    <button
+                      type="button"
+                      class="usu-boton"
+                      [ngClass]="pide.accion === 'suspender' ? 'is-peligro' : 'is-principal'"
+                      [disabled]="trabajando()"
+                      (click)="hacer(item.u, pide.accion)">
+                      {{ trabajando() ? 'Guardando...' : pide.accion === 'suspender' ? 'Sí, suspender' : 'Sí, reactivar' }}
+                    </button>
+                    <button type="button" class="usu-boton" [disabled]="trabajando()" (click)="confirmando.set(null)">Cancelar</button>
+                  </div>
+                </div>
+              } @else if (item.estado !== 'activa') {
+                <div class="usu-acciones">
+                  <button type="button" class="usu-boton is-principal" (click)="pedirConfirmacion(item.u.id, 'reactivar')">
+                    Reactivar cuenta
+                  </button>
+                </div>
+              } @else if (item.puedeSuspender) {
+                <div class="usu-acciones">
+                  <button type="button" class="usu-boton is-peligro-suave" (click)="pedirConfirmacion(item.u.id, 'suspender')">
+                    Suspender cuenta
+                  </button>
+                </div>
+              }
+
+              @if (resultado()?.id === item.u.id && resultado(); as aviso) {
+                <p class="usu-resultado" [ngClass]="'is-' + aviso.tipo" [attr.role]="aviso.tipo === 'error' ? 'alert' : 'status'">
+                  {{ aviso.texto }}
+                </p>
+              }
+            </li>
+          }
+        </ul>
+
+        @if (cantidadFiltrados() > visibles().length) {
+          <div class="usu-mas">
+            <button type="button" (click)="mostrarMas()">Mostrar más</button>
+          </div>
+        }
+      }
+    </section>
+  </app-marco-admin>
 </ion-content>

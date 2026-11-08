@@ -1,116 +1,156 @@
-<ion-header class="ion-no-border bg-white">
-  <ion-toolbar class="px-2">
-    <ion-title>
-      <h1 class="main-title">Opiniones</h1>
-      <p class="subtitle">Feedback y valoraciones de usuarios</p>
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+<app-encabezado></app-encabezado>
 
-<ion-content class="ion-padding-horizontal">
-  <!-- Tarjeta de Resumen / Promedio -->
-  <div class="rating-summary-card">
-    <div class="score-box">
-      <span class="score-number">{{ promedioGeneral }}</span>
-      <div class="stars-row">
-        <ion-icon name="star" class="star-filled"></ion-icon>
-        <ion-icon name="star" class="star-filled"></ion-icon>
-        <ion-icon name="star" class="star-filled"></ion-icon>
-        <ion-icon name="star" class="star-filled"></ion-icon>
-        <ion-icon name="star-half" class="star-filled"></ion-icon>
-      </div>
-      <span class="total-reviews">{{ totalOpiniones }} valoraciones</span>
-    </div>
+<ion-content>
+  <app-marco-admin seccion="opiniones">
+    <section>
+      <h1 class="admin-titulo">Opiniones</h1>
+      <p class="admin-subtitulo">
+        {{
+          cargando() ? 'Cargando...' : resumen().total === 1 ? '1 opinión recibida' : resumen().total + ' opiniones recibidas'
+        }}
+      </p>
 
-    <!-- Barras por estrellas -->
-    <div class="bars-box">
-      @for (item of desgloseEstrellas; track item.estrellas) {
-        <div class="bar-row">
-          <span class="star-label">{{ item.estrellas }}★</span>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" [style.width.%]="item.porcentaje"></div>
-          </div>
-        </div>
+      @if (error(); as mensaje) {
+        <p class="opa-error">No se pudieron cargar las opiniones: {{ mensaje }}</p>
       }
-    </div>
-  </div>
 
-  <!-- Chips de Filtro -->
-  <div class="chips-container">
-    <div class="chip-item" [class.active]="filtroActivo === 'todas'" (click)="setFiltro('todas')">
-      Todas
-    </div>
-    <div class="chip-item" [class.active]="filtroActivo === 'pendientes'" (click)="setFiltro('pendientes')">
-      Pendientes
-    </div>
-    <div class="chip-item" [class.active]="filtroActivo === 'sugerencias'" (click)="setFiltro('sugerencias')">
-      Sugerencias
-    </div>
-    <div class="chip-item" [class.active]="filtroActivo === 'respondidas'" (click)="setFiltro('respondidas')">
-      Respondidas
-    </div>
-  </div>
+      @if (!cargando() && !error() && resumen().total === 0) {
+        <div class="opa-vacio">Todavía no hay opiniones. Aparecerán aquí cuando alguien envíe la primera.</div>
+      }
 
-  <!-- Listado de Opiniones -->
-  <div class="opiniones-list">
-    @for (item of opinionesFiltradas; track item.id) {
-      <div class="opinion-card">
-        <div class="card-header">
-          <div class="user-info">
-            <h4 class="user-name">{{ item.usuario }}</h4>
-            <span class="opinion-fecha">{{ item.fecha }}</span>
+      @if (resumen().total > 0) {
+        <!-- Resumen: promedio y cuántas opiniones hay de cada calificación -->
+        <div class="opa-resumen">
+          <div class="opa-promedio">
+            <p class="opa-promedio-numero">{{ resumen().promedioTexto }}</p>
+            <span class="estrellas" role="img" [attr.aria-label]="resumen().estrellasPromedio + ' de 5'">
+              @for (numero of ESTRELLAS; track numero) {
+                <span [class.is-llena]="numero <= resumen().estrellasPromedio" aria-hidden="true">★</span>
+              }
+            </span>
+            <p class="opa-promedio-texto">promedio de 5</p>
           </div>
-          <div class="category-badge">
-            {{ item.categoria }}
-          </div>
+          <ul class="opa-barras" aria-label="Opiniones por calificación">
+            @for (barra of resumen().barras; track barra.numero) {
+              <li>
+                <span class="opa-barra-numero">{{ barra.numero }} ★</span>
+                <span class="opa-barra-fondo">
+                  <span class="opa-barra-llena" [style.width]="barra.ancho"></span>
+                </span>
+                <span class="opa-barra-cantidad">{{ barra.cantidad }}</span>
+              </li>
+            }
+          </ul>
         </div>
 
-        <!-- Estrellas -->
-        <div class="stars-inline">
-          @for (star of [1,2,3,4,5]; track star) {
-            <ion-icon [name]="star <= item.estrellas ? 'star' : 'star-outline'" [class.active-star]="star <= item.estrellas"></ion-icon>
+        <!-- Pestañas -->
+        <div class="opa-pestanas" role="tablist" aria-label="Qué opiniones mostrar">
+          @for (pestana of pestanas(); track pestana.valor) {
+            <button
+              type="button"
+              role="tab"
+              class="opa-pestana"
+              [class.is-activa]="vista() === pestana.valor"
+              [attr.aria-selected]="vista() === pestana.valor"
+              (click)="elegirVista(pestana.valor)">
+              {{ pestana.texto }}
+            </button>
           }
         </div>
 
-        <p class="comment-text">"{{ item.comentario }}"</p>
+        <!-- Filtros por tema y calificación -->
+        <div class="opa-filtros">
+          <label>
+            Tema
+            <select name="tema" [ngModel]="tema()" (ngModelChange)="elegirTema($event)">
+              <option value="">Todos</option>
+              @for (t of TEMAS; track t.valor) {
+                <option [value]="t.valor">{{ t.nombre }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            Calificación
+            <select name="calificacion" [ngModel]="'' + calificacion()" (ngModelChange)="elegirCalificacion($event)">
+              <option value="0">Todas</option>
+              @for (numero of CALIFICACIONES; track numero) {
+                <option [value]="'' + numero">{{ numero }} {{ numero === 1 ? 'estrella' : 'estrellas' }}</option>
+              }
+            </select>
+          </label>
+        </div>
 
-        <!-- Respuesta existente o Botón Responder -->
-        @if (item.respondido) {
-          <div class="response-box">
-            <strong>Respuesta enviada:</strong>
-            <p>{{ item.respuesta }}</p>
-          </div>
-        } @else {
-          <div class="action-row">
-            <button class="btn-responder" (click)="responder(item.id)">
-              <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
-              Responder
-            </button>
+        @if (filtradas().length === 0) {
+          <div class="opa-vacio">No hay opiniones con esos filtros.</div>
+        }
+
+        <ul class="opa-lista">
+          @for (opinion of visibles(); track opinion.id) {
+            <li class="opa-item">
+              <div class="opa-item-arriba">
+                <span class="estrellas" role="img" [attr.aria-label]="opinion.rating + ' de 5'">
+                  @for (numero of ESTRELLAS; track numero) {
+                    <span [class.is-llena]="numero <= opinion.rating" aria-hidden="true">★</span>
+                  }
+                </span>
+                <span class="opa-item-tema">{{ nombreDeTema(opinion.topic) }}</span>
+                <span class="opa-item-fecha">{{ fechaConAnio(opinion.created_at) }}</span>
+              </div>
+              <p class="opa-item-persona">{{ opinion.user_name }} · {{ opinion.user_email }}</p>
+
+              @if (opinion.message) {
+                <p class="opa-item-mensaje">{{ opinion.message }}</p>
+              } @else {
+                <p class="opa-item-mensaje is-vacio">Sin mensaje.</p>
+              }
+
+              @for (respuesta of opinion.replies; track respuesta.id) {
+                <div class="opa-respuesta">
+                  <p class="opa-respuesta-titulo">Respuesta enviada · {{ fechaConAnio(respuesta.created_at) }}</p>
+                  <p>{{ respuesta.message }}</p>
+                </div>
+              }
+
+              <!-- Solo se puede responder si la persona lo autorizó -->
+              @if (!opinion.allows_reply) {
+                <p class="opa-item-nota">No autorizó que le respondan.</p>
+              } @else if (respondiendo() !== opinion.id) {
+                <button type="button" class="opa-boton-responder" (click)="abrirRespuesta(opinion.id)">
+                  {{ opinion.replies.length === 0 ? 'Responder' : 'Responder otra vez' }}
+                </button>
+              } @else {
+                <form class="opa-formulario" (ngSubmit)="responder(opinion.id)">
+                  <label>
+                    Tu respuesta para {{ opinion.user_name }}
+                    <textarea
+                      name="respuesta"
+                      rows="3"
+                      [maxlength]="LARGO_MAXIMO_DE_LA_RESPUESTA"
+                      [ngModel]="texto()"
+                      (ngModelChange)="escribir($event)"></textarea>
+                  </label>
+                  @if (errorDeRespuesta()) {
+                    <p class="opa-error-chico" role="alert">{{ errorDeRespuesta() }}</p>
+                  }
+                  <div class="opa-formulario-botones">
+                    <button type="submit" class="opa-boton-enviar" [disabled]="enviando()">
+                      {{ enviando() ? 'Enviando...' : 'Enviar respuesta' }}
+                    </button>
+                    <button type="button" class="opa-boton-cancelar" (click)="respondiendo.set(null)">Cancelar</button>
+                  </div>
+                </form>
+              }
+            </li>
+          }
+        </ul>
+
+        @if (filtradas().length > visibles().length) {
+          <div class="opa-mas">
+            <p>Mostrando {{ visibles().length }} de {{ filtradas().length }}</p>
+            <button type="button" (click)="mostrarMas()">Mostrar más</button>
           </div>
         }
-      </div>
-    }
-  </div>
+      }
+    </section>
+  </app-marco-admin>
 </ion-content>
-
-<!-- MENÚ INFERIOR / FOOTER -->
-<ion-footer class="ion-no-border">
-  <div class="custom-tab-bar">
-    <div class="tab-item" (click)="irA('admin-home')">
-      <ion-icon name="stats-chart-outline"></ion-icon>
-      <span>Panel</span>
-    </div>
-    <div class="tab-item" (click)="irA('publicaciones')">
-      <ion-icon name="document-text-outline"></ion-icon>
-      <span>Publicaciones</span>
-    </div>
-    <div class="tab-item active">
-      <ion-icon name="chatbox-outline"></ion-icon>
-      <span>Opiniones</span>
-    </div>
-    <div class="tab-item" (click)="irA('anuncios')">
-      <ion-icon name="megaphone-outline"></ion-icon>
-      <span>Anuncios</span>
-    </div>
-  </div>
-</ion-footer>

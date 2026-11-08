@@ -1,83 +1,165 @@
-import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
 
-interface Opinion {
-  id: number;
-  usuario: string;
-  fecha: string;
-  estrellas: number;
-  categoria: string;
-  comentario: string;
-  autorizoRespuesta: boolean; // Agregado según diseño
-  respondido: boolean;
-  respuesta?: string;
+import { ApiService, mensajeDeError } from '../../core/api.service';
+import { Opinion, TEMAS, fechaConAnio, nombreDeTema } from '../../core/opiniones';
+
+// Paso A9: las opiniones para el administrador, igual que AdminOpinionesPage de la web (antes eran de ejemplo).
+// Ve todas las opiniones (GET /admin/opiniones), con el promedio, y responde a quienes lo autorizaron.
+// La respuesta le llega a la persona en "Opinar" (app y web).
+
+interface OpinionAdmin extends Opinion {
+  user_name: string;
+  user_email: string;
+}
+
+type Vista = 'todas' | 'por_responder' | 'respondidas';
+
+const POR_TANDA = 20; // cuántas opiniones se muestran de una vez
+const LARGO_MAXIMO_DE_LA_RESPUESTA = 1000;
+
+function esperaRespuesta(opinion: OpinionAdmin): boolean {
+  return opinion.allows_reply && opinion.replies.length === 0;
 }
 
 @Component({
   selector: 'app-opiniones',
   templateUrl: './opiniones.page.html',
   styleUrls: ['./opiniones.page.scss'],
-  standalone: false
+  standalone: false,
 })
 export class OpinionesPage {
-  private router = inject(Router);
+  private api = inject(ApiService);
 
-  filtroActivo: string = 'todas';
-  promedioGeneral: number = 4.3;
-  totalOpiniones: number = 86;
+  readonly TEMAS = TEMAS;
+  readonly ESTRELLAS = [1, 2, 3, 4, 5];
+  readonly CALIFICACIONES = [5, 4, 3, 2, 1];
+  readonly LARGO_MAXIMO_DE_LA_RESPUESTA = LARGO_MAXIMO_DE_LA_RESPUESTA;
+  readonly nombreDeTema = nombreDeTema;
+  readonly fechaConAnio = fechaConAnio;
 
-  desgloseEstrellas = [
-    { estrellas: 5, porcentaje: 55 },
-    { estrellas: 4, porcentaje: 25 },
-    { estrellas: 3, porcentaje: 10 },
-    { estrellas: 2, porcentaje: 5 },
-    { estrellas: 1, porcentaje: 5 }
-  ];
+  readonly opiniones = signal<OpinionAdmin[]>([]);
+  readonly cargando = signal(true);
+  readonly error = signal<string | null>(null);
 
-  opiniones: Opinion[] = [
-    {
-      id: 1,
-      usuario: 'Camila Rojas',
-      fecha: 'vie 25 sep 2026 · 09:50',
-      estrellas: 4,
-      categoria: 'Semáforo',
-      comentario: 'Me gustaría ver el historial de cambios del semáforo de cada propiedad.',
-      autorizoRespuesta: true,
-      respondido: false
-    },
-    {
-      id: 2,
-      usuario: 'Diego Fuentes',
-      fecha: 'jue 24 sep 2026 · 18:20',
-      estrellas: 5,
-      categoria: 'Mapa',
-      comentario: 'El filtro por comuna me ahorra mucho tiempo. Sería útil dibujar una zona en el mapa.',
-      autorizoRespuesta: false,
-      respondido: false
-    }
-  ];
+  readonly vista = signal<Vista>('todas');
+  readonly tema = signal(''); // vacío = todos
+  readonly calificacion = signal(0); // 0 = todas
+  readonly tanda = signal(POR_TANDA);
 
-  get opinionesFiltradas(): Opinion[] {
-    if (this.filtroActivo === 'pendientes') {
-      return this.opiniones.filter(o => !o.respondido);
+  readonly respondiendo = signal<string | null>(null); // id de la opinión
+  readonly texto = signal('');
+  readonly enviando = signal(false);
+  readonly errorDeRespuesta = signal('');
+
+  // Resumen: promedio y cuántas hay de cada calificación
+  readonly resumen = computed(() => {
+    const lista = this.opiniones();
+    const porCalificacion: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    let suma = 0;
+    for (const opinion of lista) {
+      porCalificacion[opinion.rating] += 1;
+      suma += opinion.rating;
     }
-    if (this.filtroActivo === 'respondidas') {
-      return this.opiniones.filter(o => o.respondido);
+    const promedio = lista.length > 0 ? Math.round((suma / lista.length) * 10) / 10 : null;
+    const mayor = Math.max(1, ...Object.values(porCalificacion));
+    return {
+      total: lista.length,
+      promedio,
+      promedioTexto: promedio?.toLocaleString('es-CL', { minimumFractionDigits: 1 }) ?? '',
+      estrellasPromedio: Math.round(promedio ?? 0),
+      barras: this.CALIFICACIONES.map((numero) => ({
+        numero,
+        cantidad: porCalificacion[numero],
+        ancho: `${(porCalificacion[numero] / mayor) * 100}%`,
+      })),
+      porResponder: lista.filter(esperaRespuesta).length,
+      respondidas: lista.filter((o) => o.replies.length > 0).length,
+    };
+  });
+
+  readonly pestanas = computed(() => {
+    const resumen = this.resumen();
+    return [
+      { valor: 'todas' as Vista, texto: `Todas · ${resumen.total}` },
+      { valor: 'por_responder' as Vista, texto: `Por responder · ${resumen.porResponder}` },
+      { valor: 'respondidas' as Vista, texto: `Respondidas · ${resumen.respondidas}` },
+    ];
+  });
+
+  readonly filtradas = computed(() =>
+    this.opiniones().filter(
+      (o) =>
+        (this.vista() === 'todas' ||
+          (this.vista() === 'por_responder' && esperaRespuesta(o)) ||
+          (this.vista() === 'respondidas' && o.replies.length > 0)) &&
+        (this.tema() === '' || o.topic === this.tema()) &&
+        (this.calificacion() === 0 || o.rating === this.calificacion()),
+    ),
+  );
+  readonly visibles = computed(() => this.filtradas().slice(0, this.tanda()));
+
+  async ionViewWillEnter() {
+    // Se piden cada vez que se entra: así se ve la opinión que acaba de llegar
+    try {
+      const datos = await this.api.get<{ items: OpinionAdmin[] }>('/admin/opiniones');
+      this.opiniones.set(datos.items);
+      this.error.set(null);
+    } catch (error) {
+      this.error.set(mensajeDeError(error));
+    } finally {
+      this.cargando.set(false);
     }
-    if (this.filtroActivo === 'sugerencias') {
-      return this.opiniones.filter(o => o.categoria.toLowerCase() === 'sugerencia');
-    }
-    return this.opiniones;
   }
 
-  setFiltro(filtro: string) {
-    this.filtroActivo = filtro;
+  // Al cambiar un filtro se vuelve a la primera tanda
+  elegirVista(valor: Vista) {
+    this.vista.set(valor);
+    this.tanda.set(POR_TANDA);
   }
 
-responder(id: number) {
-  this.router.navigate(['/responder-opinion', id]);
-}
-  irA(ruta: string) {
-    this.router.navigate([`/${ruta}`]);
+  elegirTema(valor: string) {
+    this.tema.set(valor);
+    this.tanda.set(POR_TANDA);
+  }
+
+  elegirCalificacion(valor: string | number) {
+    this.calificacion.set(Number(valor));
+    this.tanda.set(POR_TANDA);
+  }
+
+  mostrarMas() {
+    this.tanda.set(this.tanda() + POR_TANDA);
+  }
+
+  abrirRespuesta(id: string) {
+    this.respondiendo.set(id);
+    this.texto.set('');
+    this.errorDeRespuesta.set('');
+  }
+
+  escribir(valor: string) {
+    this.texto.set(valor);
+    this.errorDeRespuesta.set('');
+  }
+
+  async responder(id: string) {
+    this.errorDeRespuesta.set('');
+    if (this.texto().trim() === '') {
+      this.errorDeRespuesta.set('Escribe la respuesta.');
+      return;
+    }
+    this.enviando.set(true);
+    try {
+      const actualizada = await this.api.post<OpinionAdmin>(`/admin/opiniones/${id}/respuesta`, {
+        message: this.texto().trim(),
+      });
+      this.opiniones.update((actuales) => actuales.map((o) => (o.id === id ? actualizada : o)));
+      this.respondiendo.set(null);
+      this.texto.set('');
+    } catch (error) {
+      this.errorDeRespuesta.set(mensajeDeError(error));
+    } finally {
+      this.enviando.set(false);
+    }
   }
 }
