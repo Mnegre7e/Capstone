@@ -1,101 +1,117 @@
-<ion-content class="contacto-content" [fullscreen]="true">
+<app-encabezado></app-encabezado>
 
-  <div class="page-wrapper">
+<ion-content>
+  <div class="hg-pagina opi-page">
+    <h1>Tu opinión</h1>
+    <p class="opi-subtitulo">Cuéntanos qué te parece HouseGreen. Nos ayuda a mejorar.</p>
 
-    <!-- ENCABEZADO CON BOTÓN VOLVER -->
-    <div class="header-section">
-      <button class="back-btn" (click)="goBack()" aria-label="Volver">
-        <ion-icon name="chevron-back-outline"></ion-icon>
-      </button>
-
-      <h1 class="page-title">Sugerencias y calificación</h1>
-      <p class="page-subtitle">Cuéntanos cómo te va con HouseGreen y qué mejorarías.</p>
-    </div>
-
-    <!-- TARJETA 1: CALIFICACIÓN DE ESTRELLAS -->
-    <div class="card-box rating-card">
-      <h2 class="card-title">¿Cómo calificarías HouseGreen?</h2>
-
-      <div class="stars-row">
-        @for (star of estrellas; track star) {
-          <button 
-            class="star-box" 
-            [class.filled]="star <= calificacion" 
-            (click)="setCalificacion(star)"
-            aria-label="Calificar">
-            <ion-icon [name]="star <= calificacion ? 'star' : 'star-outline'"></ion-icon>
-          </button>
-        }
-      </div>
-
-      <p class="rating-label">
-        <strong>{{ calificacion }} de 5</strong> · {{ textosCalificacion[calificacion] }}
-      </p>
-    </div>
-
-    <!-- TARJETA 2: FORMULARIO DE SUGERENCIA -->
-    <div class="card-box form-card">
-      <h2 class="card-title">¿Sobre qué es tu sugerencia?</h2>
-
-      <!-- Chips de selección -->
-      <div class="chips-grid">
-        @for (cat of categorias; track cat) {
-          <button 
-            class="chip-item" 
-            [class.active]="categoriaSeleccionada === cat"
-            (click)="seleccionarCategoria(cat)">
-            @if (categoriaSeleccionada === cat) {
-              <ion-icon name="checkmark-outline" class="check-icon"></ion-icon>
-            }
-            <span>{{ cat }}</span>
-          </button>
-        }
-      </div>
-
-      <!-- Textarea sugerencia -->
-      <label class="input-label" for="sugerencia-input">Tu sugerencia</label>
-      <div class="textarea-wrapper">
-        <textarea 
-          id="sugerencia-input"
-          class="sugerencia-textarea"
-          [(ngModel)]="sugerenciaText"
-          [attr.maxlength]="maxCaracteres"
-          rows="4"
-          placeholder="Escribe tu comentario o sugerencia aquí...">
-        </textarea>
-      </div>
-
-      <div class="char-counter">
-        {{ sugerenciaText.length }} / {{ maxCaracteres }}
-      </div>
-
-      <!-- Checkbox de autorización -->
-      <div class="checkbox-row" (click)="toggleAutorizacion()">
-        <div class="custom-checkbox" [class.checked]="autorizaRespuesta">
-          @if (autorizaRespuesta) {
-            <ion-icon name="checkmark-outline"></ion-icon>
+    <form class="opi-tarjeta" (ngSubmit)="enviar()">
+      <fieldset class="opi-grupo">
+        <legend>Calificación</legend>
+        <div class="opi-estrellas" role="radiogroup" aria-label="Calificación de 1 a 5 estrellas">
+          @for (numero of ESTRELLAS; track numero) {
+            <button
+              type="button"
+              role="radio"
+              [class.is-llena]="numero <= calificacion()"
+              [attr.aria-checked]="calificacion() === numero"
+              [attr.aria-label]="numero + ' de 5: ' + NOMBRE_CALIFICACION[numero]"
+              (click)="elegirCalificacion(numero)">
+              ★
+            </button>
           }
+          <span class="opi-estrellas-texto">
+            {{ calificacion() === 0 ? 'Sin elegir' : NOMBRE_CALIFICACION[calificacion()] }}
+          </span>
         </div>
-        <span class="checkbox-label">Autorizo que HouseGreen responda mi sugerencia</span>
-      </div>
+      </fieldset>
 
-    </div>
+      <label class="opi-campo">
+        Tema
+        <select name="tema" [ngModel]="tema()" (ngModelChange)="elegirTema($event)">
+          <option value="">Elige un tema</option>
+          @for (opcion of TEMAS; track opcion.valor) {
+            <option [value]="opcion.valor">{{ opcion.nombre }}</option>
+          }
+        </select>
+      </label>
 
-    <!-- BOTÓN DE ENVÍO -->
-    <button 
-      class="submit-btn" 
-      [disabled]="!sugerenciaText.trim()"
-      (click)="enviarSugerencia()">
-      <ion-icon name="send-outline"></ion-icon>
-      <span>Enviar sugerencia</span>
-    </button>
+      <label class="opi-campo">
+        Mensaje (opcional)
+        <textarea
+          name="mensaje"
+          rows="4"
+          placeholder="¿Qué te gustó? ¿Qué mejorarías?"
+          [maxlength]="LARGO_MAXIMO_DEL_MENSAJE"
+          [ngModel]="mensaje()"
+          (ngModelChange)="escribirMensaje($event)"></textarea>
+        <span class="opi-contador">{{ mensaje().length }} / {{ LARGO_MAXIMO_DEL_MENSAJE }}</span>
+      </label>
 
-    <!-- PIE DE PAGINA / AYUDA DIRECTA -->
-    <div class="footer-help">
-      <p class="help-title">¿Necesitas ayuda directa?</p>
-      <a href="mailto:contacto@housegreen.cl" class="help-link">contacto@housegreen.cl</a>
-    </div>
+      <label class="opi-casilla">
+        <input type="checkbox" name="acepta" [(ngModel)]="aceptaRespuesta" />
+        Acepto que el equipo de HouseGreen me responda
+      </label>
 
+      @if (aviso(); as mensajeAviso) {
+        <p
+          class="opi-aviso"
+          [ngClass]="'is-' + mensajeAviso.tipo"
+          [attr.role]="mensajeAviso.tipo === 'error' ? 'alert' : 'status'">
+          {{ mensajeAviso.texto }}
+        </p>
+      }
+
+      <button type="submit" class="opi-boton" [disabled]="enviando()">
+        {{ enviando() ? 'Enviando...' : 'Enviar opinión' }}
+      </button>
+    </form>
+
+    <h2 class="opi-titulo-lista">Mis opiniones</h2>
+
+    @if (cargando()) {
+      <p class="opi-vacio">Cargando...</p>
+    }
+    @if (errorDeCarga()) {
+      <p class="opi-aviso is-error">{{ errorDeCarga() }}</p>
+    }
+    @if (!cargando() && !errorDeCarga() && opiniones().length === 0) {
+      <p class="opi-vacio">Todavía no has enviado opiniones.</p>
+    }
+
+    <ul class="opi-lista">
+      @for (opinion of opiniones(); track opinion.id) {
+        <li class="opi-item">
+          <div class="opi-item-arriba">
+            <span class="estrellas" role="img" [attr.aria-label]="opinion.rating + ' de 5'">
+              @for (numero of ESTRELLAS; track numero) {
+                <span [class.is-llena]="numero <= opinion.rating" aria-hidden="true">★</span>
+              }
+            </span>
+            <span class="opi-item-tema">{{ nombreDeTema(opinion.topic) }}</span>
+            <span class="opi-item-fecha">{{ fechaConAnio(opinion.created_at) }}</span>
+          </div>
+
+          @if (opinion.message) {
+            <p class="opi-item-mensaje">{{ opinion.message }}</p>
+          } @else {
+            <p class="opi-item-mensaje is-vacio">Sin mensaje.</p>
+          }
+
+          @for (respuesta of opinion.replies; track respuesta.id) {
+            <div class="opi-respuesta">
+              <p class="opi-respuesta-titulo">Respuesta de HouseGreen · {{ fechaConAnio(respuesta.created_at) }}</p>
+              <p>{{ respuesta.message }}</p>
+            </div>
+          }
+
+          @if (opinion.replies.length === 0) {
+            <p class="opi-item-nota">
+              {{ opinion.allows_reply ? 'Aceptaste que te respondan. Todavía no hay respuesta.' : 'No pediste respuesta.' }}
+            </p>
+          }
+        </li>
+      }
+    </ul>
   </div>
-
 </ion-content>

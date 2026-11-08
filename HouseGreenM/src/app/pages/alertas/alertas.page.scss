@@ -1,238 +1,523 @@
-// Variables de color HouseGreen
-$gh-dark-green: #175339;
-$gh-primary-green: #1f6243;
-$gh-bg-light: #f2f7f4;
-$gh-card-bg: #ffffff;
-$gh-text-title: #0f172a;
-$gh-text-body: #475569;
-$gh-text-muted: #64748b;
-$gh-border-color: #f1f5f9;
+// Paso A7: los mismos estilos de la web: AlertsPage.css y MisAnuncios.css.
+// Dos columnas en pantallas anchas (lo que llegó + mis alertas), una en el celular.
 
-.alertas-content {
-  --background: #{$gh-bg-light};
-}
-
-.page-wrapper {
-  padding: 16px 20px 36px;
-  max-width: 500px;
+.alerts-page {
+  max-width: 1040px;
   margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+.alerts-page h1 {
+  margin: 0;
+  color: #0f3d30;
+  font-size: 30px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.alerts-subtitle {
+  margin: 6px 0 0;
+  color: #5f6b66;
+  font-size: 16px;
+}
+
+.alerts-columnas {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  align-items: start;
+  gap: 32px;
+  margin-top: 28px;
+}
+
+.alerts-principal {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
 }
 
-/* -------------------------------------------------------------
-   HEADER DE NAVEGACIÓN Y ACCIÓN
-------------------------------------------------------------- */
-.header-bar {
+/* Títulos de sección (también los usa el componente MisAnuncios) */
+.alerts-section-title {
+  margin: 0;
+  color: #0f3d30;
+  font-size: 18px;
+}
+
+.alerts-section-fila {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding-top: 8px;
-
-  .back-btn {
-    background: transparent;
-    border: none;
-    padding: 0;
-    font-size: 24px;
-    color: $gh-dark-green;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-
-    &:active {
-      opacity: 0.7;
-    }
-  }
-
-  .page-title {
-    font-size: 22px;
-    font-weight: 800;
-    color: $gh-dark-green;
-    margin: 0;
-    flex-grow: 1;
-    margin-left: 12px;
-    letter-spacing: -0.3px;
-  }
-
-  .mark-read-btn {
-    background: transparent;
-    border: none;
-    font-size: 14px;
-    font-weight: 700;
-    color: $gh-primary-green;
-    cursor: pointer;
-    padding: 4px 0;
-
-    &:active {
-      opacity: 0.6;
-    }
-  }
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
 }
 
-/* -------------------------------------------------------------
-   SECCIONES Y TARJETAS
-------------------------------------------------------------- */
-.section-container {
+.alerts-sin-leer {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: #dc2626;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.alerts-empty {
+  margin: 12px 0 0;
+  color: #5f6b66;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.alerts-error {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border-left: 4px solid #dc2626;
+  border-radius: 6px;
+  background-color: #fef2f2;
+  color: #991b1b;
+  font-size: 14px;
+}
+
+.alerts-error-chico {
+  margin: 0;
+  color: #991b1b;
+  font-size: 14px;
+}
+
+/* ---------- Notificaciones ---------- */
+.alerts-notification-list,
+.alerts-criteria-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-
-  .section-label {
-    font-size: 13px;
-    font-weight: 800;
-    color: $gh-dark-green;
-    letter-spacing: 0.6px;
-    margin: 0 0 2px 4px;
-    text-transform: uppercase;
-  }
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
 }
 
-.alerts-card,
-.preferences-card {
-  background: $gh-card-bg;
-  border-radius: 24px;
-  padding: 8px 18px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(0, 0, 0, 0.03);
-}
-
-/* -------------------------------------------------------------
-   ITEMS DE ALERTA
-------------------------------------------------------------- */
-.alert-item {
+.alerts-notification-item {
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 16px 0;
-
-  &.border-bottom {
-    border-bottom: 1px solid $gh-border-color;
-  }
-
-  .icon-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    ion-icon {
-      font-size: 22px;
-    }
-
-    &.remate_proximo,
-    &.nuevo_remate,
-    &.reprogramado {
-      background-color: #e2f1e8;
-      ion-icon {
-        color: $gh-primary-green;
-      }
-    }
-
-    &.semaforo_alerta {
-      background-color: #fde8e8;
-      ion-icon {
-        color: #e11d48;
-      }
-    }
-
-    &.precio_bajo {
-      background-color: #fef3c7;
-      ion-icon {
-        color: #d97706;
-      }
-    }
-  }
-
-  .item-content {
-    flex-grow: 1;
-
-    .item-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 4px;
-
-      .item-title {
-        font-size: 15px;
-        font-weight: 800;
-        color: $gh-text-title;
-        margin: 0;
-        line-height: 1.25;
-      }
-
-      .unread-dot {
-        width: 9px;
-        height: 9px;
-        background-color: $gh-primary-green;
-        border-radius: 50%;
-        flex-shrink: 0;
-      }
-    }
-
-    .item-desc {
-      font-size: 13px;
-      color: $gh-text-body;
-      margin: 0 0 6px 0;
-      line-height: 1.4;
-    }
-
-    .item-time {
-      font-size: 12px;
-      color: $gh-text-muted;
-      font-weight: 500;
-    }
-  }
-}
-
-/* -------------------------------------------------------------
-   PREFERENCIAS / TOGGLES
-------------------------------------------------------------- */
-.preference-item {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 14px 0;
+  align-items: center;
   gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e4e8e6;
+  border-radius: 12px;
+  background-color: white;
+  color: inherit;
+  text-decoration: none;
+}
 
-  &.border-bottom {
-    border-bottom: 1px solid $gh-border-color;
+a.alerts-notification-item:hover {
+  border-color: #9ad3bb;
+}
+
+.alerts-notification-item.is-unread {
+  border-color: #86efac;
+  background-color: #f0fdf4;
+}
+
+.alerts-notification-texto {
+  min-width: 0;
+}
+
+.alerts-notification-titulo {
+  margin: 0;
+  color: #1c1c1c;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.alerts-notification-item.is-unread .alerts-notification-titulo {
+  font-weight: 700;
+}
+
+.alerts-notification-detalle {
+  margin: 2px 0 0;
+  color: #5f6b66;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.alerts-nuevo {
+  margin-right: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: #15803d;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* La insignia de riesgo y la etiqueta de remate terminado no se achican ni se parten */
+.alerts-notification-item app-etiqueta-riesgo,
+.alerts-terminado {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.alerts-terminado {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background-color: #eef1f0;
+  color: #5f6b66;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.alerts-boton-texto {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #15803d;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.alerts-boton-texto:hover {
+  text-decoration: underline;
+}
+
+.alerts-mas {
+  margin-top: 10px;
+  padding: 8px 14px;
+  border: 1px solid #c9d1cd;
+  border-radius: 8px;
+  background-color: white;
+  color: #2f3a35;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ---------- Mis alertas (columna de la derecha) ---------- */
+.alerts-lateral {
+  padding: 20px;
+  border: 1px solid #e4e8e6;
+  border-radius: 16px;
+  background-color: white;
+}
+
+.alerts-ayuda {
+  margin: 6px 0 0;
+  color: #5f6b66;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.alerts-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e4e8e6;
+}
+
+.alerts-campo {
+  display: block;
+  color: #2f3a35;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.alerts-campo select,
+.alerts-precio {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: 6px;
+  border: 1px solid #c9d1cd;
+  border-radius: 10px;
+  background-color: white;
+  color: #1c1c1c;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.alerts-campo select {
+  padding: 11px 12px;
+}
+
+/* El campo del precio: un "$" fijo y el número al lado, dentro de un mismo borde */
+.alerts-precio {
+  gap: 6px;
+  padding: 0 12px;
+  color: #5f6b66;
+}
+
+.alerts-precio input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 0;
+  border: none;
+  background: none;
+  color: #1c1c1c;
+  font-family: inherit;
+  font-size: 16px;
+}
+
+.alerts-precio input:focus {
+  outline: none;
+}
+
+.alerts-campo select:focus,
+.alerts-precio:focus-within {
+  outline: none;
+  border-color: #15803d;
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.2);
+}
+
+.alerts-submit-btn {
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background-color: #15803d;
+  color: white;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.alerts-submit-btn:hover {
+  background-color: #0f3d30;
+}
+
+.alerts-submit-btn:disabled {
+  background-color: #9aa5a0;
+  cursor: not-allowed;
+}
+
+.alerts-submit-btn:focus-visible,
+.alerts-delete-btn:focus-visible,
+.alerts-boton-texto:focus-visible,
+.alerts-mas:focus-visible,
+a.alerts-notification-item:focus-visible {
+  outline: 3px solid rgba(21, 128, 61, 0.45);
+  outline-offset: 2px;
+}
+
+.alerts-criteria-list {
+  margin-top: 16px;
+}
+
+.alerts-criteria-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background-color: #f4f7f5;
+}
+
+.alerts-criteria-texto {
+  min-width: 0;
+}
+
+.alerts-criteria-item p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.alerts-criteria-comuna {
+  color: #0f3d30;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.alerts-criteria-condiciones {
+  color: #2f3a35;
+  font-size: 14px;
+}
+
+.alerts-criteria-item .alerts-criteria-hoy {
+  margin-top: 4px;
+  color: #5f6b66;
+  font-size: 13px;
+}
+
+.alerts-delete-btn {
+  flex-shrink: 0;
+  padding: 2px 0;
+  border: none;
+  background: none;
+  color: #b91c1c;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.alerts-delete-btn:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Tablet y celular: una sola columna ---------- */
+@media (max-width: 860px) {
+  .alerts-page {
+    padding: 24px 16px 40px;
   }
 
-  .pref-text {
-    display: flex;
+  .alerts-page h1 {
+    font-size: 26px;
+  }
+
+  .alerts-columnas {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    margin-top: 24px;
+  }
+
+  .alerts-lateral {
+    padding: 16px;
+  }
+}
+
+/* Celular angosto: la insignia pasa debajo del texto de la notificación */
+@media (max-width: 480px) {
+  .alerts-notification-item {
     flex-direction: column;
-    gap: 2px;
-
-    .pref-title {
-      font-size: 15px;
-      font-weight: 800;
-      color: $gh-text-title;
-      margin: 0;
-    }
-
-    .pref-subtitle {
-      font-size: 13px;
-      color: $gh-text-muted;
-      margin: 0;
-    }
+    align-items: flex-start;
+    gap: 8px;
   }
+}
 
-  ion-toggle {
-    --background: #cbd5e1;
-    --background-checked: #1f6243;
-    --handle-background: #ffffff;
-    --handle-background-checked: #ffffff;
-    --border-radius: 16px;
-    --width: 48px;
-    --height: 28px;
-    --handle-width: 22px;
-    --handle-height: 22px;
-    --handle-spacing: 3px;
-    padding: 0;
-  }
+/* Anuncios dentro de la página Alertas (MisAnuncios.css de la web) */
+
+.anuncios-sin-leer {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: #dc2626;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.anuncios-error {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background-color: #fee2e2;
+  color: #991b1b;
+  font-size: 14px;
+}
+
+.anuncios-lista {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.anuncios-item {
+  border: 1px solid #e5e5e4;
+  border-radius: 8px;
+  background-color: white;
+  overflow: hidden;
+}
+
+.anuncios-item.is-nuevo {
+  border-color: #86efac;
+  background-color: #f0fdf4;
+}
+
+/* La fila que se pulsa: título a la izquierda, fecha y flecha a la derecha */
+.anuncios-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  background: none;
+  color: #171717;
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.anuncios-cabecera:focus-visible,
+.anuncios-mas:focus-visible {
+  outline: 2px solid #15803d;
+  outline-offset: -2px;
+}
+
+.anuncios-titulo {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.anuncios-item.is-nuevo .anuncios-titulo {
+  font-weight: 700;
+}
+
+.anuncios-nuevo {
+  margin-right: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: #15803d;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.anuncios-fecha {
+  flex-shrink: 0;
+  color: #737373;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.anuncios-flecha {
+  flex-shrink: 0;
+  color: #737373;
+}
+
+.anuncios-cuerpo {
+  padding: 0 14px 14px;
+  color: #262626;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.anuncios-cuerpo p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap; /* respeta los saltos de línea del mensaje */
+}
+
+.anuncios-cuerpo a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #15803d;
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.anuncios-cuerpo a:hover {
+  text-decoration: underline;
+}
+
+.anuncios-mas {
+  margin-top: 10px;
+  padding: 8px 14px;
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  background-color: white;
+  color: #404040;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
 }

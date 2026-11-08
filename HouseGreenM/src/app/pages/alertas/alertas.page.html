@@ -1,115 +1,224 @@
-<ion-content class="alertas-content" [fullscreen]="true">
+<app-encabezado></app-encabezado>
 
-  <div class="page-wrapper">
+<ion-content>
+  <div class="alerts-page">
+    <h1>Alertas</h1>
+    <p class="alerts-subtitle">Te avisamos cuando llega un remate que te puede interesar.</p>
 
-    <!-- ENCABEZADO -->
-    <div class="header-bar">
-      <button class="back-btn" (click)="goBack()" aria-label="Volver">
-        <ion-icon name="chevron-back-outline"></ion-icon>
-      </button>
+    <div class="alerts-columnas">
+      <!-- ---------- Lo que llegó ---------- -->
+      <div class="alerts-principal">
+        <!-- Anuncios del equipo (el administrador los envía, no los recibe) -->
+        @if (avisos.recibeAnuncios()) {
+          <section class="anuncios">
+            <h2 class="alerts-section-title">
+              Anuncios
+              @if (avisos.anunciosSinLeer() > 0) {
+                <span class="anuncios-sin-leer">{{ avisos.anunciosSinLeer() }} sin leer</span>
+              }
+            </h2>
 
-      <h1 class="page-title">Notificaciones</h1>
+            @if (avisos.errorAnuncios(); as error) {
+              <p class="anuncios-error">No se pudieron cargar los anuncios: {{ error }}</p>
+            }
+            @if (avisos.cargandoAnuncios() && avisos.anuncios().length === 0) {
+              <p class="alerts-empty">Cargando...</p>
+            } @else if (!avisos.errorAnuncios() && avisos.anuncios().length === 0) {
+              <p class="alerts-empty">No tienes anuncios.</p>
+            }
 
-      <button class="mark-read-btn" (click)="marcarTodasLeidas()">
-        Marcar leídas
-      </button>
+            <ul class="anuncios-lista">
+              @for (anuncio of anunciosVisibles(); track anuncio.id) {
+                <li class="anuncios-item" [class.is-nuevo]="anuncio.read_at === null">
+                  <button
+                    type="button"
+                    class="anuncios-cabecera"
+                    [attr.aria-expanded]="anuncioAbierto() === anuncio.id"
+                    (click)="alternarAnuncio(anuncio)">
+                    <span class="anuncios-titulo">
+                      @if (anuncio.read_at === null) {
+                        <span class="anuncios-nuevo">Nuevo</span>
+                      }
+                      {{ anuncio.title }}
+                    </span>
+                    <span class="anuncios-fecha">{{ fechaConAnio(anuncio.created_at) }}</span>
+                    <span class="anuncios-flecha" aria-hidden="true">{{ anuncioAbierto() === anuncio.id ? '▴' : '▾' }}</span>
+                  </button>
+
+                  @if (anuncioAbierto() === anuncio.id) {
+                    <div class="anuncios-cuerpo">
+                      <p>{{ anuncio.message }}</p>
+                      @if (anuncio.property_id) {
+                        <a [routerLink]="['/detalle-propiedad', anuncio.property_id]">
+                          Ver {{ anuncio.publicacion ? '«' + anuncio.publicacion + '»' : 'la publicación' }} ›
+                        </a>
+                      }
+                    </div>
+                  }
+                </li>
+              }
+            </ul>
+
+            @if (anunciosOcultos() > 0) {
+              <button type="button" class="anuncios-mas" (click)="tandaAnuncios.set(tandaAnuncios() + 10)">
+                Mostrar más ({{ anunciosOcultos() }})
+              </button>
+            }
+          </section>
+        }
+
+        <!-- Remates que calzan con las alertas -->
+        <section>
+          <div class="alerts-section-fila">
+            <h2 class="alerts-section-title">
+              Remates que calzan con tus alertas
+              @if (avisos.noLeidas() > 0) {
+                <span class="alerts-sin-leer">{{ avisos.noLeidas() }} sin leer</span>
+              }
+            </h2>
+            @if (avisos.noLeidas() > 0) {
+              <button type="button" class="alerts-boton-texto" (click)="avisos.marcarTodasLeidas()">
+                Marcar todas como leídas
+              </button>
+            }
+          </div>
+
+          @if (avisos.errorNotificaciones(); as error) {
+            <p class="alerts-error">No se pudieron cargar las notificaciones: {{ error }}</p>
+          }
+          @if (avisos.cargandoNotificaciones() && avisos.notificaciones().length === 0) {
+            <p class="alerts-empty">Cargando...</p>
+          } @else if (!avisos.errorNotificaciones() && avisos.notificaciones().length === 0) {
+            <p class="alerts-empty">
+              Todavía no hay avisos. Llegan cuando se carga un remate nuevo que cumple alguna de tus alertas.
+            </p>
+          }
+
+          <ul class="alerts-notification-list">
+            @for (item of avisosVisibles(); track item.aviso.id) {
+              @if (item.aviso.property_id; as propiedadId) {
+                <li>
+                  <a
+                    class="alerts-notification-item"
+                    [class.is-unread]="!item.aviso.is_read"
+                    [routerLink]="['/detalle-propiedad', propiedadId]"
+                    (click)="avisos.marcarLeida(item.aviso.id)">
+                    <div class="alerts-notification-texto">
+                      <p class="alerts-notification-titulo">
+                        @if (!item.aviso.is_read) {
+                          <span class="alerts-nuevo">Nuevo</span>
+                        }
+                        {{ item.aviso.property_title ?? 'Propiedad' }}
+                      </p>
+                      <p class="alerts-notification-detalle">{{ item.detalle }}</p>
+                    </div>
+                    @if (item.terminado) {
+                      <span class="alerts-terminado">{{ item.terminado }}</span>
+                    } @else if (item.riesgo) {
+                      <app-etiqueta-riesgo [riesgo]="item.riesgo"></app-etiqueta-riesgo>
+                    }
+                  </a>
+                </li>
+              } @else {
+                <!-- La propiedad ya no existe: se muestra el aviso, pero sin enlace -->
+                <li class="alerts-notification-item" [class.is-unread]="!item.aviso.is_read">
+                  <div class="alerts-notification-texto">
+                    <p class="alerts-notification-titulo">Una propiedad que ya no está disponible</p>
+                    <p class="alerts-notification-detalle">Avisado el {{ fechaConAnio(item.aviso.created_at) }}</p>
+                  </div>
+                </li>
+              }
+            }
+          </ul>
+
+          @if (avisosOcultos() > 0) {
+            <button type="button" class="alerts-mas" (click)="tanda.set(tanda() + 10)">
+              Mostrar más ({{ avisosOcultos() }})
+            </button>
+          }
+        </section>
+      </div>
+
+      <!-- ---------- De qué quiere que le avisen ---------- -->
+      <aside class="alerts-lateral">
+        <h2 class="alerts-section-title">Mis alertas</h2>
+
+        <!-- Crear alertas es de Premium. Sin el plan se ven (y se pueden borrar) las que ya tenía. -->
+        @if (!conPremium()) {
+          <app-aviso-premium titulo="Las alertas son parte del plan Premium" variante="compacto">
+            Te avisamos cuando llega un remate nuevo que cumple tus condiciones.
+          </app-aviso-premium>
+        } @else {
+          <p class="alerts-ayuda">
+            Elige una o más condiciones. Te avisaremos cuando llegue un remate nuevo que las cumpla todas.
+          </p>
+
+          <form class="alerts-form" (ngSubmit)="crearAlerta()" novalidate>
+            <label class="alerts-campo">
+              Comuna
+              <select name="comuna" [(ngModel)]="comunaId">
+                <option value="">Cualquier comuna</option>
+                @for (comuna of comunas(); track comuna.id) {
+                  <option [value]="comuna.id">{{ comuna.nombre }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="alerts-campo">
+              Riesgo
+              <select name="riesgo" [(ngModel)]="riesgo">
+                <option value="">Cualquier riesgo</option>
+                <option value="verde">Solo riesgo bajo</option>
+                <option value="amarillo">Riesgo bajo o medio</option>
+              </select>
+            </label>
+
+            <label class="alerts-campo">
+              Precio mínimo del remate, hasta
+              <span class="alerts-precio">
+                <span aria-hidden="true">$</span>
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  placeholder="Sin tope"
+                  [value]="precioConPuntos()"
+                  (input)="escribirPrecio($event)" />
+              </span>
+            </label>
+
+            @if (errorDelFormulario()) {
+              <p class="alerts-error-chico" role="alert">{{ errorDelFormulario() }}</p>
+            }
+
+            <button type="submit" class="alerts-submit-btn" [disabled]="guardando()">
+              {{ guardando() ? 'Creando...' : 'Crear alerta' }}
+            </button>
+          </form>
+        }
+
+        @if (errorDeAlertas()) {
+          <p class="alerts-error">No se pudo completar: {{ errorDeAlertas() }}</p>
+        }
+        @if (alertas() === null && !errorDeAlertas()) {
+          <p class="alerts-empty">Cargando...</p>
+        }
+        @if (alertas()?.length === 0 && conPremium()) {
+          <p class="alerts-empty">Todavía no tienes alertas. Crea la primera con el formulario.</p>
+        }
+
+        <ul class="alerts-criteria-list">
+          @for (alerta of alertasConDetalle(); track alerta.id) {
+            <li class="alerts-criteria-item">
+              <div class="alerts-criteria-texto">
+                <p class="alerts-criteria-comuna">{{ alerta.comuna }}</p>
+                <p class="alerts-criteria-condiciones">{{ alerta.condiciones }}</p>
+                <p class="alerts-criteria-hoy">{{ alerta.hoy }}</p>
+              </div>
+              <button type="button" class="alerts-delete-btn" (click)="eliminarAlerta(alerta.id)">Eliminar</button>
+            </li>
+          }
+        </ul>
+      </aside>
     </div>
-
-    <!-- SECCIÓN: HOY -->
-    <section class="section-container">
-      <h2 class="section-label">HOY</h2>
-
-      <div class="alerts-card">
-        @for (item of alertasHoy; track item.id; let last = $last) {
-          <div class="alert-item" [class.border-bottom]="!last">
-            <!-- Icono según tipo -->
-            <div class="icon-avatar" [ngClass]="item.tipo">
-              @switch (item.tipo) {
-                @case ('remate_proximo') {
-                  <ion-icon name="calendar-outline"></ion-icon>
-                }
-                @case ('semaforo_alerta') {
-                  <ion-icon name="traffic-light-outline"></ion-icon>
-                }
-                @case ('nuevo_remate') {
-                  <ion-icon name="location-outline"></ion-icon>
-                }
-              }
-            </div>
-
-            <!-- Contenido -->
-            <div class="item-content">
-              <div class="item-header">
-                <h3 class="item-title">{{ item.titulo }}</h3>
-                @if (!item.leida) {
-                  <span class="unread-dot"></span>
-                }
-              </div>
-              <p class="item-desc">{{ item.descripcion }}</p>
-              <span class="item-time">{{ item.tiempo }}</span>
-            </div>
-          </div>
-        }
-      </div>
-    </section>
-
-    <!-- SECCIÓN: ESTA SEMANA -->
-    <section class="section-container">
-      <h2 class="section-label">ESTA SEMANA</h2>
-
-      <div class="alerts-card">
-        @for (item of alertasEstaSemana; track item.id; let last = $last) {
-          <div class="alert-item" [class.border-bottom]="!last">
-            <!-- Icono según tipo -->
-            <div class="icon-avatar" [ngClass]="item.tipo">
-              @switch (item.tipo) {
-                @case ('precio_bajo') {
-                  <ion-icon name="trending-down-outline"></ion-icon>
-                }
-                @case ('reprogramado') {
-                  <ion-icon name="time-outline"></ion-icon>
-                }
-              }
-            </div>
-
-            <!-- Contenido -->
-            <div class="item-content">
-              <div class="item-header">
-                <h3 class="item-title">{{ item.titulo }}</h3>
-                @if (!item.leida) {
-                  <span class="unread-dot"></span>
-                }
-              </div>
-              <p class="item-desc">{{ item.descripcion }}</p>
-              <span class="item-time">{{ item.tiempo }}</span>
-            </div>
-          </div>
-        }
-      </div>
-    </section>
-
-    <!-- SECCIÓN: PREFERENCIAS DE ALERTAS -->
-    <section class="section-container">
-      <h2 class="section-label">QUÉ QUIERES QUE TE AVISEMOS</h2>
-
-      <div class="preferences-card">
-        @for (pref of preferencias; track pref.id; let last = $last) {
-          <div class="preference-item" [class.border-bottom]="!last">
-            <div class="pref-text">
-              <h3 class="pref-title">{{ pref.titulo }}</h3>
-              <p class="pref-subtitle">{{ pref.subtitulo }}</p>
-            </div>
-
-            <ion-toggle 
-              [checked]="pref.activo" 
-              (ionChange)="togglePreferencia(pref)"
-              aria-label="Ajuste de alerta">
-            </ion-toggle>
-          </div>
-        }
-      </div>
-    </section>
-
   </div>
-
 </ion-content>

@@ -1,310 +1,278 @@
-// Paleta Greenhouse
-$gh-dark-green: #175339;
-$gh-primary-green: #1f6243;
-$gh-accent-green: #2d6a4f;
-$gh-light-green: #e2f1e8;
-$gh-bg-light: #f2f7f4;
-$gh-text-dark: #1e293b;
-$gh-gray-border: #e2e8f0;
-
-.contacto-content {
-  --background: #{$gh-bg-light};
+// Paso A7: los mismos estilos de la página "Tu opinión" de la web (OpinionesPage.css y Estrellas.css)
+.opi-page {
+  max-width: 560px;
 }
 
-.page-wrapper {
-  padding: 16px 20px 32px;
-  max-width: 500px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.opi-subtitulo {
+  margin: 4px 0 0;
+  color: #737373;
 }
 
-/* -------------------------------------------------------------
-   ENCABEZADO
-------------------------------------------------------------- */
-.header-section {
-  padding-top: 8px;
-
-  .back-btn {
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin-bottom: 12px;
-    font-size: 24px;
-    color: $gh-dark-green;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-
-    &:active {
-      opacity: 0.7;
-    }
-  }
-
-  .page-title {
-    font-size: 26px;
-    font-weight: 800;
-    color: $gh-dark-green;
-    margin: 0 0 8px 0;
-    letter-spacing: -0.4px;
-  }
-
-  .page-subtitle {
-    font-size: 15px;
-    color: #475569;
-    margin: 0;
-    line-height: 1.4;
-  }
-}
-
-/* -------------------------------------------------------------
-   ESTILOS DE TARJETAS (CARDS)
-------------------------------------------------------------- */
-.card-box {
-  background: #ffffff;
-  border-radius: 24px;
+.opi-tarjeta {
+  margin-top: 20px;
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.03);
-
-  .card-title {
-    font-size: 17px;
-    font-weight: 800;
-    color: $gh-dark-green;
-    margin: 0 0 16px 0;
-  }
+  border: 1px solid #e5e5e4;
+  border-radius: 12px;
+  background-color: white;
 }
 
-/* -------------------------------------------------------------
-   TARJETA DE CALIFICACIÓN (ESTRELLAS)
-------------------------------------------------------------- */
-.rating-card {
-  .stars-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 14px;
-
-    .star-box {
-      flex: 1;
-      height: 52px;
-      border-radius: 16px;
-      border: 1px solid $gh-gray-border;
-      background: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      ion-icon {
-        font-size: 26px;
-        color: #94a3b8;
-      }
-
-      &.filled {
-        background: $gh-light-green;
-        border-color: transparent;
-
-        ion-icon {
-          color: $gh-primary-green;
-        }
-      }
-
-      &:active {
-        transform: scale(0.95);
-      }
-    }
-  }
-
-  .rating-label {
-    font-size: 14px;
-    color: #334155;
-    margin: 0;
-
-    strong {
-      font-weight: 800;
-      color: $gh-dark-green;
-    }
-  }
-}
-
-/* -------------------------------------------------------------
-   FORMULARIO Y CHIPS
-------------------------------------------------------------- */
-.form-card {
-  .chips-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 20px;
-
-    .chip-item {
-      background: #ffffff;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 20px;
-      padding: 8px 16px;
-      font-size: 14px;
-      font-weight: 700;
-      color: $gh-dark-green;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-
-      .check-icon {
-        font-size: 16px;
-        color: $gh-primary-green;
-        stroke-width: 2.5;
-      }
-
-      &.active {
-        background: $gh-light-green;
-        border-color: $gh-primary-green;
-        color: $gh-dark-green;
-      }
-
-      &:active {
-        transform: scale(0.96);
-      }
-    }
-  }
-
-  .input-label {
-    display: block;
-    font-size: 15px;
-    font-weight: 800;
-    color: $gh-dark-green;
-    margin-bottom: 8px;
-  }
-
-  .textarea-wrapper {
-    background: #f8fafc;
-    border: 1px solid #cbd5e1;
-    border-radius: 18px;
-    padding: 12px;
-
-    .sugerencia-textarea {
-      width: 100%;
-      border: none;
-      background: transparent;
-      resize: none;
-      font-family: inherit;
-      font-size: 15px;
-      color: $gh-text-dark;
-      line-height: 1.45;
-      outline: none;
-
-      &::placeholder {
-        color: #94a3b8;
-      }
-    }
-  }
-
-  .char-counter {
-    text-align: right;
-    font-size: 13px;
-    color: #64748b;
-    margin: 6px 0 16px;
-  }
-
-  .checkbox-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    user-select: none;
-
-    .custom-checkbox {
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
-      border: 2px solid #64748b;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s ease;
-      flex-shrink: 0;
-
-      &.checked {
-        background: $gh-primary-green;
-        border-color: $gh-primary-green;
-
-        ion-icon {
-          color: #ffffff;
-          font-size: 16px;
-          font-weight: 800;
-        }
-      }
-    }
-
-    .checkbox-label {
-      font-size: 14px;
-      font-weight: 500;
-      color: #334155;
-      line-height: 1.35;
-    }
-  }
-}
-
-/* -------------------------------------------------------------
-   BOTÓN PRINCIPAL DE ENVÍO
-------------------------------------------------------------- */
-.submit-btn {
-  width: 100%;
-  height: 52px;
-  background: $gh-primary-green;
-  border-radius: 26px;
+.opi-grupo {
+  margin: 0 0 14px;
+  padding: 0;
   border: none;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 800;
+}
+
+.opi-grupo legend,
+.opi-campo {
+  color: #404040;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.opi-grupo legend {
+  padding: 0;
+  margin-bottom: 6px;
+}
+
+/* Las 5 estrellas para elegir: botones grandes, fáciles de tocar en el celular */
+.opi-estrellas {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.opi-estrellas button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: #d4d4d4; /* estrella vacía */
+  font-size: 32px;
+  line-height: 1;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(23, 83, 57, 0.25);
-  transition: transform 0.15s ease, background-color 0.15s ease;
+}
 
-  ion-icon {
-    font-size: 20px;
-    transform: rotate(-20deg);
-  }
+.opi-estrellas button.is-llena {
+  color: #f59e0b;
+}
 
-  &:active {
-    transform: scale(0.98);
-  }
+.opi-estrellas button:hover {
+  background-color: #f5f5f4;
+}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    box-shadow: none;
+.opi-estrellas button:focus-visible,
+.opi-campo select:focus-visible,
+.opi-campo textarea:focus-visible,
+.opi-boton:focus-visible {
+  outline: 2px solid #15803d;
+  outline-offset: 2px;
+}
+
+.opi-estrellas-texto {
+  margin-left: 8px;
+  color: #404040;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.opi-campo {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.opi-campo select,
+.opi-campo textarea {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  box-sizing: border-box;
+  background-color: white;
+  color: #171717;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.opi-campo textarea {
+  resize: vertical;
+  line-height: 1.4;
+}
+
+.opi-contador {
+  display: block;
+  margin-top: 4px;
+  color: #737373;
+  font-size: 12px;
+  font-weight: 400;
+  text-align: right;
+}
+
+.opi-casilla {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #404040;
+  font-size: 14px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.opi-casilla input {
+  margin-top: 3px;
+}
+
+.opi-aviso {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.opi-aviso.is-ok {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.opi-aviso.is-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.opi-boton {
+  margin-top: 16px;
+  padding: 11px 18px;
+  border: none;
+  border-radius: 8px;
+  background-color: #15803d;
+  color: white;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.opi-boton:hover {
+  background-color: #166534;
+}
+
+.opi-boton:disabled {
+  background-color: #e5e5e4;
+  color: #737373;
+  cursor: not-allowed;
+}
+
+/* Lista de opiniones enviadas */
+.opi-titulo-lista {
+  margin: 32px 0 0;
+  font-size: 18px;
+}
+
+.opi-vacio {
+  margin: 10px 0 0;
+  color: #737373;
+  font-size: 14px;
+}
+
+.opi-lista {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.opi-item {
+  padding: 14px 16px;
+  border: 1px solid #e5e5e4;
+  border-radius: 12px;
+  background-color: white;
+}
+
+.opi-item-arriba {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+
+.opi-item-tema {
+  color: #171717;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.opi-item-fecha {
+  margin-left: auto;
+  color: #737373;
+  font-size: 13px;
+}
+
+.opi-item-mensaje {
+  margin: 8px 0 0;
+  color: #262626;
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap; /* respeta los saltos de línea que escribió la persona */
+}
+
+.opi-item-mensaje.is-vacio,
+.opi-item-nota {
+  color: #737373;
+  font-size: 13px;
+}
+
+.opi-item-nota {
+  margin: 8px 0 0;
+}
+
+.opi-respuesta {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-left: 3px solid #15803d;
+  border-radius: 0 8px 8px 0;
+  background-color: #f0fdf4;
+  color: #262626;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.opi-respuesta p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.opi-respuesta .opi-respuesta-titulo {
+  margin-bottom: 2px;
+  color: #166534;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .opi-boton {
+    width: 100%;
   }
 }
 
-/* -------------------------------------------------------------
-   FOOTER / AYUDA DIRECTA
-------------------------------------------------------------- */
-.footer-help {
-  text-align: center;
-  margin-top: 12px;
+/* Estrellas de una calificación (Estrellas.css de la web) */
+.estrellas {
+  display: inline-flex;
+  gap: 1px;
+  color: #d4d4d4; /* estrella vacía */
+  font-size: 16px;
+  line-height: 1;
+}
 
-  .help-title {
-    font-size: 14px;
-    color: #475569;
-    margin: 0 0 4px 0;
-  }
-
-  .help-link {
-    font-size: 15px;
-    font-weight: 800;
-    color: $gh-primary-green;
-    text-decoration: underline;
-
-    &:hover {
-      color: $gh-dark-green;
-    }
-  }
+.estrellas .is-llena {
+  color: #f59e0b;
 }

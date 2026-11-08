@@ -92,3 +92,13 @@ ion-menu {
     }
   }
 }
+// Paso A7: número rojo de avisos sin leer junto a "Alertas" (el mismo de la web)
+.app-alerts-badge {
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background-color: #dc2626;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+}

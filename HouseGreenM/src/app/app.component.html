@@ -70,13 +70,14 @@
                 <ion-icon aria-hidden="true" name="map-outline" slot="start"></ion-icon>
                 <ion-label>Mapa</ion-label>
               </ion-item>
-              <ion-item button [routerLink]="['/propiedades-guardadas']">
-                <ion-icon aria-hidden="true" name="heart-outline" slot="start"></ion-icon>
-                <ion-label>Guardados</ion-label>
-              </ion-item>
+              <!-- Paso A7: como en la web, los favoritos se ven en Remates con "Solo favoritos" (ya no hay Guardados) -->
               <ion-item button [routerLink]="['/alertas']">
                 <ion-icon aria-hidden="true" name="notifications-outline" slot="start"></ion-icon>
                 <ion-label>Alertas</ion-label>
+                <!-- Paso A7: anuncios y avisos sin leer (con más de 9 se muestra "9+", como en la web) -->
+                @if (avisos.pendientes() > 0) {
+                  <span class="app-alerts-badge" slot="end">{{ avisos.pendientes() > 9 ? '9+' : avisos.pendientes() }}</span>
+                }
               </ion-item>
               <ion-item button [routerLink]="['/contacto']">
                 <ion-icon aria-hidden="true" name="chatbox-ellipses-outline" slot="start"></ion-icon>

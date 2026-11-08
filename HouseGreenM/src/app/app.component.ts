@@ -2,6 +2,7 @@ import { Component, effect, inject } from '@angular/core';
 import { MenuController } from '@ionic/angular/lazy';
 import { register } from 'swiper/element/bundle';
 
+import { AvisosService } from './core/avisos.service';
 import { SesionService } from './core/sesion.service';
 import { ROL_ADMIN, ROL_ANALISTA } from './core/modelos';
 
@@ -16,6 +17,7 @@ register();
 export class AppComponent {
   private sesion = inject(SesionService);
   private menu = inject(MenuController);
+  readonly avisos = inject(AvisosService); // Paso A7: el número rojo de Alertas en el menú
 
   // Paso A1: el menú lateral cambia según quién inició sesión
   readonly usuario = this.sesion.usuario;

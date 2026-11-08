@@ -82,12 +82,8 @@ const routes: Routes = [
     loadChildren: () =>
       import('./pages/mapa-propiedades/mapa-propiedades.module').then((m) => m.MapaPropiedadesPageModule),
   },
-  {
-    path: 'propiedades-guardadas',
-    canActivate: inversionista,
-    loadChildren: () =>
-      import('./pages/propiedades-guardadas/propiedades-guardadas.module').then((m) => m.PropiedadesGuardadasPageModule),
-  },
+  // Paso A7: como en la web, los favoritos están en Remates ("Solo favoritos")
+  { path: 'propiedades-guardadas', redirectTo: 'catalogo-propiedades', pathMatch: 'full' },
   {
     path: 'alertas',
     canActivate: inversionista,
