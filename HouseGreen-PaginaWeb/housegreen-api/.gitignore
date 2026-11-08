@@ -12,3 +12,6 @@ __pycache__/
 uploads/
 
 db/housegreen.sql
+
+# Paso 126: lo que genera pytest al correr las pruebas
+.pytest_cache/
