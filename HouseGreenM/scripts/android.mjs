@@ -8,9 +8,24 @@
 // En el teléfono "localhost" es el propio teléfono: por eso la app tiene que llevar la dirección IP de este
 // computador (por ejemplo http://192.168.1.20:8000). Si cambias de red Wi-Fi, vuelve a correr "npm run android:apk".
 // La dirección se puede dar a mano:  npm run android:apk -- 192.168.1.20
+//
+// Paso A15b: para crear la APK se busca un Java 17 a 24 (Gradle 8.14 no funciona con el Java 25 que traen las
+// versiones nuevas de Android Studio). Si no hay ninguno, se descarga Java 21 una sola vez en ~/.housegreen/java-21.
 
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, createReadStream, existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { once } from 'node:events';
+import {
+  copyFileSync,
+  createReadStream,
+  createWriteStream,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
 import { homedir, networkInterfaces } from 'node:os';
@@ -25,6 +40,12 @@ const PUERTO_API = 8000;
 const PUERTO_QR = 8080;
 const EN_WINDOWS = process.platform === 'win32';
 const IP_VALIDA = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+// Paso A15b: Gradle 8.14 (el que usa Capacitor 8) funciona con Java 17 a 24, y las versiones nuevas de
+// Android Studio traen Java 25. Si el computador no tiene otro Java, se descarga Java 21 una sola vez aquí:
+const JAVA_MINIMO = 17;
+const JAVA_MAXIMO = 24;
+const CARPETA_JAVA = join(homedir(), '.housegreen', 'java-21');
+const PROGRAMA_JAVA = EN_WINDOWS ? 'java.exe' : 'java';
 
 // ---------- Utilidades ----------
 
@@ -167,35 +188,142 @@ function ajustarAndroid() {
   }
 }
 
-function crearApk() {
-  const entorno = { ...process.env };
-  if (!entorno.JAVA_HOME) {
-    // Android Studio trae su propio Java
-    const java = [
-      '/Applications/Android Studio.app/Contents/jbr/Contents/Home',
-      join(homedir(), 'Applications', 'Android Studio.app', 'Contents', 'jbr', 'Contents', 'Home'),
-      'C:\\Program Files\\Android\\Android Studio\\jbr',
-    ].find((ruta) => existsSync(ruta));
-    if (java) {
-      entorno.JAVA_HOME = java;
+// ---------- El Java para crear la APK (paso A15b) ----------
+
+/** La versión de un Java (17, 21, 25...) o null si no se sabe. */
+function versionDeJava(carpeta) {
+  try {
+    const release = join(carpeta, 'release');
+    if (existsSync(release)) {
+      const encontrado = /JAVA_VERSION="(?:1\.)?(\d+)/.exec(readFileSync(release, 'utf8'));
+      if (encontrado) {
+        return Number(encontrado[1]);
+      }
     }
+    const resultado = spawnSync(join(carpeta, 'bin', PROGRAMA_JAVA), ['-version'], { encoding: 'utf8' });
+    const encontrado = /version "(?:1\.)?(\d+)/.exec(`${resultado.stderr}${resultado.stdout}`);
+    return encontrado ? Number(encontrado[1]) : null;
+  } catch {
+    return null;
   }
+}
+
+/** Las carpetas de Java dentro de una carpeta (en Mac cada Java trae Contents/Home). */
+function javasEn(base) {
+  if (!existsSync(base)) {
+    return [];
+  }
+  return readdirSync(base).flatMap((nombre) => [join(base, nombre, 'Contents', 'Home'), join(base, nombre)]);
+}
+
+function javasDeEsteComputador() {
+  const lista = [];
+  if (process.env.JAVA_HOME) {
+    lista.push(process.env.JAVA_HOME);
+  }
+  lista.push(...javasEn(CARPETA_JAVA));
+  if (process.platform === 'darwin') {
+    for (const version of ['21', '17']) {
+      const resultado = spawnSync('/usr/libexec/java_home', ['-v', version], { encoding: 'utf8' });
+      if (resultado.status === 0 && resultado.stdout.trim()) {
+        lista.push(resultado.stdout.trim());
+      }
+    }
+    lista.push(...javasEn('/Library/Java/JavaVirtualMachines'), ...javasEn(join(homedir(), 'Library', 'Java', 'JavaVirtualMachines')));
+  }
+  // El Java que trae Android Studio
+  lista.push(
+    '/Applications/Android Studio.app/Contents/jbr/Contents/Home',
+    join(homedir(), 'Applications', 'Android Studio.app', 'Contents', 'jbr', 'Contents', 'Home'),
+    'C:\\Program Files\\Android\\Android Studio\\jbr',
+  );
+  if (EN_WINDOWS) {
+    lista.push(...javasEn('C:\\Program Files\\Eclipse Adoptium'), ...javasEn('C:\\Program Files\\Java'));
+  }
+  return [...new Set(lista)].filter((carpeta) => existsSync(join(carpeta, 'bin', PROGRAMA_JAVA)));
+}
+
+async function descargarJava() {
+  const sistema = { darwin: 'mac', linux: 'linux', win32: 'windows' }[process.platform];
+  const procesador = { arm64: 'aarch64', x64: 'x64' }[process.arch];
+  const aMano =
+    'Instala Java 21 a mano desde https://adoptium.net/temurin/releases/?version=21 (en Mac, el instalador .pkg)\n' +
+    '  y vuelve a correr:  npm run android:apk';
+  if (!sistema || !procesador) {
+    fallar(`No sé descargar Java para este computador. ${aMano}`);
+  }
+  console.log(`\nDescargando Java 21 (Eclipse Temurin, unos 200 MB). Es una sola vez; queda en ${CARPETA_JAVA}`);
+  rmSync(CARPETA_JAVA, { recursive: true, force: true });
+  mkdirSync(CARPETA_JAVA, { recursive: true });
+  const archivo = join(CARPETA_JAVA, sistema === 'windows' ? 'java.zip' : 'java.tar.gz');
+  try {
+    const respuesta = await fetch(`https://api.adoptium.net/v3/binary/latest/21/ga/${sistema}/${procesador}/jdk/hotspot/normal/eclipse`);
+    if (!respuesta.ok || !respuesta.body) {
+      throw new Error(`el servidor respondió ${respuesta.status}`);
+    }
+    const total = Number(respuesta.headers.get('content-length')) || 0;
+    const salida = createWriteStream(archivo);
+    let bajado = 0;
+    let avisado = 0;
+    for await (const trozo of respuesta.body) {
+      bajado += trozo.length;
+      if (!salida.write(trozo)) {
+        await once(salida, 'drain');
+      }
+      while (total > 0 && (bajado * 100) / total >= avisado + 10) {
+        avisado += 10;
+        process.stdout.write(` ${avisado}%`);
+      }
+    }
+    salida.end();
+    await once(salida, 'finish');
+    console.log('');
+  } catch (error) {
+    fallar(`No se pudo descargar Java 21 (${error.message}).\n  ${aMano}`);
+  }
+  correr('tar', ['-xf', archivo, '-C', CARPETA_JAVA]);
+  rmSync(archivo, { force: true });
+  const java = javasEn(CARPETA_JAVA).find((carpeta) => versionDeJava(carpeta) === 21);
+  if (!java) {
+    fallar(`Se descargó Java 21, pero no lo encontré en ${CARPETA_JAVA}.\n  ${aMano}`);
+  }
+  return java;
+}
+
+/** Un Java que sirva para Gradle 8.14: uno que ya esté en el computador o, si no hay, Java 21 descargado. */
+async function javaParaGradle() {
+  const revisados = [];
+  for (const carpeta of javasDeEsteComputador()) {
+    const version = versionDeJava(carpeta);
+    if (version !== null && version >= JAVA_MINIMO && version <= JAVA_MAXIMO) {
+      console.log(`\nJava para crear la APK: Java ${version} (${carpeta})`);
+      return carpeta;
+    }
+    revisados.push(`Java ${version ?? '?'} en ${carpeta}`);
+  }
+  if (revisados.length > 0) {
+    console.log(`\nGradle necesita Java ${JAVA_MINIMO} a ${JAVA_MAXIMO}, y este computador tiene:\n  ${revisados.join('\n  ')}`);
+  }
+  return descargarJava();
+}
+
+async function crearApk() {
+  const entorno = { ...process.env };
   if (!entorno.ANDROID_HOME && !entorno.ANDROID_SDK_ROOT) {
     const sdk = [
       join(homedir(), 'Library', 'Android', 'sdk'),
       join(homedir(), 'Android', 'Sdk'),
       join(homedir(), 'AppData', 'Local', 'Android', 'Sdk'),
     ].find((ruta) => existsSync(ruta));
-    if (sdk) {
-      entorno.ANDROID_HOME = sdk;
+    if (!sdk) {
+      fallar(
+        'No encontré el Android SDK.\n' +
+          '  Instala Android Studio desde https://developer.android.com/studio, ábrelo una vez y termina su instalación ("Standard").',
+      );
     }
+    entorno.ANDROID_HOME = sdk;
   }
-  if (!entorno.JAVA_HOME || (!entorno.ANDROID_HOME && !entorno.ANDROID_SDK_ROOT)) {
-    fallar(
-      'No encontré Android Studio (su Java o su Android SDK).\n' +
-        '  Instálalo desde https://developer.android.com/studio, ábrelo una vez y termina su instalación ("Standard").',
-    );
-  }
+  entorno.JAVA_HOME = await javaParaGradle();
   console.log('\nCreando la APK. La primera vez demora varios minutos (descarga Gradle y lo que necesita Android).');
   if (EN_WINDOWS) {
     correr('gradlew.bat', ['assembleDebug'], { cwd: ANDROID, env: entorno });
@@ -222,7 +350,7 @@ async function armar(ip, conApk) {
 
   console.log(`\n✔ La app quedó armada para conectarse a la API en http://${ip}:${PUERTO_API}`);
   if (conApk) {
-    crearApk();
+    await crearApk();
     console.log(`\n✔ Se creó HouseGreen.apk (${megas(statSync(APK).size)}) en la carpeta HouseGreenM.`);
     console.log('  Para pasarla al teléfono con un código QR:  npm run android:qr');
   } else {
