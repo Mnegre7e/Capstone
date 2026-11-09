@@ -21,9 +21,10 @@
           }
         </div>
 
-        <!-- Usuarios no está en las pestañas: se entra desde aquí (Reportes, Auditoría y Cargas están en la web) -->
+        <!-- Usuarios y el registro de actividad no están en las pestañas: se entra desde aquí (paso A13: como en la web) -->
         <p class="panel-accesos">
           <a [routerLink]="['/usuarios']">Ver los usuarios registrados ›</a>
+          <a [routerLink]="['/auditoria']">Ver el registro de actividad ›</a>
         </p>
 
         <!-- Lo que el administrador tiene pendiente -->
@@ -77,12 +78,13 @@
               </div>
             </dl>
             <p class="panel-enlace-final panel-premium-enlaces">
+              <a [routerLink]="['/pagos']">Ver todos los pagos ›</a>
               <a [routerLink]="['/usuarios']" [queryParams]="{ plan: 'vigente' }">Ver quiénes tienen Premium ›</a>
             </p>
           </div>
         }
 
-        <!-- La última carga de remates (el historial completo está en la web) -->
+        <!-- La última carga de remates y el enlace a su historial (paso A13) -->
         <div class="panel-tarjeta">
           <div class="panel-carga-cabecera">
             <h2>Carga diaria de remates</h2>
@@ -104,6 +106,9 @@
           } @else {
             <p class="panel-vacio">Todavía no hay cargas registradas.</p>
           }
+          <p class="panel-enlace-final">
+            <a [routerLink]="['/cargas']">Ver el historial de cargas ›</a>
+          </p>
         </div>
 
         <!-- Cómo están repartidas las publicaciones vigentes según su semáforo -->

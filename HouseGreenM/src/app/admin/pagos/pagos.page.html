@@ -1,0 +1,102 @@
+<app-encabezado></app-encabezado>
+
+<ion-content>
+  <app-marco-admin seccion="pagos">
+    <section>
+      <a class="pag-volver" routerDirection="back" [routerLink]="['/admin-home']">‹ Volver al Panel</a>
+      <h1 class="admin-titulo">Pagos del plan Premium</h1>
+      <p class="admin-subtitulo">Cada vez que alguien intentó pagar con Webpay. Solo un pago aprobado activa el plan.</p>
+
+      @if (error(); as mensaje) {
+        <p class="pag-error">No se pudieron cargar los pagos: {{ mensaje }}</p>
+      }
+      @if (cargando()) {
+        <p class="pag-cuenta">Cargando...</p>
+      }
+
+      @if (!cargando() && !error() && pagos().length === 0) {
+        <div class="pag-vacio">Todavía nadie ha intentado pagar el plan Premium.</div>
+      }
+
+      @if (!cargando() && !error() && pagos().length > 0) {
+        <dl class="pag-resumen">
+          <div>
+            <dt>Pagos aprobados</dt>
+            <dd>{{ resumen().aprobados }}</dd>
+          </div>
+          <div>
+            <dt>Total aprobado</dt>
+            <dd>{{ resumen().total }}</dd>
+          </div>
+          <div>
+            <dt>Personas que pagaron</dt>
+            <dd>{{ resumen().personas }}</dd>
+          </div>
+        </dl>
+
+        <div class="pag-filtros">
+          <label class="pag-buscar">
+            Buscar
+            <input
+              type="search"
+              name="busqueda"
+              placeholder="Nombre, correo u orden de compra"
+              [ngModel]="busqueda()"
+              (ngModelChange)="buscar($event)" />
+          </label>
+          <label>
+            Estado
+            <select name="estado" [ngModel]="estado()" (ngModelChange)="elegirEstado($event)">
+              @for (f of FILTROS_ESTADO; track f.valor) {
+                <option [value]="f.valor">{{ f.nombre }}</option>
+              }
+            </select>
+          </label>
+        </div>
+
+        <p class="pag-cuenta">{{ textoCuenta() }}</p>
+
+        @if (cantidadFiltrados() === 0) {
+          <div class="pag-vacio">Ningún pago coincide con esos filtros.</div>
+        }
+
+        <ul class="pag-lista">
+          @for (item of visibles(); track item.p.id) {
+            <li class="pag-item" [ngClass]="'is-' + item.p.status">
+              <div class="pag-cabecera">
+                <div class="pag-persona">
+                  <h2>{{ item.p.full_name ?? 'Cuenta sin nombre' }}</h2>
+                  <p>{{ item.p.email ?? 'Sin correo' }}</p>
+                </div>
+                <span class="pag-estado" [ngClass]="'is-' + item.p.status">
+                  <span class="pag-estado-punto" aria-hidden="true"></span>
+                  {{ NOMBRE_ESTADO_PAGO[item.p.status] }}
+                </span>
+              </div>
+
+              <p class="pag-monto"><strong>{{ item.monto }}</strong>{{ item.detalle }}</p>
+
+              @if (item.premium) {
+                <p class="pag-texto">{{ item.premium }}</p>
+              }
+              @if (item.explicacion) {
+                <p class="pag-texto">{{ item.explicacion }}</p>
+              }
+              @if (item.motivo) {
+                <p class="pag-texto">{{ item.motivo }}</p>
+              }
+
+              <p class="pag-meta">{{ item.meta }}</p>
+            </li>
+          }
+        </ul>
+
+        @if (cantidadFiltrados() > visibles().length) {
+          <div class="pag-mas">
+            <button type="button" (click)="mostrarMas()">Mostrar más</button>
+          </div>
+        }
+      }
+    </section>
+  </app-marco-admin>
+</ion-content>

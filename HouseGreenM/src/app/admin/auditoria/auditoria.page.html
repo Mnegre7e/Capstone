@@ -1,0 +1,130 @@
+<app-encabezado></app-encabezado>
+
+<ion-content>
+  <app-marco-admin seccion="auditoria">
+    <section>
+      <a class="aud-volver" routerDirection="back" [routerLink]="['/admin-home']">‹ Volver al Panel</a>
+      <h1 class="admin-titulo">Registro de actividad</h1>
+      <p class="admin-subtitulo">
+        Todo lo que se hace en HouseGreen queda anotado aquí. Este registro no se puede modificar ni borrar.
+      </p>
+
+      <div class="aud-filtros">
+        <form class="aud-buscar" role="search" (submit)="buscar($event)">
+          <label for="aud-buscar">Persona</label>
+          <div class="aud-buscar-fila">
+            <input
+              id="aud-buscar"
+              type="search"
+              name="buscar"
+              placeholder="Correo o nombre"
+              [ngModel]="textoBuscar()"
+              (ngModelChange)="textoBuscar.set($event)"
+              [ngModelOptions]="{ standalone: true }" />
+            <button type="submit">Buscar</button>
+          </div>
+        </form>
+        <label>
+          Tipo de cuenta
+          <select name="rol" [ngModel]="filtros().rol" (ngModelChange)="cambiarFiltro({ rol: $event })">
+            @for (r of ROLES; track r.valor) {
+              <option [value]="r.valor">{{ r.nombre }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Qué
+          <select name="grupo" [ngModel]="filtros().grupo" (ngModelChange)="cambiarFiltro({ grupo: $event })">
+            @for (g of GRUPOS; track g.valor) {
+              <option [value]="g.valor">{{ g.nombre }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Período
+          <select name="periodo" [ngModel]="filtros().periodo" (ngModelChange)="cambiarFiltro({ periodo: $event })">
+            @for (p of PERIODOS; track p.valor) {
+              <option [value]="p.valor">{{ p.nombre }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      <p class="aud-cuenta">
+        {{ textoCuenta() }}
+        @if (hayFiltros() && !cargando()) {
+          <button type="button" class="aud-limpiar" (click)="limpiar()">Quitar filtros</button>
+        }
+      </p>
+
+      @if (error(); as mensaje) {
+        <p class="aud-error">No se pudo cargar el registro: {{ mensaje }}</p>
+      }
+
+      @if (pagina(); as datos) {
+        @if (datos.registros.length === 0 && !cargando()) {
+          <div class="aud-vacio">No hay registros con esos filtros.</div>
+        }
+        @if (datos.registros.length > 0) {
+          <ul class="aud-lista" [class.is-cargando]="cargando()">
+            @for (linea of lineas(); track linea.clave) {
+              @if (linea.tipo === 'dia') {
+                <li class="aud-dia">{{ linea.texto }}</li>
+              } @else {
+                <li class="aud-item" [class.is-fallo]="linea.fallo">
+                  <span class="aud-hora">{{ linea.hora }}</span>
+                  <div class="aud-contenido">
+                    <p class="aud-frase">
+                      <strong>{{ linea.quien }}</strong> {{ linea.texto
+                      }}@if (linea.objeto; as objeto) {@if (objeto.enlace) {<a [routerLink]="['/publicacion-detalle', objeto.enlace]">{{ objeto.nombre }}</a>} @else {<strong>{{ objeto.nombre }}</strong>}}
+                    </p>
+                    <p class="aud-meta">
+                      <span class="aud-chip" [class.is-sin-cuenta]="linea.sinCuenta">{{ linea.chip }}</span>
+                      @if (linea.email) {
+                        <span>{{ linea.email }}</span>
+                      }
+                      @if (linea.plataforma) {
+                        <span>{{ linea.plataforma }}</span>
+                      }
+                    </p>
+                    @if (linea.filas.length > 0 || linea.ip) {
+                      <details class="aud-detalle">
+                        <summary>Ver detalle</summary>
+                        <dl>
+                          @for (fila of linea.filas; track $index) {
+                            <div>
+                              <dt>{{ fila.nombre }}</dt>
+                              <dd>
+                                @if (fila.antes !== null) {
+                                  <span class="aud-antes">{{ fila.antes }}</span><span aria-label="cambió a"> → </span>
+                                }
+                                {{ fila.despues }}
+                              </dd>
+                            </div>
+                          }
+                          @if (linea.ip) {
+                            <div>
+                              <dt>Dirección IP</dt>
+                              <dd>{{ linea.ip }}</dd>
+                            </div>
+                          }
+                        </dl>
+                      </details>
+                    }
+                  </div>
+                </li>
+              }
+            }
+          </ul>
+        }
+        @if (datos.hay_mas) {
+          <div class="aud-mas">
+            <button type="button" [disabled]="cargandoMas()" (click)="cargarMas()">
+              {{ cargandoMas() ? 'Cargando...' : 'Cargar más' }}
+            </button>
+          </div>
+        }
+      }
+    </section>
+  </app-marco-admin>
+</ion-content>

@@ -2,10 +2,19 @@ import { Component, input } from '@angular/core';
 
 // Paso A9: el marco de las pantallas del administrador, igual que AdminLayout de la web: el distintivo
 // "Administrador" y las pestañas de sus secciones (en el celular quedan fijas abajo, como en la web).
-// Las herramientas avanzadas de la web (Semáforo, Reportes, Auditoría, Cargas y Pagos) se usan desde la web.
+// Paso A13: con la pestaña Semáforo, igual que la web (Cargas, Pagos y Registro de actividad se abren desde el Panel).
 // Estilos en theme/_admin.scss.
 
-export type SeccionAdmin = 'panel' | 'publicaciones' | 'opiniones' | 'anuncios' | 'usuarios';
+export type SeccionAdmin =
+  | 'panel'
+  | 'publicaciones'
+  | 'semaforo'
+  | 'opiniones'
+  | 'anuncios'
+  | 'usuarios'
+  | 'cargas'
+  | 'pagos'
+  | 'auditoria';
 
 @Component({
   selector: 'app-marco-admin',
@@ -39,6 +48,7 @@ export class MarcoAdminComponent {
   readonly SECCIONES: { valor: SeccionAdmin; ruta: string; texto: string }[] = [
     { valor: 'panel', ruta: '/admin-home', texto: 'Panel' },
     { valor: 'publicaciones', ruta: '/publicaciones', texto: 'Publicaciones' },
+    { valor: 'semaforo', ruta: '/semaforo', texto: 'Semáforo' },
     { valor: 'opiniones', ruta: '/opiniones', texto: 'Opiniones' },
     { valor: 'anuncios', ruta: '/anuncios', texto: 'Anuncios' },
   ];

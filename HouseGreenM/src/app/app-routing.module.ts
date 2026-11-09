@@ -152,6 +152,27 @@ const routes: Routes = [
     canActivate: administrador,
     loadChildren: () => import('./admin/usuarios/usuarios.module').then((m) => m.UsuariosPageModule),
   },
+  // Paso A13: las herramientas del administrador que antes estaban solo en la web
+  {
+    path: 'semaforo',
+    canActivate: administrador,
+    loadChildren: () => import('./admin/semaforo/semaforo.module').then((m) => m.SemaforoPageModule),
+  },
+  {
+    path: 'cargas',
+    canActivate: administrador,
+    loadChildren: () => import('./admin/cargas/cargas.module').then((m) => m.CargasPageModule),
+  },
+  {
+    path: 'pagos',
+    canActivate: administrador,
+    loadChildren: () => import('./admin/pagos/pagos.module').then((m) => m.PagosPageModule),
+  },
+  {
+    path: 'auditoria',
+    canActivate: administrador,
+    loadChildren: () => import('./admin/auditoria/auditoria.module').then((m) => m.AuditoriaPageModule),
+  },
   { path: 'actividad-usuario', redirectTo: 'usuarios', pathMatch: 'full' }, // Paso A9: como en la web, se hace en usuarios
   { path: 'actividad-usuario/:id', redirectTo: 'usuarios', pathMatch: 'full' }, // Paso A9: como en la web, se hace en usuarios
 

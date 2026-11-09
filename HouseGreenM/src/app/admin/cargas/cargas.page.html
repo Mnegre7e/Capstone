@@ -1,0 +1,95 @@
+<app-encabezado></app-encabezado>
+
+<ion-content>
+  <app-marco-admin seccion="cargas">
+    <section>
+      <a class="car-volver" routerDirection="back" [routerLink]="['/admin-home']">‹ Volver al Panel</a>
+      <h1 class="admin-titulo">Historial de cargas</h1>
+      <p class="admin-subtitulo">
+        Cada mañana se cargan solos los remates del sitio. Aquí queda cada carga, automática o hecha a mano.
+      </p>
+      <p class="car-ayuda">
+        Para repetir una carga se usa el botón "Run workflow" en la pestaña Actions del repositorio en GitHub.
+      </p>
+
+      @if (error(); as mensaje) {
+        <p class="car-error">No se pudo cargar el historial: {{ mensaje }}</p>
+      }
+      @if (cargando()) {
+        <p class="car-cuenta">Cargando...</p>
+      }
+      @if (!cargando() && !error() && cargas().length === 0) {
+        <div class="car-vacio">Todavía no hay cargas registradas.</div>
+      }
+      @if (!cargando() && cargas().length > 0) {
+        <p class="car-cuenta">
+          {{ cargas().length === 1 ? '1 carga' : 'Últimas ' + cargas().length + ' cargas' }}, de la más nueva a la más antigua
+        </p>
+      }
+
+      <ul class="car-lista">
+        @for (carga of cargas(); track carga.id) {
+          <li class="car-item" [ngClass]="'is-' + carga.status">
+            <div class="car-cabecera">
+              <div class="car-info">
+                <p class="car-cuando">{{ textoCuando(carga.started_at) }}</p>
+                <p class="car-meta">{{ meta(carga) }}</p>
+              </div>
+              <span class="car-estado" [ngClass]="'is-' + carga.status">
+                <span class="car-estado-punto" aria-hidden="true"></span>
+                {{ NOMBRE_ESTADO_CARGA[carga.status] }}
+              </span>
+            </div>
+
+            @if (textoCifras(carga)) {
+              <p class="car-cifras">{{ textoCifras(carga) }}</p>
+            }
+            @if (carga.error_message) {
+              <p class="car-motivo">Motivo: {{ carga.error_message }}</p>
+            }
+
+            <button
+              type="button"
+              class="car-ver"
+              [attr.aria-expanded]="abiertos()[carga.id] !== undefined"
+              (click)="alternarDetalle(carga)">
+              {{ abiertos()[carga.id] !== undefined ? 'Ocultar detalle' : 'Ver detalle' }}
+            </button>
+            @if (abiertos()[carga.id] === 'cargando') {
+              <p class="car-detalle car-nota">Cargando el detalle...</p>
+            }
+            @if (abiertos()[carga.id] === 'error') {
+              <p class="car-detalle car-error">No se pudo cargar el detalle.</p>
+            }
+            @if (vistaDe(carga.id); as vista) {
+              @if (avisoDe(vista); as aviso) {
+                <p class="car-detalle car-nota">{{ aviso }}</p>
+              } @else {
+                <div class="car-detalle">
+                  @for (bloque of bloquesDe(vista); track bloque.titulo) {
+                    <div class="car-bloque">
+                      <h3>{{ bloque.titulo }}</h3>
+                      @for (parrafo of bloque.parrafos; track $index) {
+                        <p>{{ parrafo }}</p>
+                      }
+                      @if (bloque.remates.length > 0) {
+                        <ul class="car-remates">
+                          @for (texto of bloque.remates; track $index) {
+                            <li>{{ texto }}</li>
+                          }
+                        </ul>
+                      }
+                      @if (bloque.nota) {
+                        <p class="car-nota">{{ bloque.nota }}</p>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  </app-marco-admin>
+</ion-content>

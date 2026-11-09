@@ -50,7 +50,7 @@ interface Panel {
   premium: ResumenPremium | null;
 }
 
-/** Una tarea pendiente (el aviso de la carga de remates no tiene número ni enlace: se revisa en la web). */
+/** Una tarea pendiente (el aviso de la carga de remates no tiene número). */
 interface Pendiente {
   clave: string;
   cantidad?: number;
@@ -66,18 +66,19 @@ const NIVELES: { valor: string; nombre: string }[] = [
   { valor: 'sin_evaluar', nombre: 'Sin evaluar' },
 ];
 
-/** Aviso si la última carga de remates falló, o si hace mucho que no hay una. */
+/** Aviso si la última carga de remates falló, o si hace mucho que no hay una (paso A13: con el enlace al historial). */
 function avisoDeCarga(ultima: CargaResumen | null): Pendiente | null {
+  const base = { clave: 'carga', enlace: '/cargas' };
   if (!ultima) {
-    return { clave: 'carga', texto: 'Todavía no hay ninguna carga de remates registrada.' };
+    return { ...base, texto: 'Todavía no hay ninguna carga de remates registrada.', accion: 'Ver el historial' };
   }
   if (ultima.status === 'fallida') {
-    return { clave: 'carga', texto: `La última carga de remates falló (${textoCuando(ultima.started_at)}).` };
+    return { ...base, texto: `La última carga de remates falló (${textoCuando(ultima.started_at)}).`, accion: 'Ver la carga' };
   }
   const horas = horasDesde(ultima.started_at);
   if (ultima.status !== 'en_curso' && horas > HORAS_SIN_CARGA) {
     const tiempo = horas >= 48 ? `${Math.floor(horas / 24)} días` : `${Math.floor(horas)} horas`;
-    return { clave: 'carga', texto: `No hay una carga de remates desde hace ${tiempo}.` };
+    return { ...base, texto: `No hay una carga de remates desde hace ${tiempo}.`, accion: 'Ver el historial' };
   }
   return null;
 }

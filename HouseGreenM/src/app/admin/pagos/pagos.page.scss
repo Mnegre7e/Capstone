@@ -1,0 +1,276 @@
+// Paso A13: los mismos estilos de Pagos de la web (AdminPagosPage.css)
+/* Paso 122e: pagos del plan Premium (paleta "Menta sereno", igual que Usuarios y el historial de cargas) */
+
+.pag-volver {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #1d6f55;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.pag-volver:hover {
+  text-decoration: underline;
+}
+
+.pag-prueba {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  border: 1px dashed #e0b84a;
+  border-radius: 10px;
+  background-color: #fdf8e6;
+  color: #6b5200;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.pag-error {
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background-color: #fae3e0;
+  color: #a2322a;
+  font-size: 14px;
+}
+
+.pag-vacio {
+  margin-top: 16px;
+  padding: 24px;
+  border: 1px dashed #9ad3bb;
+  border-radius: 14px;
+  background-color: white;
+  color: #4e625b;
+  text-align: center;
+}
+
+/* Resumen: tres cifras en PC, una debajo de otra en el celular */
+.pag-resumen {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0 0;
+}
+
+.pag-resumen div {
+  padding: 12px 16px;
+  border: 1px solid #dce6e1;
+  border-radius: 16px;
+  background-color: white;
+}
+
+.pag-resumen dt {
+  color: #4e625b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pag-resumen dd {
+  margin: 4px 0 0;
+  color: #0f3d30;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+@media (max-width: 600px) {
+  .pag-resumen {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .pag-resumen div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .pag-resumen dd {
+    margin: 0;
+    font-size: 20px;
+  }
+}
+
+/* Filtros: el buscador ocupa más que el selector */
+.pag-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.pag-filtros label {
+  flex: 1;
+  min-width: 160px;
+  color: #4e625b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pag-filtros .pag-buscar {
+  flex: 2;
+  min-width: 220px;
+}
+
+.pag-filtros input,
+.pag-filtros select {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 9px 10px;
+  border: 1px solid #c9d8d1;
+  border-radius: 10px;
+  box-sizing: border-box;
+  background-color: white;
+  color: #0f3d30;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.pag-volver:focus-visible,
+.pag-filtros input:focus-visible,
+.pag-filtros select:focus-visible,
+.pag-mas button:focus-visible {
+  outline: 2px solid #1d6f55;
+  outline-offset: 2px;
+}
+
+.pag-cuenta {
+  margin: 12px 0 0;
+  color: #4e625b;
+  font-size: 13px;
+}
+
+.pag-lista {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pag-item {
+  padding: 14px 16px;
+  border: 1px solid #dce6e1;
+  border-radius: 16px;
+  background-color: white;
+}
+
+/* Los aprobados llevan una marca verde a la izquierda, para verlos de un vistazo */
+.pag-item.is-aprobado {
+  box-shadow: inset 3px 0 0 #16a34a;
+}
+
+.pag-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.pag-persona {
+  min-width: 0;
+}
+
+.pag-persona h2 {
+  margin: 0;
+  color: #0f3d30;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.pag-persona p {
+  margin: 2px 0 0;
+  color: #4e625b;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+/* Distintivo del estado: el nombre siempre va escrito, el color solo ayuda */
+.pag-estado {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background-color: #e4ece8;
+  color: #4e625b;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pag-estado-punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.pag-estado.is-aprobado {
+  background-color: #e3f1df;
+  color: #2b6630;
+}
+
+.pag-estado.is-rechazado,
+.pag-estado.is-error {
+  background-color: #fae3e0;
+  color: #a2322a;
+}
+
+.pag-estado.is-anulado {
+  background-color: #fbefd4;
+  color: #855400;
+}
+
+.pag-estado.is-pendiente {
+  background-color: #e4f3ec;
+  color: #1d6f55;
+}
+
+.pag-monto {
+  margin: 10px 0 0;
+  color: #1f2a26;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.pag-monto strong {
+  color: #0f3d30;
+  font-size: 16px;
+}
+
+.pag-texto {
+  margin: 6px 0 0;
+  color: #1f2a26;
+  font-size: 14px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.pag-meta {
+  margin: 8px 0 0;
+  color: #4e625b;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.pag-mas {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.pag-mas button {
+  padding: 9px 14px;
+  border: 1px solid #c9d8d1;
+  border-radius: 10px;
+  background-color: white;
+  color: #4e625b;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
