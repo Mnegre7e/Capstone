@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Paso A16: el fondo del ícono de HouseGreen (el verde del ícono de la web, public/favicon.svg) -->
+<resources>
+    <color name="ic_launcher_background">#0F3D30</color>
+</resources>

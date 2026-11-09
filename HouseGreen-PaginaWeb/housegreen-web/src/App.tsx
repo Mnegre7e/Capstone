@@ -20,6 +20,7 @@ import { RegisterPage } from "./pages/RegisterPage";
 import { RecuperarPage } from "./pages/RecuperarPage";
 import { PrivacidadPage } from "./pages/PrivacidadPage"; // paso 125c
 import { NosotrosPage } from "./pages/NosotrosPage"; // paso 129
+import { DescargarAppPage } from "./pages/DescargarAppPage"; // paso A16
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PerfilPage } from "./pages/PerfilPage";
 import { OpinionesPage } from "./pages/OpinionesPage";
@@ -182,6 +183,7 @@ function App() {
         <Route path="/recuperar" element={<RecuperarPage />} /> {/* paso 117 */}
         <Route path="/privacidad" element={<PrivacidadPage />} /> {/* paso 125c: con o sin cuenta */}
         <Route path="/nosotros" element={<NosotrosPage />} /> {/* paso 129: con o sin cuenta, como en la app */}
+        <Route path="/app" element={<DescargarAppPage />} /> {/* paso A16: descargar la app (solo en la web) */}
 
         {/* Paso 122c: el catálogo y el detalle (que sin Premium muestra el aviso del plan) se ven sin cuenta */}
         <Route
@@ -315,10 +317,13 @@ function App() {
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
-      {/* Paso 129: pie de página con "Nosotros" (en la app está en el menú) y la política de privacidad */}
+      {/* Paso 129: pie de página con "Nosotros" (en la app está en el menú) y la política de privacidad.
+          Paso A16: y "Descarga la app" (solo en la web: la app no tiene este enlace) */}
       {!enEntrada && (
         <footer className={`app-pie ${conMenuAbajo ? "is-sobre-menu" : ""}`}>
           <span>HouseGreen</span>
+          <span aria-hidden="true">·</span>
+          <Link to="/app">Descarga la app</Link>
           <span aria-hidden="true">·</span>
           <Link to="/nosotros">Nosotros</Link>
           <span aria-hidden="true">·</span>

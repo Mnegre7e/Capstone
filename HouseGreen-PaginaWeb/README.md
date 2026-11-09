@@ -109,6 +109,18 @@ npm run dev
 Queda en `http://localhost:5173`. La web busca la API en `http://localhost:8000`
 (se cambia en `src/api/client.ts`).
 
+### Descargar la app para Android desde la web (paso A16)
+
+La web tiene la página **Descarga la app** (en el pie de página, o `http://localhost:5173/app`) con un botón
+"Descargar en el celular" y un código QR. La app no tiene esta página: la descarga es solo desde la web.
+
+1. **Publicarla:** en la carpeta `HouseGreenM` corre `npm run android:apk`. Crea la app (`HouseGreen.apk`, con
+   el ícono del semáforo) y la deja en `housegreen-api/descargas` (no se sube a GitHub). Mientras no se
+   publique, la página dice "Muy pronto".
+2. **Encender la API para el celular:** `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`. El celular la
+   descarga y la usa desde este computador, así que tiene que estar en la misma red Wi-Fi.
+3. Si el computador cambia de red (otra IP), vuelve a correr `npm run android:apk`: el QR se actualiza solo.
+
 ## 3. Carga de los remates
 
 Los remates se leen de las páginas públicas de rematesinmobiliarios.cl. Todo se hace con un solo comando,

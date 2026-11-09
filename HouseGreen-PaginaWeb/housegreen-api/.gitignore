@@ -11,6 +11,9 @@ __pycache__/
 # Fotos que sube el admin (son datos, no código)
 uploads/
 
+# Paso A16: la app para Android que se descarga desde la web (la crea "npm run android:apk" en HouseGreenM)
+descargas/
+
 db/housegreen.sql
 
 # Paso 126: lo que genera pytest al correr las pruebas

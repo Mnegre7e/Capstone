@@ -1,0 +1,224 @@
+/* Paso A16: página "Descarga la app" (solo en la web) */
+.descarga {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 20px 24px;
+  color: #1f2a26;
+}
+
+.descarga-cabecera {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.descarga-logo {
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+}
+
+.descarga-cabecera h1 {
+  margin: 0 0 6px;
+  font-size: 30px;
+}
+
+.descarga-cabecera p {
+  margin: 0 auto;
+  max-width: 520px;
+  color: #4e5b56;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.descarga-aviso {
+  margin: 0;
+  color: #4e5b56;
+  text-align: center;
+}
+
+.descarga-aviso.is-error {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background-color: #fef2f2;
+  color: #991b1b;
+}
+
+/* El botón (verde oscuro, como el plan Premium) a la izquierda y el QR a la derecha */
+.descarga-opciones {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.descarga-celular {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px;
+  border-radius: 20px;
+  background-color: #0f3d30;
+  color: #e8f3ee;
+  box-shadow: 0 28px 56px -32px rgba(15, 61, 48, 0.6);
+}
+
+.descarga-celular h2 {
+  margin: 0 0 6px;
+  color: white;
+  font-size: 20px;
+}
+
+.descarga-celular p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.descarga-boton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 20px 0 14px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background-color: #facc15;
+  color: #3d2c00;
+  font-size: 17px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.descarga-boton svg {
+  width: 22px;
+  height: 22px;
+}
+
+.descarga-boton:hover {
+  background-color: #fde047;
+}
+
+.descarga-boton:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+.descarga-celular .descarga-detalle {
+  color: #b9d4c8;
+  font-size: 14px;
+}
+
+.descarga-tarjeta {
+  margin-top: 16px;
+  padding: 20px 22px;
+  border: 1px solid #dce8e1;
+  border-radius: 16px;
+  background-color: white;
+}
+
+.descarga-opciones .descarga-tarjeta {
+  margin-top: 0;
+}
+
+.descarga-tarjeta h2 {
+  margin: 0 0 8px;
+  color: #0f3d30;
+  font-size: 19px;
+}
+
+.descarga-tarjeta p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.descarga-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.descarga-qr h2 {
+  align-self: stretch;
+  text-align: left;
+}
+
+.codigo-qr {
+  display: block;
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+  margin: 4px 0 10px;
+  border-radius: 8px;
+}
+
+.descarga-qr p {
+  color: #4e5b56;
+  font-size: 14px;
+}
+
+.descarga-pasos {
+  margin: 4px 0 0;
+  padding-left: 22px;
+  line-height: 1.55;
+}
+
+.descarga-pasos li + li {
+  margin-top: 6px;
+}
+
+.descarga-tarjeta .descarga-nota {
+  margin-top: 12px;
+  color: #5f6b66;
+  font-size: 14px;
+}
+
+.descarga-pronto {
+  text-align: center;
+}
+
+.descarga-tarjeta .descarga-admin {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background-color: #f1f5f3;
+  color: #4e5b56;
+  font-size: 14px;
+}
+
+.descarga-admin code {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background-color: #e2ebe6;
+  color: #0f3d30;
+  font-size: 13px;
+}
+
+/* Celular: una tarjeta debajo de la otra (primero el botón, que es lo que sirve en el celular) */
+@media (max-width: 720px) {
+  .descarga {
+    padding: 24px 16px 16px;
+  }
+
+  .descarga-cabecera h1 {
+    font-size: 26px;
+  }
+
+  .descarga-opciones {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .descarga-celular {
+    padding: 20px;
+  }
+
+  .descarga-tarjeta {
+    padding: 16px 18px;
+  }
+
+  .codigo-qr {
+    max-width: 180px;
+  }
+}

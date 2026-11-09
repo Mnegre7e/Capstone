@@ -16,6 +16,7 @@ from app.routers import admin_cargas  # paso 121: historial de las cargas de rem
 from app.routers import pagos  # paso 122d: pago del plan Premium con Webpay
 from app.routers import admin_pagos  # paso 122e: pagos del plan Premium para el administrador
 from app.routers import mapa  # paso 124a: ubicación de los remates en el mapa
+from app.routers import descargas  # paso A16: descargar la app para Android desde la web
 
 app = FastAPI(title="HouseGreen API")
 
@@ -58,6 +59,7 @@ app.include_router(pagos.router)  # paso 122d
 app.include_router(admin_pagos.router)  # paso 122e
 app.include_router(mapa.router)  # paso 124a
 app.include_router(reportes_buscador.router)  # paso 123d
+app.include_router(descargas.router)  # paso A16
 
 admin.CARPETA_UPLOADS.mkdir(exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=admin.CARPETA_UPLOADS), name="uploads")

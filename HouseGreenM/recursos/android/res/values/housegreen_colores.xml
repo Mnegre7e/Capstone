@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Paso A16: el fondo de la portada (la pantalla que se ve mientras abre la app) -->
+<resources>
+    <color name="hg_portada">#0F3D30</color>
+</resources>

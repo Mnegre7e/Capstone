@@ -9,6 +9,9 @@
 // computador (por ejemplo http://192.168.1.20:8000). Si cambias de red Wi-Fi, vuelve a correr "npm run android:apk".
 // La dirección se puede dar a mano:  npm run android:apk -- 192.168.1.20
 //
+// Paso A16: "npm run android:apk" también deja la APK en housegreen-api/descargas, y la página web la ofrece
+// en "Descarga la app" (botón y código QR). El ícono y la portada están en recursos/android/res.
+//
 // Paso A15b: para crear la APK se busca un Java 17 a 24 (Gradle 8.14 no funciona con el Java 25 que traen las
 // versiones nuevas de Android Studio). Si no hay ninguno, se descarga Java 21 una sola vez en ~/.housegreen/java-21.
 
@@ -16,6 +19,7 @@ import { spawnSync } from 'node:child_process';
 import { once } from 'node:events';
 import {
   copyFileSync,
+  cpSync,
   createReadStream,
   createWriteStream,
   existsSync,
@@ -46,6 +50,10 @@ const JAVA_MINIMO = 17;
 const JAVA_MAXIMO = 24;
 const CARPETA_JAVA = join(homedir(), '.housegreen', 'java-21');
 const PROGRAMA_JAVA = EN_WINDOWS ? 'java.exe' : 'java';
+// Paso A16: el ícono y la portada de la app, y dónde se publica la APK para descargarla desde la web
+const RECURSOS = join(CARPETA, 'recursos', 'android', 'res');
+const CARPETA_API = join(CARPETA, '..', 'HouseGreen-PaginaWeb', 'housegreen-api');
+const DESCARGAS = join(CARPETA_API, 'descargas');
 
 // ---------- Utilidades ----------
 
@@ -168,12 +176,25 @@ export const environment = {
 
 /** Ajustes al proyecto Android (se pueden repetir sin problema). */
 function ajustarAndroid() {
+  // Paso A16: el ícono y la portada de HouseGreen (el semáforo de la web) reemplazan los de Capacitor
+  if (existsSync(RECURSOS)) {
+    cpSync(RECURSOS, join(ANDROID, 'app', 'src', 'main', 'res'), { recursive: true, force: true });
+  }
   // La app es siempre clara: el tema de Android también. Si no, con el teléfono en modo oscuro
   // la franja de arriba (la hora, la batería) queda oscura y los íconos no se ven.
   const estilos = join(ANDROID, 'app', 'src', 'main', 'res', 'values', 'styles.xml');
   if (existsSync(estilos)) {
     const texto = readFileSync(estilos, 'utf8');
-    const nuevo = texto.replaceAll('Theme.AppCompat.DayNight.NoActionBar', 'Theme.AppCompat.Light.NoActionBar');
+    let nuevo = texto.replaceAll('Theme.AppCompat.DayNight.NoActionBar', 'Theme.AppCompat.Light.NoActionBar');
+    // Paso A16: la portada en Android 12 o más nuevo (el semáforo sobre el verde de HouseGreen)
+    const portada = '<style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">';
+    if (nuevo.includes(portada) && !nuevo.includes('windowSplashScreenBackground')) {
+      nuevo = nuevo.replace(
+        portada,
+        `${portada}\n        <item name="windowSplashScreenBackground">@color/hg_portada</item>` +
+          '\n        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>',
+      );
+    }
     if (nuevo !== texto) {
       writeFileSync(estilos, nuevo);
     }
@@ -337,6 +358,28 @@ async function crearApk() {
   copyFileSync(creada, APK);
 }
 
+/**
+ * Paso A16: deja la APK en la API (housegreen-api/descargas) para que la página web la ofrezca en
+ * "Descarga la app" (botón y código QR). La API la entrega en http://IP:8000/descargas/android/HouseGreen.apk.
+ */
+function publicarEnLaWeb(ip) {
+  if (!existsSync(join(CARPETA_API, 'app', 'main.py'))) {
+    console.log('  (No encontré housegreen-api junto a HouseGreenM: la APK no quedó en la página web.)');
+    console.log('  Para pasarla al teléfono con un código QR:  npm run android:qr');
+    return;
+  }
+  mkdirSync(DESCARGAS, { recursive: true });
+  copyFileSync(APK, join(DESCARGAS, 'HouseGreen.apk'));
+  const datos = {
+    api: `http://${ip}:${PUERTO_API}`,
+    creada: new Date().toISOString(),
+    tamano: statSync(APK).size,
+  };
+  writeFileSync(join(DESCARGAS, 'android.json'), `${JSON.stringify(datos, null, 2)}\n`);
+  console.log('✔ La APK quedó publicada en la página web: pie de página > "Descarga la app" (o /app).');
+  console.log('  Se descarga desde la API, así que la API tiene que estar encendida con --host 0.0.0.0.');
+}
+
 async function armar(ip, conApk) {
   revisarRequisitos();
   await revisarLaApi(ip);
@@ -352,7 +395,7 @@ async function armar(ip, conApk) {
   if (conApk) {
     await crearApk();
     console.log(`\n✔ Se creó HouseGreen.apk (${megas(statSync(APK).size)}) en la carpeta HouseGreenM.`);
-    console.log('  Para pasarla al teléfono con un código QR:  npm run android:qr');
+    publicarEnLaWeb(ip);
   } else {
     console.log('  Para abrirla en Android Studio:  npx cap open android');
     console.log('  Para crear la APK sin Android Studio:  npm run android:apk');
