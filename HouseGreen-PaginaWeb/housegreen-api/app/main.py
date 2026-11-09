@@ -24,7 +24,8 @@ ORIGENES_PERMITIDOS = [
     "http://localhost:5173",  # la web (npm run dev)
     "http://localhost:4200",  # la app en el navegador (npm start en HouseGreenM)
     "http://localhost:8100",  # la app con "ionic serve", por si se usa
-    "https://localhost",  # la app instalada en Android (Capacitor)
+    "https://localhost",  # la app instalada en Android (Capacitor, con su configuración por defecto)
+    "http://localhost",  # paso A15: la app instalada en Android, como la arma HouseGreenM (androidScheme http)
 ]
 
 app.add_middleware(

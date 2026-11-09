@@ -23,6 +23,12 @@ log.txt
 /platforms
 /plugins
 
+# Paso A15: Android. Se crea en cada computador con "npm run android" (la carpeta android, la APK y
+# el archivo con la dirección IP del computador, que cambia según la red)
+/android
+/HouseGreen.apk
+/src/environments/environment.android.ts
+
 # Compiled output
 /dist
 /tmp

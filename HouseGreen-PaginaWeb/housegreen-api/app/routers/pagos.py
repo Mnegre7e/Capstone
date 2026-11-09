@@ -10,6 +10,9 @@
 #      de Premium. Después manda a la persona a la web: /premium/resultado?pago=<número del pago>.
 #   Paso A4: si el pago se inició desde la app (encabezado X-Plataforma: app), Transbank vuelve a
 #      /pagos/webpay/retorno-app y la persona termina en la app (APP_URL) en vez de la web.
+#   Paso A15: si se inició desde la app INSTALADA en un teléfono Android (la que se sirve en http://localhost),
+#      Transbank vuelve a /pagos/webpay/retorno-android, en la misma dirección con que el teléfono llegó a la API
+#      (por ejemplo http://192.168.1.20:8000), y la persona termina en la app del teléfono.
 #
 # Ambiente: por defecto el de INTEGRACIÓN de Transbank (pruebas con tarjetas de prueba, sin dinero real),
 # con las credenciales públicas de prueba que trae el SDK. Para cobrar de verdad hace falta contrato con
@@ -57,6 +60,15 @@ def _app_url() -> str:
 def _desde_la_app(request: Request) -> bool:
     # La app manda "X-Plataforma: app" en todas sus peticiones (la web manda "web")
     return (request.headers.get("X-Plataforma") or "").strip().lower() == "app"
+
+
+# Paso A15: la dirección de la app instalada en Android (Capacitor la sirve en http://localhost)
+ORIGEN_ANDROID = "http://localhost"
+
+
+def _desde_android(request: Request) -> bool:
+    # El teléfono manda "Origin: http://localhost" (la app en el navegador del computador manda http://localhost:4200)
+    return _desde_la_app(request) and (request.headers.get("origin") or "").rstrip("/") == ORIGEN_ANDROID
 
 
 def _transbank() -> Transaction:
@@ -110,8 +122,14 @@ def iniciar_pago(request: Request, db: Session = Depends(get_db), usuario: User 
 
     try:
         # Paso A4: Transbank devuelve a la persona a la API por un camino distinto según dónde empezó el pago
-        retorno = "/pagos/webpay/retorno-app" if _desde_la_app(request) else "/pagos/webpay/retorno"
-        respuesta = _transbank().create(pago.buy_order, pago.session_id, pago.amount, f"{_api_url()}{retorno}")
+        if _desde_android(request):
+            # Paso A15: al teléfono se le devuelve a la dirección con que llegó a la API (en el teléfono,
+            # "localhost" sería el propio teléfono)
+            retorno = f"{str(request.base_url).rstrip('/')}/pagos/webpay/retorno-android"
+        else:
+            camino = "/pagos/webpay/retorno-app" if _desde_la_app(request) else "/pagos/webpay/retorno"
+            retorno = f"{_api_url()}{camino}"
+        respuesta = _transbank().create(pago.buy_order, pago.session_id, pago.amount, retorno)
         pago.token = respuesta["token"]
         db.commit()
     except Exception as error:  # sin internet, Transbank caído, credenciales malas...
@@ -236,6 +254,27 @@ def retorno_app_post(
     tbk_orden: str | None = Form(None, alias="TBK_ORDEN_COMPRA"),
 ):
     return _procesar_retorno(db, token_ws, tbk_token, tbk_orden, _app_url())
+
+
+# Paso A15: lo mismo, para los pagos que empezaron en la app instalada en Android: vuelve a la app del teléfono
+@router.get("/webpay/retorno-android", include_in_schema=False)
+def retorno_android_get(
+    db: Session = Depends(get_db),
+    token_ws: str | None = Query(None),
+    tbk_token: str | None = Query(None, alias="TBK_TOKEN"),
+    tbk_orden: str | None = Query(None, alias="TBK_ORDEN_COMPRA"),
+):
+    return _procesar_retorno(db, token_ws, tbk_token, tbk_orden, ORIGEN_ANDROID)
+
+
+@router.post("/webpay/retorno-android", include_in_schema=False)
+def retorno_android_post(
+    db: Session = Depends(get_db),
+    token_ws: str | None = Form(None),
+    tbk_token: str | None = Form(None, alias="TBK_TOKEN"),
+    tbk_orden: str | None = Form(None, alias="TBK_ORDEN_COMPRA"),
+):
+    return _procesar_retorno(db, token_ws, tbk_token, tbk_orden, ORIGEN_ANDROID)
 
 
 @router.get("/mios", response_model=list[PagoOut])
