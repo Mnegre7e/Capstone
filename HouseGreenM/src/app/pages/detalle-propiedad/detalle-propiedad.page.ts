@@ -4,6 +4,7 @@ import { ToastController } from '@ionic/angular/lazy';
 
 import { ApiService, mensajeDeError } from '../../core/api.service';
 import { CatalogoService } from '../../core/catalogo.service';
+import { TEXTO_SIGUE_CARGANDO, avisoCorto, recargarConCirculo } from '../../core/recargar';
 import { fechaCorta, pesos, remateFinalizado, remateRetirado } from '../../core/remates';
 import { SesionService } from '../../core/sesion.service';
 
@@ -134,6 +135,12 @@ export class DetallePropiedadPage {
     if (fisica?.bathrooms) lista.push({ etiqueta: 'Baños', valor: String(fisica.bathrooms) });
     return lista;
   });
+
+  // Paso A20: tirar la pantalla hacia abajo vuelve a pedir los remates (y con ellos, los datos de este)
+  async refrescar(evento: Event) {
+    const termino = await recargarConCirculo(evento, () => this.catalogo.recargar());
+    void avisoCorto(this.avisos, !termino ? TEXTO_SIGUE_CARGANDO : (this.catalogo.error() ?? 'Datos del remate actualizados.'));
+  }
 
   async ionViewWillEnter() {
     const id = this.ruta.snapshot.paramMap.get('id');

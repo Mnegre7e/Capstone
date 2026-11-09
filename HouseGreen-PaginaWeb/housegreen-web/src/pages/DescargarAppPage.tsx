@@ -18,7 +18,8 @@ interface AppAndroid {
 
 const PASOS = [
   "Escanea el código con la cámara del celular, o abre esta página en el celular y toca Descargar.",
-  "Abre el archivo HouseGreen.apk que se descargó.",
+  // Paso A20: el nombre lleva la fecha, así no se confunde con una descarga anterior
+  "Abre la descarga más nueva: HouseGreen con la fecha y hora en el nombre (por ejemplo, HouseGreen-20261109-1940.apk).",
   "Si el celular lo pide, permite instalar apps de esta fuente y vuelve atrás.",
   "Toca Instalar. Si aparece Play Protect, toca Más detalles e Instalar de todas formas: la app todavía no está en Google Play.",
   "Abre HouseGreen y entra con tu misma cuenta de la página.",
@@ -92,7 +93,7 @@ export function DescargarAppPage() {
             <section className="descarga-celular" aria-labelledby="descarga-celular-titulo">
               <h2 id="descarga-celular-titulo">En el celular</h2>
               <p>Abre esta página en tu celular Android y toca el botón.</p>
-              <a className="descarga-boton" href={app.url} download="HouseGreen.apk">
+              <a className="descarga-boton" href={app.url} download>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path
                     d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14"

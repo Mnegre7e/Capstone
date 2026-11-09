@@ -1,8 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { ToastController } from '@ionic/angular/lazy';
 
 import { ApiService, mensajeDeError } from '../../core/api.service';
 import { AnuncioRecibido, AvisosService } from '../../core/avisos.service';
 import { CatalogoService } from '../../core/catalogo.service';
+import { TEXTO_SIGUE_CARGANDO, avisoCorto, recargarConCirculo } from '../../core/recargar';
 import { fechaConAnio } from '../../core/opiniones';
 import { Remate, Riesgo, pesos, remateFinalizado, remateRetirado } from '../../core/remates';
 import { SesionService } from '../../core/sesion.service';
@@ -45,6 +47,7 @@ export class AlertasPage {
   private catalogo = inject(CatalogoService);
   private sesion = inject(SesionService);
   readonly avisos = inject(AvisosService);
+  private mensajes = inject(ToastController);
 
   readonly fechaConAnio = fechaConAnio;
   readonly conPremium = computed(() => this.sesion.usuario()?.acceso_completo ?? false);
@@ -132,6 +135,14 @@ export class AlertasPage {
     if (this.catalogo.remates().length === 0) {
       void this.catalogo.recargar();
     }
+  }
+
+  // Paso A20: tirar la pantalla hacia abajo vuelve a pedir todo y avisa abajo que se actualizó
+  async refrescar(evento: Event) {
+    const termino = await recargarConCirculo(evento, () =>
+      Promise.all([this.avisos.recargar(), this.cargarAlertas(), this.catalogo.recargar()]),
+    );
+    void avisoCorto(this.mensajes, termino ? 'Alertas actualizadas.' : TEXTO_SIGUE_CARGANDO);
   }
 
   private async cargarAlertas() {

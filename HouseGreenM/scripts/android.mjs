@@ -169,6 +169,8 @@ function escribirAmbiente(ip) {
 export const environment = {
   production: true,
   apiUrl: 'http://${ip}:${PUERTO_API}',
+  // Paso A20: cuándo se armó (se ve en el menú de la app: "Versión del 9 nov 2026, 19:40")
+  compilada: '${new Date().toISOString()}',
 };
 `,
   );
@@ -404,6 +406,14 @@ async function armar(ip, conApk) {
 
 // ---------- Compartir la APK con un código QR ----------
 
+/** Paso A20: "HouseGreen-20261109-1940.apk", con la fecha y hora en que se creó la APK. */
+function nombreDeLaDescarga() {
+  const fecha = statSync(APK).mtime;
+  const dos = (numero) => String(numero).padStart(2, '0');
+  const cuando = `${fecha.getFullYear()}${dos(fecha.getMonth() + 1)}${dos(fecha.getDate())}-${dos(fecha.getHours())}${dos(fecha.getMinutes())}`;
+  return `HouseGreen-${cuando}.apk`;
+}
+
 function paginaDeDescarga(tamano) {
   return `<!doctype html>
 <html lang="es">
@@ -425,10 +435,10 @@ function paginaDeDescarga(tamano) {
 <main>
   <h1>HouseGreen</h1>
   <p>La app para Android.</p>
-  <a class="boton" href="/HouseGreen.apk" download>Descargar la app (${megas(tamano)})</a>
+  <a class="boton" href="/HouseGreen.apk?v=${Math.round(statSync(APK).mtimeMs)}" download>Descargar la app (${megas(tamano)})</a>
   <ol>
     <li>Toca <b>Descargar la app</b>. Si Chrome avisa que el archivo puede ser dañino, toca <b>Descargar de todas formas</b>.</li>
-    <li>Abre <b>HouseGreen.apk</b> (en las descargas).</li>
+    <li>Abre la descarga más nueva (<b>${nombreDeLaDescarga()}</b>).</li>
     <li>Si el teléfono lo pide, permite <b>instalar apps de esta fuente</b> y vuelve atrás.</li>
     <li>Toca <b>Instalar</b>. Si aparece Play Protect, toca <b>Más detalles</b> y <b>Instalar de todas formas</b>.</li>
   </ol>
@@ -467,7 +477,10 @@ function compartirConQr(ip) {
       respuesta.writeHead(200, {
         'Content-Type': 'application/vnd.android.package-archive',
         'Content-Length': tamano,
-        'Content-Disposition': 'attachment; filename="HouseGreen.apk"',
+        // Paso A20: con la fecha en el nombre (así en el teléfono se distingue la descarga nueva de la anterior)
+        // y sin guardarla en la memoria del navegador (que podía entregar la versión anterior)
+        'Content-Disposition': `attachment; filename="${nombreDeLaDescarga()}"`,
+        'Cache-Control': 'no-store',
       });
       createReadStream(APK).pipe(respuesta);
       console.log(`  → Un teléfono (${String(pedido.socket.remoteAddress).replace('::ffff:', '')}) está descargando la app`);

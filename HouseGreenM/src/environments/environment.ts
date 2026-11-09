@@ -6,6 +6,8 @@ export const environment = {
   production: false,
   // Paso A1: dirección de la API de HouseGreen (la misma que usa la web)
   apiUrl: 'http://localhost:8000',
+  // Paso A20: cuándo se armó la app (solo la del teléfono lo tiene; aquí queda vacío)
+  compilada: '',
 };
 
 /*

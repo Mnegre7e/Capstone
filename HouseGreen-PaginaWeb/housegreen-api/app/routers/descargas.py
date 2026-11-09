@@ -53,9 +53,11 @@ def app_android(request: Request):
     creada = datos.get("creada")
     if not isinstance(creada, str):
         creada = datetime.fromtimestamp(apk.stat().st_mtime, tz=timezone.utc).isoformat()
+    # Paso A20: ?v= cambia con cada APK nueva, así el teléfono nunca recibe una guardada de antes
+    version = int(apk.stat().st_mtime)
     return {
         "disponible": True,
-        "url": f"{api}/descargas/android/{NOMBRE_APK}",
+        "url": f"{api}/descargas/android/{NOMBRE_APK}?v={version}",
         "tamano": apk.stat().st_size,
         "actualizada": creada,
         "red_local": _es_red_local(api),
@@ -67,4 +69,12 @@ def descargar_app_android():
     apk = CARPETA_DESCARGAS / NOMBRE_APK
     if not apk.is_file():
         raise HTTPException(status_code=404, detail="La app para Android todavía no está publicada")
-    return FileResponse(apk, media_type="application/vnd.android.package-archive", filename=NOMBRE_APK)
+    # Paso A20: el nombre lleva la fecha ("HouseGreen-20261109-1940.apk"): en el teléfono se distingue la descarga
+    # nueva de la anterior. Y no se guarda en la memoria del navegador, que podía entregar la versión anterior.
+    creada = datetime.fromtimestamp(apk.stat().st_mtime)
+    return FileResponse(
+        apk,
+        media_type="application/vnd.android.package-archive",
+        filename=f"HouseGreen-{creada:%Y%m%d-%H%M}.apk",
+        headers={"Cache-Control": "no-store"},
+    )

@@ -1,6 +1,10 @@
 <app-encabezado></app-encabezado>
 
 <ion-content>
+  <!-- Paso A20: tirar hacia abajo vuelve a pedir los avisos, los anuncios y los remates -->
+  <ion-refresher slot="fixed" (ionRefresh)="refrescar($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <div class="alerts-page">
     <h1>Alertas</h1>
     <p class="alerts-subtitle">Te avisamos cuando llega un remate que te puede interesar.</p>

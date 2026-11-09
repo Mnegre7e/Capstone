@@ -93,16 +93,20 @@
               <ion-label>Nosotros</ion-label>
             </ion-item>
           </ion-menu-toggle>
+          <!-- Paso A20: "Cerrar sesión" va en la lista, después de Nosotros. Abajo del todo quedaba encima de
+               los botones del teléfono (atrás, inicio, recientes) y era fácil tocarlos sin querer -->
+          <ion-item button lines="none" class="menu-salir" (click)="cerrarSesion()">
+            <ion-icon aria-hidden="true" name="exit-outline" slot="start"></ion-icon>
+            <ion-label>Cerrar sesión</ion-label>
+          </ion-item>
         </ion-list>
       }
-    </ion-content>
 
-    <ion-footer class="menu-footer">
-      <ion-item button lines="none" (click)="cerrarSesion()">
-        <ion-icon aria-hidden="true" name="exit-outline" slot="start"></ion-icon>
-        <ion-label>Cerrar Sesión</ion-label>
-      </ion-item>
-    </ion-footer>
+      <!-- Paso A20: cuándo se armó la app que está instalada (sirve para saber si ya se actualizó) -->
+      @if (version) {
+        <p class="menu-version">Versión del {{ version }}</p>
+      }
+    </ion-content>
   </ion-menu>
 
   <ion-router-outlet id="main-content"></ion-router-outlet>

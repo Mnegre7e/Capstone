@@ -1,6 +1,10 @@
 <app-encabezado></app-encabezado>
 
 <ion-content>
+  <!-- Paso A20: tirar hacia abajo vuelve a pedir los datos del remate -->
+  <ion-refresher slot="fixed" (ionRefresh)="refrescar($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <div class="hg-pagina detalle">
     @if (remate(); as r) {
       <div class="detalle-arriba">

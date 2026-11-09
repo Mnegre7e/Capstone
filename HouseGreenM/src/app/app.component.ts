@@ -5,6 +5,7 @@ import { register } from 'swiper/element/bundle';
 import { AvisosService } from './core/avisos.service';
 import { SesionService } from './core/sesion.service';
 import { ROL_ADMIN, ROL_ANALISTA } from './core/modelos';
+import { environment } from '../environments/environment';
 
 register();
 
@@ -23,6 +24,16 @@ export class AppComponent {
   readonly usuario = this.sesion.usuario;
   readonly ROL_ADMIN = ROL_ADMIN;
   readonly ROL_ANALISTA = ROL_ANALISTA;
+  // Paso A20: "9 nov 2026, 19:40" (solo en la app instalada; "npm run android" anota cuándo se armó)
+  readonly version = environment.compilada
+    ? new Date(environment.compilada).toLocaleString('es-CL', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : '';
 
   constructor() {
     // El menú solo se puede abrir con una sesión iniciada
