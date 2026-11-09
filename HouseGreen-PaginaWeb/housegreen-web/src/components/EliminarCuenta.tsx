@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import { dejarAvisoParaElLogin } from "../utils/avisoLogin";
+import { soloDigitosYEspacio } from "../utils/contrasena";
 
 // Paso 105: "Eliminar mi cuenta" (va al final del Perfil).
 // La cuenta no se borra: queda suspendida y sus datos se conservan, como pidió la profesora.
@@ -92,7 +93,7 @@ export function EliminarCuenta() {
             maxLength={7}
             placeholder="123 456"
             value={codigo}
-            onChange={(e) => setCodigo(e.target.value.replace(/[^\d ]/g, ""))}
+            onChange={(e) => setCodigo(soloDigitosYEspacio(e.target.value))}
           />
         </label>
       )}

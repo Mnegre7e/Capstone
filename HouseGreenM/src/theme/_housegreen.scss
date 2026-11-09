@@ -64,6 +64,12 @@ ion-back-button.login-atras::part(text) {
 }
 
 // ---------- Página: el contenido centrado, como en la web ----------
+/* Paso A19: en el teléfono la app ocupa también la franja de los botones de abajo (atrás, inicio, recientes):
+   cada pantalla deja ese espacio al final, así lo último se puede ver y tocar */
+ion-content {
+  --padding-bottom: var(--ion-safe-area-bottom, 0px);
+}
+
 .hg-pagina {
   max-width: 1100px;
   margin: 0 auto;

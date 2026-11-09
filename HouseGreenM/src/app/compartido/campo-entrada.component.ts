@@ -22,12 +22,19 @@ export class CampoEntradaComponent {
   readonly ayuda = input(''); // texto chico debajo del campo
   readonly conOjo = input(false); // solo contraseñas: muestra el botón del ojo
   readonly visible = input(false); // si la contraseña se está mostrando
+  // Paso A19: si se da, arregla lo que se escribe (por ejemplo, el teléfono queda "+56 9 1234 5678")
+  readonly formatear = input<((texto: string) => string) | null>(null);
   readonly valor = model('');
   readonly alternarVisible = output<void>();
 
   readonly id = `campo-entrada-${++siguiente}`;
 
   escribir(evento: Event) {
-    this.valor.set((evento.target as HTMLInputElement).value);
+    const campo = evento.target as HTMLInputElement;
+    const formatear = this.formatear();
+    if (formatear) {
+      campo.value = formatear(campo.value); // el cuadro muestra al tiro el texto arreglado
+    }
+    this.valor.set(campo.value);
   }
 }

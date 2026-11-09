@@ -4,7 +4,8 @@ import { QRCodeSVG } from "qrcode.react";
 import { useAuth } from "../context/AuthContext";
 import type { UsuarioActual } from "../context/AuthContext";
 import { api } from "../api/client";
-import { problemaDeContrasena, REGLA_CONTRASENA } from "../utils/contrasena";
+import { problemaDeContrasena, REGLA_CONTRASENA, soloDigitosYEspacio } from "../utils/contrasena";
+import { formatearTelefono, LARGO_DEL_TELEFONO } from "../utils/telefono";
 import { EliminarCuenta } from "../components/EliminarCuenta";
 import "./PerfilPage.css";
 
@@ -89,11 +90,12 @@ function MisDatos({ usuario }: { usuario: UsuarioActual }) {
         <input
           type="tel"
           value={telefono}
-          maxLength={30}
+          maxLength={LARGO_DEL_TELEFONO}
           autoComplete="tel"
           placeholder="+56 9 1234 5678"
           onChange={(e) => {
-            setTelefono(e.target.value);
+            // Paso A19: "+56 9 1234 5678", sin dígitos de más (igual que en la app)
+            setTelefono(formatearTelefono(e.target.value));
             setAviso(null);
           }}
         />
@@ -215,10 +217,6 @@ interface ClaveDeDosPasos {
   otpauth_url: string; // el enlace que se dibuja como código QR
 }
 
-// El código de la aplicación: solo números y espacio ("123 456")
-function soloCodigo(texto: string) {
-  return texto.replace(/[^\d ]/g, "");
-}
 
 // Paso 79: verificación en dos pasos
 function DosPasos({ usuario }: { usuario: UsuarioActual }) {
@@ -350,7 +348,7 @@ function DosPasos({ usuario }: { usuario: UsuarioActual }) {
             maxLength={7}
             placeholder="123 456"
             value={codigo}
-            onChange={(e) => setCodigo(soloCodigo(e.target.value))}
+            onChange={(e) => setCodigo(soloDigitosYEspacio(e.target.value))}
           />
         </label>
 
@@ -392,7 +390,7 @@ function DosPasos({ usuario }: { usuario: UsuarioActual }) {
               className="perfil-codigo"
               aria-label="Código de la aplicación"
               value={codigo}
-              onChange={(e) => setCodigo(soloCodigo(e.target.value))}
+              onChange={(e) => setCodigo(soloDigitosYEspacio(e.target.value))}
             />
           </li>
         </ol>

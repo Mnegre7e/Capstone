@@ -18,12 +18,14 @@
 # con las credenciales públicas de prueba que trae el SDK. Para cobrar de verdad hace falta contrato con
 # Transbank y, en el .env: WEBPAY_AMBIENTE=produccion, WEBPAY_CODIGO_COMERCIO y WEBPAY_LLAVE_SECRETA
 # (además de publicar la web y la API en internet con HTTPS, y poner sus direcciones en API_URL y WEB_URL).
+import html
+import json
 import os
 import secrets
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Query, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from transbank.common.integration_api_keys import IntegrationApiKeys
 from transbank.common.integration_commerce_codes import IntegrationCommerceCodes
@@ -64,6 +66,30 @@ def _desde_la_app(request: Request) -> bool:
 
 # Paso A15: la dirección de la app instalada en Android (Capacitor la sirve en http://localhost)
 ORIGEN_ANDROID = "http://localhost"
+
+
+def _volver_a_la_app_android(respuesta: RedirectResponse) -> HTMLResponse:
+    """
+    Paso A19: en el teléfono, la app vive en http://localhost DENTRO de la propia app (Capacitor la entrega sin
+    internet). Si la API redirige hacia allá con un 303, el teléfono no se lo pasa a la app: busca un servidor
+    "localhost" de verdad y falla (ERR_CONNECTION_REFUSED). Una página que se cambia sola sí entra a la app.
+    """
+    destino = respuesta.headers["location"]  # http://localhost/premium/resultado?pago=9
+    pagina = f"""<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="1;url={html.escape(destino)}">
+<title>HouseGreen</title>
+</head>
+<body style="margin:0;font-family:system-ui,sans-serif;background:#f1f5f3;color:#0f3d30;text-align:center">
+<p style="margin:40vh 16px 16px;font-size:18px">Volviendo a HouseGreen...</p>
+<a href="{html.escape(destino)}" style="color:#15803d;font-weight:600">Toca aquí si no vuelve sola</a>
+<script>window.location.replace({json.dumps(destino)});</script>
+</body>
+</html>"""
+    return HTMLResponse(pagina)
 
 
 def _desde_android(request: Request) -> bool:
@@ -264,7 +290,7 @@ def retorno_android_get(
     tbk_token: str | None = Query(None, alias="TBK_TOKEN"),
     tbk_orden: str | None = Query(None, alias="TBK_ORDEN_COMPRA"),
 ):
-    return _procesar_retorno(db, token_ws, tbk_token, tbk_orden, ORIGEN_ANDROID)
+    return _volver_a_la_app_android(_procesar_retorno(db, token_ws, tbk_token, tbk_orden, ORIGEN_ANDROID))
 
 
 @router.post("/webpay/retorno-android", include_in_schema=False)
@@ -274,7 +300,7 @@ def retorno_android_post(
     tbk_token: str | None = Form(None, alias="TBK_TOKEN"),
     tbk_orden: str | None = Form(None, alias="TBK_ORDEN_COMPRA"),
 ):
-    return _procesar_retorno(db, token_ws, tbk_token, tbk_orden, ORIGEN_ANDROID)
+    return _volver_a_la_app_android(_procesar_retorno(db, token_ws, tbk_token, tbk_orden, ORIGEN_ANDROID))
 
 
 @router.get("/mios", response_model=list[PagoOut])

@@ -14,3 +14,19 @@ export function problemaDeContrasena(clave: string): string | null {
   if (!/\d/.test(clave)) return "La contraseña debe tener al menos un número.";
   return null;
 }
+
+// Paso A19: el código de 6 dígitos se escribe solo con números (y un espacio, como lo muestran la aplicación
+// y el correo: "123 456"), y como máximo 6 dígitos: lo que se escriba de más no entra. Igual que en la app.
+export function soloDigitosYEspacio(texto: string): string {
+  let resultado = "";
+  let digitos = 0;
+  for (const caracter of texto) {
+    if (caracter >= "0" && caracter <= "9" && digitos < 6) {
+      resultado += caracter;
+      digitos++;
+    } else if (caracter === " " && digitos > 0 && digitos < 6 && !resultado.endsWith(" ")) {
+      resultado += " ";
+    }
+  }
+  return resultado;
+}

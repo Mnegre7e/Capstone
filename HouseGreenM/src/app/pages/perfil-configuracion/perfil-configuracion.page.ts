@@ -3,6 +3,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ApiService, mensajeDeError } from '../../core/api.service';
 import { dejarAvisoParaElLogin } from '../../core/aviso-login';
 import { REGLA_CONTRASENA, problemaDeContrasena, soloDigitosYEspacio } from '../../core/contrasena';
+import { LARGO_DEL_TELEFONO, formatearTelefono } from '../../core/telefono';
 import { ROL_ADMIN, Usuario } from '../../core/modelos';
 import { Ecc, QrCode } from '../../core/qrcodegen';
 import { SesionService } from '../../core/sesion.service';
@@ -37,6 +38,7 @@ export class PerfilConfiguracionPage {
   private sesion = inject(SesionService);
 
   readonly REGLA_CONTRASENA = REGLA_CONTRASENA;
+  readonly LARGO_DEL_TELEFONO = LARGO_DEL_TELEFONO;
   readonly usuario = this.sesion.usuario;
   readonly rol = computed(() => NOMBRE_ROL[this.usuario()?.role_name ?? ''] ?? 'Sin definir');
   readonly esAdmin = computed(() => this.usuario()?.role_id === ROL_ADMIN);
@@ -113,8 +115,11 @@ export class PerfilConfiguracionPage {
     this.avisoDatos.set(null);
   }
 
-  escribirTelefono(valor: string) {
-    this.telefono.set(valor);
+  escribirTelefono(evento: Event) {
+    // Paso A19: el cuadro muestra al tiro el número arreglado ("+56 9 1234 5678") y no deja escribir de más
+    const campo = evento.target as HTMLInputElement;
+    campo.value = formatearTelefono(campo.value);
+    this.telefono.set(campo.value);
     this.avisoDatos.set(null);
   }
 

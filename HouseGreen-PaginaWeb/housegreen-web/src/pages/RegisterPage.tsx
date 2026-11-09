@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../api/client";
 import { problemaDeContrasena, REGLA_CONTRASENA } from "../utils/contrasena";
+import { formatearTelefono } from "../utils/telefono";
 import { MarcoDeEntrada } from "../components/MarcoDeEntrada";
 import { CampoDeEntrada } from "../components/CampoDeEntrada";
 import { conVuelta, rutaDeVuelta } from "../utils/volver";
@@ -103,7 +104,7 @@ export function RegisterPage() {
           type="tel"
           autoComplete="tel"
           value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          onChange={(e) => setPhone(formatearTelefono(e.target.value))} // paso A19: "+56 9 1234 5678", sin dígitos de más
           placeholder="+56 9 1234 5678"
         />
 

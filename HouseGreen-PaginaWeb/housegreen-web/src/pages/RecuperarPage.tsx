@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api/client";
 import { MarcoDeEntrada } from "../components/MarcoDeEntrada";
 import { CampoDeEntrada } from "../components/CampoDeEntrada";
-import { problemaDeContrasena, REGLA_CONTRASENA } from "../utils/contrasena";
+import { problemaDeContrasena, REGLA_CONTRASENA, soloDigitosYEspacio } from "../utils/contrasena";
 import { dejarAvisoParaElLogin } from "../utils/avisoLogin";
 import "./LoginPage.css"; // los mismos estilos del inicio de sesión
 
@@ -120,7 +120,7 @@ export function RecuperarPage() {
                 maxLength={7}
                 value={codigo}
                 // Solo números y espacio (el correo lo muestra como "123 456")
-                onChange={(e) => setCodigo(e.target.value.replace(/[^\d ]/g, ""))}
+                onChange={(e) => setCodigo(soloDigitosYEspacio(e.target.value))}
                 className="login-input login-codigo"
                 placeholder="123 456"
               />

@@ -26,14 +26,15 @@
 
         <label class="perfil-campo">
           Teléfono (opcional)
+          <!-- Paso A19: "+56 9 1234 5678", sin dígitos de más -->
           <input
             type="tel"
             name="telefono"
-            maxlength="30"
+            [attr.maxlength]="LARGO_DEL_TELEFONO"
             autocomplete="tel"
             placeholder="+56 9 1234 5678"
-            [ngModel]="telefono()"
-            (ngModelChange)="escribirTelefono($event)" />
+            [value]="telefono()"
+            (input)="escribirTelefono($event)" />
         </label>
 
         <dl class="perfil-fijos">

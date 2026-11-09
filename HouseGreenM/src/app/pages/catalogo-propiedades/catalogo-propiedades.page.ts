@@ -41,6 +41,8 @@ const RANGOS_PRECIO: { texto: string; desde: number | null; hasta: number | null
 ];
 
 const POR_TANDA = 24;
+// Paso A19: lo máximo que se queda girando el círculo de "recargar" (tirando la lista hacia abajo)
+const SEGUNDOS_PARA_RECARGAR = 10;
 
 function alternar<T>(lista: T[], valor: T): T[] {
   return lista.includes(valor) ? lista.filter((v) => v !== valor) : [...lista, valor];
@@ -171,9 +173,22 @@ export class CatalogoPropiedadesPage {
   }
 
   async refrescar(evento: Event) {
-    await this.catalogo.recargar();
-    // El círculo de "cargando" de arriba se esconde cuando terminan de llegar los datos
-    await (evento.target as unknown as { complete: () => Promise<void> }).complete();
+    // Paso A19: el círculo de "cargando" de arriba se cierra SIEMPRE (aunque algo falle): cuando llegan los
+    // remates o, como mucho, a los 10 segundos (si la API tarda más, la lista se actualiza sola cuando lleguen)
+    let termino = false;
+    try {
+      await Promise.race([
+        this.catalogo.recargar().then(() => (termino = true)),
+        new Promise((listo) => setTimeout(listo, SEGUNDOS_PARA_RECARGAR * 1000)),
+      ]);
+    } finally {
+      await (evento as CustomEvent<{ complete: () => Promise<void> | void }>).detail.complete();
+    }
+    // Un aviso corto abajo, para que se note que sí se recargó
+    const error = this.catalogo.error();
+    void this.mostrarAviso(
+      !termino ? 'Los remates se siguen cargando: la lista se actualiza sola.' : (error ?? 'Lista de remates actualizada.'),
+    );
   }
 
   mostrarMas() {

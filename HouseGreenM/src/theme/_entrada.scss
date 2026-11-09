@@ -257,8 +257,7 @@ app-marco-entrada {
   .entrada-formulario {
     align-items: flex-start;
     padding: 20px 16px 40px;
-    /* Paso A18: el final del formulario no queda detrás de los botones de abajo del teléfono */
-    padding-bottom: calc(40px + var(--ion-safe-area-bottom, 0px));
+    /* Paso A19: el espacio de los botones de abajo del teléfono ya lo deja cada pantalla (theme/_housegreen.scss) */
   }
 }
 

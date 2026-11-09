@@ -5,6 +5,7 @@ import { MarcoDeEntrada } from "../components/MarcoDeEntrada";
 import { CampoDeEntrada } from "../components/CampoDeEntrada";
 import { leerAvisoDelLogin, borrarAvisoDelLogin } from "../utils/avisoLogin";
 import { conVuelta, rutaDeVuelta } from "../utils/volver";
+import { soloDigitosYEspacio } from "../utils/contrasena";
 import "./LoginPage.css";
 
 export function LoginPage() {
@@ -94,7 +95,7 @@ export function LoginPage() {
                 maxLength={7}
                 value={codigo}
                 // Solo números y espacio (la aplicación lo muestra como "123 456")
-                onChange={(e) => setCodigo(e.target.value.replace(/[^\d ]/g, ""))}
+                onChange={(e) => setCodigo(soloDigitosYEspacio(e.target.value))}
                 className="login-input login-codigo"
                 placeholder="123 456"
               />

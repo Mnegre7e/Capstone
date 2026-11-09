@@ -4,6 +4,7 @@ import { NavController } from '@ionic/angular/lazy';
 import { ApiService, mensajeDeError } from '../../core/api.service';
 import { REGLA_CONTRASENA, problemaDeContrasena } from '../../core/contrasena';
 import { SesionService } from '../../core/sesion.service';
+import { formatearTelefono } from '../../core/telefono';
 
 // Paso A5: crear cuenta de verdad (antes esta pantalla decía "Registrado" sin crear nada), igual que la web
 // (RegisterPage): POST /auth/registro y, apenas se crea, entra sola para no volver a escribir los datos.
@@ -24,6 +25,7 @@ export class RegistroPage {
   readonly nombre = signal('');
   readonly correo = signal('');
   readonly telefono = signal('');
+  readonly formatearTelefono = formatearTelefono; // paso A19: "+56 9 1234 5678", sin dígitos de más
   readonly contrasenia = signal('');
   readonly repetida = signal('');
   readonly mostrar = signal(false); // los dos ojos muestran u ocultan las dos contraseñas a la vez

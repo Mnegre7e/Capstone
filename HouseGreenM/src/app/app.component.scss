@@ -70,6 +70,9 @@ ion-menu {
   .menu-footer {
     --background: #ffffff;
     border-top: 1px solid #{$gh-light-green};
+    // Paso A19: en el teléfono, por encima de los botones de abajo (atrás, inicio, recientes)
+    padding-bottom: var(--ion-safe-area-bottom, 0px);
+    background: #ffffff;
 
     ion-item {
       --background: #ffffff;
