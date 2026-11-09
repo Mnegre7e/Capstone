@@ -10,9 +10,15 @@
 # La zona se guarda en property_financial_info.market_zone, la misma columna que usa la función
 # calculate_score de la base: así el cálculo del semáforo no cambia.
 #
-#   python -m app.scraper.zona_precio   -> recalcula ahora la zona de precio de todos los remates vigentes
+#   python -m app.scraper.zona_precio   -> recalcula ahora la zona de precio de todos los remates
 #
 # La carga diaria (ingesta.py) también lo hace al final, todos los días.
+#
+# Paso 128 (08-11): antes solo se revisaban los remates vigentes. Los que ya se remataron, se retiraron o se
+# quitaron del catálogo (y las propiedades de prueba) quedaban con el semáforo calculado SIN precio típico
+# ("Sin referencia"), mientras que más abajo el detalle sí mostraba la comparación con la comuna.
+# Ahora se revisan todos; los números del resumen siguen siendo solo de los vigentes (los que están en el catálogo),
+# y a quien tiene una alerta solo se le avisa por remates vigentes (eso ya lo revisa notificar_cambio_de_semaforo).
 import re
 from datetime import datetime
 from decimal import Decimal
@@ -21,6 +27,7 @@ from zoneinfo import ZoneInfo
 from app.database import SessionLocal
 from app.models.precio_comuna import ComunaMarketPrice
 from app.models.property import Comuna, Property, PropertyFinancialInfo
+from app.routers.admin_panel import _esta_vigente  # la misma regla de "vigente" que usa el catálogo
 from app.routers.alerts import recalcular_semaforo_y_avisar
 
 ZONA_CHILE = ZoneInfo("America/Santiago")
@@ -104,29 +111,33 @@ def referencias(db) -> dict:
 
 
 def actualizar_zonas() -> dict:
-    """Recalcula la zona de precio de todos los remates vigentes. Solo toca la base (y recalcula el semáforo)
-    cuando la zona cambia; la primera vez cambian casi todos, después solo los nuevos o los que cambiaron de precio."""
-    resumen = {"revisados": 0, "cambiados": 0, "verde": 0, "amarillo": 0, "rojo": 0, "sin_referencia": 0, "con_error": []}
+    """Recalcula la zona de precio de todos los remates (vigentes o no). Solo toca la base (y recalcula el semáforo)
+    cuando la zona cambia; la primera vez cambian casi todos, después solo los nuevos o los que cambiaron de precio.
+    Los números del resumen (revisados, verde, amarillo, rojo, sin referencia) son solo de los vigentes."""
+    resumen = {
+        "revisados": 0, "cambiados": 0, "verde": 0, "amarillo": 0, "rojo": 0, "sin_referencia": 0,
+        "fuera_del_catalogo": 0,  # zonas cambiadas en remates que ya no están en el catálogo
+        "con_error": [],
+    }
     db = SessionLocal()
     try:
         precios = referencias(db)
         comunas = dict(db.query(Comuna.id, Comuna.name).all())
-        hoy = datetime.now(ZONA_CHILE).replace(hour=0, minute=0, second=0, microsecond=0)
-        vigentes = (
-            db.query(Property.id, Property.comuna_id, Property.property_type, Property.opening_price)
-            .filter(Property.source_system == FUENTE_REMATES, Property.removed_at.is_(None))
-            .filter(Property.status != "retirada")
-            .filter((Property.auction_date.is_(None)) | (Property.auction_date >= hoy))
-            .all()
-        )
+        ahora = datetime.now(ZONA_CHILE)
+        todas = db.query(
+            Property.id, Property.comuna_id, Property.property_type, Property.opening_price,
+            Property.source_system, Property.status, Property.auction_date, Property.removed_at,
+        ).all()
         zonas_actuales = dict(db.query(PropertyFinancialInfo.property_id, PropertyFinancialInfo.market_zone).all())
 
-        for propiedad_id, comuna_id, property_type, precio_minimo in vigentes:
-            resumen["revisados"] += 1
+        for propiedad_id, comuna_id, property_type, precio_minimo, fuente, estado, fecha_remate, quitada in todas:
+            vigente = fuente == FUENTE_REMATES and quitada is None and _esta_vigente(estado, fecha_remate, ahora)
             tipo = tipo_para_comparar(property_type)
             comparacion = comparar(property_type, precio_minimo, comunas.get(comuna_id), precios.get((comuna_id, tipo)))
             nueva = comparacion["zona"] if comparacion["disponible"] else None
-            resumen[nueva or "sin_referencia"] += 1
+            if vigente:
+                resumen["revisados"] += 1
+                resumen[nueva or "sin_referencia"] += 1
             if zonas_actuales.get(propiedad_id) == nueva:
                 continue  # lo normal: no cambió nada
             try:
@@ -139,6 +150,8 @@ def actualizar_zonas() -> dict:
                 # Cambió la zona: se recalcula el semáforo (y se avisa a quien tenga una alerta, si mejoró)
                 recalcular_semaforo_y_avisar(db, db.get(Property, propiedad_id))
                 resumen["cambiados"] += 1
+                if not vigente:
+                    resumen["fuera_del_catalogo"] += 1
                 if resumen["cambiados"] % 50 == 0:
                     print(f"   ... {resumen['cambiados']} zonas cambiadas")
             except Exception as error:
@@ -151,7 +164,8 @@ def actualizar_zonas() -> dict:
 
 def mostrar_resumen(resumen: dict) -> None:
     print(
-        f"Remates vigentes revisados: {resumen['revisados']} | zona cambiada: {resumen['cambiados']} | "
+        f"Remates vigentes revisados: {resumen['revisados']} | zona cambiada: {resumen['cambiados']} "
+        f"(de ellos, fuera del catálogo: {resumen.get('fuera_del_catalogo', 0)}) | "
         f"verde {resumen['verde']} · amarilla {resumen['amarillo']} · roja {resumen['rojo']} · "
         f"sin referencia {resumen['sin_referencia']}"
     )
@@ -160,5 +174,5 @@ def mostrar_resumen(resumen: dict) -> None:
 
 
 if __name__ == "__main__":
-    print("Calculando la zona de precio de los remates vigentes...")
+    print("Calculando la zona de precio de los remates (todos: vigentes y fuera del catálogo)...")
     mostrar_resumen(actualizar_zonas())
