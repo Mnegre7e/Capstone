@@ -1,11 +1,11 @@
 @if (datos(); as d) {
   <div class="detalle-seccion">
-    <h2>Precio frente a la comuna</h2>
+    <h2>Precio comparado con otras propiedades del sector</h2>
 
     @if (comparable()) {
       <div class="precio-cifras">
         <div class="precio-cifra">
-          <p class="precio-cifra-etiqueta">Precio mínimo de este remate</p>
+          <p class="precio-cifra-etiqueta">Precio inicial de este remate</p>
           <p class="precio-cifra-valor">{{ pesos(d.precio_minimo_clp) }}</p>
         </div>
         <div class="precio-cifra">

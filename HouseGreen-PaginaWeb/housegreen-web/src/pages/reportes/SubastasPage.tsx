@@ -59,7 +59,7 @@ export function SubastasPage() {
       </div>
 
       <p className="rep-nota">
-        "Precio comparado" son los departamentos y casas cuyo precio mínimo se comparó con el precio típico de su comuna
+        "Precio comparado" son los departamentos y casas cuyo precio inicial se comparó con el precio típico de su comuna
         (PropiedadesYa). En los demás remates el precio no suma puntos en el semáforo.
       </p>
     </>

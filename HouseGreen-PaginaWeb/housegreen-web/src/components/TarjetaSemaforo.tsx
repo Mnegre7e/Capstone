@@ -27,8 +27,11 @@ const PUNTAJE_MAXIMO = 8;
 const PUNTOS_PARA_VERDE = 6;
 const PUNTOS_PARA_AMARILLO = 3;
 
+// Paso A18: para la frase "lo que indica un nivel de riesgo bajo"
+const NOMBRE_DEL_NIVEL: Record<Nivel, string> = { verde: "bajo", amarillo: "medio", rojo: "alto" };
+
 const TEXTOS: Record<Nivel, { titulo: string; consejo: string }> = {
-  verde: { titulo: "Riesgo bajo", consejo: "Excelente opción" },
+  verde: { titulo: "Riesgo bajo", consejo: "Buena oportunidad" },
   amarillo: { titulo: "Riesgo medio", consejo: "Complicado pero viable" },
   rojo: { titulo: "Riesgo alto", consejo: "Mejor dejarla pasar" },
 };
@@ -36,24 +39,25 @@ const TEXTOS: Record<Nivel, { titulo: string; consejo: string }> = {
 // Cómo se muestra cada factor: su nombre, el texto según sus puntos (0, 1 o 2) y el texto cuando no tiene dato
 const FACTORES: Record<string, { nombre: string; porPuntos: [string, string, string]; sinDato: string }> = {
   // Paso 120b: el precio se compara solo con el precio típico de la comuna (ya no lo elige el administrador)
+  // Paso A18: nombres y textos más fáciles de entender (los mismos en la app)
   precio_rentabilidad: {
-    nombre: "Precio frente a la comuna",
-    porPuntos: ["Poco conveniente", "Regular", "Bueno"],
+    nombre: "Precio comparado con otras propiedades del sector",
+    porPuntos: ["Cerca o sobre el precio habitual", "Dentro del rango habitual", "Bajo el precio habitual del sector"],
     sinDato: "Sin referencia",
   },
   estado_legal: {
-    nombre: "Estado legal",
-    porPuntos: ["Sin dominio", "Otro tipo de dominio", "Dominio exclusivo"],
-    sinDato: "Dominio no especificado",
+    nombre: "Situación legal de la propiedad",
+    porPuntos: ["Sin dominio inscrito", "Se rematan derechos o una parte", "Propiedad con un solo titular registrado"],
+    sinDato: "Sin información del dominio",
   },
   dinamismo_barrio: {
-    nombre: "Dinamismo del barrio",
-    porPuntos: ["Bajo", "Medio", "Alto"],
+    nombre: "Actividad y atractivo del sector",
+    porPuntos: ["Bajo nivel de actividad", "Nivel intermedio de actividad", "Alto nivel de actividad"],
     sinDato: "Sin dato",
   },
   seguridad_comuna: {
-    nombre: "Seguridad de la comuna",
-    porPuntos: ["Baja", "Media", "Alta"],
+    nombre: "Nivel de seguridad del sector",
+    porPuntos: ["Nivel bajo", "Nivel intermedio", "Nivel alto"],
     sinDato: "Sin dato",
   },
 };
@@ -85,24 +89,26 @@ function fraseDeLoQueFalta(
   const partes: string[] = [];
 
   if (!tieneVeto) {
-    if (nivel === "verde") {
-      partes.push(`Está en riesgo bajo porque suma ${PUNTOS_PARA_VERDE} puntos o más.`);
-    } else if (nivel === "amarillo") {
+    // Paso A18: "Esta propiedad obtuvo 6 de 8 puntos, lo que indica un nivel de riesgo bajo según los factores evaluados."
+    partes.push(
+      `Esta propiedad obtuvo ${puntos} de ${PUNTAJE_MAXIMO} puntos, lo que indica un nivel de riesgo ${NOMBRE_DEL_NIVEL[nivel]} según los factores evaluados.`
+    );
+    if (nivel === "amarillo") {
       const faltan = PUNTOS_PARA_VERDE - puntos;
-      partes.push(`${faltan === 1 ? "Le falta" : "Le faltan"} ${enPuntos(faltan)} para riesgo bajo.`);
-    } else {
+      partes.push(`${faltan === 1 ? "Le falta" : "Le faltan"} ${enPuntos(faltan)} para llegar a riesgo bajo.`);
+    } else if (nivel === "rojo") {
       const faltan = PUNTOS_PARA_AMARILLO - puntos;
-      partes.push(`${faltan === 1 ? "Le falta" : "Le faltan"} ${enPuntos(faltan)} para riesgo medio.`);
+      partes.push(`${faltan === 1 ? "Le falta" : "Le faltan"} ${enPuntos(faltan)} para llegar a riesgo medio.`);
     }
   }
 
   // Paso 120c: los datos ya no los completa nadie a mano, así que no se promete que "se completarán"
   if (sinDato.length === 1) {
-    partes.push(`Sin dato en ${sinDato[0]}: ese factor vale 0 puntos.`);
+    partes.push(`No hay información sobre ${sinDato[0]}, así que ese factor suma 0 puntos.`);
   } else if (sinDato.length > 1) {
     const ultimo = sinDato[sinDato.length - 1];
     const lista = `${sinDato.slice(0, -1).join(", ")} y ${ultimo}`;
-    partes.push(`Sin dato en ${lista}: esos factores valen 0 puntos.`);
+    partes.push(`No hay información sobre ${lista}, así que esos factores suman 0 puntos.`);
   }
   if (precioSinDato) {
     partes.push("El motivo del precio está más abajo.");
@@ -138,7 +144,7 @@ export function TarjetaSemaforo({ evaluacion }: { evaluacion: Evaluacion | null 
     .filter((detalle) => !detalle.has_data)
     .map((detalle) => FACTORES[detalle.criteria_name].nombre.toLowerCase());
     
-  // Paso 120c: si el precio no se pudo comparar, el motivo está en la sección "Precio frente a la comuna"
+  // Paso 120c: si el precio no se pudo comparar, el motivo está en la sección del precio (más abajo)
   const precioSinDato = factores.some((detalle) => detalle.criteria_name === "precio_rentabilidad" && !detalle.has_data);
   const explicacion = fraseDeLoQueFalta(nivel, puntos, tieneVeto, nombresSinDato, precioSinDato);
 
@@ -180,7 +186,7 @@ export function TarjetaSemaforo({ evaluacion }: { evaluacion: Evaluacion | null 
       {/* Paso 65: de dónde salen los puntos */}
       {factores.length > 0 && (
         <div className="semaforo-factores">
-          <p className="semaforo-subtitulo">Por qué tiene este puntaje</p>
+          <p className="semaforo-subtitulo">¿Qué analizamos para evaluar esta propiedad?</p>
           <ul>
             {factores.map((detalle) => {
               const factor = FACTORES[detalle.criteria_name];

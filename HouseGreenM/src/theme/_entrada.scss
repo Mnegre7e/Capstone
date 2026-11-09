@@ -27,6 +27,8 @@ app-marco-entrada {
   /* A los lados: en pantallas anchas el contenido (de unos 520px) queda centrado en el panel.
      Abajo: se deja libre la franja de los edificios (su alto depende del ancho del panel). */
   padding: 48px max(clamp(32px, 6vw, 88px), calc((100% - 520px) / 2)) calc(15% + 28px);
+  /* Paso A18: en el teléfono la app ocupa también la franja de la hora y la batería: el texto empieza debajo */
+  padding-top: calc(48px + var(--ion-safe-area-top, 0px));
   background-color: #0f3d30;
   color: white;
 }
@@ -183,6 +185,10 @@ app-marco-entrada {
 
   .entrada-panel {
     padding: 22px 20px;
+    /* Paso A18: debajo de la franja de la hora y la batería (y de la cámara, con el teléfono de lado) */
+    padding-top: calc(22px + var(--ion-safe-area-top, 0px));
+    padding-right: calc(20px + var(--ion-safe-area-right, 0px));
+    padding-left: calc(20px + var(--ion-safe-area-left, 0px));
   }
 
   /* Un semáforo chico a la izquierda y, a su lado, el nombre con la frase debajo */
@@ -251,6 +257,8 @@ app-marco-entrada {
   .entrada-formulario {
     align-items: flex-start;
     padding: 20px 16px 40px;
+    /* Paso A18: el final del formulario no queda detrás de los botones de abajo del teléfono */
+    padding-bottom: calc(40px + var(--ion-safe-area-bottom, 0px));
   }
 }
 

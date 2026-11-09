@@ -9,11 +9,12 @@ import { SesionService } from '../../core/sesion.service';
 
 // Paso A3: el detalle de un remate, igual que en la web. Sin Premium se ve el aviso del plan.
 
+// Paso A18: nombres más claros de la modalidad del remate (los mismos en la web)
 const NOMBRE_REMATE: Record<string, string> = {
-  judicial: 'Judicial',
-  extrajudicial: 'Extrajudicial',
-  contribuciones: 'Por contribuciones',
-  banco: 'Bancario',
+  judicial: 'Remate por orden judicial',
+  extrajudicial: 'Remate extrajudicial',
+  contribuciones: 'Remate por deudas de contribuciones',
+  banco: 'Remate bancario',
 };
 
 // Lo que hay que revisar en los sitios oficiales antes de ofertar (en orden: el rol del primero se usa en el segundo)
@@ -117,15 +118,15 @@ export class DetallePropiedadPage {
       const conHora = fecha.getHours() !== 0 || fecha.getMinutes() !== 0;
       const hora = fecha.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false });
       lista.push({
-        etiqueta: 'Fecha del remate',
+        etiqueta: 'Fecha y hora de la subasta',
         valor: conHora ? `${fechaCorta(fecha)} · ${hora}` : fechaCorta(fecha),
         aviso: this.retirado() ? 'Retirado' : this.finalizado() ? 'Finalizado' : textoFaltan(diasHasta(fecha)),
         avisoGris: this.retirado() || this.finalizado(),
       });
     }
-    lista.push({ etiqueta: 'Publicado', valor: fechaCorta(new Date(r.created_at), true) });
-    lista.push({ etiqueta: 'Tipo de propiedad', valor: r.property_type.charAt(0).toUpperCase() + r.property_type.slice(1) });
-    lista.push({ etiqueta: 'Tipo de remate', valor: NOMBRE_REMATE[r.auction_type] ?? r.auction_type });
+    lista.push({ etiqueta: 'Fecha de publicación', valor: fechaCorta(new Date(r.created_at), true) });
+    lista.push({ etiqueta: '¿Qué propiedad es?', valor: r.property_type.charAt(0).toUpperCase() + r.property_type.slice(1) });
+    lista.push({ etiqueta: 'Modalidad del remate', valor: NOMBRE_REMATE[r.auction_type] ?? r.auction_type });
     const fisica = r.physical_info;
     const superficie = fisica?.surface_m2 ? Number(fisica.surface_m2) : null;
     if (superficie !== null) lista.push({ etiqueta: 'Superficie', valor: `${superficie.toLocaleString('es-CL')} m²` });

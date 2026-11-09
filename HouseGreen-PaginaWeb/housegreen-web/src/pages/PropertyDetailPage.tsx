@@ -22,11 +22,12 @@ function formatCLP(value: string | number) {
 }
 
 // Nombres para mostrar el tipo de remate que guarda la base
+// Paso A18: nombres más claros de la modalidad del remate (los mismos en la app)
 const NOMBRE_REMATE: Record<string, string> = {
-  judicial: "Judicial",
-  extrajudicial: "Extrajudicial",
-  contribuciones: "Por contribuciones",
-  banco: "Bancario",
+  judicial: "Remate por orden judicial",
+  extrajudicial: "Remate extrajudicial",
+  contribuciones: "Remate por deudas de contribuciones",
+  banco: "Remate bancario",
 };
 
 // "departamento" -> "Departamento"
@@ -180,15 +181,15 @@ export function PropertyDetailPage() {
   if (remate) {
     const hora = remate.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", hour12: false });
     datos.push({
-      etiqueta: "Fecha del remate",
+      etiqueta: "Fecha y hora de la subasta",
       valor: remateConHora ? `${fechaCorta(remate)} · ${hora}` : fechaCorta(remate),
       aviso: retirado ? "Retirado" : finalizado ? "Finalizado" : textoFaltan(diasHasta(remate)),
       avisoGris: retirado || finalizado,
     });
   }
-  datos.push({ etiqueta: "Publicado", valor: fechaCorta(new Date(property.created_at), true) });
-  datos.push({ etiqueta: "Tipo de propiedad", valor: capitalizar(property.property_type) });
-  datos.push({ etiqueta: "Tipo de remate", valor: NOMBRE_REMATE[property.auction_type] ?? property.auction_type });
+  datos.push({ etiqueta: "Fecha de publicación", valor: fechaCorta(new Date(property.created_at), true) });
+  datos.push({ etiqueta: "¿Qué propiedad es?", valor: capitalizar(property.property_type) });
+  datos.push({ etiqueta: "Modalidad del remate", valor: NOMBRE_REMATE[property.auction_type] ?? property.auction_type });
   if (superficie !== null) datos.push({ etiqueta: "Superficie", valor: `${superficie.toLocaleString("es-CL")} m²` });
   if (fisica?.bedrooms) datos.push({ etiqueta: "Dormitorios", valor: String(fisica.bedrooms) });
   if (fisica?.bathrooms) datos.push({ etiqueta: "Baños", valor: String(fisica.bathrooms) });
@@ -249,7 +250,7 @@ export function PropertyDetailPage() {
       )}
 
       <div className="detail-precio">
-        <p className="detail-precio-etiqueta">Precio mínimo</p>
+        <p className="detail-precio-etiqueta">Precio inicial del remate</p>
         <p className="detail-precio-valor">{formatCLP(precio)}</p>
         {precioM2 !== null && <p className="detail-precio-m2">{formatCLP(precioM2)} por m²</p>}
       </div>

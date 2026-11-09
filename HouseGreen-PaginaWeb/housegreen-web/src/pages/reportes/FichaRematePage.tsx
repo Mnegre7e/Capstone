@@ -112,11 +112,11 @@ export function FichaRematePage() {
         </div>
         <dl className="rep-ficha-datos">
           <div>
-            <dt>Precio mínimo</dt>
+            <dt>Precio inicial</dt>
             <dd>{ficha.precio_minimo === null ? "Sin dato" : pesos(ficha.precio_minimo)}</dd>
           </div>
           <div>
-            <dt>Fecha del remate</dt>
+            <dt>Fecha y hora de la subasta</dt>
             <dd>{ficha.fecha_del_remate ? fechaCorta(ficha.fecha_del_remate) : "Sin fecha"}</dd>
           </div>
           <div>

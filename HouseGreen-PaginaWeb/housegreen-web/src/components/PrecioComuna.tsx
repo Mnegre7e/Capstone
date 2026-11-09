@@ -55,7 +55,7 @@ export function PrecioComuna({ propertyId }: { propertyId: string }) {
   if (!datos.disponible || !datos.zona || datos.descuento_pct === null) {
     return (
       <div className="detail-seccion">
-        <h2>Precio frente a la comuna</h2>
+        <h2>Precio comparado con otras propiedades del sector</h2>
         <p className="precio-sin">
           {datos.motivo} Por eso el precio todavía no suma puntos en el semáforo.
         </p>
@@ -72,11 +72,11 @@ export function PrecioComuna({ propertyId }: { propertyId: string }) {
 
   return (
     <div className="detail-seccion">
-      <h2>Precio frente a la comuna</h2>
+      <h2>Precio comparado con otras propiedades del sector</h2>
 
       <div className="precio-cifras">
         <div className="precio-cifra">
-          <p className="precio-cifra-etiqueta">Precio mínimo de este remate</p>
+          <p className="precio-cifra-etiqueta">Precio inicial de este remate</p>
           <p className="precio-cifra-valor">{pesos(datos.precio_minimo_clp)}</p>
         </div>
         <div className="precio-cifra">

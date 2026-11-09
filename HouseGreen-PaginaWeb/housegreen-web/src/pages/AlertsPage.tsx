@@ -261,7 +261,7 @@ export function AlertsPage() {
                 </label>
 
                 <label className="alerts-campo">
-                  Precio mínimo del remate, hasta
+                  Precio inicial del remate, hasta
                   <span className="alerts-precio">
                     <span aria-hidden="true">$</span>
                     <input

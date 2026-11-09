@@ -33,7 +33,7 @@
 
     @if (factores().length > 0) {
       <div class="semaforo-factores">
-        <p class="semaforo-subtitulo">Por qué tiene este puntaje</p>
+        <p class="semaforo-subtitulo">¿Qué analizamos para evaluar esta propiedad?</p>
         <ul>
           @for (factor of factores(); track factor.clave) {
             <li [class]="'semaforo-factor ' + factor.clase">

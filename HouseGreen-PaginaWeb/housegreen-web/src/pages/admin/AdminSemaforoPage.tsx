@@ -27,8 +27,8 @@ const ZONA_DE_PRECIO: Record<Zona, string> = {
 };
 
 const DOMINIO: Record<Dominio, string> = {
-  exclusivo: "Dominio exclusivo",
-  otro: "Otro tipo de dominio",
+  exclusivo: "Propiedad con un solo titular registrado", // paso A18: los mismos textos del semáforo
+  otro: "Se rematan derechos o una parte",
 };
 
 function formatCLP(valor: string | null) {
@@ -112,15 +112,15 @@ export function AdminSemaforoPage() {
         </p>
         <ul>
           <li>
-            <strong>Precio frente a la comuna:</strong> el precio mínimo se compara con el precio típico de los
+            <strong>Precio comparado con otras propiedades del sector:</strong> el precio inicial se compara con el precio típico de los
             departamentos o casas en venta en su comuna (PropiedadesYa). Verde: 40 % o más bajo · Amarilla: entre 15 % y
             39,9 % · Roja: menos de 15 %.
           </li>
           <li>
-            <strong>Estado legal:</strong> sale de la ficha del remate.
+            <strong>Situación legal de la propiedad:</strong> sale de la ficha del remate.
           </li>
           <li>
-            <strong>Dinamismo del barrio y seguridad de la comuna:</strong> salen de los datos de cada comuna.
+            <strong>Actividad y atractivo del sector, y nivel de seguridad del sector:</strong> salen de los datos de cada comuna.
           </li>
         </ul>
         <p className="sem-ayuda-pie">
@@ -175,7 +175,7 @@ export function AdminSemaforoPage() {
             </div>
 
             <p className="sem-precio">
-              Precio mínimo <strong>{formatCLP(p.opening_price)}</strong>
+              Precio inicial <strong>{formatCLP(p.opening_price)}</strong>
               <a href={`/propiedades/${p.id}`} target="_blank" rel="noopener noreferrer">
                 Ver detalle ↗
               </a>
@@ -184,7 +184,7 @@ export function AdminSemaforoPage() {
             {/* Paso 120c: los datos del semáforo se muestran, pero ya no se editan */}
             <dl className="sem-datos">
               <div className="sem-dato">
-                <dt>Precio frente a la comuna</dt>
+                <dt>Precio comparado con otras propiedades del sector</dt>
                 <dd>
                   <span className={`pub-zona pub-zona-${p.market_zone ?? "sin"}`}>
                     <span className="pub-zona-punto" />
@@ -193,7 +193,7 @@ export function AdminSemaforoPage() {
                 </dd>
               </div>
               <div className="sem-dato">
-                <dt>Estado legal</dt>
+                <dt>Situación legal de la propiedad</dt>
                 <dd>{p.domain_type ? DOMINIO[p.domain_type] : "Sin dato en la ficha"}</dd>
               </div>
             </dl>

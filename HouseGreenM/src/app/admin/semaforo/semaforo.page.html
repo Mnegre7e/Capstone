@@ -17,12 +17,12 @@
         <p><strong>Cómo se calcula.</strong> Nadie lo completa a mano: la carga automática de cada mañana lo actualiza.</p>
         <ul>
           <li>
-            <strong>Precio frente a la comuna:</strong> el precio mínimo se compara con el precio típico de los
+            <strong>Precio comparado con otras propiedades del sector:</strong> el precio inicial se compara con el precio típico de los
             departamentos o casas en venta en su comuna (PropiedadesYa). Verde: 40 % o más bajo · Amarilla: entre 15 % y
             39,9 % · Roja: menos de 15 %.
           </li>
-          <li><strong>Estado legal:</strong> sale de la ficha del remate.</li>
-          <li><strong>Dinamismo del barrio y seguridad de la comuna:</strong> salen de los datos de cada comuna.</li>
+          <li><strong>Situación legal de la propiedad:</strong> sale de la ficha del remate.</li>
+          <li><strong>Actividad y atractivo del sector, y nivel de seguridad del sector:</strong> salen de los datos de cada comuna.</li>
         </ul>
         <p class="sem-ayuda-pie">
           "Sin referencia" son los sitios, parcelas, locales, derechos y otros tipos que no se comparan, o comunas con muy
@@ -76,14 +76,14 @@
             </div>
 
             <p class="sem-precio">
-              Precio mínimo <strong>{{ item.precio }}</strong>
+              Precio inicial <strong>{{ item.precio }}</strong>
               <a [routerLink]="['/detalle-propiedad', item.p.id]">Ver detalle ›</a>
             </p>
 
             <!-- Los datos del semáforo se muestran, pero no se editan -->
             <dl class="sem-datos">
               <div class="sem-dato">
-                <dt>Precio frente a la comuna</dt>
+                <dt>Precio comparado con otras propiedades del sector</dt>
                 <dd>
                   <span class="pub-zona" [ngClass]="'pub-zona-' + (item.p.market_zone ?? 'sin')">
                     <span class="pub-zona-punto"></span>
@@ -92,7 +92,7 @@
                 </dd>
               </div>
               <div class="sem-dato">
-                <dt>Estado legal</dt>
+                <dt>Situación legal de la propiedad</dt>
                 <dd>{{ item.dominio }}</dd>
               </div>
             </dl>

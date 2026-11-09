@@ -261,7 +261,7 @@ export function PropertiesPage() {
           </fieldset>
 
           <fieldset className="cat-grupo">
-            <legend>Rango de precio mínimo</legend>
+            <legend>Rango de precio inicial</legend>
             <div className="cat-chips">
               {RANGOS_PRECIO.map((r) => {
                 const activo = precioDesde === r.desde && precioHasta === r.hasta;

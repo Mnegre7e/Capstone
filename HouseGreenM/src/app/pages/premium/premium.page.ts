@@ -14,7 +14,7 @@ const COMPARACION: [string, boolean, boolean][] = [
   ['Semáforo de riesgo (color)', false, true],
   ['Puntaje del semáforo y por qué lo tiene', false, true],
   ['Detalle de cada remate', false, true],
-  ['Precio frente a la comuna', false, true],
+  ['Precio comparado con otras propiedades del sector', false, true],
   ['Datos del remate y fotos', false, true],
   ['Mapa de los remates', false, true],
   ['Favoritos y alertas', false, true],

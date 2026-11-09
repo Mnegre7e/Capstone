@@ -134,7 +134,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
           <h3 className="property-card-title">{property.title}</h3>
           <p className="property-card-address">{property.address || "Sin dirección informada"}</p>
 
-          <p className="property-card-label">Precio mínimo</p>
+          <p className="property-card-label">Precio inicial del remate</p>
           <div className="property-card-precios">
             <span className="property-card-price">{formatCLP(precio)}</span>
             {precioM2 !== null && <span className="property-card-m2">{formatCLP(precioM2)} / m²</span>}

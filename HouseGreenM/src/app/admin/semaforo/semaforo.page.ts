@@ -26,8 +26,8 @@ const ZONA_DE_PRECIO: Record<Zona, string> = {
 };
 
 const DOMINIO: Record<Dominio, string> = {
-  exclusivo: 'Dominio exclusivo',
-  otro: 'Otro tipo de dominio',
+  exclusivo: 'Propiedad con un solo titular registrado', // paso A18: los mismos textos del semáforo
+  otro: 'Se rematan derechos o una parte',
 };
 
 function formatCLP(valor: string | null): string {
