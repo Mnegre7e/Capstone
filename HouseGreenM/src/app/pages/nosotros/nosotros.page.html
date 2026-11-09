@@ -1,69 +1,43 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar class="header-toolbar">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home" color="light"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Nosotros</ion-title>
-  </ion-toolbar>
-</ion-header>
+<app-encabezado></app-encabezado>
 
-<ion-content class="cuerpo-nosotros ion-padding">
+<ion-content>
+  <article class="nos">
+    <header class="nos-cabecera">
+      <!-- El mismo semáforo del logo -->
+      <svg class="nos-logo" viewBox="0 0 64 64" aria-hidden="true">
+        <rect width="64" height="64" rx="14" fill="#0f3d30" />
+        <circle cx="32" cy="15" r="7.5" fill="#ef4444" />
+        <circle cx="32" cy="32" r="7.5" fill="#facc15" />
+        <circle cx="32" cy="49" r="7.5" fill="#22c55e" />
+      </svg>
+      <h1>Sobre HouseGreen</h1>
+      <p>Plataforma para la evaluación e inversión inteligente en remates inmobiliarios en Chile.</p>
+    </header>
 
-  <!-- Encabezado de la Sección -->
-  <div class="encabezado-nosotros ion-text-center">
-    <div class="logo-avatar">
-      <img src="assets/icon/logo-housegreen.svg" alt="HouseGreen" />
-    </div>
-    <h2>Sobre HouseGreen</h2>
-    <p>Plataforma para la evaluación e inversión inteligente en remates inmobiliarios en Chile.</p>
-  </div>
+    <section class="nos-tarjeta">
+      <h2>Nuestra misión</h2>
+      <p>
+        Democratizar y transparentar el acceso a las oportunidades de remate judicial, brindando herramientas de análisis
+        financiero y legal sencillas y precisas.
+      </p>
+    </section>
 
-  <!-- Tarjeta Misión -->
-  <ion-card class="card-seccion">
-    <ion-card-header>
-      <ion-card-title>
-        <ion-icon name="rocket-outline"></ion-icon> Nuestra Misión
-      </ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <p>Democratizar y transparentar el acceso a las oportunidades de remate judicial, brindando herramientas de análisis financiero y legal sencillas y precisas.</p>
-    </ion-card-content>
-  </ion-card>
-
-  <!-- Tarjeta Valores -->
-  <ion-card class="card-seccion">
-    <ion-card-header>
-      <ion-card-title>
-        <ion-icon name="shield-checkmark-outline"></ion-icon> Nuestros Valores
-      </ion-card-title>
-    </ion-card-header>
-    <ion-card-content class="ion-no-padding">
-      <ion-list lines="none" class="lista-valores">
-        <ion-item class="item-valor">
-          <ion-icon name="checkmark-circle" slot="start" color="success"></ion-icon>
-          <ion-label class="ion-text-wrap">
-            <h3>Transparencia</h3>
-            <p>Información verificada directamente de fuentes oficiales y procesos judiciales.</p>
-          </ion-label>
-        </ion-item>
-
-        <ion-item class="item-valor">
-          <ion-icon name="checkmark-circle" slot="start" color="success"></ion-icon>
-          <ion-label class="ion-text-wrap">
-            <h3>Innovación</h3>
-            <p>Herramientas avanzadas como el análisis de riesgo por semáforo en tiempo real.</p>
-          </ion-label>
-        </ion-item>
-
-        <ion-item class="item-valor">
-          <ion-icon name="checkmark-circle" slot="start" color="success"></ion-icon>
-          <ion-label class="ion-text-wrap">
-            <h3>Seguridad</h3>
-            <p>Resguardo y fiabilidad constante en cada uno de los datos presentados.</p>
-          </ion-label>
-        </ion-item>
-      </ion-list>
-    </ion-card-content>
-  </ion-card>
-
+    <section class="nos-tarjeta">
+      <h2>Nuestros valores</h2>
+      <ul class="nos-valores">
+        @for (valor of VALORES; track valor.nombre) {
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="11" fill="#15803d" />
+              <path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <div>
+              <h3>{{ valor.nombre }}</h3>
+              <p>{{ valor.texto }}</p>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+  </article>
 </ion-content>

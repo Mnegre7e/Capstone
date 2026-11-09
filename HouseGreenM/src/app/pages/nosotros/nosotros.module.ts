@@ -1,19 +1,14 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { NgModule } from '@angular/core';
 import { IonicModule } from '@ionic/angular/lazy';
 
+import { CompartidoModule } from '../../compartido/compartido.module';
 import { NosotrosPageRoutingModule } from './nosotros-routing.module';
 import { NosotrosPage } from './nosotros.page';
 
+// Paso 129: con el encabezado de la app (CompartidoModule), igual que las demás pantallas
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule, 
-    NosotrosPageRoutingModule
-  ],
+  imports: [CommonModule, IonicModule, CompartidoModule, NosotrosPageRoutingModule],
   declarations: [NosotrosPage],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class NosotrosPageModule {}

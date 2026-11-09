@@ -29,11 +29,6 @@ const routes: Routes = [
     canActivate: [sinSesion],
     loadChildren: () => import('./pages/recuperar-clave/recuperar-clave.module').then((m) => m.RecuperarClavePageModule),
   },
-  {
-    path: 'verificar',
-    canActivate: [sinSesion],
-    loadChildren: () => import('./pages/verificar/verificar.module').then((m) => m.VerificarPageModule),
-  },
   // Paso A5: la política de privacidad se ve con o sin cuenta (la enlaza el registro)
   {
     path: 'privacidad',

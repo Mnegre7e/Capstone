@@ -119,6 +119,65 @@ h1 {
   background-color: #0f3d30;
 }
 
+/* Paso 129: "Volver" a la izquierda del logo (como en la app) */
+.app-header-izquierda {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.app-volver {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 6px 10px 6px 4px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: #0f3d30;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.app-volver:hover {
+  background-color: #f1f5f3;
+}
+
+.app-volver svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Paso 129: pie de página (Nosotros y la política de privacidad) */
+.app-pie {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 8px;
+  margin-top: 24px;
+  padding: 20px 16px 28px;
+  border-top: 1px solid #e4e8e6;
+  color: #5f6b66;
+  font-size: 14px;
+}
+
+.app-pie a {
+  color: #15803d;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.app-pie a:hover {
+  text-decoration: underline;
+}
+
+.app-pie a:focus-visible,
+.app-volver:focus-visible,
 .app-logo:focus-visible,
 .app-nav-link:focus-visible,
 .app-cuenta-btn:focus-visible,
@@ -171,6 +230,45 @@ h1 {
   .app-logout-btn.is-siempre {
     display: inline-block;
     margin-left: 0;
+  }
+}
+
+/* Paso 129: en el celular "Volver" queda solo con la flecha, y con ella a la vista del logo queda solo el
+   semáforo (el nombre no cabía junto al menú) */
+@media (max-width: 760px) {
+  .app-volver {
+    min-width: 40px;
+    justify-content: center;
+    padding: 6px;
+  }
+
+  .app-volver-texto {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .app-header.is-con-menu.is-con-volver .app-logo-nombre {
+    display: none;
+  }
+}
+
+/* Paso 129: sin cuenta, en los celulares más angostos (320 px) no caben "Volver", el semáforo y el menú
+   (Premium, Iniciar sesión y Crear cuenta): fuera de la pantalla principal queda "Volver" en vez del semáforo */
+@media (max-width: 340px) {
+  .app-header.is-invitado.is-con-volver .app-logo {
+    display: none;
+  }
+
+  .app-header.is-invitado.is-con-volver .app-nav-link {
+    padding: 8px 4px;
+  }
+}
+
+/* En el celular el menú del admin (640 px) y el del analista (720 px) quedan fijos abajo: el pie no queda tapado */
+@media (max-width: 720px) {
+  .app-pie.is-sobre-menu {
+    padding-bottom: 96px;
   }
 }
 

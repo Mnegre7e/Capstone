@@ -1,4 +1,4 @@
-import { Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
+import { Routes, Route, Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PropertiesPage } from "./pages/PropertiesPage";
 import { PropertyDetailPage } from "./pages/PropertyDetailPage";
 import { LoginPage } from "./pages/LoginPage";
@@ -19,6 +19,7 @@ import { useAnuncios } from "./context/AnunciosContext";
 import { RegisterPage } from "./pages/RegisterPage";
 import { RecuperarPage } from "./pages/RecuperarPage";
 import { PrivacidadPage } from "./pages/PrivacidadPage"; // paso 125c
+import { NosotrosPage } from "./pages/NosotrosPage"; // paso 129
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PerfilPage } from "./pages/PerfilPage";
 import { OpinionesPage } from "./pages/OpinionesPage";
@@ -50,29 +51,64 @@ function App() {
   const pendientes = noLeidas + sinLeer;
 
   // "Remates" queda marcado en el catálogo y también dentro del detalle de una propiedad
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
+  const navigate = useNavigate();
   const enRemates = pathname === "/" || pathname.startsWith("/propiedades");
 
   // Paso 100: en el inicio de sesión y en el registro no se muestra el encabezado.
   // Esas pantallas ya tienen el nombre y el semáforo en su panel verde.
   const enEntrada = pathname === "/login" || pathname === "/registro" || pathname === "/recuperar"; // paso 117
 
+  // Paso 129: la pantalla principal de cada tipo de cuenta (adonde lleva el logo, igual que en la app):
+  // inversionista (y sin cuenta) → Remates, analista → Reportes, administrador → Panel
+  const inicio = esAnalista ? "/analista" : esAdmin ? "/admin" : "/";
+  const enInicio = pathname === inicio;
+
+  // Paso 129: "Volver" vuelve a la pantalla anterior de HouseGreen; si la página se abrió directo
+  // (un enlace o al recargar), no hay pantalla anterior y lleva a la principal
+  function volver() {
+    if (location.key !== "default") {
+      navigate(-1);
+    } else {
+      navigate(inicio);
+    }
+  }
+
+  // Paso 129: en el celular el menú del admin y del analista queda fijo abajo; el pie deja espacio para él
+  const conMenuAbajo = pathname.startsWith("/admin") || pathname.startsWith("/analista");
+
   return (
     <div>
       {!enEntrada && (
-        <header className={`app-header ${!esAnalista ? "is-con-menu" : ""} ${!estaLogueado ? "is-invitado" : ""}`}>
+        <header
+          className={`app-header ${!esAnalista ? "is-con-menu" : ""} ${!estaLogueado ? "is-invitado" : ""} ${
+            !enInicio ? "is-con-volver" : ""
+          }`}
+        >
           {/* Paso 125b: "is-invitado" achica el encabezado en celular (Premium, Iniciar sesión y Crear cuenta no cabían) */}
-          {/* Paso 115: al analista el logo lo lleva a sus reportes */}
-          <Link to={esAnalista ? "/analista" : "/"} className="app-logo">
-            {/* El mismo dibujo del ícono de la pestaña (public/favicon.svg) */}
-            <svg viewBox="0 0 64 64" aria-hidden="true">
-              <rect width="64" height="64" rx="14" fill="#0f3d30" />
-              <circle cx="32" cy="15" r="7.5" fill="#ef4444" />
-              <circle cx="32" cy="32" r="7.5" fill="#facc15" />
-              <circle cx="32" cy="49" r="7.5" fill="#22c55e" />
-            </svg>
-            <span className="app-logo-nombre">HouseGreen</span>
-          </Link>
+          <div className="app-header-izquierda">
+            {/* Paso 129: "Volver" en todas las pantallas menos en la principal (igual que en la app) */}
+            {!enInicio && (
+              <button type="button" className="app-volver" onClick={volver} aria-label="Volver a la pantalla anterior">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="app-volver-texto">Volver</span>
+              </button>
+            )}
+            {/* Paso 129: el logo lleva a la pantalla principal de cada tipo de cuenta (antes del paso 115 iba siempre a Remates) */}
+            <Link to={inicio} className="app-logo">
+              {/* El mismo dibujo del ícono de la pestaña (public/favicon.svg) */}
+              <svg viewBox="0 0 64 64" aria-hidden="true">
+                <rect width="64" height="64" rx="14" fill="#0f3d30" />
+                <circle cx="32" cy="15" r="7.5" fill="#ef4444" />
+                <circle cx="32" cy="32" r="7.5" fill="#facc15" />
+                <circle cx="32" cy="49" r="7.5" fill="#22c55e" />
+              </svg>
+              <span className="app-logo-nombre">HouseGreen</span>
+            </Link>
+          </div>
 
           {/* Paso 115: el analista no tiene catálogo, alertas ni perfil: solo puede cerrar sesión.
               Su menú (Resumen · Subastas · Usuarios · Alcance) está en la página de reportes. */}
@@ -145,6 +181,7 @@ function App() {
         <Route path="/registro" element={<RegisterPage />} />
         <Route path="/recuperar" element={<RecuperarPage />} /> {/* paso 117 */}
         <Route path="/privacidad" element={<PrivacidadPage />} /> {/* paso 125c: con o sin cuenta */}
+        <Route path="/nosotros" element={<NosotrosPage />} /> {/* paso 129: con o sin cuenta, como en la app */}
 
         {/* Paso 122c: el catálogo y el detalle (que sin Premium muestra el aviso del plan) se ven sin cuenta */}
         <Route
@@ -277,6 +314,17 @@ function App() {
         {/* Cualquier otra dirección: aviso en vez de página en blanco */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+
+      {/* Paso 129: pie de página con "Nosotros" (en la app está en el menú) y la política de privacidad */}
+      {!enEntrada && (
+        <footer className={`app-pie ${conMenuAbajo ? "is-sobre-menu" : ""}`}>
+          <span>HouseGreen</span>
+          <span aria-hidden="true">·</span>
+          <Link to="/nosotros">Nosotros</Link>
+          <span aria-hidden="true">·</span>
+          <Link to="/privacidad">Política de privacidad</Link>
+        </footer>
+      )}
     </div>
   );
 }

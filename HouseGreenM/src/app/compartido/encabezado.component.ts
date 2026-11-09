@@ -2,13 +2,14 @@ import { Component, computed, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular/lazy';
 
-import { ROL_ANALISTA } from '../core/modelos';
+import { ROL_ADMIN, ROL_ANALISTA } from '../core/modelos';
 import { SesionService } from '../core/sesion.service';
 
 // Paso A2: el encabezado de las pantallas, igual al de la web: el logo (el semáforo) y el nombre
 // a la izquierda, y el botón del menú (☰) a la derecha.
-// Paso A8b (pedido del equipo): el botón "Volver" a la izquierda en todas las pantallas (menos en la de inicio),
-// y al tocar el logo o el nombre HouseGreen se vuelve al catálogo de remates (el analista, a su resumen).
+// Paso A8b (pedido del equipo): el botón "Volver" a la izquierda en todas las pantallas (menos en la de inicio).
+// Paso 129: al tocar el logo o el nombre HouseGreen se va a la pantalla principal de cada tipo de cuenta, igual que
+// en la web: inversionista → Remates, analista → Reportes (Resumen), administrador → Panel.
 @Component({
   selector: 'app-encabezado',
   standalone: false,
@@ -47,15 +48,14 @@ export class EncabezadoComponent {
   private navegacion = inject(NavController);
   private ruta = inject(ActivatedRoute);
 
-  // A dónde lleva el logo: el catálogo (el analista, a su resumen; sin sesión, al inicio de sesión)
-  readonly inicio = computed(() => {
-    const usuario = this.sesion.usuario();
-    if (!usuario) return '/login';
-    return usuario.role_id === ROL_ANALISTA ? '/analista/resumen' : '/catalogo-propiedades';
+  // A dónde lleva el logo: la pantalla principal de la cuenta (sin sesión, al inicio de sesión)
+  readonly inicio = computed(() => (this.sesion.usuario() ? this.sesion.rutaDeInicio() : '/login'));
+  readonly textoLogo = computed(() => {
+    const rol = this.sesion.usuario()?.role_id;
+    if (rol === ROL_ADMIN) return 'HouseGreen: ir al Panel';
+    if (rol === ROL_ANALISTA) return 'HouseGreen: ir a los Reportes';
+    return rol ? 'HouseGreen: ir a los remates' : 'HouseGreen: ir al inicio de sesión';
   });
-  readonly textoLogo = computed(() =>
-    this.inicio() === '/catalogo-propiedades' ? 'HouseGreen: ir al catálogo de remates' : 'HouseGreen: ir al inicio',
-  );
 
   // La dirección de la pantalla donde está este encabezado (por ejemplo "/detalle-propiedad/123")
   private readonly direccion =
