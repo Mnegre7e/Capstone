@@ -1,11 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
 
-import { CADA, CifraReporte, FilaBarras, Medida, numero, pesos, plural } from '../../core/reportes';
+import { CADA, CifraReporte, FilaBarras, Medida, fechaCorta, numero, pesos, plural } from '../../core/reportes';
 import { ReportesService } from '../../core/reportes.service';
 
 // Paso A10: Usuarios, igual que pages/reportes/UsuariosPage.tsx de la web (antes eran datos de ejemplo).
 // Quiénes se registran, cuánto usan HouseGreen, qué opinan y el plan Premium (GET /reportes).
-// El analista ve los totales: los nombres y correos solo los ve el administrador (en la web).
+// El analista ve los totales. Paso A14: el administrador ve además quiénes se suscribieron, a quiénes se les
+// venció el plan y las personas más activas (igual que en la web).
 @Component({
   selector: 'app-usuarios',
   templateUrl: './usuarios.page.html',
@@ -19,6 +20,7 @@ export class UsuariosPage {
   readonly numero = numero;
   readonly pesos = pesos;
   readonly plural = plural;
+  readonly fechaCorta = fechaCorta;
 
   readonly cifras = computed<CifraReporte[]>(() => {
     const reporte = this.rep.reporte();

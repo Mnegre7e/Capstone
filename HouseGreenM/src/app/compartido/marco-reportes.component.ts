@@ -8,9 +8,12 @@ import { SesionService } from '../core/sesion.service';
 // Paso A10: el marco de las pantallas del analista, igual que ReportesLayout de la web: el distintivo
 // "Analista · Solo lectura", el menú de sus cuatro pantallas (en el celular queda fijo abajo), el período,
 // los filtros de los remates y el buscador. La pantalla elegida va adentro.
+// Paso A14: el administrador ve las mismas pantallas dentro de su marco (distintivo y pestañas del admin),
+// con "‹ Volver al Panel" arriba y las cuatro pantallas como pestañas bajo el buscador, igual que en la web;
+// su buscador también encuentra personas.
 // Estilos en theme/_reportes.scss (los mismos de Reportes.css de la web).
 
-export type PantallaReportes = 'resumen' | 'subastas' | 'usuarios' | 'alcance' | 'remate';
+export type PantallaReportes = 'resumen' | 'subastas' | 'usuarios' | 'alcance' | 'remate' | 'persona';
 
 @Component({
   selector: 'app-marco-reportes',
@@ -23,19 +26,24 @@ export class MarcoReportesComponent {
 
   readonly pantalla = input.required<PantallaReportes>();
 
-  readonly PANTALLAS: { valor: PantallaReportes; ruta: string; texto: string }[] = [
-    { valor: 'resumen', ruta: '/analista/resumen', texto: 'Resumen' },
-    { valor: 'subastas', ruta: '/analista/subastas', texto: 'Subastas' },
-    { valor: 'usuarios', ruta: '/analista/usuarios', texto: 'Usuarios' },
-    { valor: 'alcance', ruta: '/analista/alcance', texto: 'Alcance' },
-  ];
+  // Paso A14: las cuatro pantallas, en /analista/... para el analista y en /reportes/... para el administrador
+  readonly esAdmin = this.rep.esAdmin;
+  readonly base = this.rep.base;
+  readonly PANTALLAS = computed(() =>
+    [
+      { valor: 'resumen' as const, texto: 'Resumen' },
+      { valor: 'subastas' as const, texto: 'Subastas' },
+      { valor: 'usuarios' as const, texto: 'Usuarios' },
+      { valor: 'alcance' as const, texto: 'Alcance' },
+    ].map((p) => ({ ...p, ruta: `${this.base()}/${p.valor}` })),
+  );
   readonly PERIODOS = PERIODOS;
   readonly CATEGORIAS = CATEGORIAS;
   readonly NIVELES = NIVELES;
   readonly hoy = hoyEnChile();
 
-  // En la ficha de un remate los filtros no se usan (es una sola cosa)
-  readonly enUnaFicha = computed(() => this.pantalla() === 'remate');
+  // En la ficha de un remate (o de una persona) los filtros no se usan (es una sola cosa)
+  readonly enUnaFicha = computed(() => this.pantalla() === 'remate' || this.pantalla() === 'persona');
 
   readonly subtitulo = computed(() => {
     const reporte = this.rep.reporte();
@@ -45,7 +53,8 @@ export class MarcoReportesComponent {
       const hasta = fechaCorta(reporte.hasta);
       texto = desde === hasta ? `${desde}.` : `Del ${desde} al ${hasta}.`;
     }
-    return `${texto} Ves totales, sin datos personales.`;
+    // El analista ve totales; el administrador, además, los datos de las personas
+    return this.esAdmin() ? texto : `${texto} Ves totales, sin datos personales.`;
   });
 
   readonly rangoMostrado = computed(() => {

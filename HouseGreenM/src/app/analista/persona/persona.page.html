@@ -1,0 +1,91 @@
+<app-encabezado></app-encabezado>
+
+<ion-content>
+  <app-marco-reportes pantalla="persona">
+    @if (rep.reporte()) {
+      @if (ficha(); as ficha) {
+        <div class="rep-ficha-pagina" [class.is-cargando]="!alDia()">
+          <button type="button" class="rep-volver rep-volver-boton" (click)="volver()">‹ Volver</button>
+          @if (error(); as mensaje) {
+            <p class="rep-error">No se pudo actualizar: {{ mensaje }}</p>
+          }
+
+          @if (datos(); as d) {
+            <div class="rep-tarjeta rep-ficha">
+              <span class="rep-ficha-que">Persona</span>
+              <h2 class="rep-ficha-nombre">{{ ficha.full_name }}</h2>
+              <p class="rep-gris">{{ ficha.email }}</p>
+              <div class="rep-ficha-etiquetas">
+                <span class="rep-etiqueta" [class.is-buena]="ficha.estado === 'Activa'" [class.is-mala]="ficha.estado !== 'Activa'">
+                  {{ ficha.estado }}
+                </span>
+                <span class="rep-etiqueta" [class.is-premium]="d.conPremium">{{ d.conPremium ? 'Premium' : 'Sin Premium' }}</span>
+              </div>
+              <dl class="rep-ficha-datos">
+                <div>
+                  <dt>Se registró</dt>
+                  <dd>
+                    {{ d.registrada }}
+                    @if (d.desdeDonde) {
+                      <span class="rep-gris"> {{ d.desdeDonde }}</span>
+                    }
+                  </dd>
+                </div>
+                <div>
+                  <dt>Último inicio de sesión</dt>
+                  <dd>{{ d.ultimoInicio }}</dd>
+                </div>
+                <div>
+                  <dt>Plan Premium</dt>
+                  <dd>{{ d.premium }}</dd>
+                </div>
+                <div>
+                  <dt>Pagos aprobados</dt>
+                  <dd>{{ d.pagos }}</dd>
+                </div>
+              </dl>
+            </div>
+          }
+
+          <app-rep-cifras [cifras]="cifras()"></app-rep-cifras>
+
+          <app-rep-tarjeta [titulo]="tituloGrafico()">
+            <app-rep-medidas [opciones]="OPCIONES" [(medida)]="medida"></app-rep-medidas>
+            <app-rep-grafico
+              [serie]="ficha.serie"
+              [medida]="medida()"
+              [agrupado]="ficha.agrupado_por"
+              [columnas]="COLUMNAS"></app-rep-grafico>
+          </app-rep-tarjeta>
+
+          <app-rep-tarjeta titulo="Remates que vio o guardó">
+            @if (ficha.remates.length === 0) {
+              <p class="rep-vacio">No vio ni guardó remates en {{ textoPeriodo() }}.</p>
+            } @else {
+              <ol class="rep-ranking is-sin-puesto">
+                @for (remate of ficha.remates; track remate.id) {
+                  <li>
+                    <span class="rep-ranking-info">
+                      <a class="rep-persona rep-enlace-nombre" [routerLink]="[rep.base() + '/remate', remate.id]">{{ remate.title }}</a>
+                      <span class="rep-gris">{{ remate.comuna ?? 'Sin comuna' }}</span>
+                    </span>
+                    <span class="rep-ranking-cifras">
+                      <span>{{ plural(remate.vistas, 'vista', 'vistas') }}</span>
+                      <span class="rep-gris">{{ remate.la_tiene_guardada ? 'La tiene guardada' : 'No la tiene guardada' }}</span>
+                    </span>
+                  </li>
+                }
+              </ol>
+            }
+            <p class="rep-nota">Solo lo ve el administrador: el analista ve los totales sin datos personales.</p>
+          </app-rep-tarjeta>
+        </div>
+      } @else {
+        <button type="button" class="rep-volver rep-volver-boton" (click)="volver()">‹ Volver</button>
+        <p [class]="error() ? 'rep-error' : 'rep-subtitulo'">
+          {{ error() ? 'No se pudo cargar la persona: ' + error() : 'Cargando...' }}
+        </p>
+      }
+    }
+  </app-marco-reportes>
+</ion-content>

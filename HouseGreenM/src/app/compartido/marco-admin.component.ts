@@ -14,7 +14,8 @@ export type SeccionAdmin =
   | 'usuarios'
   | 'cargas'
   | 'pagos'
-  | 'auditoria';
+  | 'auditoria'
+  | 'reportes';
 
 @Component({
   selector: 'app-marco-admin',

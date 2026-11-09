@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 
 import { ApiService, mensajeDeError } from './api.service';
+import { ROL_ADMIN } from './modelos';
 import { CATEGORIAS, CategoriaTipo, Comuna } from './remates';
 import { NIVELES, Nivel, Periodo, Reporte, hoyEnChile, textoDelPeriodo } from './reportes';
 import { SesionService } from './sesion.service';
@@ -8,6 +9,8 @@ import { SesionService } from './sesion.service';
 // Paso A10: lo que comparten las cuatro pantallas del analista, igual que ReportesLayout de la web:
 // el período, el rango, los filtros y el reporte. El reporte se pide una sola vez por período y filtros,
 // y lo usan Resumen, Subastas, Usuarios y Alcance (al cambiar de pantalla no se vuelve a pedir).
+// Paso A14: el administrador también tiene Reportes (como en la web, en /admin/reportes): las mismas pantallas,
+// dentro de su marco y con los datos de las personas.
 
 export interface FiltrosReporte {
   comuna: string; // el id de la comuna, o "" = todas
@@ -33,6 +36,10 @@ export class ReportesService {
   readonly error = signal<string | null>(null);
   // Las comunas para el filtro, en orden alfabético
   readonly comunas = signal<{ id: string; nombre: string }[]>([]);
+
+  // Paso A14: quién está mirando y dónde están sus pantallas (el analista en /analista, el admin en /reportes)
+  readonly esAdmin = computed(() => this.sesion.usuario()?.role_id === ROL_ADMIN);
+  readonly base = computed(() => (this.esAdmin() ? '/reportes' : '/analista'));
 
   // Solo el período (lo usa también la ficha de un remate)
   readonly consultaDelPeriodo = computed(() => {

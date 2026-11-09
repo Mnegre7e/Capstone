@@ -16,7 +16,12 @@
             <div class="rep-favorita">
               <p class="rep-favorita-titulo">{{ favorita.titulo }}</p>
               @if (favorita.publicacion; as publicacion) {
-                <strong class="rep-favorita-nombre">{{ publicacion.title }}</strong>
+                <!-- Paso A14: el administrador abre la publicación -->
+                @if (rep.esAdmin()) {
+                  <a class="rep-favorita-nombre" [routerLink]="['/publicacion-detalle', publicacion.id]">{{ publicacion.title }}</a>
+                } @else {
+                  <strong class="rep-favorita-nombre">{{ publicacion.title }}</strong>
+                }
                 <p class="rep-favorita-datos">{{ favorita.datos }}</p>
               } @else {
                 <p class="rep-vacio">Todavía no hay datos en este período.</p>
@@ -36,7 +41,11 @@
               <li>
                 <span class="rep-puesto">{{ i + 1 }}</span>
                 <span class="rep-ranking-info">
-                  <strong>{{ publicacion.title }}</strong>
+                  @if (rep.esAdmin()) {
+                    <a [routerLink]="['/publicacion-detalle', publicacion.id]">{{ publicacion.title }}</a>
+                  } @else {
+                    <strong>{{ publicacion.title }}</strong>
+                  }
                   <span class="rep-gris">{{ publicacion.comuna ?? 'Sin comuna' }}</span>
                 </span>
                 <span class="rep-ranking-cifras">
@@ -51,6 +60,9 @@
               </li>
             }
           </ol>
+        }
+        @if (rep.esAdmin()) {
+          <p class="rep-nota">Toca un remate para ver quiénes lo vieron y quiénes lo guardaron.</p>
         }
       </app-rep-tarjeta>
 

@@ -15,7 +15,7 @@ import { ReportesService } from '../../core/reportes.service';
 
 // Paso A10: Alcance, igual que pages/reportes/AlcancePage.tsx de la web (antes eran datos de ejemplo).
 // Cuánta gente ve los remates, cuáles interesan más y si se leen los avisos y anuncios (GET /reportes).
-// El analista no entra al catálogo: de cada remate ve el nombre (en la web el admin además lo abre).
+// El analista no entra al catálogo: de cada remate ve el nombre. Paso A14: el administrador lo abre (como en la web).
 @Component({
   selector: 'app-alcance',
   templateUrl: './alcance.page.html',

@@ -204,6 +204,40 @@ const routes: Routes = [
     loadChildren: () => import('./analista/remate/remate.module').then((m) => m.RematePageModule),
   },
 
+  // Paso A14: los Reportes del administrador (como /admin/reportes en la web): las mismas pantallas del analista,
+  // dentro del marco del admin y con los datos de las personas, más la ficha de una persona
+  { path: 'reportes', redirectTo: 'reportes/resumen', pathMatch: 'full' },
+  {
+    path: 'reportes/resumen',
+    canActivate: administrador,
+    loadChildren: () => import('./analista/resumen/resumen.module').then((m) => m.ResumenPageModule),
+  },
+  {
+    path: 'reportes/subastas',
+    canActivate: administrador,
+    loadChildren: () => import('./analista/subasta/subasta.module').then((m) => m.SubastaPageModule),
+  },
+  {
+    path: 'reportes/usuarios',
+    canActivate: administrador,
+    loadChildren: () => import('./analista/usuarios/usuarios.module').then((m) => m.UsuariosPageModule),
+  },
+  {
+    path: 'reportes/alcance',
+    canActivate: administrador,
+    loadChildren: () => import('./analista/alcance/alcance.module').then((m) => m.AlcancePageModule),
+  },
+  {
+    path: 'reportes/remate/:id',
+    canActivate: administrador,
+    loadChildren: () => import('./analista/remate/remate.module').then((m) => m.RematePageModule),
+  },
+  {
+    path: 'reportes/persona/:id',
+    canActivate: administrador,
+    loadChildren: () => import('./analista/persona/persona.module').then((m) => m.PersonaPageModule),
+  },
+
   // Cualquier otra dirección: al inicio
   { path: '**', redirectTo: 'login' },
 ];

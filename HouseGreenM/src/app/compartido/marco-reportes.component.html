@@ -1,8 +1,17 @@
-<section class="rep is-suelta">
-  <span class="rep-chip">Analista · Solo lectura</span>
-  <!-- El menú de las cuatro pantallas (en el celular queda fijo abajo, como en la web) -->
-  <nav class="rep-menu" aria-label="Pantallas de Reportes">
-    @for (p of PANTALLAS; track p.valor) {
+<!-- Paso A14: el administrador ve Reportes dentro de su marco (como en la web); el analista, sola -->
+@if (esAdmin()) {
+  <app-marco-admin seccion="reportes">
+    <ng-container *ngTemplateOutlet="reportes"></ng-container>
+  </app-marco-admin>
+} @else {
+  <ng-container *ngTemplateOutlet="reportes"></ng-container>
+}
+
+<!-- El menú de las cuatro pantallas: para el analista es su menú principal (en el celular queda fijo abajo);
+     para el administrador son pestañas dentro de Reportes (su menú principal es el del Panel) -->
+<ng-template #menu>
+  <nav [class]="esAdmin() ? 'rep-secciones' : 'rep-menu'" aria-label="Pantallas de Reportes">
+    @for (p of PANTALLAS(); track p.valor) {
       <a
         class="rep-pantalla"
         routerDirection="root"
@@ -13,6 +22,16 @@
       </a>
     }
   </nav>
+</ng-template>
+
+<ng-template #reportes>
+<section class="rep" [class.is-suelta]="!esAdmin()">
+  @if (esAdmin()) {
+    <a class="rep-volver" routerDirection="back" [routerLink]="['/admin-home']">‹ Volver al Panel</a>
+  } @else {
+    <span class="rep-chip">Analista · Solo lectura</span>
+    <ng-container *ngTemplateOutlet="menu"></ng-container>
+  }
 
   <h1 class="rep-titulo">Reportes</h1>
   <p class="rep-subtitulo">{{ subtitulo() }}</p>
@@ -100,8 +119,12 @@
     </p>
   }
 
-  <!-- Buscar un remate y abrir su ficha -->
-  <app-buscador-reportes></app-buscador-reportes>
+  <!-- Buscar un remate (o una persona, solo el administrador) y abrir su ficha -->
+  <app-buscador-reportes [base]="base()" [conPersonas]="esAdmin()"></app-buscador-reportes>
+
+  @if (esAdmin()) {
+    <ng-container *ngTemplateOutlet="menu"></ng-container>
+  }
 
   @if (rep.error(); as mensaje) {
     <p class="rep-error">{{ rep.reporte() ? 'No se pudo actualizar' : 'No se pudo cargar el reporte' }}: {{ mensaje }}</p>
@@ -111,8 +134,9 @@
     <p class="rep-subtitulo">Cargando...</p>
   }
 
-  <!-- La pantalla elegida (Resumen, Subastas, Usuarios, Alcance o la ficha de un remate) -->
+  <!-- La pantalla elegida (Resumen, Subastas, Usuarios, Alcance o la ficha de un remate o de una persona) -->
   <div class="rep-contenido" [class.is-cargando]="rep.cargando()" [hidden]="!rep.reporte()">
     <ng-content></ng-content>
   </div>
 </section>
+</ng-template>

@@ -36,6 +36,69 @@
         </div>
       </app-rep-tarjeta>
 
+      <!-- Paso A14: solo el administrador: quiénes se suscribieron y a quiénes se les venció el plan -->
+      @if (rep.esAdmin() && reporte.premium.pagos && reporte.premium.vencidos) {
+        <div class="rep-dos-columnas">
+          <app-rep-tarjeta titulo="Se suscribieron">
+            @if (reporte.premium.pagos.length === 0) {
+              <p class="rep-vacio">Nadie pagó el plan en {{ rep.textoPeriodo() }}.</p>
+            } @else {
+              <ol class="rep-ranking is-sin-puesto">
+                @for (pago of reporte.premium.pagos; track pago.pago_id) {
+                  <li>
+                    <span class="rep-ranking-info">
+                      <strong class="rep-persona">{{ pago.full_name }}</strong>
+                      <span class="rep-gris">{{ pago.email }}</span>
+                    </span>
+                    <span class="rep-ranking-cifras">
+                      <span>{{ fechaCorta(pago.pagado_el) }} · {{ pesos(pago.monto) }}</span>
+                      <span class="rep-gris">
+                        {{ pago.nueva ? 'Primera vez' : 'Renovó' }}{{ pago.hasta ? ' · hasta el ' + fechaCorta(pago.hasta) : '' }}
+                      </span>
+                    </span>
+                  </li>
+                }
+              </ol>
+            }
+            @if (reporte.premium.suscripciones > reporte.premium.pagos.length) {
+              <p class="rep-nota">Se muestran los {{ numero(reporte.premium.pagos.length) }} pagos más recientes.</p>
+            }
+            <p class="rep-nota">
+              <a class="rep-enlace" [routerLink]="['/pagos']">Ver todos los pagos ›</a>
+            </p>
+          </app-rep-tarjeta>
+
+          <app-rep-tarjeta titulo="Dejaron de pagar">
+            @if (reporte.premium.vencidos.length === 0) {
+              <p class="rep-vacio">A nadie se le venció el plan en {{ rep.textoPeriodo() }}.</p>
+            } @else {
+              <ol class="rep-ranking is-sin-puesto">
+                @for (persona of reporte.premium.vencidos; track persona.user_id) {
+                  <li>
+                    <span class="rep-ranking-info">
+                      <strong class="rep-persona">{{ persona.full_name }}</strong>
+                      <span class="rep-gris">{{ persona.email }}</span>
+                    </span>
+                    <span class="rep-ranking-cifras">
+                      <span>Venció el {{ fechaCorta(persona.vencio_el) }}</span>
+                      <span class="rep-gris">
+                        {{ persona.pagos === 0 ? 'sin pagos' : 'pagó ' + plural(persona.pagos, 'vez', 'veces') }}
+                      </span>
+                    </span>
+                  </li>
+                }
+              </ol>
+            }
+            @if (reporte.premium.dejaron_de_pagar > reporte.premium.vencidos.length) {
+              <p class="rep-nota">Se muestran los {{ numero(reporte.premium.vencidos.length) }} más recientes.</p>
+            }
+            <p class="rep-nota">
+              <a class="rep-enlace" [routerLink]="['/usuarios']" [queryParams]="{ plan: 'vencido' }">Ver en Usuarios ›</a>
+            </p>
+          </app-rep-tarjeta>
+        </div>
+      }
+
       <app-rep-tarjeta titulo="Embudo">
         <app-rep-barras
           [filas]="embudo()"
@@ -73,6 +136,32 @@
           <app-rep-barras [filas]="inicios()" [vacio]="'Nadie inició sesión en ' + rep.textoPeriodo() + '.'"></app-rep-barras>
         </app-rep-tarjeta>
       </div>
+
+      <!-- Paso A14: solo el administrador: quiénes fueron los más activos (el analista no ve datos personales) -->
+      @if (rep.esAdmin() && reporte.personas_mas_activas) {
+        <app-rep-tarjeta titulo="Personas más activas">
+          @if (reporte.personas_mas_activas.length === 0) {
+            <p class="rep-vacio">Nadie vio ni guardó remates en este período.</p>
+          } @else {
+            <ol class="rep-ranking">
+              @for (persona of reporte.personas_mas_activas; track persona.user_id; let i = $index) {
+                <li>
+                  <span class="rep-puesto">{{ i + 1 }}</span>
+                  <span class="rep-ranking-info">
+                    <strong class="rep-persona">{{ persona.full_name }}</strong>
+                    <span class="rep-gris">{{ persona.email }}</span>
+                  </span>
+                  <span class="rep-ranking-cifras">
+                    <span>{{ plural(persona.vistas, 'vista', 'vistas') }}</span>
+                    <span class="rep-gris">{{ plural(persona.guardados, 'guardado', 'guardados') }}</span>
+                  </span>
+                </li>
+              }
+            </ol>
+          }
+          <p class="rep-nota">Solo lo ve el administrador: el analista ve los totales sin datos personales.</p>
+        </app-rep-tarjeta>
+      }
     }
   </app-marco-reportes>
 </ion-content>

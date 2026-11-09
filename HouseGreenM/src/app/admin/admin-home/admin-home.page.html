@@ -21,8 +21,9 @@
           }
         </div>
 
-        <!-- Usuarios y el registro de actividad no están en las pestañas: se entra desde aquí (paso A13: como en la web) -->
+        <!-- Reportes, Usuarios y el registro de actividad no están en las pestañas: se entra desde aquí (pasos A13 y A14) -->
         <p class="panel-accesos">
+          <a [routerLink]="['/reportes/resumen']">Ver los reportes ›</a>
           <a [routerLink]="['/usuarios']">Ver los usuarios registrados ›</a>
           <a [routerLink]="['/auditoria']">Ver el registro de actividad ›</a>
         </p>

@@ -20,7 +20,8 @@ import {
 import { ReportesService } from '../../core/reportes.service';
 
 // Paso A10: la ficha de un remate (se abre desde el buscador), igual que pages/reportes/FichaRematePage.tsx de la web.
-// GET /reportes/remates/{id}: sus datos y sus números del período elegido. Quiénes lo vieron, solo el admin (en la web).
+// GET /reportes/remates/{id}: sus datos y sus números del período elegido.
+// Paso A14: el administrador ve además quiénes lo vieron o lo guardaron (igual que en la web).
 @Component({
   selector: 'app-remate',
   templateUrl: './remate.page.html',
@@ -32,6 +33,7 @@ export class RematePage {
   private api = inject(ApiService);
   private navegacion = inject(NavController);
 
+  readonly plural = plural;
   readonly OPCIONES: Medida[] = ['vistas', 'guardados'];
   readonly COLUMNAS: Medida[] = ['vistas', 'guardados'];
   readonly medida = signal<Medida>('vistas');
@@ -51,6 +53,10 @@ export class RematePage {
     return llegada && llegada.ficha.id === this.id() ? llegada.ficha : null;
   });
   readonly alDia = computed(() => this.llegada()?.clave === this.clave());
+  readonly textoPeriodo = computed(() => {
+    const ficha = this.ficha();
+    return ficha ? textoDelPeriodo(ficha) : '';
+  });
 
   readonly detalle = computed(() => {
     const ficha = this.ficha();

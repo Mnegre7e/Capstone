@@ -1,18 +1,20 @@
-import { Component, DestroyRef, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, computed, inject, input, signal, viewChild } from '@angular/core';
 import { NavController } from '@ionic/angular/lazy';
 
 import { ApiService, mensajeDeError } from '../core/api.service';
 
 // Paso A10: el buscador de las pantallas del analista, igual que pages/reportes/Buscador.tsx de la web.
 // Mientras se escribe muestra los remates que calzan (GET /reportes/buscar); al elegir uno se abre su ficha
-// con el período elegido. Las personas solo las busca el administrador (en la web).
+// con el período elegido. Paso A14: al administrador también le muestra personas (la API solo se las manda a él).
 
 interface Resultados {
   remates: { id: string; title: string; comuna: string | null; codigo: string | null; estado: string }[];
+  personas?: { id: string; full_name: string; email: string; estado: string }[] | null;
 }
 
 interface Opcion {
   clave: string;
+  grupo: 'Remates' | 'Personas';
   titulo: string;
   detalle: string;
   ruta: string;
@@ -55,13 +57,15 @@ let siguienteLista = 0;
         @if (error(); as mensaje) {
           <li class="rep-buscador-vacio" role="presentation">No se pudo buscar: {{ mensaje }}</li>
         } @else if (opciones().length === 0) {
-          <li class="rep-buscador-vacio" role="presentation">No encontramos remates con «{{ limpio() }}».</li>
+          <li class="rep-buscador-vacio" role="presentation">
+            No encontramos {{ conPersonas() ? 'remates ni personas' : 'remates' }} con «{{ limpio() }}».
+          </li>
         }
         @for (opcion of opciones(); track opcion.clave; let i = $index) {
           <li role="presentation">
-            <!-- El nombre del grupo va antes de la primera opción -->
-            @if (i === 0) {
-              <span class="rep-buscador-grupo">Remates</span>
+            <!-- El nombre del grupo va antes de su primera opción -->
+            @if (i === 0 || opciones()[i - 1].grupo !== opcion.grupo) {
+              <span class="rep-buscador-grupo">{{ opcion.grupo }}</span>
             }
             <!-- Se usa mousedown para elegir antes de que el campo pierda el foco (y se cierre la lista) -->
             <span
@@ -87,6 +91,10 @@ export class BuscadorReportesComponent {
 
   private campo = viewChild.required<ElementRef<HTMLInputElement>>('campo');
 
+  // Paso A14: dónde están las fichas (/analista o /reportes) y si se muestran personas (solo el administrador)
+  readonly base = input('/analista');
+  readonly conPersonas = input(false);
+
   readonly idDeLaLista = `rep-buscador-${++siguienteLista}`;
   readonly texto = signal('');
   readonly limpio = computed(() => this.texto().trim());
@@ -99,18 +107,29 @@ export class BuscadorReportesComponent {
   private espera: ReturnType<typeof setTimeout> | null = null;
   private turno = 0;
 
-  // Las opciones en el orden en que se muestran
+  // Las opciones en el orden en que se muestran: primero los remates, después las personas
   readonly opciones = computed<Opcion[]>(() => {
     const resultados = this.resultados();
     if (!resultados) {
       return [];
     }
-    return resultados.remates.map((r) => ({
-      clave: `r-${r.id}`,
-      titulo: r.title,
-      detalle: [r.comuna, r.codigo && `código ${r.codigo}`, r.estado].filter(Boolean).join(' · '),
-      ruta: `/analista/remate/${r.id}`,
-    }));
+    const base = this.base();
+    return [
+      ...resultados.remates.map((r) => ({
+        clave: `r-${r.id}`,
+        grupo: 'Remates' as const,
+        titulo: r.title,
+        detalle: [r.comuna, r.codigo && `código ${r.codigo}`, r.estado].filter(Boolean).join(' · '),
+        ruta: `${base}/remate/${r.id}`,
+      })),
+      ...(this.conPersonas() ? (resultados.personas ?? []) : []).map((p) => ({
+        clave: `p-${p.id}`,
+        grupo: 'Personas' as const,
+        titulo: p.full_name,
+        detalle: p.estado === 'Activa' ? p.email : `${p.email} · ${p.estado}`,
+        ruta: `${base}/persona/${p.id}`,
+      })),
+    ];
   });
 
   readonly mostrarLista = computed(

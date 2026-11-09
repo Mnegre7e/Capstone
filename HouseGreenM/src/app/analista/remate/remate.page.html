@@ -47,6 +47,36 @@
               [agrupado]="ficha.agrupado_por"
               [columnas]="COLUMNAS"></app-rep-grafico>
           </app-rep-tarjeta>
+
+          <!-- Paso A14: solo el administrador ve quiénes son -->
+          @if (rep.esAdmin() && ficha.quienes) {
+            <app-rep-tarjeta titulo="Quiénes la vieron o la guardaron">
+              @if (ficha.quienes.length === 0) {
+                <p class="rep-vacio">Nadie la vio ni la guardó en {{ textoPeriodo() }}.</p>
+              } @else {
+                <ol class="rep-ranking is-sin-puesto">
+                  @for (persona of ficha.quienes; track persona.user_id) {
+                    <li>
+                      <span class="rep-ranking-info">
+                        <a class="rep-persona rep-enlace-nombre" [routerLink]="[rep.base() + '/persona', persona.user_id]">
+                          {{ persona.full_name }}
+                        </a>
+                        <span class="rep-gris">{{ persona.email }}</span>
+                      </span>
+                      <span class="rep-ranking-cifras">
+                        <span>{{ plural(persona.vistas, 'vista', 'vistas') }}</span>
+                        <span class="rep-gris">{{ persona.la_tiene_guardada ? 'La tiene guardada' : 'No la tiene guardada' }}</span>
+                      </span>
+                    </li>
+                  }
+                </ol>
+              }
+              <p class="rep-nota">
+                Solo lo ve el administrador.
+                <a class="rep-enlace" [routerLink]="['/publicacion-detalle', ficha.id]">Ver la publicación ›</a>
+              </p>
+            </app-rep-tarjeta>
+          }
         </div>
       } @else {
         <button type="button" class="rep-volver rep-volver-boton" (click)="volver()">‹ Volver</button>

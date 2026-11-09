@@ -1,5 +1,6 @@
 // Paso A10: tipos y funciones de las pantallas del analista, iguales a pages/reportes/formato.ts de la web.
 // Los datos vienen de GET /reportes (los mismos que ve el analista en la página web).
+// Paso A14: también las usa el administrador (sus Reportes traen además los datos de las personas).
 
 // Hoy · Esta semana (desde el lunes) · Este mes · Este año · Rango (dos fechas)
 export type Periodo = 'hoy' | 'semana' | 'mes' | 'anio' | 'rango';
@@ -30,7 +31,8 @@ export interface Cantidad {
   cantidad: number;
 }
 
-// Lo que responde GET /reportes (al analista le llegan los totales, sin datos personales)
+// Lo que responde GET /reportes (al analista le llegan los totales, sin datos personales;
+// lo que es null para el analista, al administrador le llega con las personas)
 export interface Reporte {
   periodo: Periodo;
   desde: string;
@@ -52,6 +54,7 @@ export interface Reporte {
     semaforo: Record<string, number>; // verde, amarillo, rojo, sin_evaluar
   };
   alcance: { vistas: number; personas_que_vieron: number; guardados: number; quitados: number };
+  personas_mas_activas: { user_id: string; full_name: string; email: string; vistas: number; guardados: number }[] | null;
   mas_vista: PublicacionReporte | null;
   mas_guardada: PublicacionReporte | null;
   ranking: PublicacionReporte[];
@@ -86,6 +89,10 @@ export interface Reporte {
     personas: number;
     ingresos: number;
     dejaron_de_pagar: number;
+    pagos:
+      | { pago_id: number; user_id: string; full_name: string; email: string; pagado_el: string; monto: number; nueva: boolean; hasta: string | null }[]
+      | null;
+    vencidos: { user_id: string; full_name: string; email: string; vencio_el: string; pagos: number }[] | null;
   };
 }
 
@@ -112,6 +119,36 @@ export interface FichaRemate {
   la_tienen_guardada: number;
   avisos: number;
   serie: PuntoDeLaSerie[];
+  // Paso A14: quiénes la vieron o la guardaron (solo le llega al administrador; al analista, null)
+  quienes: { user_id: string; full_name: string; email: string; vistas: number; la_tiene_guardada: boolean }[] | null;
+}
+
+// Paso A14: lo que responde GET /reportes/personas/{id}: la ficha de una persona (solo el administrador)
+export interface FichaPersona {
+  periodo: Periodo;
+  desde: string;
+  hasta: string;
+  agrupado_por: Agrupado;
+  id: string;
+  full_name: string;
+  email: string;
+  estado: string;
+  registrada_el: string | null;
+  plataforma: string | null;
+  ultimo_inicio: string | null;
+  premium_hasta: string | null;
+  premium_vigente: boolean;
+  pagos: number;
+  pagado: number;
+  inicios: number;
+  vistas: number;
+  remates_vistos: number;
+  guardados: number;
+  quitados: number;
+  alertas_activas: number;
+  opiniones: number;
+  serie: PuntoDeLaSerie[];
+  remates: { id: string; title: string; comuna: string | null; vistas: number; la_tiene_guardada: boolean }[];
 }
 
 // Los botones de período. "texto" va después de "en" en las pantallas ("nuevas en esta semana").
