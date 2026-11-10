@@ -8,6 +8,12 @@ import "./DescargarAppPage.css";
 // La API dice si hay una app publicada y dónde se descarga (GET /descargas/android). La publica
 // "npm run android:apk" en la carpeta HouseGreenM.
 
+// La APK también está en Google Drive (enlace de descarga directa). El botón y el código QR usan este enlace,
+// así se descarga desde cualquier celular, también con datos móviles. Para subir una APK nueva: en Drive,
+// clic derecho en HouseGreen.apk > Administrar versiones > Subir nueva versión (el enlace y el QR no cambian).
+// Si se deja vacío (""), la página vuelve a usar la APK que entrega la API.
+const APK_EN_DRIVE: string = "https://drive.google.com/uc?export=download&id=1J8k0fsO5zxWM0YmNoXSilesek_8NBrCM";
+
 interface AppAndroid {
   disponible: boolean;
   url: string | null;
@@ -18,8 +24,10 @@ interface AppAndroid {
 
 const PASOS = [
   "Escanea el código con la cámara del celular, o abre esta página en el celular y toca Descargar.",
-  // Paso A20: el nombre lleva la fecha, así no se confunde con una descarga anterior
-  "Abre la descarga más nueva: HouseGreen con la fecha y hora en el nombre (por ejemplo, HouseGreen-20261109-1940.apk).",
+  // Desde Drive la APK llega como HouseGreen.apk; desde la API, con la fecha en el nombre (paso A20)
+  APK_EN_DRIVE
+    ? "Si el navegador avisa que el archivo puede ser dañino, toca Descargar de todas formas y abre HouseGreen.apk."
+    : "Abre la descarga más nueva: HouseGreen con la fecha y hora en el nombre (por ejemplo, HouseGreen-20261109-1940.apk).",
   "Si el celular lo pide, permite instalar apps de esta fuente y vuelve atrás.",
   "Toca Instalar. Si aparece Play Protect, toca Más detalles e Instalar de todas formas: la app todavía no está en Google Play.",
   "Abre HouseGreen y entra con tu misma cuenta de la página.",
@@ -60,6 +68,9 @@ export function DescargarAppPage() {
     };
   }, []);
 
+  // Con el enlace de Drive la descarga no depende de la API: el botón y el QR se muestran siempre
+  const enlace = APK_EN_DRIVE || (app?.disponible ? app.url : null);
+
   return (
     <article className="descarga">
       <header className="descarga-cabecera">
@@ -71,10 +82,10 @@ export function DescargarAppPage() {
         </p>
       </header>
 
-      {error && <p className="descarga-aviso is-error">No se pudo consultar la app: {error}</p>}
-      {!error && !app && <p className="descarga-aviso">Cargando...</p>}
+      {error && !enlace && <p className="descarga-aviso is-error">No se pudo consultar la app: {error}</p>}
+      {!error && !app && !enlace && <p className="descarga-aviso">Cargando...</p>}
 
-      {app && !app.disponible && (
+      {app && !app.disponible && !enlace && (
         <section className="descarga-tarjeta descarga-pronto">
           <h2>Muy pronto</h2>
           <p>La app para Android todavía no está publicada. Mientras tanto, puedes usar HouseGreen aquí en la página.</p>
@@ -87,13 +98,13 @@ export function DescargarAppPage() {
         </section>
       )}
 
-      {app?.disponible && app.url && (
+      {enlace && (
         <>
           <div className="descarga-opciones">
             <section className="descarga-celular" aria-labelledby="descarga-celular-titulo">
               <h2 id="descarga-celular-titulo">En el celular</h2>
               <p>Abre esta página en tu celular Android y toca el botón.</p>
-              <a className="descarga-boton" href={app.url} download>
+              <a className="descarga-boton" href={enlace} download>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path
                     d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14"
@@ -107,9 +118,9 @@ export function DescargarAppPage() {
                 Descargar en el celular
               </a>
               <p className="descarga-detalle">
-                HouseGreen.apk{app.tamano ? ` · ${megas(app.tamano)}` : ""} · Android 7 o más nuevo
+                HouseGreen.apk{app?.tamano ? ` · ${megas(app.tamano)}` : ""} · Android 7 o más nuevo
               </p>
-              {app.actualizada && <p className="descarga-detalle">Actualizada el {fecha(app.actualizada)}</p>}
+              {app?.actualizada && <p className="descarga-detalle">Actualizada el {fecha(app.actualizada)}</p>}
             </section>
 
             <section className="descarga-tarjeta descarga-qr" aria-labelledby="descarga-qr-titulo">
@@ -117,7 +128,7 @@ export function DescargarAppPage() {
               {/* La misma librería del QR de la verificación en dos pasos (Perfil). marginSize: el borde blanco que
                   la cámara necesita para encontrar el código */}
               <QRCodeSVG
-                value={app.url}
+                value={enlace}
                 size={220}
                 level="M"
                 marginSize={4}
@@ -136,10 +147,10 @@ export function DescargarAppPage() {
                 <li key={paso}>{paso}</li>
               ))}
             </ol>
-            {app.red_local && (
+            {app?.red_local && (
               <p className="descarga-nota">
                 Por ahora HouseGreen funciona desde un computador de esta red: el celular tiene que estar conectado al
-                mismo Wi-Fi para descargar y usar la app.
+                mismo Wi-Fi para {APK_EN_DRIVE ? "usar" : "descargar y usar"} la app.
               </p>
             )}
             <p className="descarga-nota">Por ahora la app es solo para Android.</p>
