@@ -45,4 +45,9 @@ export class AppComponent {
   cerrarSesion(): Promise<void> {
     return this.sesion.salir();
   }
+
+  // Paso A21: al abrir el menú se revisa si llegó algo nuevo, sin tener que entrar a Alertas
+  revisarAvisos(): void {
+    void this.avisos.revisar();
+  }
 }

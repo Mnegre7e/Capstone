@@ -1,6 +1,7 @@
 <ion-app>
   <!-- Paso A2: el menú sale por la derecha, donde está el botón ☰ (como el menú de la web) -->
-  <ion-menu contentId="main-content" side="end" type="overlay">
+  <!-- Paso A21: al abrirlo se revisa si llegaron avisos o anuncios nuevos (el número rojo de Alertas) -->
+  <ion-menu contentId="main-content" side="end" type="overlay" (ionWillOpen)="revisarAvisos()">
     <ion-header class="ion-no-border">
       <ion-toolbar class="menu-toolbar">
         <ion-title>HouseGreen</ion-title>
