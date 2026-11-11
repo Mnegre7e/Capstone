@@ -1,11 +1,15 @@
 # Correos de HouseGreen (paso 99): se envían desde el Gmail del proyecto con su contraseña de aplicación.
 # Si el .env no tiene las claves del correo, no se envía nada: el correo se muestra en la terminal.
 # Así cualquier integrante puede trabajar sin las claves del Gmail.
+# Paso A22: en Render (plan gratis) no se puede usar Gmail directo (bloquea los puertos de correo). Ahí los
+# correos salen por un "puente": un script de Google del mismo Gmail (correo-google/Codigo.gs) al que la API
+# le pide enviar el correo por HTTPS. Se usa si están CORREO_PUENTE_URL y CORREO_PUENTE_CLAVE.
 import os
 import smtplib
 from email.message import EmailMessage
 from email.utils import formataddr
 
+import requests
 from dotenv import load_dotenv
 
 # Lee el .env aquí también, por si este archivo se carga antes que database.py
@@ -23,9 +27,31 @@ def _credenciales() -> tuple[str, str]:
     return usuario, clave
 
 
+def _puente() -> tuple[str, str]:
+    # Paso A22: la dirección del script de Google (termina en /exec) y la clave que el script pide
+    return (os.getenv("CORREO_PUENTE_URL") or "").strip(), (os.getenv("CORREO_PUENTE_CLAVE") or "").strip()
+
+
 def correo_configurado() -> bool:
     usuario, clave = _credenciales()
-    return bool(usuario and clave)
+    url, clave_puente = _puente()
+    return bool(usuario and clave) or bool(url and clave_puente)
+
+
+def _enviar_por_el_puente(url: str, clave: str, destinatario: str, asunto: str, texto: str) -> None:
+    """Paso A22: le pide al script de Google que envíe el correo. Si no lo envía, lanza un error (como Gmail)."""
+    respuesta = requests.post(
+        url,
+        json={"clave": clave, "para": destinatario, "asunto": asunto, "texto": texto, "nombre": NOMBRE_REMITENTE},
+        timeout=30,
+    )
+    try:
+        datos = respuesta.json()
+    except ValueError:
+        datos = {}
+    if respuesta.status_code != 200 or datos.get("ok") is not True:
+        motivo = datos.get("error") or f"respuesta {respuesta.status_code}"
+        raise RuntimeError(f"el puente de correo no envió el correo ({motivo})")
 
 # Paso 116: dominios reservados para pruebas (no son de nadie). A esas direcciones nunca se envía nada:
 # así las cuentas de prueba como jose@example.com no hacen que Gmail rebote correos.
@@ -44,6 +70,12 @@ def enviar_correo(destinatario: str, asunto: str, texto: str) -> bool:
     if es_correo_de_prueba(destinatario):
         print(f"Correo NO enviado a {destinatario}: es una dirección de prueba.")
         return False
+
+    # Paso A22: en Render, por el puente de Google
+    url, clave_puente = _puente()
+    if url and clave_puente:
+        _enviar_por_el_puente(url, clave_puente, destinatario, asunto, texto)
+        return True
 
     mensaje = EmailMessage()
     mensaje["From"] = formataddr((NOMBRE_REMITENTE, usuario or "sin-configurar@housegreen"))

@@ -12,7 +12,8 @@
     "lint": "ng lint",
     "android": "node scripts/android.mjs",
     "android:apk": "node scripts/android.mjs --apk",
-    "android:qr": "node scripts/android.mjs --qr"
+    "android:qr": "node scripts/android.mjs --qr",
+    "android:nube": "node scripts/android.mjs --apk --api https://housegreen-capstone-api.onrender.com"
   },
   "private": true,
   "dependencies": {

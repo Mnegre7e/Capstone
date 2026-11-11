@@ -1,0 +1,66 @@
+# Paso A22: HouseGreen publicado en internet, en Render (plan gratis): la API y la página web.
+# Así la app funciona desde cualquier red sin la API del computador, y lo que se hace en la app se ve en la web
+# (las dos usan la misma base de Neon que la API de los computadores del equipo).
+#
+# Para crearlo: https://dashboard.render.com > New > Blueprint > el repositorio Capstone.
+# Render pide los valores marcados con "sync: false": se copian del .env de housegreen-api y del puente de
+# correo. NUNCA se escriben aquí, porque este archivo se sube a GitHub.
+# Después, cada push a main que cambie housegreen-api o housegreen-web los vuelve a publicar solos.
+services:
+  # ---------------- La API ----------------
+  - type: web
+    name: housegreen-capstone-api
+    runtime: python
+    plan: free
+    region: ohio # junto a la base de Neon (us-east-2): las consultas son más rápidas
+    rootDir: HouseGreen-PaginaWeb/housegreen-api
+    buildCommand: pip install -r requirements.txt
+    # --proxy-headers y --forwarded-allow-ips: Render atiende con HTTPS y le pasa la petición a la API;
+    # así la API sabe que su dirección es https://... (la usa la vuelta de Webpay a la app del teléfono)
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips '*'
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: TZ
+        value: America/Santiago
+      # La página web publicada (para que la API la deje conectarse y para la vuelta de Webpay)
+      - key: WEB_URL
+        value: https://housegreen-capstone-web.onrender.com
+      # Los mismos valores del .env de housegreen-api
+      - key: DATABASE_URL_NEON
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: TWO_FA_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      # Render gratis no deja enviar correos por Gmail (SMTP): salen por el puente de Google
+      # (housegreen-api/correo-google/Codigo.gs). La dirección termina en /exec.
+      - key: CORREO_PUENTE_URL
+        sync: false
+      - key: CORREO_PUENTE_CLAVE
+        sync: false
+
+  # ---------------- La página web ----------------
+  - type: web
+    name: housegreen-capstone-web
+    runtime: static
+    rootDir: HouseGreen-PaginaWeb/housegreen-web
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # La API publicada (la web del computador sigue usando http://localhost:8000)
+      - key: VITE_API_URL
+        value: https://housegreen-capstone-api.onrender.com
+    # La web tiene sus propias rutas (/login, /propiedades/...): todas abren index.html
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

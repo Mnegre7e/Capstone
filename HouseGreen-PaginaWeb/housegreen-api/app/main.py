@@ -1,3 +1,6 @@
+import os
+
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -28,6 +31,14 @@ ORIGENES_PERMITIDOS = [
     "https://localhost",  # la app instalada en Android (Capacitor, con su configuración por defecto)
     "http://localhost",  # paso A15: la app instalada en Android, como la arma HouseGreenM (androidScheme http)
 ]
+
+# Paso A22: la web publicada en Render (WEB_URL) y otras direcciones que se quieran agregar
+# (ORIGENES_EXTRA, separadas por coma). En los computadores del equipo no hace falta ninguna.
+load_dotenv()
+for origen in [os.getenv("WEB_URL") or "", *(os.getenv("ORIGENES_EXTRA") or "").split(",")]:
+    origen = origen.strip().rstrip("/")
+    if origen and origen not in ORIGENES_PERMITIDOS:
+        ORIGENES_PERMITIDOS.append(origen)
 
 app.add_middleware(
     CORSMiddleware,

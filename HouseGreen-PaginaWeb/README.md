@@ -107,7 +107,7 @@ npm run dev
 ```
 
 Queda en `http://localhost:5173`. La web busca la API en `http://localhost:8000`
-(se cambia en `src/api/client.ts`).
+(la web publicada en Render usa `VITE_API_URL`, ver `src/api/client.ts` y el paso A22).
 
 ### Descargar la app para Android desde la web (paso A16)
 
@@ -120,6 +120,27 @@ La web tiene la página **Descarga la app** (en el pie de página, o `http://loc
 2. **Encender la API para el celular:** `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`. El celular la
    descarga y la usa desde este computador, así que tiene que estar en la misma red Wi-Fi.
 3. Si el computador cambia de red (otra IP), vuelve a correr `npm run android:apk`: el QR se actualiza solo.
+
+### HouseGreen en internet: Render (paso A22)
+
+La API y la web también están publicadas en [Render](https://render.com) (plan gratis), con la misma base de
+Neon: lo que se hace en la app se ve en la web, y la app funciona desde cualquier red (Wi-Fi o datos móviles)
+sin encender la API en un computador.
+
+| Servicio | Dirección |
+|---|---|
+| API | https://housegreen-capstone-api.onrender.com |
+| Web | https://housegreen-capstone-web.onrender.com |
+
+- **Cómo se publica:** con el archivo `render.yaml` de la raíz del repositorio (Render > New > Blueprint). Los
+  valores secretos se escriben en Render, nunca en el repositorio. Cada push a `main` vuelve a publicar.
+- **Correos:** Render gratis no deja enviar con Gmail directo. Salen por un script de Google del Gmail del
+  proyecto (`housegreen-api/correo-google/Codigo.gs`), con `CORREO_PUENTE_URL` y `CORREO_PUENTE_CLAVE`.
+- **La app:** en la carpeta `HouseGreenM`, `npm run android:nube` crea `HouseGreen.apk` para la API publicada.
+  Se sube a Google Drive sobre la anterior (clic derecho > Administrar versiones), así el botón y el QR de la
+  página **Descarga la app** no cambian.
+- **Si tarda:** la API gratis se duerme tras 15 minutos sin uso y despierta en cerca de un minuto. Mientras,
+  la web y la app muestran "Conectando con HouseGreen…".
 
 ## 3. Carga de los remates
 
@@ -419,10 +440,10 @@ y ubicación en el mapa), catálogo, semáforo con sus cuatro factores calculado
 mapa, plan Premium con Webpay (ambiente de integración), favoritos, alertas con sus avisos, perfil,
 verificación en dos pasos, recuperar la contraseña por correo, opiniones, anuncios (también por correo),
 reportes del analista y del administrador con buscador, y los apartados del administrador.
+La web y la API están publicadas en Render (paso A22) y la app para Android funciona desde cualquier red.
 
 Pendiente:
 
-- Publicar la web y la API en internet (hoy funcionan en un computador del equipo).
 - Pruebas automáticas de la API (PyTest).
 - Cobrar de verdad: requiere contrato con Transbank (cambiar a `produccion`).
 - Autorización escrita de rematesinmobiliarios.cl para reproducir su contenido.

@@ -1,0 +1,13 @@
+# Paso A22: lo que nunca se sube a GitHub desde la raíz del proyecto.
+# La carpeta con las claves para Render (solo existe en el computador de quien publica)
+publicar-render/
+# Claves de la API (en cualquier carpeta)
+.env
+# Archivos del Mac y de VS Code
+.DS_Store
+/.vscode/
+# Lo que se instala solo
+node_modules/
+venv/
+.venv/
+__pycache__/

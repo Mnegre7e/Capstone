@@ -13,6 +13,7 @@ import { AdminPanelPage } from "./pages/admin/AdminPanelPage";
 import { AdminUsuariosPage } from "./pages/admin/AdminUsuariosPage";
 import { AdminAnunciosPage } from "./pages/admin/AdminAnunciosPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AvisoConectando } from "./components/AvisoConectando"; // paso A22
 import { useAuth } from "./context/AuthContext";
 import { useAlerts } from "./context/AlertsContext";
 import { useAnuncios } from "./context/AnunciosContext";
@@ -330,6 +331,9 @@ function App() {
           <Link to="/privacidad">Política de privacidad</Link>
         </footer>
       )}
+
+      {/* Paso A22: "Conectando con HouseGreen…" si la API publicada está despertando */}
+      <AvisoConectando />
     </div>
   );
 }

@@ -29,9 +29,11 @@ export class SesionService {
       return;
     }
     try {
-      // Paso A4: al abrir se espera a lo más 10 segundos; si la API no contesta, se muestra el login
-      // (antes la app quedaba en blanco esperando)
-      this.usuario.set(await this.api.get<Usuario>('/auth/me', 10));
+      // Paso A4: al abrir se espera un tiempo máximo; si la API no contesta, se muestra el login
+      // (antes la app quedaba en blanco esperando).
+      // Paso A22: 75 segundos (antes 10), lo que tarda en despertar la API publicada en Render. Mientras,
+      // se ve la pantalla "Conectando con HouseGreen…" (src/index.html).
+      this.usuario.set(await this.api.get<Usuario>('/auth/me', 75));
     } catch (error) {
       // Solo se borra si la API dice que el token ya no sirve; si la API no respondió, se conserva
       if (error instanceof ErrorDeApi && (error.status === 401 || error.status === 403)) {

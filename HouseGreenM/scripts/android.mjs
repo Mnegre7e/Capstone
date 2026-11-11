@@ -14,6 +14,12 @@
 //
 // Paso A15b: para crear la APK se busca un Java 17 a 24 (Gradle 8.14 no funciona con el Java 25 que traen las
 // versiones nuevas de Android Studio). Si no hay ninguno, se descarga Java 21 una sola vez en ~/.housegreen/java-21.
+//
+// Paso A22: la app conectada a la API publicada en internet (Render), que funciona desde cualquier red y sin
+// encender la API en este computador:
+//   npm run android:nube   crea HouseGreen.apk para https://housegreen-capstone-api.onrender.com
+//                          (es lo mismo que:  npm run android:apk -- --api https://housegreen-capstone-api.onrender.com)
+// Esa APK se sube a Google Drive (Administrar versiones > Subir nueva versión): la página web la ofrece desde ahí.
 
 import { spawnSync } from 'node:child_process';
 import { once } from 'node:events';
@@ -44,6 +50,8 @@ const PUERTO_API = 8000;
 const PUERTO_QR = 8080;
 const EN_WINDOWS = process.platform === 'win32';
 const IP_VALIDA = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+// Paso A22: la dirección de la API publicada (siempre https, por ejemplo https://housegreen-capstone-api.onrender.com)
+const API_PUBLICADA_VALIDA = /^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)+(:\d+)?\/?$/i;
 // Paso A15b: Gradle 8.14 (el que usa Capacitor 8) funciona con Java 17 a 24, y las versiones nuevas de
 // Android Studio traen Java 25. Si el computador no tiene otro Java, se descarga Java 21 una sola vez aquí:
 const JAVA_MINIMO = 17;
@@ -131,8 +139,26 @@ function direccionDeLaApp() {
   return encontrado ? encontrado[1] : null;
 }
 
-async function revisarLaApi(ip) {
-  const direccion = `http://${ip}:${PUERTO_API}`;
+async function revisarLaApi(direccion, publicada) {
+  // Paso A22: la API publicada en Render (plan gratis) se duerme tras 15 minutos sin uso y tarda cerca de un
+  // minuto en despertar: se le da ese tiempo. Si no responde, la app se arma igual.
+  if (publicada) {
+    console.log(`Despertando la API publicada en ${direccion} (puede tardar hasta un minuto)...`);
+    try {
+      const respuesta = await fetch(`${direccion}/`, { signal: AbortSignal.timeout(90000) });
+      console.log(
+        respuesta.ok
+          ? `✔ La API publicada responde en ${direccion}`
+          : `⚠ La API publicada respondió ${respuesta.status} en ${direccion}. Revisa en Render > housegreen-capstone-api > Logs.`,
+      );
+    } catch {
+      console.log(
+        `⚠ La API publicada NO responde en ${direccion}. Revisa en Render que el servicio esté "Live"\n` +
+          '  (la app se arma igual; esto solo es un aviso)',
+      );
+    }
+    return;
+  }
   try {
     const respuesta = await fetch(`${direccion}/pagos/plan`, { signal: AbortSignal.timeout(4000) });
     if (respuesta.ok) {
@@ -161,14 +187,18 @@ function revisarRequisitos() {
   }
 }
 
-function escribirAmbiente(ip) {
+function escribirAmbiente(direccion, publicada) {
+  const explicacion = publicada
+    ? `// Paso A22: lo escribe "npm run android:nube" (scripts/android.mjs). No se sube a GitHub: es la API publicada
+// en internet (Render), que el teléfono encuentra desde cualquier red.`
+    : `// Paso A15: lo escribe "npm run android" (scripts/android.mjs). No se sube a GitHub: es la dirección de
+// ESTE computador en la red Wi-Fi, donde el teléfono encuentra la API. Cambia si cambias de red.`;
   writeFileSync(
     AMBIENTE,
-    `// Paso A15: lo escribe "npm run android" (scripts/android.mjs). No se sube a GitHub: es la dirección de
-// ESTE computador en la red Wi-Fi, donde el teléfono encuentra la API. Cambia si cambias de red.
+    `${explicacion}
 export const environment = {
   production: true,
-  apiUrl: 'http://${ip}:${PUERTO_API}',
+  apiUrl: '${direccion}',
   // Paso A20: cuándo se armó (se ve en el menú de la app: "Versión del 9 nov 2026, 19:40")
   compilada: '${new Date().toISOString()}',
 };
@@ -364,7 +394,7 @@ async function crearApk() {
  * Paso A16: deja la APK en la API (housegreen-api/descargas) para que la página web la ofrezca en
  * "Descarga la app" (botón y código QR). La API la entrega en http://IP:8000/descargas/android/HouseGreen.apk.
  */
-function publicarEnLaWeb(ip) {
+function publicarEnLaWeb(direccion) {
   if (!existsSync(join(CARPETA_API, 'app', 'main.py'))) {
     console.log('  (No encontré housegreen-api junto a HouseGreenM: la APK no quedó en la página web.)');
     console.log('  Para pasarla al teléfono con un código QR:  npm run android:qr');
@@ -373,7 +403,7 @@ function publicarEnLaWeb(ip) {
   mkdirSync(DESCARGAS, { recursive: true });
   copyFileSync(APK, join(DESCARGAS, 'HouseGreen.apk'));
   const datos = {
-    api: `http://${ip}:${PUERTO_API}`,
+    api: direccion,
     creada: new Date().toISOString(),
     tamano: statSync(APK).size,
   };
@@ -382,10 +412,19 @@ function publicarEnLaWeb(ip) {
   console.log('  Se descarga desde la API, así que la API tiene que estar encendida con --host 0.0.0.0.');
 }
 
-async function armar(ip, conApk) {
+/** Paso A22: lo que hay que hacer con la APK de la API publicada (no se deja en housegreen-api/descargas). */
+function explicarDrive() {
+  console.log('\nAhora súbela a Google Drive, sobre la que ya está (así el enlace y el QR de la página web no cambian):');
+  console.log('  1. En drive.google.com, clic derecho en HouseGreen.apk > Administrar versiones > Subir nueva versión.');
+  console.log('  2. Elige HouseGreenM/HouseGreen.apk (esta carpeta).');
+  console.log('  3. En el teléfono, descárgala desde la página web (pie de página > "Descarga la app") e instálala.');
+  console.log('     Funciona con Wi-Fi o datos móviles, sin encender la API en este computador.');
+}
+
+async function armar(direccion, conApk, publicada) {
   revisarRequisitos();
-  await revisarLaApi(ip);
-  escribirAmbiente(ip);
+  await revisarLaApi(direccion, publicada);
+  escribirAmbiente(direccion, publicada);
   correr('npx', ['ng', 'build', '--configuration', 'android']);
   if (!existsSync(ANDROID)) {
     correr('npx', ['cap', 'add', 'android']);
@@ -393,11 +432,15 @@ async function armar(ip, conApk) {
   ajustarAndroid();
   correr('npx', ['cap', 'sync', 'android']);
 
-  console.log(`\n✔ La app quedó armada para conectarse a la API en http://${ip}:${PUERTO_API}`);
+  console.log(`\n✔ La app quedó armada para conectarse a la API en ${direccion}`);
   if (conApk) {
     await crearApk();
     console.log(`\n✔ Se creó HouseGreen.apk (${megas(statSync(APK).size)}) en la carpeta HouseGreenM.`);
-    publicarEnLaWeb(ip);
+    if (publicada) {
+      explicarDrive();
+    } else {
+      publicarEnLaWeb(direccion);
+    }
   } else {
     console.log('  Para abrirla en Android Studio:  npx cap open android');
     console.log('  Para crear la APK sin Android Studio:  npm run android:apk');
@@ -442,7 +485,11 @@ function paginaDeDescarga(tamano) {
     <li>Si el teléfono lo pide, permite <b>instalar apps de esta fuente</b> y vuelve atrás.</li>
     <li>Toca <b>Instalar</b>. Si aparece Play Protect, toca <b>Más detalles</b> y <b>Instalar de todas formas</b>.</li>
   </ol>
-  <p class="nota">La app se conecta a la API de este computador: el teléfono tiene que estar en la misma red Wi-Fi.</p>
+  <p class="nota">${
+    IP_VALIDA.test(direccionDeLaApp() ?? '')
+      ? 'La app se conecta a la API de este computador: el teléfono tiene que estar en la misma red Wi-Fi.'
+      : 'La app se conecta a HouseGreen en internet: funciona con Wi-Fi o datos móviles.'
+  }</p>
 </main>
 </body>
 </html>`;
@@ -463,7 +510,8 @@ function compartirConQr(ip) {
     fallar('Todavía no existe HouseGreen.apk. Créala primero con:  npm run android:apk');
   }
   const deLaApp = direccionDeLaApp();
-  if (deLaApp && deLaApp !== ip) {
+  // Paso A22: si la app se armó para la API publicada (no es una IP), no importa en qué red esté el computador
+  if (deLaApp && IP_VALIDA.test(deLaApp) && deLaApp !== ip) {
     console.log(
       `⚠ La app se armó para la API en ${deLaApp}, pero ahora este computador está en ${ip}.\n` +
         '  Si cambiaste de red, vuelve a crearla con:  npm run android:apk',
@@ -511,14 +559,36 @@ function compartirConQr(ip) {
 
 // ---------- Inicio ----------
 
-const argumentos = process.argv.slice(2);
+// Paso A22: "--api https://..." (o "--api=https://...") arma la app para la API publicada en internet
+const argumentos = [];
+let apiPublicada = null;
+for (let i = 2; i < process.argv.length; i++) {
+  const argumento = process.argv[i];
+  if (argumento === '--api') {
+    apiPublicada = process.argv[++i] ?? '';
+  } else if (argumento.startsWith('--api=')) {
+    apiPublicada = argumento.slice('--api='.length);
+  } else {
+    argumentos.push(argumento);
+  }
+}
 const desconocidos = argumentos.filter((a) => a !== '--apk' && a !== '--qr' && !IP_VALIDA.test(a));
 if (desconocidos.length > 0) {
-  fallar(`No entiendo: ${desconocidos.join(' ')}. Usa: npm run android, npm run android:apk o npm run android:qr`);
+  fallar(
+    `No entiendo: ${desconocidos.join(' ')}. Usa: npm run android, npm run android:apk, npm run android:nube o npm run android:qr`,
+  );
 }
-const ip = elegirDireccion(argumentos.find((a) => IP_VALIDA.test(a)));
+if (apiPublicada !== null && !API_PUBLICADA_VALIDA.test(apiPublicada)) {
+  fallar(
+    `"${apiPublicada}" no es la dirección de una API publicada. Tiene que empezar con https://\n` +
+      '  Por ejemplo:  npm run android:apk -- --api https://housegreen-capstone-api.onrender.com',
+  );
+}
 if (argumentos.includes('--qr')) {
-  compartirConQr(ip);
+  compartirConQr(elegirDireccion(argumentos.find((a) => IP_VALIDA.test(a))));
+} else if (apiPublicada !== null) {
+  await armar(apiPublicada.replace(/\/+$/, ''), argumentos.includes('--apk'), true);
 } else {
-  await armar(ip, argumentos.includes('--apk'));
+  const ip = elegirDireccion(argumentos.find((a) => IP_VALIDA.test(a)));
+  await armar(`http://${ip}:${PUERTO_API}`, argumentos.includes('--apk'), false);
 }

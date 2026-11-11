@@ -19,8 +19,10 @@ export class ErrorDeApi extends Error {
 
 const ERROR_INESPERADO = 'Ocurrió un error inesperado. Inténtalo de nuevo.';
 
-// Paso A4: si la API no contesta en este tiempo, se deja de esperar (así la app nunca queda colgada)
-const SEGUNDOS_DE_ESPERA = 30;
+// Paso A4: si la API no contesta en este tiempo, se deja de esperar (así la app nunca queda colgada).
+// Paso A22: 90 segundos (antes 30): la API publicada en Render (plan gratis) se duerme tras 15 minutos sin uso
+// y tarda cerca de un minuto en despertar con la primera petición.
+const SEGUNDOS_DE_ESPERA = 90;
 
 /** El mensaje que se le muestra a la persona cuando algo falla. */
 export function mensajeDeError(error: unknown): string {
@@ -53,7 +55,15 @@ export class ApiService {
   private http = inject(HttpClient);
   readonly url = environment.apiUrl;
 
-  /** segundos: cuánto esperar la respuesta (por defecto 30). */
+  /**
+   * Paso A22: al abrir la app se "despierta" la API publicada (si estaba dormida), sin esperar la respuesta.
+   * Así, mientras la persona escribe su correo y contraseña, la API ya se está levantando.
+   */
+  despertar(): void {
+    fetch(this.url + '/').catch(() => undefined);
+  }
+
+  /** segundos: cuánto esperar la respuesta (por defecto 90). */
   get<T>(ruta: string, segundos = SEGUNDOS_DE_ESPERA): Promise<T> {
     return this.pedir(this.http.get<T>(this.url + ruta), segundos);
   }

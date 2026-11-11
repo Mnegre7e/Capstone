@@ -1,4 +1,31 @@
-export const API_URL = "http://localhost:8000";
+// Paso A22: la dirección de la API. En el computador es http://localhost:8000; la web publicada en Render
+// usa la API publicada (Render la entrega en VITE_API_URL al armar la web, ver render.yaml).
+export const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/+$/, "");
+
+// Paso A22: si la API tarda (la publicada se duerme y despierta en ~1 minuto), se avisa en la pantalla
+// (components/AvisoConectando.tsx escucha este evento: true = mostrar el aviso, false = esconderlo)
+export const EVENTO_CONECTANDO = "housegreen-conectando";
+const SEGUNDOS_PARA_AVISAR = 4;
+let pedidosLentos = 0;
+
+function avisarSiTarda(): () => void {
+  let lento = false;
+  const temporizador = window.setTimeout(() => {
+    lento = true;
+    pedidosLentos++;
+    window.dispatchEvent(new CustomEvent(EVENTO_CONECTANDO, { detail: true }));
+  }, SEGUNDOS_PARA_AVISAR * 1000);
+  // Al llegar la respuesta (o fallar): se deja de esperar y, si ya no queda ninguna lenta, se esconde el aviso
+  return () => {
+    window.clearTimeout(temporizador);
+    if (lento) {
+      pedidosLentos--;
+      if (pedidosLentos === 0) {
+        window.dispatchEvent(new CustomEvent(EVENTO_CONECTANDO, { detail: false }));
+      }
+    }
+  };
+}
 
 // Guardamos el token en una variable simple en memoria, y también en localStorage
 // para que la sesión sobreviva si recargas la página.
@@ -56,7 +83,13 @@ async function apiFetch(path: string, options: RequestInit = {}) {
   // Paso 102: la API anota desde dónde se hizo cada acción (la app enviará "app")
   headers["X-Plataforma"] = "web";
 
-  const respuesta = await fetch(`${API_URL}${path}`, { ...options, headers });
+  const terminar = avisarSiTarda(); // paso A22
+  let respuesta: Response;
+  try {
+    respuesta = await fetch(`${API_URL}${path}`, { ...options, headers });
+  } finally {
+    terminar();
+  }
 
   if (!respuesta.ok) {
     // Intentamos leer el mensaje de error que manda FastAPI ({"detail": "..."})

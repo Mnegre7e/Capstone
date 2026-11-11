@@ -21,7 +21,65 @@
 </head>
 
 <body>
-  <app-root></app-root>
+  <!-- Paso A22: mientras la app revisa la sesión con la API publicada (que puede estar despertando, hasta
+       un minuto), se ve esta pantalla. Aparece después de 1,5 segundos (si la API responde rápido, ni se
+       nota) y desaparece sola cuando la app muestra su primera pantalla. -->
+  <app-root>
+    <div class="hg-conectando" role="status">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <rect width="64" height="64" rx="14" fill="#0f3d30" />
+        <circle cx="32" cy="15" r="7.5" fill="#ef4444" />
+        <circle cx="32" cy="32" r="7.5" fill="#facc15" />
+        <circle cx="32" cy="49" r="7.5" fill="#22c55e" />
+      </svg>
+      <p>Conectando con HouseGreen…</p>
+      <p class="hg-conectando-nota">Si estuvo un rato sin uso, puede tardar hasta un minuto.</p>
+    </div>
+  </app-root>
+  <style>
+    .hg-conectando {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: #f4f7f5;
+      color: #0f3d30;
+      font-family: system-ui, -apple-system, Roboto, sans-serif;
+      text-align: center;
+      opacity: 0;
+      animation: hg-conectando-aparece 0.3s ease 1.5s forwards;
+    }
+    .hg-conectando svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 18px;
+      animation: hg-conectando-latido 1.4s ease-in-out 1.5s infinite;
+    }
+    .hg-conectando p {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .hg-conectando .hg-conectando-nota {
+      margin-top: 8px;
+      color: #4e5b56;
+      font-size: 14px;
+      font-weight: 400;
+    }
+    @keyframes hg-conectando-aparece {
+      to {
+        opacity: 1;
+      }
+    }
+    @keyframes hg-conectando-latido {
+      50% {
+        transform: scale(0.92);
+      }
+    }
+  </style>
 </body>
 
 </html>

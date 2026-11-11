@@ -46,8 +46,9 @@ def _ambiente() -> str:
 
 
 def _api_url() -> str:
-    # Dirección de esta API, a la que Transbank devuelve a la persona después de pagar
-    return (os.getenv("API_URL") or "http://localhost:8000").rstrip("/")
+    # Dirección de esta API, a la que Transbank devuelve a la persona después de pagar.
+    # Paso A22: publicada en Render, la dirección la entrega Render en RENDER_EXTERNAL_URL.
+    return (os.getenv("API_URL") or os.getenv("RENDER_EXTERNAL_URL") or "http://localhost:8000").rstrip("/")
 
 
 def _web_url() -> str:

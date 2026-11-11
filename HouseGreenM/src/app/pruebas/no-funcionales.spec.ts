@@ -167,7 +167,7 @@ describe('Pruebas no funcionales de la app', () => {
   it('PA-27 · Fiabilidad: si la API no contesta a tiempo, la app deja de esperar y avisa', async () => {
     const api = TestBed.inject(ApiService);
 
-    const pedido = api.get('/propiedades', 0.05); // en la app son 30 segundos; aquí 50 milisegundos
+    const pedido = api.get('/propiedades', 0.05); // en la app son 90 segundos; aquí 50 milisegundos
     const pendiente = http.expectOne(`${API}/propiedades`);
     const error = await errorDe(pedido);
 
