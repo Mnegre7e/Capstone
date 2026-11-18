@@ -113,13 +113,14 @@ Queda en `http://localhost:5173`. La web busca la API en `http://localhost:8000`
 
 La web tiene la página **Descarga la app** (en el pie de página, o `http://localhost:5173/app`) con un botón
 "Descargar en el celular" y un código QR. La app no tiene esta página: la descarga es solo desde la web.
+El botón y el QR descargan la APK desde Google Drive (`APK_EN_DRIVE` en `src/pages/DescargarAppPage.tsx`), así que
+se descarga y se usa desde cualquier red (Wi-Fi o datos móviles).
 
-1. **Publicarla:** en la carpeta `HouseGreenM` corre `npm run android:apk`. Crea la app (`HouseGreen.apk`, con
-   el ícono del semáforo) y la deja en `housegreen-api/descargas` (no se sube a GitHub). Mientras no se
-   publique, la página dice "Muy pronto".
-2. **Encender la API para el celular:** `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`. El celular la
-   descarga y la usa desde este computador, así que tiene que estar en la misma red Wi-Fi.
-3. Si el computador cambia de red (otra IP), vuelve a correr `npm run android:apk`: el QR se actualiza solo.
+1. **Crear la APK:** en la carpeta `HouseGreenM` corre `npm run android:nube`. Crea `HouseGreen.apk` (con el ícono
+   del semáforo) conectada a la API publicada en Render (ver el paso A22, más abajo).
+2. **Publicarla:** en Google Drive, clic derecho en `HouseGreen.apk` > Administrar versiones > Subir nueva versión,
+   y elige el `HouseGreen.apk` de la carpeta `HouseGreenM`. El enlace y el QR no cambian. El archivo debe estar
+   compartido con "Cualquier persona con el enlace".
 
 ### HouseGreen en internet: Render (paso A22)
 

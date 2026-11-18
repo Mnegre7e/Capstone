@@ -19,7 +19,6 @@ interface AppAndroid {
   url: string | null;
   tamano: number | null;
   actualizada: string | null;
-  red_local: boolean;
 }
 
 const PASOS = [
@@ -147,12 +146,8 @@ export function DescargarAppPage() {
                 <li key={paso}>{paso}</li>
               ))}
             </ol>
-            {app?.red_local && (
-              <p className="descarga-nota">
-                Por ahora HouseGreen funciona desde un computador de esta red: el celular tiene que estar conectado al
-                mismo Wi-Fi para {APK_EN_DRIVE ? "usar" : "descargar y usar"} la app.
-              </p>
-            )}
+            {/* Paso 134: ya no se avisa que el celular debe estar en el mismo Wi-Fi: desde el paso A22 la app usa la
+                API publicada en Render y funciona con cualquier red (Wi-Fi o datos móviles) */}
             <p className="descarga-nota">Por ahora la app es solo para Android.</p>
           </section>
         </>
