@@ -1,18 +1,26 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import "./PrivacidadPage.css";
 
 // Paso 125c: política de privacidad (Ley 19.628, actualizada por la Ley 21.719).
 // Se ve con o sin cuenta. Si cambia algo de lo que hace HouseGreen con los datos, hay que cambiar este texto
 // y subir la versión.
+// Paso 130 (versión 1.1): nuevo punto 9, de dónde vienen los datos de los remates (#origen-datos).
 
 const CORREO = "housegreen.capstone@gmail.com";
-const VERSION = "Versión 1.0 · noviembre de 2026";
+const VERSION = "Versión 1.1 · noviembre de 2026";
 
 function Correo() {
   return <a href={`mailto:${CORREO}`}>{CORREO}</a>;
 }
 
 export function PrivacidadPage() {
+  // Paso 130: si se entra con #origen-datos (desde el catálogo, una ficha o el pie), baja hasta ese punto
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (hash) document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [hash]);
+
   return (
     <article className="priv">
       <h1>Política de privacidad</h1>
@@ -29,6 +37,9 @@ export function PrivacidadPage() {
           <li>No vendemos tus datos ni los usamos para publicidad.</li>
           <li>El administrador de HouseGreen ve tu actividad (por ejemplo, qué remates viste); el analista solo ve totales.</li>
           <li>HouseGreen nunca ve ni guarda el número de tu tarjeta: el pago lo hace Webpay.</li>
+          <li>
+            Los datos de los remates vienen de una fuente pública y se muestran tal como ella los publica (punto 9).
+          </li>
           <li>
             Puedes pedir ver, corregir o borrar tus datos escribiendo a <Correo />.
           </li>
@@ -187,13 +198,48 @@ export function PrivacidadPage() {
         <p>El semáforo de HouseGreen evalúa remates, no personas. No usamos tus datos para tomar decisiones automáticas sobre ti.</p>
       </section>
 
+      <section id="origen-datos">
+        <h2>9. Origen de los datos de los remates</h2>
+        <p>
+          Los remates que ves en HouseGreen se obtienen de forma automática, una vez al día, de las publicaciones
+          públicas del sitio Remates Inmobiliarios (
+          <a href="https://www.rematesinmobiliarios.cl" target="_blank" rel="noopener noreferrer">
+            rematesinmobiliarios.cl
+          </a>
+          ): dirección, tipo de propiedad, precio mínimo, fecha, tribunal, rol de la causa y condiciones del remate.
+        </p>
+        <ul>
+          <li>
+            <strong>Sin cambios:</strong> se muestran tal como los publica la fuente. Ni el administrador de
+            HouseGreen puede editarlos. Su exactitud y vigencia son responsabilidad de quien los publica. Cada ficha
+            enlaza a la publicación original: antes de ofertar, revísala junto con las bases del remate en el tribunal.
+          </li>
+          <li>
+            <strong>Análisis propio:</strong> HouseGreen agrega el semáforo de riesgo, la comparación con el
+            precio de mercado de la comuna y la ubicación en el mapa. El precio de mercado es la mediana de los avisos en
+            venta que publica PropiedadesYa (
+            <a href="https://propiedadesya.com" target="_blank" rel="noopener noreferrer">
+              propiedadesya.com
+            </a>
+            ) para cada comuna y tipo de propiedad. Es orientativo y no es asesoría legal ni financiera. El equipo también
+            puede agregar fotos y una descripción a cada remate.
+          </li>
+          <li>
+            <strong>Anuncios judiciales:</strong> HouseGreen no muestra el texto de los anuncios, porque puede incluir el
+            nombre de las partes del juicio. Para leerlo completo, abre la publicación original desde la ficha del
+            remate.
+          </li>
+        </ul>
+        <p>Tratamos estos datos según la Ley 19.628, actualizada por la Ley 21.719.</p>
+      </section>
+
       <section>
-        <h2>9. Menores de edad</h2>
+        <h2>10. Menores de edad</h2>
         <p>HouseGreen está pensado para personas mayores de 18 años.</p>
       </section>
 
       <section>
-        <h2>10. Cambios a esta política</h2>
+        <h2>11. Cambios a esta política</h2>
         <p>Si la cambiamos, publicaremos la nueva versión en esta página y te avisaremos con un anuncio en HouseGreen.</p>
       </section>
     </article>

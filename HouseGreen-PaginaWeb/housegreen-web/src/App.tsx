@@ -131,8 +131,10 @@ function App() {
               <NavLink to="/premium" className={claseDelEnlace}>
                 Premium
               </NavLink>
-              <Link to={`/login?volver=${encodeURIComponent(pathname)}`} className="app-nav-link">
-                Iniciar sesión
+              {/* Paso 132: en los celulares más angostos se lee "Entrar" (el nombre accesible sigue siendo "Iniciar sesión") */}
+              <Link to={`/login?volver=${encodeURIComponent(pathname)}`} className="app-nav-link" aria-label="Iniciar sesión">
+                <span className="app-texto-largo">Iniciar sesión</span>
+                <span className="app-texto-corto">Entrar</span>
               </Link>
               <Link to={`/registro?volver=${encodeURIComponent(pathname)}`} className="app-cuenta-btn">
                 Crear cuenta
@@ -170,8 +172,10 @@ function App() {
               <NavLink to="/perfil" className={claseDelEnlace}>
                 Perfil
               </NavLink>
-              <button onClick={cerrarSesion} className="app-logout-btn">
-                Cerrar sesión
+              {/* Paso 132: en los celulares más angostos se lee "Salir" (el nombre accesible sigue siendo "Cerrar sesión") */}
+              <button onClick={cerrarSesion} className="app-logout-btn" aria-label="Cerrar sesión">
+                <span className="app-texto-largo">Cerrar sesión</span>
+                <span className="app-texto-corto">Salir</span>
               </button>
             </nav>
           )}
@@ -322,13 +326,24 @@ function App() {
           Paso A16: y "Descarga la app" (solo en la web: la app no tiene este enlace) */}
       {!enEntrada && (
         <footer className={`app-pie ${conMenuAbajo ? "is-sobre-menu" : ""}`}>
-          <span>HouseGreen</span>
-          <span aria-hidden="true">·</span>
-          <Link to="/app">Descarga la app</Link>
-          <span aria-hidden="true">·</span>
-          <Link to="/nosotros">Nosotros</Link>
-          <span aria-hidden="true">·</span>
-          <Link to="/privacidad">Política de privacidad</Link>
+          {/* Paso 133: dos grupos. Si no caben en una línea, cada grupo va en su propia línea
+              (antes "Origen de los datos" quedaba solo en la segunda) */}
+          <span className="app-pie-grupo">
+            <span>HouseGreen</span>
+            <span aria-hidden="true">·</span>
+            <Link to="/app">Descarga la app</Link>
+            <span aria-hidden="true">·</span>
+            <Link to="/nosotros">Nosotros</Link>
+          </span>
+          <span className="app-pie-entre" aria-hidden="true">
+            ·
+          </span>
+          <span className="app-pie-grupo">
+            <Link to="/privacidad">Política de privacidad</Link>
+            <span aria-hidden="true">·</span>
+            {/* Paso 130: de dónde vienen los remates */}
+            <Link to="/privacidad#origen-datos">Origen de los datos</Link>
+          </span>
         </footer>
       )}
 

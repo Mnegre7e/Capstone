@@ -90,7 +90,7 @@
 
 .property-card-address {
   margin: 2px 0 0;
-  font-size: 13px;
+  font-size: 14px;
   color: #737373;
   white-space: nowrap;
   overflow: hidden;
@@ -99,7 +99,7 @@
 
 .property-card-label {
   margin: 12px 0 0;
-  font-size: 12px;
+  font-size: 14px;
   color: #737373;
 }
 
@@ -118,7 +118,7 @@
 }
 
 .property-card-m2 {
-  font-size: 13px;
+  font-size: 14px;
   color: #525252;
 }
 
@@ -133,7 +133,7 @@
   padding: 4px 10px;
   border-radius: 8px;
   background-color: #f5f5f4;
-  font-size: 13px;
+  font-size: 14px;
   color: #404040;
 }
 
@@ -149,7 +149,7 @@
   align-items: center;
   padding-top: 12px;
   border-top: 1px solid #f0f0ef;
-  font-size: 13px;
+  font-size: 14px;
   color: #737373;
 }
 

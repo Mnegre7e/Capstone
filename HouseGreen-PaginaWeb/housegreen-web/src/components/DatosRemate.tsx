@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/client";
+import { OrigenDatos } from "./OrigenDatos";
 import "./DatosRemate.css";
 
 // Paso 66: datos del remate que el scraper leyó de la ficha del sitio de origen
@@ -16,7 +17,6 @@ interface Remate {
   payment_term: string | null;
   requirements: string | null;
   conditions: string | null;
-  announcement: string | null;
   observations: string | null;
   source_url: string | null;
 }
@@ -56,6 +56,7 @@ export function DatosRemate({ propertyId }: { propertyId: string }) {
   if (remate.observations) textos.push({ titulo: "Observaciones", texto: remate.observations });
 
   return (
+    <>
     <div className="detail-seccion">
       <h2>Datos del remate</h2>
 
@@ -77,25 +78,13 @@ export function DatosRemate({ propertyId }: { propertyId: string }) {
         </div>
       ))}
 
-      {/* El anuncio es largo: queda cerrado y se abre al hacer clic */}
-      {remate.announcement && (
-        <details className="remate-anuncio">
-          <summary>Ver el anuncio completo</summary>
-          <p>{remate.announcement}</p>
-        </details>
-      )}
+      {/* Paso 130: ya no se muestra el anuncio completo (puede traer nombres de personas):
+          se lee en la publicación original, que enlaza el recuadro de abajo */}
 
-      <p className="remate-fuente">
-        Fuente: Remates Inmobiliarios.
-        {remate.source_url && (
-          <>
-            {" "}
-            <a href={remate.source_url} target="_blank" rel="noopener noreferrer">
-              Ver la publicación original ↗
-            </a>
-          </>
-        )}
-      </p>
     </div>
+
+    {/* Paso 130: de dónde vienen estos datos (antes era una línea "Fuente: Remates Inmobiliarios") */}
+    <OrigenDatos urlOriginal={remate.source_url} />
+    </>
   );
 }

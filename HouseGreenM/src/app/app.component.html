@@ -93,6 +93,15 @@
               <ion-icon aria-hidden="true" name="information-circle-outline" slot="start"></ion-icon>
               <ion-label>Nosotros</ion-label>
             </ion-item>
+            <!-- Paso 133: los mismos enlaces del pie de la web (Política de privacidad · Origen de los datos) -->
+            <ion-item button [routerLink]="['/privacidad']">
+              <ion-icon aria-hidden="true" name="shield-checkmark-outline" slot="start"></ion-icon>
+              <ion-label>Política de privacidad</ion-label>
+            </ion-item>
+            <ion-item button [routerLink]="['/privacidad']" fragment="origen-datos">
+              <ion-icon aria-hidden="true" name="document-text-outline" slot="start"></ion-icon>
+              <ion-label>Origen de los datos</ion-label>
+            </ion-item>
           </ion-menu-toggle>
           <!-- Paso A20: "Cerrar sesión" va en la lista, después de Nosotros. Abajo del todo quedaba encima de
                los botones del teléfono (atrás, inicio, recientes) y era fácil tocarlos sin querer -->

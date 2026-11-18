@@ -61,7 +61,7 @@ export class PrecioComunaComponent {
   readonly tipo = computed(() => (this.datos()?.etiqueta ?? 'propiedades').toLowerCase());
   readonly resultado = computed(() => {
     const descuento = this.datos()?.descuento_pct ?? 0;
-    return descuento >= 0 ? `${numero(descuento)} % bajo el precio típico` : `${numero(-descuento)} % sobre el precio típico`;
+    return descuento >= 0 ? `${numero(descuento)} % bajo el precio de mercado` : `${numero(-descuento)} % sobre el precio de mercado`;
   });
   readonly puntos = computed(() => {
     const zona = this.datos()?.zona;

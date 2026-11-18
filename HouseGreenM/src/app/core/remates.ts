@@ -127,7 +127,7 @@ export const DIAS_PREMIUM = 30;
 // Paso A3: lo que incluye el plan, en el mismo orden que la web
 export const BENEFICIOS_PREMIUM = [
   'El semáforo de riesgo de cada remate, con su puntaje y por qué lo tiene',
-  'El precio del remate frente al precio típico de su comuna',
+  'El precio del remate frente al precio de mercado de su comuna',
   'Los datos del remate: tribunal, garantía, condiciones y anuncio',
   'Las fotos y el detalle completo de cada propiedad',
   'El mapa de los remates, con el color de su semáforo',

@@ -25,7 +25,7 @@
   display: block;
   margin-bottom: 14px;
   color: #404040;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -40,7 +40,7 @@
   background-color: #ffffff; // Paso A6b: fondo blanco y letra oscura siempre (legibles en modo oscuro)
   color: #171717;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .perfil-campo input:focus-visible,
@@ -53,7 +53,7 @@
   display: block;
   margin-top: 6px;
   color: #737373;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
 }
 
@@ -83,14 +83,15 @@
 .perfil-fijos dd {
   margin: 2px 0 0;
   color: #171717;
-  font-size: 15px;
+  font-size: 16px;
+  line-height: 1.6;
   overflow-wrap: anywhere;
 }
 
 .perfil-nota {
   margin: 8px 0 0;
   color: #737373;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .perfil-mostrar {
@@ -106,8 +107,8 @@
   margin: 14px 0 0;
   padding: 10px 12px;
   border-radius: 8px;
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .perfil-aviso.is-ok {
@@ -209,16 +210,16 @@
 .perfil-texto {
   margin: 0 0 14px;
   color: #404040;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .perfil-pasos {
   margin: 0;
   padding-left: 20px;
   color: #404040;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .perfil-pasos li + li {
@@ -302,8 +303,8 @@
   border-radius: 8px;
   background-color: #fefce8;
   color: #713f12;
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.6;
 }
 /* Paso 105: la tarjeta para eliminar la cuenta, con borde rojo suave */
 .perfil-tarjeta.is-peligro {

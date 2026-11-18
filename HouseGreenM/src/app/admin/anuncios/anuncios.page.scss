@@ -31,7 +31,7 @@
 .anu-etiqueta {
   margin: 14px 0 6px;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -76,8 +76,8 @@
 .anu-nota {
   margin: 10px 0 0;
   color: #4e625b;
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 /* Campos de texto */
@@ -85,7 +85,7 @@
   display: block;
   margin-top: 14px;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -112,7 +112,7 @@
   background-color: white;
   color: #1f2a26;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 1.4;
 }
@@ -174,7 +174,7 @@
 .anu-opciones-detalle,
 .anu-elegida-detalle {
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* La opción ya elegida */
@@ -261,9 +261,9 @@
 .anu-confirmar p {
   margin: 0;
   color: #0f3d30;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
-  line-height: 1.4;
+  line-height: 1.6;
   overflow-wrap: anywhere;
 }
 
@@ -286,7 +286,8 @@
 .anu-error-chico {
   margin: 12px 0 0;
   color: #991b1b;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .anu-aviso {
@@ -295,7 +296,8 @@
   border-radius: 10px;
   background-color: #e4f3ec;
   color: #0f3d30;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
   font-weight: 700;
 }
 
@@ -344,14 +346,14 @@
 
 .anu-item-fecha {
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   white-space: nowrap;
 }
 
 .anu-item-para {
   margin: 4px 0 0;
   color: #1d6f55;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   overflow-wrap: anywhere;
 }
@@ -359,8 +361,8 @@
 .anu-item-mensaje {
   margin: 8px 0 0;
   color: #1f2a26;
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
   overflow-wrap: anywhere;
   white-space: pre-wrap; /* respeta los saltos de línea del mensaje */
 }
@@ -370,14 +372,14 @@
   padding-top: 8px;
   border-top: 1px solid #e4ece8;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* Paso 116: si también se envió por correo */
 .anu-item-correo {
   margin: 4px 0 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .anu-mas {
@@ -435,7 +437,7 @@
   display: block;
   margin-top: 2px;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .anu-campos:disabled .anu-correo {

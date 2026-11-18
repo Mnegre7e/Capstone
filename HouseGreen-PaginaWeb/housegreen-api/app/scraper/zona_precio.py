@@ -73,7 +73,7 @@ def comparar(property_type: str | None, precio_minimo, comuna_nombre: str | None
         return {
             "disponible": False,
             "tipo": tipo,
-            "motivo": f"No hay un precio típico publicado de {plural} en venta en {comuna_nombre or 'esta comuna'}.",
+            "motivo": f"No hay un precio de mercado publicado de {plural} en venta en {comuna_nombre or 'esta comuna'}.",
         }
     if referencia.sample_size < MINIMO_DE_AVISOS or not referencia.median_clp:
         return {
@@ -81,7 +81,7 @@ def comparar(property_type: str | None, precio_minimo, comuna_nombre: str | None
             "tipo": tipo,
             "motivo": (
                 f"En {comuna_nombre or 'esta comuna'} hay solo {referencia.sample_size} avisos de {plural} en venta: "
-                f"muy pocos para un precio típico confiable (se piden al menos {MINIMO_DE_AVISOS})."
+                f"muy pocos para un precio de mercado confiable (se piden al menos {MINIMO_DE_AVISOS})."
             ),
         }
     precio = Decimal(str(precio_minimo))

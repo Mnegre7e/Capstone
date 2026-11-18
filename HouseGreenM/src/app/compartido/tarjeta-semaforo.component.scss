@@ -88,7 +88,7 @@
 }
 
 .semaforo-puntos-texto {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .semaforo-barra {
@@ -114,15 +114,15 @@
   border-radius: 8px;
   background-color: #fef2f2;
   color: #7f1d1d;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .semaforo-nota {
   margin: 12px 0 0;
   color: #404040;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .semaforo-pendiente {
@@ -131,8 +131,8 @@
   border-radius: 8px;
   background-color: #fefce8;
   color: #713f12;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 
   p {
     margin: 0;
@@ -171,7 +171,8 @@
   align-items: center;
   gap: 4px 10px;
   padding: 8px 0;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
 
   & + & {
     border-top: 1px solid #f0f0ef;
@@ -209,13 +210,13 @@
   border-radius: 8px;
   background-color: #f5f5f4;
   color: #404040;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .semaforo-pie {
   margin: 14px 0 0;
   color: #737373;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }

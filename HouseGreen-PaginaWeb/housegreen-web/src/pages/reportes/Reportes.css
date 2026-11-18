@@ -149,7 +149,7 @@
 
 .rep-medida {
   padding: 5px 12px;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .rep-periodo:hover,
@@ -167,7 +167,7 @@
 .rep-actualizando {
   margin-left: 6px;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* Las cuatro cifras: 4 columnas en PC, 2 en celular */
@@ -192,7 +192,7 @@
 .rep-cifra-titulo {
   margin: 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -207,7 +207,7 @@
 .rep-cifra-nota {
   margin: 4px 0 0;
   color: #4e625b;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.3;
 }
 
@@ -259,19 +259,20 @@
 .rep-vacio {
   margin: 0;
   color: #4e625b;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .rep-gris {
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
 }
 
 .rep-nota {
   margin: 12px 0 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* ---------- Gráfico de barras ---------- */
@@ -410,7 +411,7 @@
 
 .rep-tabla thead th {
   color: #4e625b;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .rep-tabla tbody th {
@@ -434,7 +435,7 @@
 .rep-favorita-titulo {
   margin: 0 0 4px;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -449,7 +450,7 @@
 .rep-favorita-datos {
   margin: 4px 0 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* ---------- Ranking (más vistas y personas más activas) ---------- */
@@ -735,7 +736,7 @@
     padding: 10px 2px;
     border-bottom: none;
     border-radius: 999px;
-    font-size: 13px;
+    font-size: 14px;
     text-align: center;
   }
 
@@ -751,7 +752,7 @@
   .rep-secciones .rep-pantalla {
     flex: 1 1 0;
     padding: 7px 4px;
-    font-size: 13px;
+    font-size: 14px;
     text-align: center;
   }
 
@@ -785,7 +786,7 @@
 .rep-rango label,
 .rep-filtros label {
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -842,7 +843,8 @@
   flex-basis: 100%;
   margin: 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .rep-rango-aviso.is-error {
@@ -857,8 +859,8 @@
   border-radius: 12px;
   background-color: #eef6f2;
   color: #1f2a26;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .rep-filtrado strong {
@@ -920,7 +922,7 @@
 
 .rep-datos span {
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
 }
 
@@ -979,7 +981,7 @@
   background-color: white;
   color: #0f3d30;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .rep-buscador input:focus-visible {
@@ -1003,7 +1005,7 @@
   top: 50%;
   right: 14px;
   color: #4e625b;
-  font-size: 12px;
+  font-size: 14px;
   transform: translateY(-50%);
 }
 
@@ -1028,7 +1030,7 @@
   display: block;
   padding: 8px 10px 4px;
   color: #4e625b;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -1056,7 +1058,7 @@
 .rep-buscador-opcion span {
   overflow: hidden;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1064,7 +1066,8 @@
 .rep-buscador-vacio {
   padding: 10px;
   color: #4e625b;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 /* ---------- Paso 123d: ficha de un remate o de una persona ---------- */
@@ -1122,7 +1125,7 @@
   border-radius: 999px;
   background-color: #eef2f0;
   color: #1f2a26;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -1150,7 +1153,7 @@
 
 .rep-ficha-datos dt {
   color: #4e625b;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
 }
 

@@ -71,8 +71,8 @@
 
 .descarga-celular p {
   margin: 0;
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .descarga-boton {
@@ -129,8 +129,8 @@
 
 .descarga-tarjeta p {
   margin: 0;
-  font-size: 15px;
-  line-height: 1.55;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .descarga-qr {
@@ -156,7 +156,7 @@
 
 .descarga-qr p {
   color: #4e5b56;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .descarga-pasos {
@@ -172,7 +172,7 @@
 .descarga-tarjeta .descarga-nota {
   margin-top: 12px;
   color: #5f6b66;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .descarga-pronto {
@@ -185,7 +185,7 @@
   border-radius: 10px;
   background-color: #f1f5f3;
   color: #4e5b56;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .descarga-admin code {

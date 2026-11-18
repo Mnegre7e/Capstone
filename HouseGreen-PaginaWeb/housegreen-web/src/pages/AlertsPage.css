@@ -63,8 +63,8 @@
 .alerts-empty {
   margin: 12px 0 0;
   color: #5f6b66;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .alerts-error {
@@ -74,13 +74,15 @@
   border-radius: 6px;
   background-color: #fef2f2;
   color: #991b1b;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .alerts-error-chico {
   margin: 0;
   color: #991b1b;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 /* ---------- Notificaciones ---------- */
@@ -134,7 +136,7 @@ a.alerts-notification-item:hover {
 .alerts-notification-detalle {
   margin: 2px 0 0;
   color: #5f6b66;
-  font-size: 13px;
+  font-size: 14px;
   overflow-wrap: anywhere;
 }
 
@@ -144,7 +146,7 @@ a.alerts-notification-item:hover {
   border-radius: 999px;
   background-color: #15803d;
   color: white;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -202,8 +204,8 @@ a.alerts-notification-item:hover {
 .alerts-ayuda {
   margin: 6px 0 0;
   color: #5f6b66;
-  font-size: 14px;
-  line-height: 1.45;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .alerts-form {
@@ -337,7 +339,7 @@ a.alerts-notification-item:focus-visible {
 .alerts-criteria-item .alerts-criteria-hoy {
   margin-top: 4px;
   color: #5f6b66;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .alerts-delete-btn {

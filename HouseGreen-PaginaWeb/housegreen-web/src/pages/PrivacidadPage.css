@@ -67,16 +67,22 @@
   margin-top: 14px;
 }
 
+/* Paso 130: al llegar con el enlace "Origen de los datos" (#origen-datos) el título no queda pegado arriba.
+   Paso 133: el punto 9 tiene el mismo formato que los demás (sin recuadro) */
+.priv section[id] {
+  scroll-margin-top: 90px;
+}
+
 /* La base legal de cada uso, más suave */
 .priv-base {
   color: #5f6b66;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 @media (max-width: 600px) {
   .priv {
     padding: 24px 16px 48px;
-    font-size: 15px;
   }
 
   .priv h1 {

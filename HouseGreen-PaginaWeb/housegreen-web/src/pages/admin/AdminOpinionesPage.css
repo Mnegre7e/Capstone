@@ -47,7 +47,7 @@
 .opa-promedio-texto {
   margin: 4px 0 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .opa-barras {
@@ -67,7 +67,7 @@
   align-items: center;
   gap: 8px;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .opa-barra-fondo {
@@ -131,7 +131,7 @@
   flex: 1;
   min-width: 160px;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -181,21 +181,21 @@
 .opa-item-fecha {
   margin-left: auto;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .opa-item-persona {
   margin: 4px 0 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   overflow-wrap: anywhere;
 }
 
 .opa-item-mensaje {
   margin: 8px 0 0;
   color: #1f2a26;
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
   overflow-wrap: anywhere;
   white-space: pre-wrap; /* respeta los saltos de línea que escribió la persona */
 }
@@ -203,7 +203,7 @@
 .opa-item-mensaje.is-vacio,
 .opa-item-nota {
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .opa-item-nota {
@@ -217,8 +217,8 @@
   border-radius: 0 10px 10px 0;
   background-color: #e4f3ec;
   color: #1f2a26;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .opa-respuesta p {
@@ -230,7 +230,7 @@
 .opa-respuesta .opa-respuesta-titulo {
   margin-bottom: 2px;
   color: #1d6f55;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -300,7 +300,7 @@
 .opa-formulario label {
   display: block;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -314,7 +314,7 @@
   box-sizing: border-box;
   color: #1f2a26;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 1.4;
   resize: vertical;
@@ -323,7 +323,8 @@
 .opa-error-chico {
   margin: 8px 0 0;
   color: #991b1b;
-  font-size: 13px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .opa-formulario-botones {
@@ -352,8 +353,25 @@
     gap: 14px;
   }
 
+  /* Paso 132: letra de 13 px; cada pestaña mide lo que su texto, sin partirse en dos líneas */
+  .opa-pestana {
+    flex: 1 1 auto;
+    padding: 10px 6px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 379px) {
   .opa-pestana {
     padding: 10px 4px;
     font-size: 12px;
+  }
+}
+
+/* En celulares muy angostos no caben en una línea: se permite que el texto baje */
+@media (max-width: 340px) {
+  .opa-pestana {
+    white-space: normal;
   }
 }

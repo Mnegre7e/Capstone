@@ -14,7 +14,7 @@ export const PRECIO_PREMIUM_TEXTO = PRECIO_PREMIUM.toLocaleString("es-CL", {
 // Lo que incluye el plan, en el orden en que se muestra
 export const BENEFICIOS_PREMIUM = [
   "El semáforo de riesgo de cada remate, con su puntaje y por qué lo tiene",
-  "El precio del remate frente al precio típico de su comuna",
+  "El precio del remate frente al precio de mercado de su comuna",
   "Los datos del remate: tribunal, garantía, condiciones y anuncio",
   "Las fotos y el detalle completo de cada propiedad",
     "El mapa de los remates, con el color de su semáforo", // paso 124b

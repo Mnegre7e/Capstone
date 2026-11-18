@@ -19,7 +19,7 @@
 .car-nota {
   margin: 4px 0 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .car-cuenta {
@@ -32,7 +32,8 @@
   border-radius: 12px;
   background-color: #fae3e0;
   color: #a2322a;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .car-vacio {
@@ -87,7 +88,7 @@
 .car-meta {
   margin: 2px 0 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* Distintivo del estado: punto de color + nombre (el color nunca va solo) */
@@ -142,7 +143,8 @@
   border-radius: 10px;
   background-color: #fae3e0;
   color: #a2322a;
-  font-size: 13px;
+  font-size: 16px;
+  line-height: 1.6;
   overflow-wrap: anywhere;
 }
 
@@ -188,13 +190,13 @@
 .car-bloque p {
   margin: 4px 0 0;
   color: #1f2a26;
-  font-size: 14px;
-  line-height: 1.45;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .car-bloque .car-nota {
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* Listas de remates: si son largas, se desplazan dentro de su caja */
@@ -207,7 +209,7 @@
   border-radius: 10px;
   background-color: #f7faf8;
   color: #1f2a26;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   overflow-wrap: anywhere;
 }

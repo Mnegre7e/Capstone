@@ -188,6 +188,9 @@
       @if (filtrados().length === 0) {
         <p class="hg-mensaje">No se encontraron propiedades con esos filtros.</p>
       }
+
+      <!-- Paso 130: de dónde vienen los remates (Ley 21.719) -->
+      <app-origen-datos [corto]="true"></app-origen-datos>
     }
   </div>
 </ion-content>

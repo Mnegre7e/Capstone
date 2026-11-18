@@ -28,7 +28,7 @@
   border-radius: 12px;
   background-color: #fefce8;
   color: #3f3a1d;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
 }
 
@@ -61,7 +61,7 @@
   padding: 10px 14px;
   border: 1px solid #d4d4d4;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .properties-select {
@@ -217,7 +217,7 @@
   flex-direction: column;
   gap: 4px;
   color: #737373;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .cat-precios input {
@@ -226,7 +226,7 @@
   border: 1px solid #d4d4d4;
   border-radius: 8px;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .cat-panel-botones {

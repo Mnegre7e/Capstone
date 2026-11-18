@@ -35,8 +35,8 @@
   border-radius: 6px;
   background-color: #fef2f2;
   color: #991b1b;
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 /* ---------- Un campo: etiqueta, y debajo el borde con ícono + cuadro + ojo ---------- */
@@ -141,7 +141,7 @@
 .login-ayuda {
   margin: 6px 0 0;
   color: #5f6b66;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
 }
 
@@ -183,7 +183,7 @@
 .login-switch {
   margin: 22px 0 0;
   color: #5f6b66;
-  font-size: 15px;
+  font-size: 16px;
   text-align: center;
 }
 
@@ -206,7 +206,7 @@
   padding-top: 18px;
   border-top: 1px solid #e4e8e6;
   color: #5f6b66;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.45;
 }
 
@@ -264,8 +264,8 @@
   border-radius: 6px;
   background-color: #f0fdf4;
   color: #166534;
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 /* ---------- Paso 117: recuperar la contraseña ---------- */
@@ -326,7 +326,7 @@
 .login-legal {
   margin: 14px 0 0;
   color: #5f6b66;
-  font-size: 13px;
+  font-size: 14px;
   text-align: center;
 }
 

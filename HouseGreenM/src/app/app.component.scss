@@ -61,7 +61,7 @@ ion-menu {
     .menu-persona-rol {
       margin: 2px 0 0;
       color: #{$gh-primary-green};
-      font-size: 0.85rem;
+      font-size: 14px; // Paso 133: texto de apoyo, 14 px (antes 0.85rem = 13,6 px)
       text-transform: capitalize;
     }
   }
@@ -94,7 +94,7 @@ ion-menu {
   .menu-version {
     margin: 16px;
     color: #6b7a73;
-    font-size: 0.75rem;
+    font-size: 14px; // Paso 133: texto de apoyo, 14 px (antes 0.75rem = 12 px)
   }
 }
 // Paso A7: número rojo de avisos sin leer junto a "Alertas" (el mismo de la web)

@@ -112,7 +112,7 @@ export function AdminSemaforoPage() {
         </p>
         <ul>
           <li>
-            <strong>Precio comparado con otras propiedades del sector:</strong> el precio inicial se compara con el precio típico de los
+            <strong>Precio comparado con otras propiedades del sector:</strong> el precio inicial se compara con el precio de mercado de los
             departamentos o casas en venta en su comuna (PropiedadesYa). Verde: 40 % o más bajo · Amarilla: entre 15 % y
             39,9 % · Roja: menos de 15 %.
           </li>

@@ -108,7 +108,7 @@ class AuctionInfoOut(BaseModel):
     payment_term: str | None = None
     requirements: str | None = None
     conditions: str | None = None
-    announcement: str | None = None
+    # Paso 130: el texto del anuncio ya no se envía (puede traer nombres de personas; está en la publicación original)
     observations: str | None = None
     source_url: str | None = None        # dirección de la publicación original
 

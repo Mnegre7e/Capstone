@@ -17,7 +17,6 @@ interface DatosDelRemate {
   payment_term: string | null;
   requirements: string | null;
   conditions: string | null;
-  announcement: string | null;
   observations: string | null;
   source_url: string | null;
 }

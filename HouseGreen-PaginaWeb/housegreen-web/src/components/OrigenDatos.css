@@ -1,0 +1,76 @@
+/* Paso 130: recuadro "Origen de la información" (catálogo y ficha de cada remate).
+   Borde azul para que se distinga del resto (es un aviso legal, no un dato del remate).
+   Letra y tamaños iguales al resto de la página: texto 16 px y título 18 px. */
+.origen {
+  display: flex;
+  gap: 14px;
+  margin-top: 28px;
+  padding: 18px 20px;
+  border: 1px solid #93c5fd;
+  border-left: 5px solid #2563eb;
+  border-radius: 12px;
+  background-color: #f3f8ff;
+  color: #1f2a26;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.origen-icono {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  margin-top: 1px;
+  color: #2563eb;
+}
+
+.origen-texto {
+  min-width: 0;
+}
+
+.origen h2 {
+  margin: 0 0 4px;
+  color: #1e3a8a;
+  font-size: 18px;
+}
+
+.origen p {
+  margin: 8px 0 0;
+}
+
+.origen-ley {
+  color: #5f6b66;
+}
+
+.origen-enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+
+.origen-enlaces a {
+  color: #15803d;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.origen-enlaces a:hover {
+  text-decoration: underline;
+}
+
+.origen-enlaces a:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* En el catálogo va al final de la lista */
+.origen.is-corto {
+  margin-top: 32px;
+}
+
+@media (max-width: 600px) {
+  .origen {
+    gap: 10px;
+    padding: 16px 14px;
+  }
+}

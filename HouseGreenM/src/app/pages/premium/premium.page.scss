@@ -65,7 +65,7 @@
 .premium-plan-lista li {
   position: relative;
   padding-left: 26px;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.45;
 }
 
@@ -91,8 +91,8 @@
   padding: 10px 12px;
   border-radius: 10px;
   background-color: rgba(255, 255, 255, 0.08);
-  font-size: 14px;
-  line-height: 1.45;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .premium-plan-estado.is-activo {
@@ -137,7 +137,7 @@
 .premium-plan-pronto {
   margin: 8px 0 0;
   color: #b9d4c8;
-  font-size: 13px;
+  font-size: 14px;
   text-align: center;
 }
 
@@ -146,7 +146,7 @@
   padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.14);
   color: #b9d4c8;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
 }
 
@@ -168,13 +168,13 @@
   width: 100%;
   margin-top: 12px;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .premium-comparar thead th {
   padding: 0 6px 8px;
   color: #5f6b66;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   text-align: center;
 }
@@ -250,7 +250,8 @@
   border-radius: 10px;
   background-color: #fae3e0;
   color: #a2322a;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 /* Paso A5: enlace a la política de privacidad (sobre el fondo verde oscuro de la tarjeta) */

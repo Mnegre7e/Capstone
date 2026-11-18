@@ -13,6 +13,7 @@ import { GaleriaFotosComponent } from './galeria-fotos.component';
 import { MarcoAdminComponent } from './marco-admin.component';
 import { MarcoEntradaComponent } from './marco-entrada.component';
 import { MarcoReportesComponent } from './marco-reportes.component';
+import { OrigenDatosComponent } from './origen-datos.component';
 import { PrecioComunaComponent } from './precio-comuna.component';
 import { BarrasReporteComponent } from './rep-barras.component';
 import { CifrasReporteComponent } from './rep-cifras.component';
@@ -24,7 +25,7 @@ import { SinFotoComponent } from './sin-foto.component';
 import { TarjetaRemateComponent } from './tarjeta-remate.component';
 import { TarjetaSemaforoComponent } from './tarjeta-semaforo.component';
 
-// Pasos A2, A3, A5, A9 y A10: piezas que usan varias pantallas (se importa en el módulo de cada pantalla)
+// Pasos A2, A3, A5, A9, A10 y 130: piezas que usan varias pantallas (se importa en el módulo de cada pantalla)
 const PIEZAS = [
   AvisoPremiumComponent,
   BarrasReporteComponent,
@@ -40,6 +41,7 @@ const PIEZAS = [
   MarcoEntradaComponent,
   MarcoReportesComponent,
   MedidasReporteComponent,
+  OrigenDatosComponent,
   PrecioComunaComponent,
   SemaforoReporteComponent,
   SinFotoComponent,

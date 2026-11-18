@@ -8,8 +8,8 @@
   border-radius: 14px;
   background-color: #f2f6f4;
   color: #0f3d30;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .sem-ayuda p {
@@ -28,7 +28,7 @@
 .sem-ayuda .sem-ayuda-pie {
   margin-top: 8px;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* Pestañas Precio comparado / Sin referencia */
@@ -156,7 +156,7 @@
 
 .sem-dato dt {
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -196,5 +196,5 @@
 .sem-nota {
   margin: 4px 0 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }

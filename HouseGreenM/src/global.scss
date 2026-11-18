@@ -39,3 +39,8 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 /* Paso A2: sin modo oscuro, igual que la web (con el Mac o el teléfono en modo oscuro, la app se veía negra) */
 /* @import "@ionic/angular/css/palettes/dark.system.css"; */
+
+/* Paso 132: la misma escala de letra que la web:
+   - texto para leer (párrafos, mensajes, avisos, errores) y campos donde se escribe: 16 px, alto de línea 1.6
+   - texto de apoyo (etiquetas, fechas, datos secundarios, filtros): 14 px
+   - sellos de estado y rótulos en MAYÚSCULAS: 12 px */

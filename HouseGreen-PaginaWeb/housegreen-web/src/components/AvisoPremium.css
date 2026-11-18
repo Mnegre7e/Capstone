@@ -54,13 +54,14 @@
 .premium-aviso-texto {
   margin: 10px 0 0;
   color: #5f6b66;
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
   overflow-wrap: anywhere; /* un título de remate muy largo se parte en vez de salirse */
 }
 
 .premium-aviso.is-compacto .premium-aviso-texto {
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .premium-aviso-texto strong {
@@ -80,8 +81,8 @@
   position: relative;
   padding-left: 26px;
   color: #2f3a35;
-  font-size: 15px;
-  line-height: 1.45;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .premium-aviso-lista li + li {
@@ -121,7 +122,7 @@
 
 .premium-aviso.is-compacto .premium-aviso-precio {
   margin-top: 12px;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .premium-aviso-precio strong {

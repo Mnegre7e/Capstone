@@ -20,19 +20,11 @@
       </div>
     }
 
-    <!-- El anuncio es largo: queda cerrado y se abre al tocarlo -->
-    @if (r.announcement) {
-      <details class="remate-anuncio">
-        <summary>Ver el anuncio completo</summary>
-        <p>{{ r.announcement }}</p>
-      </details>
-    }
+    <!-- Paso 130: ya no se muestra el anuncio completo (puede traer nombres de personas):
+         se lee en la publicación original, que enlaza el recuadro de abajo -->
 
-    <p class="remate-fuente">
-      Fuente: Remates Inmobiliarios.
-      @if (r.source_url) {
-        <a [href]="r.source_url" target="_blank" rel="noopener noreferrer">Ver la publicación original ↗</a>
-      }
-    </p>
   </div>
+
+  <!-- Paso 130: de dónde vienen estos datos (antes era una línea "Fuente: Remates Inmobiliarios") -->
+  <app-origen-datos [urlOriginal]="r.source_url"></app-origen-datos>
 }

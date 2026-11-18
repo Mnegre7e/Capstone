@@ -2,6 +2,11 @@
   box-sizing: border-box;
 }
 
+/* Paso 132: una sola escala de letra en toda la web (y la app la copia):
+   - texto para leer (párrafos, mensajes, avisos, errores) y campos donde se escribe: 16 px, alto de línea 1.6
+   - texto de apoyo (etiquetas, fechas, datos secundarios, filtros): 14 px
+   - sellos de estado y rótulos en MAYÚSCULAS: 12 px
+   El menú de arriba, el mapa y los gráficos tienen su propio tamaño por el espacio. */
 body {
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
@@ -15,49 +20,57 @@ h1 {
   letter-spacing: -0.01em;
 }
 
-/* ---------- Encabezado: el logo a la izquierda y el menú a la derecha ---------- */
+/* ---------- Encabezado: el logo a la izquierda y el menú a la derecha ----------
+   Paso 132: todo en UNA fila. Cuando la ventana se angosta, el logo y los botones se achican de a poco
+   (clamp: entre 1000 px y 540 px de ancho la letra del menú baja de 15 a 12 px y el logo de 19 a 14 px).
+   En el ancho de un celular queda solo el semáforo del logo y, en los más angostos, "Cerrar sesión" pasa a "Salir".
+   Nada se esconde y nada se monta (paso 131 lo resolvía con una segunda fila). */
 .app-header {
   display: flex;
+  flex-wrap: nowrap;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  column-gap: clamp(6px, 1.3vw, 12px);
   min-height: 60px;
-  padding: 0 24px;
+  padding: 0 clamp(8px, 3.48vw - 10.8px, 24px);
   border-bottom: 1px solid #e4e8e6;
   background-color: white;
 }
 
-/* Logo: el semáforo y el nombre. Es un enlace al catálogo. */
+/* Logo: el semáforo y el nombre. Es un enlace a la pantalla principal. */
 .app-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: clamp(5px, 1.09vw - 0.9px, 10px);
   flex-shrink: 0;
   color: #0f3d30;
-  font-size: 19px;
+  font-size: clamp(14px, 1.09vw + 8.1px, 19px);
   font-weight: 700;
   letter-spacing: -0.01em;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .app-logo svg {
   display: block;
-  width: 28px;
-  height: 28px;
+  flex: none;
+  width: clamp(24px, 0.87vw + 19.3px, 28px);
+  height: clamp(24px, 0.87vw + 19.3px, 28px);
 }
 
 .app-header-actions {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 4px;
+  gap: clamp(0px, 0.87vw - 4.7px, 4px);
 }
 
 /* Cada enlace del menú */
 .app-nav-link {
-  padding: 8px 12px;
+  padding: 8px clamp(4px, 1.74vw - 5.4px, 12px);
   border-radius: 8px;
   color: #2f3a35;
-  font-size: 15px;
+  font-size: clamp(12px, 0.652vw + 8.48px, 15px);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -85,14 +98,14 @@ h1 {
 }
 
 .app-logout-btn {
-  margin-left: 8px;
-  padding: 7px 14px;
+  margin-left: clamp(2px, 1.3vw - 5px, 8px);
+  padding: 7px clamp(7px, 1.52vw - 1.2px, 14px);
   border: 1px solid #c9d1cd;
   border-radius: 8px;
   background: none;
   color: #2f3a35;
   font-family: inherit;
-  font-size: 14px;
+  font-size: clamp(12px, 0.435vw + 9.65px, 14px);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -104,12 +117,12 @@ h1 {
 
 /* Paso 122c: botón "Crear cuenta" del menú del invitado */
 .app-cuenta-btn {
-  margin-left: 8px;
-  padding: 7px 14px;
+  margin-left: clamp(2px, 1.3vw - 5px, 8px);
+  padding: 7px clamp(7px, 1.52vw - 1.2px, 14px);
   border-radius: 8px;
   background-color: #15803d;
   color: white;
-  font-size: 14px;
+  font-size: clamp(12px, 0.435vw + 9.65px, 14px);
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
@@ -119,12 +132,18 @@ h1 {
   background-color: #0f3d30;
 }
 
+/* Paso 132: textos cortos del menú ("Salir", "Entrar") para los celulares más angostos */
+.app-texto-corto {
+  display: none;
+}
+
 /* Paso 129: "Volver" a la izquierda del logo (como en la app) */
 .app-header-izquierda {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
-  gap: 6px;
-  min-width: 0;
+  gap: clamp(2px, 0.87vw - 0.7px, 6px);
+  min-height: 60px;
 }
 
 .app-volver {
@@ -166,6 +185,38 @@ h1 {
   font-size: 14px;
 }
 
+/* Paso 133: cada grupo del pie se mantiene junto en una línea */
+.app-pie-grupo {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* Si los dos grupos no caben en una línea, va uno debajo del otro (sin el punto que los separa) */
+@media (max-width: 679px) {
+  .app-pie {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .app-pie-entre {
+    display: none;
+  }
+}
+
+/* En los celulares más chicos la letra del pie baja un poco para que cada grupo quepa en su línea */
+@media (max-width: 359px) {
+  .app-pie {
+    font-size: 13px;
+  }
+
+  .app-pie-grupo {
+    gap: 6px;
+  }
+}
+
 .app-pie a {
   color: #15803d;
   font-weight: 600;
@@ -186,60 +237,12 @@ h1 {
   outline-offset: 2px;
 }
 
-/* Celular: menos espacio, sin el enlace "Remates" (el logo lleva al mismo lugar)
-   y sin "Cerrar sesión" (está al final de la página Perfil) */
-@media (max-width: 760px) {
-  .app-header {
-    min-height: 54px;
-    padding: 0 12px;
-  }
-
-  .app-logo {
-    gap: 6px;
-    font-size: 16px;
-  }
-
-  .app-logo svg {
-    width: 24px;
-    height: 24px;
-  }
-
-  .app-header-actions {
-    gap: 0;
-  }
-
-  .app-nav-link {
-    padding: 8px 6px;
-    font-size: 14px;
-  }
-
-  .app-nav-inicio,
-  .app-logout-btn {
-    display: none;
-  }
-
-  .app-cuenta-btn {
-    margin-left: 4px;
-    padding: 7px 10px;
-    font-size: 13px;
-  }
-}
-
-/* Paso 115: el analista no tiene Perfil, así que en celular "Cerrar sesión" sigue en el encabezado */
-@media (max-width: 760px) {
-  .app-logout-btn.is-siempre {
-    display: inline-block;
-    margin-left: 0;
-  }
-}
-
-/* Paso 129: en el celular "Volver" queda solo con la flecha, y con ella a la vista del logo queda solo el
-   semáforo (el nombre no cabía junto al menú) */
-@media (max-width: 760px) {
+/* "Volver" queda solo con la flecha cuando la ventana se angosta */
+@media (max-width: 860px) {
   .app-volver {
-    min-width: 40px;
+    min-width: 36px;
     justify-content: center;
-    padding: 6px;
+    padding: 6px 4px;
   }
 
   .app-volver-texto {
@@ -247,22 +250,16 @@ h1 {
   }
 }
 
-@media (max-width: 560px) {
-  .app-header.is-con-menu.is-con-volver .app-logo-nombre {
-    display: none;
+@media (max-width: 760px) {
+  .app-header,
+  .app-header-izquierda {
+    min-height: 54px;
   }
 }
 
-/* Paso 129: sin cuenta, en los celulares más angostos (320 px) no caben "Volver", el semáforo y el menú
-   (Premium, Iniciar sesión y Crear cuenta): fuera de la pantalla principal queda "Volver" en vez del semáforo */
-@media (max-width: 340px) {
-  .app-header.is-invitado.is-con-volver .app-logo {
-    display: none;
-  }
-
-  .app-header.is-invitado.is-con-volver .app-nav-link {
-    padding: 8px 4px;
-  }
+/* Paso 115: el analista no tiene Perfil, así que "Cerrar sesión" siempre está en el encabezado */
+.app-logout-btn.is-siempre {
+  display: inline-block;
 }
 
 /* En el celular el menú del admin (640 px) y el del analista (720 px) quedan fijos abajo: el pie no queda tapado */
@@ -272,28 +269,93 @@ h1 {
   }
 }
 
-/* Celulares angostos: con el menú a la vista, del logo queda solo el semáforo */
-@media (max-width: 400px) {
-  .app-header.is-con-menu .app-logo-nombre {
+/* Paso 132: ancho de celular. El nombre "HouseGreen" ya no cabe junto al menú: queda el semáforo (el logo). */
+@media (max-width: 539px) {
+  .app-header.is-con-menu:not(.is-invitado) .app-logo-nombre {
     display: none;
+  }
+
+  .app-volver {
+    min-width: 32px;
+    padding: 6px 2px;
   }
 }
 
-/* Paso 125b (DEF-07): sin cuenta, el menú (Premium, Iniciar sesión y Crear cuenta) es más ancho:
-   del logo queda solo el semáforo hasta 480 px, y en los celulares más angostos se achica el margen */
-@media (max-width: 480px) {
+/* Paso 132: celulares angostos: "Cerrar sesión" pasa a "Salir" (y para el invitado "Iniciar sesión" a "Entrar") */
+@media (max-width: 439px) {
+  .app-header .app-texto-largo {
+    display: none;
+  }
+
+  .app-header .app-texto-corto {
+    display: inline;
+  }
+
+  .app-nav-link {
+    padding: 8px 4px;
+  }
+}
+
+/* El invitado tiene menos botones: su "HouseGreen" se ve hasta los 430 px ("Iniciar sesión" pasa antes a "Entrar") */
+@media (max-width: 459px) {
+  .app-header.is-invitado .app-texto-largo {
+    display: none;
+  }
+
+  .app-header.is-invitado .app-texto-corto {
+    display: inline;
+  }
+}
+
+@media (max-width: 429px) {
   .app-header.is-invitado .app-logo-nombre {
     display: none;
   }
 }
 
-@media (max-width: 360px) {
+/* Paso 132: celulares de menos de 380 px: menos margen entre los botones */
+@media (max-width: 379px) {
   .app-header {
-    padding: 0 8px;
+    column-gap: 4px;
+    padding: 0 6px;
   }
 
-  .app-header.is-invitado .app-nav-link {
-    padding: 8px 5px;
+  .app-nav-link {
+    padding: 8px 3px;
+  }
+
+  .app-logout-btn,
+  .app-cuenta-btn {
+    margin-left: 2px;
+    padding: 6px 6px;
+  }
+
+  .app-alerts-badge {
+    margin-left: 2px;
+    padding: 1px 5px;
+  }
+}
+
+/* Paso 132: los celulares más chicos (menos de 360 px, como el iPhone SE antiguo): letra de 11 px en el menú */
+@media (max-width: 359px) {
+  .app-nav-link,
+  .app-logout-btn,
+  .app-cuenta-btn {
+    font-size: 11px;
+  }
+
+  .app-nav-link {
+    padding: 8px 2px;
+  }
+
+  .app-logout-btn,
+  .app-cuenta-btn {
+    padding: 6px 5px;
+  }
+
+  .app-volver {
+    min-width: 28px;
+    padding: 6px 0;
   }
 }
 
@@ -378,8 +440,8 @@ h1 {
   border-radius: 999px;
   background-color: #0f3d30;
   color: #ffffff;
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.6;
   box-shadow: 0 12px 32px rgba(15, 61, 48, 0.3);
   transform: translateX(-50%);
 }

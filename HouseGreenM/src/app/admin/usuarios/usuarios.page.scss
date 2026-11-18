@@ -34,7 +34,7 @@
   flex: 1;
   min-width: 160px;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -69,7 +69,7 @@
 .usu-cuenta {
   margin: 12px 0 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .usu-vacio {
@@ -121,7 +121,7 @@
 .usu-persona p {
   margin: 2px 0 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   overflow-wrap: anywhere;
 }
 
@@ -136,7 +136,7 @@
   border-radius: 999px;
   background-color: #e4ece8;
   color: #0f3d30;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -164,7 +164,7 @@
 
 .usu-cifras dt {
   color: #4e625b;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -178,7 +178,7 @@
 .usu-fechas {
   margin: 10px 0 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
 }
 
@@ -219,7 +219,7 @@
   background-color: white;
   color: #4e625b;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -262,8 +262,8 @@
 .usu-confirmar p {
   margin: 0;
   color: #0f3d30;
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .usu-confirmar .usu-acciones {
@@ -274,7 +274,8 @@
   margin: 10px 0 0;
   padding: 8px 12px;
   border-radius: 10px;
-  font-size: 13px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .usu-resultado.is-ok {

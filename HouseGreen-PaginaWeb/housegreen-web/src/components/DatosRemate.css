@@ -22,7 +22,7 @@
 .remate-dato-etiqueta {
   margin: 0;
   color: #737373;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .remate-dato-valor {
@@ -35,8 +35,7 @@
 
 /* El sitio a veces escribe todo en minúsculas: al menos la primera letra va en mayúscula */
 .remate-dato-valor::first-letter,
-.remate-texto p::first-letter,
-.remate-anuncio p::first-letter {
+.remate-texto p::first-letter {
   text-transform: uppercase;
 }
 
@@ -46,7 +45,7 @@
 
 .remate-texto h3 {
   margin: 0;
-  font-size: 15px;
+  font-size: 16px;
   color: #171717;
 }
 
@@ -57,42 +56,6 @@
   overflow-wrap: anywhere;
 }
 
-.remate-anuncio {
-  margin-top: 16px;
-  border: 1px solid #e5e5e4;
-  border-radius: 12px;
-  background-color: white;
-}
+/* Paso 130: el anuncio completo ya no se muestra (se lee en la publicación original) */
 
-.remate-anuncio summary {
-  padding: 12px 16px;
-  color: #15803d;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.remate-anuncio p {
-  margin: 0;
-  padding: 0 16px 14px;
-  color: #404040;
-  font-size: 14px;
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-
-.remate-fuente {
-  margin: 12px 0 0;
-  color: #737373;
-  font-size: 13px;
-}
-
-.remate-fuente a {
-  color: #15803d;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.remate-fuente a:hover {
-  text-decoration: underline;
-}
+/* Paso 130: la línea "Fuente" pasó al recuadro OrigenDatos */

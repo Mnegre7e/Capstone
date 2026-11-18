@@ -220,7 +220,7 @@
   border-radius: 999px;
   background-color: #e4f3ec;
   color: #1d6f55;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -288,7 +288,7 @@
 .det-descripcion-titulo {
   margin: 0 0 6px;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -303,7 +303,8 @@
 .det-descripcion-vacia {
   margin: 0;
   color: #4e625b;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 /* Paso 113: aviso de remate que ya se realizó o se retiró */
 .det-aviso-estado {
@@ -313,8 +314,8 @@
   border-radius: 12px;
   background-color: #f1f1f1;
   color: #404040;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 /* ---------- Paso 114 ---------- */
@@ -385,8 +386,8 @@
 .det-quitar p {
   margin: 0 0 10px;
   color: #4e625b;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .det-quitar label {
@@ -405,7 +406,7 @@
   border: 1px solid #c9d8d1;
   border-radius: 10px;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 16px;
   resize: vertical;
 }
 
@@ -419,5 +420,6 @@
 .det-error-accion {
   margin: 10px 0 0;
   color: #991b1b;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
 }

@@ -70,13 +70,13 @@
 /* La base legal de cada uso, más suave */
 .priv-base {
   color: #5f6b66;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 @media (max-width: 600px) {
   .priv {
     padding: 24px 16px 48px;
-    font-size: 15px;
   }
 
   .priv h1 {

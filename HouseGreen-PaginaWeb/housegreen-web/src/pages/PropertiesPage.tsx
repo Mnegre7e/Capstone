@@ -9,6 +9,7 @@ import { remateFinalizado, remateRetirado } from "../components/estadoRemate";
 import { CATEGORIAS, categoriaDeTipo } from "../components/tipoPropiedad";
 import type { CategoriaTipo } from "../components/tipoPropiedad";
 import "./PropertiesPage.css";
+import { OrigenDatos } from "../components/OrigenDatos";
 
 type Riesgo = "verde" | "amarillo" | "rojo";
 type Orden = "recientes" | "remate" | "precio_asc" | "precio_desc" | "alfabetico" | "superficie";
@@ -411,6 +412,9 @@ export function PropertiesPage() {
       {propiedadesFiltradas.length === 0 && (
         <p className="properties-empty">No se encontraron propiedades con esos filtros.</p>
       )}
+
+      {/* Paso 130: de dónde vienen los remates (Ley 21.719) */}
+      <OrigenDatos corto />
     </div>
   );
 }

@@ -25,7 +25,7 @@
 .opi-grupo legend,
 .opi-campo {
   color: #404040;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -95,7 +95,7 @@
   background-color: white;
   color: #171717;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 400;
 }
 
@@ -108,7 +108,7 @@
   display: block;
   margin-top: 4px;
   color: #737373;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 400;
   text-align: right;
 }
@@ -118,8 +118,8 @@
   align-items: flex-start;
   gap: 8px;
   color: #404040;
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.6;
   cursor: pointer;
 }
 
@@ -131,8 +131,8 @@
   margin: 14px 0 0;
   padding: 10px 12px;
   border-radius: 8px;
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .opi-aviso.is-ok {
@@ -177,7 +177,7 @@
 .opi-vacio {
   margin: 10px 0 0;
   color: #737373;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .opi-lista {
@@ -212,14 +212,14 @@
 .opi-item-fecha {
   margin-left: auto;
   color: #737373;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .opi-item-mensaje {
   margin: 8px 0 0;
   color: #262626;
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
   overflow-wrap: anywhere;
   white-space: pre-wrap; /* respeta los saltos de línea que escribió la persona */
 }
@@ -227,7 +227,7 @@
 .opi-item-mensaje.is-vacio,
 .opi-item-nota {
   color: #737373;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .opi-item-nota {
@@ -241,8 +241,8 @@
   border-radius: 0 8px 8px 0;
   background-color: #f0fdf4;
   color: #262626;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .opi-respuesta p {
@@ -254,7 +254,7 @@
 .opi-respuesta .opi-respuesta-titulo {
   margin-bottom: 2px;
   color: #166534;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
 }
 

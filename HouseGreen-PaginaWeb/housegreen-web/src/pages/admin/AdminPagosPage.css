@@ -30,7 +30,8 @@
   border-radius: 12px;
   background-color: #fae3e0;
   color: #a2322a;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .pag-vacio {
@@ -60,7 +61,7 @@
 
 .pag-resumen dt {
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -103,7 +104,7 @@
   flex: 1;
   min-width: 160px;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -138,7 +139,7 @@
 .pag-cuenta {
   margin: 12px 0 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .pag-lista {
@@ -183,7 +184,7 @@
 .pag-persona p {
   margin: 2px 0 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   overflow-wrap: anywhere;
 }
 
@@ -253,7 +254,7 @@
 .pag-meta {
   margin: 8px 0 0;
   color: #4e625b;
-  font-size: 13px;
+  font-size: 14px;
   overflow-wrap: anywhere;
 }
 

@@ -67,8 +67,8 @@ export function PrecioComuna({ propertyId }: { propertyId: string }) {
   const tipo = (datos.etiqueta ?? "propiedades").toLowerCase(); // "departamentos"
   const resultado =
     descuento >= 0
-      ? `${numero(descuento)} % bajo el precio típico`
-      : `${numero(-descuento)} % sobre el precio típico`;
+      ? `${numero(descuento)} % bajo el precio de mercado`
+      : `${numero(-descuento)} % sobre el precio de mercado`;
 
   return (
     <div className="detail-seccion">
@@ -81,7 +81,7 @@ export function PrecioComuna({ propertyId }: { propertyId: string }) {
         </div>
         <div className="precio-cifra">
           <p className="precio-cifra-etiqueta">
-            Precio típico de {tipo} en {datos.comuna}
+            Precio de mercado de {tipo} en {datos.comuna}
           </p>
           <p className="precio-cifra-valor">{pesos(datos.precio_tipico_clp)}</p>
           <p className="precio-cifra-nota">
@@ -102,7 +102,7 @@ export function PrecioComuna({ propertyId }: { propertyId: string }) {
       </p>
 
       <p className="precio-nota">
-        El precio típico es la mediana de los {tipo} en venta en {datos.comuna}
+        El precio de mercado es la mediana de los {tipo} en venta en {datos.comuna}
         {datos.superficie_tipica_m2 ? `, que miden en general ${numero(datos.superficie_tipica_m2)} m²` : ""}, según{" "}
         {datos.fuente}
         {datos.fecha ? ` (actualizado el ${fechaCorta(datos.fecha)})` : ""}. Son precios de oferta y no consideran el
