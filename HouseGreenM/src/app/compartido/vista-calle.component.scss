@@ -1,0 +1,13 @@
+// Pasos 135, 135b y 135c: el visor (vista de calle o mapa) ocupa el mismo lugar que la foto principal (.galeria-imagen: 260 px de alto)
+:host {
+  display: block;
+}
+
+.vista-calle {
+  display: block;
+  width: 100%;
+  height: 260px;
+  border: 0;
+  border-radius: 12px;
+  background-color: #e7ece9;
+}

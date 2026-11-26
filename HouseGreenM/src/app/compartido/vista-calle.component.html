@@ -1,0 +1,10 @@
+@if (urlSegura(); as direccionVisor) {
+  <iframe
+    class="vista-calle"
+    [src]="direccionVisor"
+    [title]="tituloVisor()"
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+    allowfullscreen
+  ></iframe>
+}

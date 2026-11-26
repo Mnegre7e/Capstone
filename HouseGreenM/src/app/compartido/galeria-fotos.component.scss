@@ -98,3 +98,27 @@
     opacity: 1;
   }
 }
+
+// Paso 135b: nota de la vista de calle y su miniatura (no hay foto: se dibuja un ícono)
+.vista-calle-nota {
+  margin: 8px 0 0;
+  color: #737373;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.galeria-miniatura-calle {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  background-color: #e8f3ed;
+  color: #0f3d30;
+  font-size: 11px;
+  font-weight: 600;
+
+  svg {
+    width: 22px;
+    height: 22px;
+  }
+}

@@ -27,12 +27,16 @@ export class TarjetaRemateComponent {
   readonly favorito = input(false);
   readonly alternarFavorito = output<void>();
 
-  // Si la foto no carga, se recuerda cuál falló y se muestra el dibujo
-  private fotoFallida = signal<string | null>(null);
+  // Si la foto no carga, se recuerda cuál falló y se muestra el dibujo.
+  // Paso 135d: primero la foto de la calle (Google, apuntando a la dirección); si no carga (no hay foto o se llegó
+  // al tope del día), la foto de siempre; y si tampoco, el dibujo según el tipo.
+  private fotosFallidas = signal<string[]>([]);
   readonly foto = computed(() => {
-    const url = this.remate().image_url;
-    return url && url !== this.fotoFallida() ? this.api.urlDeArchivo(url) : null;
+    const propia = this.remate().image_url;
+    const candidatas = [this.remate().street_view_url ?? null, propia ? this.api.urlDeArchivo(propia) : null];
+    return candidatas.find((url) => url !== null && !this.fotosFallidas().includes(url)) ?? null;
   });
+  readonly esFotoDeCalle = computed(() => this.foto() !== null && this.foto() === this.remate().street_view_url);
 
   readonly precio = computed(() => pesos(Number(this.remate().opening_price)));
   readonly precioM2 = computed(() => {
@@ -61,7 +65,10 @@ export class TarjetaRemateComponent {
   readonly riesgo = computed(() => this.remate().evaluation?.result_level ?? 'amarillo');
 
   fotoNoCargo() {
-    this.fotoFallida.set(this.remate().image_url);
+    const url = this.foto();
+    if (url) {
+      this.fotosFallidas.update((fallidas) => [...fallidas, url]);
+    }
   }
 
   clicCorazon(evento: Event) {

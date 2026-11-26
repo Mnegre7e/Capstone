@@ -87,6 +87,8 @@ Otras variables, que solo hacen falta si se publica HouseGreen en internet o se 
 | `WEB_URL` | Dirección pública de la web. | `http://localhost:5173` |
 | `WEBPAY_AMBIENTE` | `integracion` o `produccion`. | `integracion` |
 | `WEBPAY_CODIGO_COMERCIO` y `WEBPAY_LLAVE_SECRETA` | Las que entrega Transbank al firmar el contrato (solo producción). | Las públicas de integración |
+| `GOOGLE_MAPS_EMBED_KEY` | Pasos 135 a 135d: clave de Google para el navegador (Maps Embed API y Street View Static API): vista de calle o mapa en la ficha e imagen de la calle en las tarjetas. | Se ven las fotos de siempre |
+| `GOOGLE_MAPS_SERVER_KEY` | Paso 135d: clave de Google solo del servidor (Street View Static API) para buscar la foto de calle más cercana a cada remate. Gratis. | La ficha funciona como en el paso 135c |
 
 Para iniciar la API:
 
@@ -142,6 +144,16 @@ sin encender la API en un computador.
   página **Descarga la app** no cambian.
 - **Si tarda:** la API gratis se duerme tras 15 minutos sin uso y despierta en cerca de un minuto. Mientras,
   la web y la app muestran "Conectando con HouseGreen…".
+- **Vista de calle (paso 135):** la clave `GOOGLE_MAPS_EMBED_KEY` va en Render (servicio de la API > Environment)
+  y en el `.env` de cada computador. Se crea en Google Cloud con una cuenta de facturación, pero la Maps Embed API
+  no cobra. La clave se restringe a «Maps Embed API» y a las direcciones de la web y de la app. Es la foto
+  principal de la ficha: la vista de calle si el remate quedó ubicado con calle y número, y si no, un mapa de
+  Google con la dirección publicada (paso 135c). Las imágenes son de Google y no se descargan ni se guardan.
+- **Foto de calle en todas las fichas y tarjetas (paso 135d):** la API busca la foto de calle más cercana a cada
+  remate con `GOOGLE_MAPS_SERVER_KEY` (búsqueda gratis y sin límite de Google). Las tarjetas del catálogo muestran
+  una imagen fija que Google apunta hacia la dirección: es gratis hasta 10.000 imágenes al mes, así que en Google
+  Cloud (APIs y servicios › Street View Static API › Cuotas) la cuota de solicitudes por día queda en **300**. Si
+  un día se llega al tope o no hay foto, la tarjeta muestra la foto o el dibujo de siempre.
 
 ## 3. Carga de los remates
 

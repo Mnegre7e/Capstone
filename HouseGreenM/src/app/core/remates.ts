@@ -14,6 +14,7 @@ export interface Remate {
   auction_date: string | null;
   status: string;
   image_url: string | null;
+  street_view_url?: string | null; // paso 135d: imagen fija de la calle (Google) para la tarjeta
   description: string | null; // null sin Premium
   created_at: string;
   physical_info: { bedrooms: number | null; bathrooms: number | null; surface_m2: string | null } | null;

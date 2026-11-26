@@ -14,6 +14,7 @@ export interface PropertyApiResponse {
   auction_date: string | null; // fecha y hora del remate (paso 37); null si no se conoce
   status: string; // paso 71: "disponible", o "retirada" si el sitio de origen quitó el remate
   image_url: string | null;
+  street_view_url?: string | null; // paso 135d: imagen fija de la calle (Google) para la tarjeta
   description: string | null;
   // Paso 55: de dónde viene la propiedad. Los remates del scraper traen
   // source_system = "rematesinmobiliarios" y en source_reference el número del remate en ese sitio

@@ -24,8 +24,9 @@ import { TarjetaReporteComponent } from './rep-tarjeta.component';
 import { SinFotoComponent } from './sin-foto.component';
 import { TarjetaRemateComponent } from './tarjeta-remate.component';
 import { TarjetaSemaforoComponent } from './tarjeta-semaforo.component';
+import { VistaCalleComponent } from './vista-calle.component';
 
-// Pasos A2, A3, A5, A9, A10 y 130: piezas que usan varias pantallas (se importa en el módulo de cada pantalla)
+// Pasos A2, A3, A5, A9, A10, 130 y 135: piezas que usan varias pantallas (se importa en el módulo de cada pantalla)
 const PIEZAS = [
   AvisoPremiumComponent,
   BarrasReporteComponent,
@@ -48,6 +49,7 @@ const PIEZAS = [
   TarjetaRemateComponent,
   TarjetaReporteComponent,
   TarjetaSemaforoComponent,
+  VistaCalleComponent,
 ];
 
 @NgModule({

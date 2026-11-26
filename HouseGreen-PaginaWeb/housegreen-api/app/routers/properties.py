@@ -10,6 +10,7 @@ from app.models.property import (
     PropertyPhysicalInfo, PropertyOccupancyInfo, PropertyMarketDynamics,
     PropertyEvaluation, PropertyMarketComparable, PropertyDebt, PropertyView, PropertyPhoto,
         EvaluationDetail, SemaforoCriteria, PropertyAuctionInfo,
+    Comuna,  # paso 135d: nombre de la comuna para la foto de calle
 )
 from app.schemas.property import PropertyOut, PropertyCreate, EvaluationOut, EvaluationDetailOut, AuctionInfoOut
 from app.schemas.admin import FotoOut
@@ -17,6 +18,8 @@ from app.auth.dependencies import get_usuario_opcional, requerir_admin, requerir
 from app.auth.premium import tiene_acceso_completo  # paso 122a
 from app.routers.alerts import notificar_nueva_propiedad
 from app.scraper.duplicados import buscar_original  # paso 124d
+from app.models.ubicacion import PropiedadUbicacion  # paso 135d
+from app.routers.vista_calle import clave_de_google, url_imagen_fija  # paso 135d: foto de calle de las tarjetas
 
 router = APIRouter(prefix="/propiedades", tags=["Propiedades"])
 
@@ -198,12 +201,21 @@ def listar_propiedades(db: Session = Depends(get_db), usuario=Depends(get_usuari
     # Paso 64: detalle por factor de esas últimas evaluaciones (una sola consulta para todas)
     detalles = _detalles_de_evaluaciones(db, [evaluacion.id for evaluacion in evaluaciones.values()])
 
+    # Paso 135d: imagen fija de la calle para cada tarjeta (Google apunta la cámara a la dirección).
+    # Una consulta para las ubicaciones y otra para los nombres de las comunas, no una por propiedad.
+    clave_google = clave_de_google()
+    ubicaciones = {u.property_id: u for u in db.query(PropiedadUbicacion)} if clave_google else {}
+    nombres_comunas = dict(db.query(Comuna.id, Comuna.name)) if clave_google else {}
+
     respuesta = []
     for propiedad in propiedades:
         salida = PropertyOut.model_validate(propiedad)
         salida.evaluation = _evaluacion_con_detalle(evaluaciones.get(propiedad.id), detalles)
         if propiedad.id in portadas:
             salida.image_url = portadas[propiedad.id]
+        salida.street_view_url = url_imagen_fija(
+            ubicaciones.get(propiedad.id), propiedad.address, nombres_comunas.get(propiedad.comuna_id), clave_google
+        )
         respuesta.append(salida if completo else version_de_catalogo(salida))
     return respuesta
 

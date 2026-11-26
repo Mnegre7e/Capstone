@@ -128,6 +128,8 @@ class PropertyOut(BaseModel):
     auction_date: datetime | None = None  # Paso 36: fecha y hora del remate
     status: str
     image_url: str | None = None
+    # Paso 135d: imagen fija de la calle (Google) para la tarjeta del catálogo; si no carga, se usa image_url
+    street_view_url: str | None = None
     description: str | None = None
     source_system: str | None = None
     source_reference: str | None = None

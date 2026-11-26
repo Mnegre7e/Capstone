@@ -1,34 +1,72 @@
-@if (fotos().length === 0) {
+@if (cuadro(); as c) {
+  <div class="galeria-principal">
+    @if (c.tipo === 'calle' || c.tipo === 'mapa') {
+      <app-vista-calle [url]="c.url" [tipo]="c.tipo" [titulo]="titulo()"></app-vista-calle>
+    } @else {
+      <img class="galeria-imagen" [src]="url(c.url)" [alt]="c.etiqueta ?? titulo()" />
+      @if (c.etiqueta; as etiqueta) {
+        <span class="galeria-etiqueta">{{ etiqueta }}</span>
+      }
+    }
+    @if (cuadros().length > 1) {
+      <button type="button" class="galeria-flecha galeria-flecha-izq" aria-label="Foto anterior" (click)="anterior()">‹</button>
+      <button type="button" class="galeria-flecha galeria-flecha-der" aria-label="Foto siguiente" (click)="siguiente()">›</button>
+      <!-- Sobre el visor de Google no va el contador: taparía la marca de Google, que debe verse -->
+      @if (c.tipo === 'foto') {
+        <span class="galeria-contador">{{ posicion() + 1 }} / {{ cuadros().length }}</span>
+      }
+    }
+  </div>
+
+  @if (c.tipo === 'calle' || c.tipo === 'mapa') {
+    <p class="vista-calle-nota">{{ notaDe(c.tipo) }}</p>
+  }
+
+  @if (cuadros().length > 1) {
+    <div class="galeria-miniaturas">
+      @for (m of cuadros(); track $index; let i = $index) {
+        @if (m.tipo === 'calle') {
+          <button
+            type="button"
+            class="galeria-miniatura galeria-miniatura-calle"
+            [class.is-activa]="i === posicion()"
+            aria-label="Ver la vista de calle"
+            (click)="actual.set(i)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z" />
+              <circle cx="12" cy="11" r="2.2" />
+            </svg>
+            <span>Calle</span>
+          </button>
+        } @else if (m.tipo === 'mapa') {
+          <button
+            type="button"
+            class="galeria-miniatura galeria-miniatura-calle"
+            [class.is-activa]="i === posicion()"
+            aria-label="Ver el mapa"
+            (click)="actual.set(i)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14" />
+            </svg>
+            <span>Mapa</span>
+          </button>
+        } @else {
+          <button
+            type="button"
+            class="galeria-miniatura"
+            [class.is-activa]="i === posicion()"
+            [attr.aria-label]="'Ver foto ' + (i + 1)"
+            (click)="actual.set(i)">
+            <img [src]="url(m.url)" alt="" />
+          </button>
+        }
+      }
+    </div>
+  }
+} @else {
   @if (imagenRespaldo(); as respaldo) {
     <img class="galeria-imagen" [src]="url(respaldo)" [alt]="titulo()" />
   } @else {
     <app-sin-foto class="galeria-imagen galeria-sin-foto" [tipo]="tipo()"></app-sin-foto>
-  }
-} @else {
-  <div class="galeria-principal">
-    <img class="galeria-imagen" [src]="url(fotos()[actual()].url)" [alt]="fotos()[actual()].label ?? titulo()" />
-    @if (fotos()[actual()].label; as etiqueta) {
-      <span class="galeria-etiqueta">{{ etiqueta }}</span>
-    }
-    @if (fotos().length > 1) {
-      <button type="button" class="galeria-flecha galeria-flecha-izq" aria-label="Foto anterior" (click)="anterior()">‹</button>
-      <button type="button" class="galeria-flecha galeria-flecha-der" aria-label="Foto siguiente" (click)="siguiente()">›</button>
-      <span class="galeria-contador">{{ actual() + 1 }} / {{ fotos().length }}</span>
-    }
-  </div>
-
-  @if (fotos().length > 1) {
-    <div class="galeria-miniaturas">
-      @for (foto of fotos(); track foto.id; let i = $index) {
-        <button
-          type="button"
-          class="galeria-miniatura"
-          [class.is-activa]="i === actual()"
-          [attr.aria-label]="'Ver foto ' + (i + 1)"
-          (click)="actual.set(i)">
-          <img [src]="url(foto.url)" alt="" />
-        </button>
-      }
-    </div>
   }
 }

@@ -45,6 +45,12 @@ services:
         sync: false
       - key: CORREO_PUENTE_CLAVE
         sync: false
+      # Pasos 135 y 135b: clave de Google para la vista de calle, que es la foto principal (Maps Embed API, gratis).
+      - key: GOOGLE_MAPS_EMBED_KEY
+        sync: false
+      # Paso 135d: clave solo del servidor para buscar la foto de calle más cercana (búsqueda gratis de Google)
+      - key: GOOGLE_MAPS_SERVER_KEY
+        sync: false
 
   # ---------------- La página web ----------------
   - type: web

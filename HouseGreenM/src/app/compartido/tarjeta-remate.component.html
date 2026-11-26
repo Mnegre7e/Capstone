@@ -1,7 +1,11 @@
 <a class="hg-tarjeta" [routerLink]="['/detalle-propiedad', remate().id]">
   <div class="hg-tarjeta-imagen">
     @if (foto(); as url) {
-      <img [src]="url" [alt]="remate().title" (error)="fotoNoCargo()" />
+      <img
+        [src]="url"
+        [alt]="esFotoDeCalle() ? 'Vista de calle de ' + remate().title + ' (Google)' : remate().title"
+        loading="lazy"
+        (error)="fotoNoCargo()" />
     } @else {
       <app-sin-foto [tipo]="remate().property_type"></app-sin-foto>
     }

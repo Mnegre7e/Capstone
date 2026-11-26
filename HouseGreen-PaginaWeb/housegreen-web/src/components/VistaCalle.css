@@ -1,0 +1,29 @@
+/* Pasos 135, 135b y 135c: vista de calle o mapa de Google como foto principal (mismo tamaño que .detail-image) */
+.vista-calle {
+  border: 0;
+  background-color: #e7ece9;
+}
+
+.vista-calle-nota {
+  margin: 8px 0 0;
+  color: #737373;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Miniatura de la vista de calle en la galería (no hay foto: se dibuja un ícono) */
+.galeria-miniatura.galeria-miniatura-calle {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  background-color: #e8f3ed;
+  color: #0f3d30;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.galeria-miniatura.galeria-miniatura-calle svg {
+  width: 22px;
+  height: 22px;
+}

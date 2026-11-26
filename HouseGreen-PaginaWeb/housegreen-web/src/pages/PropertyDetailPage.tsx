@@ -223,6 +223,7 @@ export function PropertyDetailPage() {
       )}
 
       {/* Galería (paso 29): todas las fotos que subió el admin; si no hay, la imagen de siempre.
+          Paso 135b: si hay vista de calle de Google, es la foto principal.
           key hace que se reinicie al cambiar de propiedad */}
         <GaleriaFotos
         key={`galeria-${property.id}`}

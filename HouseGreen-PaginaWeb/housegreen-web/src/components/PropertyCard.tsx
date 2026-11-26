@@ -20,6 +20,7 @@ interface PropertyCardProps {
     auction_date: string | null;
     status?: string;
     image_url: string | null;
+    street_view_url?: string | null; // paso 135d
     physical_info: { bedrooms: number | null; bathrooms: number | null; surface_m2: string | null } | null;
     evaluation: { result_level: "verde" | "amarillo" | "rojo" } | null;
     created_at: string;
@@ -65,8 +66,12 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
   // Paso 52: si la foto no carga (dirección rota), se recuerda cuál falló y se muestra el dibujo.
   // Se guarda la dirección y no un simple "sí/no": así, si después la propiedad tiene otra foto, se vuelve a intentar.
-  const [fotoFallida, setFotoFallida] = useState<string | null>(null);
-  const tieneFoto = property.image_url !== null && property.image_url !== fotoFallida;
+  // Paso 135d: primero la foto de la calle (Google, apuntando a la dirección); si no carga (no hay foto o se llegó
+  // al tope del día), la foto de siempre; y si tampoco, el dibujo según el tipo.
+  const [fotosFallidas, setFotosFallidas] = useState<string[]>([]);
+  const candidatas = [property.street_view_url ?? null, property.image_url ? urlDeArchivo(property.image_url) : null];
+  const foto = candidatas.find((url): url is string => url !== null && !fotosFallidas.includes(url)) ?? null;
+  const esFotoDeCalle = foto !== null && foto === property.street_view_url;
 
   function handleFavoritoClick(e: React.MouseEvent) {
     e.preventDefault();
@@ -103,12 +108,14 @@ export function PropertyCard({ property }: PropertyCardProps) {
   return (
     <Link to={`/propiedades/${property.id}`} className="property-card">
       <div className="property-card-image-wrapper">
-        {tieneFoto && property.image_url ? (
+        {foto ? (
           <img
-            src={urlDeArchivo(property.image_url)}
-            alt={property.title}
+            key={foto}
+            src={foto}
+            alt={esFotoDeCalle ? `Vista de calle de ${property.title} (Google)` : property.title}
             className="property-card-image"
-            onError={() => setFotoFallida(property.image_url)}
+            loading="lazy"
+            onError={() => setFotosFallidas((fallidas) => [...fallidas, foto])}
           />
         ) : (
           <SinFoto tipo={property.property_type} className="property-card-image" />
