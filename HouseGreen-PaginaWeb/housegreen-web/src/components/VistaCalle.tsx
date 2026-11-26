@@ -57,6 +57,10 @@ export function VisorCalle({ visor, titulo }: { visor: VisorGoogle; titulo: stri
   );
 }
 
+// Paso 135e: nota bajo la foto fija de la calle (la misma imagen de la tarjeta del catálogo)
+export const NOTA_FOTO_CALLE =
+  "Foto de calle referencial de Google: puede ser de hace algunos años y, en un edificio, muestra la fachada, no la unidad que se remata.";
+
 export const NOTA_VISOR = {
   calle:
     "Vista de calle referencial de Google: puede ser de hace algunos años y, en un edificio, muestra la fachada, " +

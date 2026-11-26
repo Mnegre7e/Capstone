@@ -12,6 +12,14 @@
   object-fit: cover;
 }
 
+// Paso 135e: foto fija de la calle. Se muestra entera (sin recortar) para que se vea la marca de Google;
+// es la misma imagen de la tarjeta, así que se reutiliza y no gasta otra foto del día.
+.galeria-imagen.foto-calle-fija,
+.galeria-miniatura img.foto-calle-fija {
+  object-fit: contain;
+  background-color: #e7ece9;
+}
+
 .galeria-sin-foto {
   height: 200px;
   overflow: hidden;

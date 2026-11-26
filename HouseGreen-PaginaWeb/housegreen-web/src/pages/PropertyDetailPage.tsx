@@ -229,6 +229,7 @@ export function PropertyDetailPage() {
         key={`galeria-${property.id}`}
         propertyId={property.id}
         imagenRespaldo={property.image_url}
+        fotoCalle={property.street_view_url ?? null}
         titulo={property.title}
         tipo={property.property_type}
       />

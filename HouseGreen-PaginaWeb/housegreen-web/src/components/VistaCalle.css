@@ -11,6 +11,14 @@
   line-height: 1.6;
 }
 
+/* Paso 135e: foto fija de la calle en la ficha. Se muestra entera (sin recortar) para que se vea la marca de
+   Google; es la misma imagen de la tarjeta, así que el navegador la reutiliza y no gasta otra foto del día. */
+.galeria .detail-image.foto-calle-fija,
+.galeria-miniatura img.foto-calle-fija {
+  object-fit: contain;
+  background-color: #e7ece9;
+}
+
 /* Miniatura de la vista de calle en la galería (no hay foto: se dibuja un ícono) */
 .galeria-miniatura.galeria-miniatura-calle {
   display: grid;

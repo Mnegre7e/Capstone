@@ -37,6 +37,7 @@
         <app-galeria-fotos
           [remateId]="r.id"
           [imagenRespaldo]="r.image_url"
+          [fotoCalle]="r.street_view_url ?? null"
           [titulo]="r.title"
           [tipo]="r.property_type">
         </app-galeria-fotos>

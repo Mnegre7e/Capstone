@@ -2,6 +2,12 @@
   <div class="galeria-principal">
     @if (c.tipo === 'calle' || c.tipo === 'mapa') {
       <app-vista-calle [url]="c.url" [tipo]="c.tipo" [titulo]="titulo()"></app-vista-calle>
+    } @else if (c.tipo === 'foto-calle') {
+      <img
+        class="galeria-imagen foto-calle-fija"
+        [src]="c.url"
+        [alt]="'Vista de calle de ' + titulo() + ' (Google)'"
+        (error)="fotoCalleNoCargo(c.url)" />
     } @else {
       <img class="galeria-imagen" [src]="url(c.url)" [alt]="c.etiqueta ?? titulo()" />
       @if (c.etiqueta; as etiqueta) {
@@ -18,14 +24,23 @@
     }
   </div>
 
-  @if (c.tipo === 'calle' || c.tipo === 'mapa') {
+  @if (c.tipo !== 'foto') {
     <p class="vista-calle-nota">{{ notaDe(c.tipo) }}</p>
   }
 
   @if (cuadros().length > 1) {
     <div class="galeria-miniaturas">
       @for (m of cuadros(); track $index; let i = $index) {
-        @if (m.tipo === 'calle') {
+        @if (m.tipo === 'foto-calle') {
+          <button
+            type="button"
+            class="galeria-miniatura"
+            [class.is-activa]="i === posicion()"
+            aria-label="Ver la foto de la calle"
+            (click)="actual.set(i)">
+            <img class="foto-calle-fija" [src]="m.url" alt="" />
+          </button>
+        } @else if (m.tipo === 'calle') {
           <button
             type="button"
             class="galeria-miniatura galeria-miniatura-calle"

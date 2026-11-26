@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, urlDeArchivo } from "../api/client";
 import { SinFoto } from "./SinFoto";
-import { NOTA_VISOR, useVistaCalle, VisorCalle, type VisorGoogle } from "./VistaCalle";
+import { NOTA_FOTO_CALLE, NOTA_VISOR, useVistaCalle, VisorCalle, type VisorGoogle } from "./VistaCalle";
 import "./GaleriaFotos.css";
 
 // Una foto subida por el admin (GET /propiedades/{id}/fotos, paso 28)
@@ -17,11 +17,12 @@ interface GaleriaFotosProps {
   imagenRespaldo: string | null; // la imagen de la propiedad, por si no tiene fotos subidas
   titulo: string;
   tipo: string; // tipo de propiedad: elige el dibujo cuando no hay ninguna foto (paso 52)
+  fotoCalle?: string | null; // paso 135e: la misma foto de la calle que se ve en la tarjeta del catálogo
 }
 
-// Lo que se puede ver en grande: el visor de Google (vista de calle o mapa, pasos 135b y 135c)
-// o una foto subida por el admin
-type Cuadro = { tipo: "google"; visor: VisorGoogle } | { tipo: "foto"; foto: Foto };
+// Lo que se puede ver en grande: la foto fija de la calle (paso 135e), el visor de Google (vista de calle
+// o mapa, pasos 135b y 135c) o una foto subida por el admin
+type Cuadro = { tipo: "foto-calle"; url: string } | { tipo: "google"; visor: VisorGoogle } | { tipo: "foto"; foto: Foto };
 
 const ICONO_CALLE = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -39,9 +40,12 @@ const ICONO_MAPA = (
 // Foto grande con flechas y miniaturas para cambiarla (paso 29).
 // Paso 135b: si hay vista de calle, es la FOTO PRINCIPAL (primer cuadro) y las fotos del admin van después.
 // Paso 135c: si no tenemos el número, en su lugar va un mapa de Google con la dirección publicada.
-export function GaleriaFotos({ propertyId, imagenRespaldo, titulo, tipo }: GaleriaFotosProps) {
+// Paso 135e: la FOTO PRINCIPAL es la misma foto de la calle de la tarjeta del catálogo; después, la vista de calle
+// que se puede girar (o el mapa) y las fotos del admin. Si Google no tiene esa foto, se salta.
+export function GaleriaFotos({ propertyId, imagenRespaldo, titulo, tipo, fotoCalle = null }: GaleriaFotosProps) {
   const [fotos, setFotos] = useState<Foto[]>([]);
   const [actual, setActual] = useState(0); // posición del cuadro que se ve en grande
+  const [fotoCalleFallida, setFotoCalleFallida] = useState<string | null>(null);
   const visor = useVistaCalle(propertyId);
 
   useEffect(() => {
@@ -52,6 +56,7 @@ export function GaleriaFotos({ propertyId, imagenRespaldo, titulo, tipo }: Galer
   }, [propertyId]);
 
   const cuadros: Cuadro[] = [
+    ...(fotoCalle && fotoCalle !== fotoCalleFallida ? [{ tipo: "foto-calle" as const, url: fotoCalle }] : []),
     ...(visor ? [{ tipo: "google" as const, visor }] : []),
     ...fotos.map((foto) => ({ tipo: "foto" as const, foto })),
   ];
@@ -73,7 +78,14 @@ export function GaleriaFotos({ propertyId, imagenRespaldo, titulo, tipo }: Galer
   return (
     <div className="galeria">
       <div className="galeria-principal">
-        {cuadro.tipo === "google" ? (
+        {cuadro.tipo === "foto-calle" ? (
+          <img
+            src={cuadro.url}
+            alt={`Vista de calle de ${titulo} (Google)`}
+            className="detail-image foto-calle-fija"
+            onError={() => setFotoCalleFallida(cuadro.url)}
+          />
+        ) : cuadro.tipo === "google" ? (
           <VisorCalle visor={cuadro.visor} titulo={titulo} />
         ) : (
           <>
@@ -101,11 +113,22 @@ export function GaleriaFotos({ propertyId, imagenRespaldo, titulo, tipo }: Galer
       </div>
 
       {cuadro.tipo === "google" && <p className="vista-calle-nota">{NOTA_VISOR[cuadro.visor.tipo]}</p>}
+      {cuadro.tipo === "foto-calle" && <p className="vista-calle-nota">{NOTA_FOTO_CALLE}</p>}
 
       {cuadros.length > 1 && (
         <div className="galeria-miniaturas">
           {cuadros.map((c, i) =>
-            c.tipo === "google" ? (
+            c.tipo === "foto-calle" ? (
+              <button
+                key="foto-calle"
+                type="button"
+                className={`galeria-miniatura ${i === posicion ? "is-activa" : ""}`}
+                aria-label="Ver la foto de la calle"
+                onClick={() => setActual(i)}
+              >
+                <img src={c.url} alt="" className="foto-calle-fija" />
+              </button>
+            ) : c.tipo === "google" ? (
               <button
                 key="google"
                 type="button"
